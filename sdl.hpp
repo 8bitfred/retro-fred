@@ -51,72 +51,15 @@ namespace sdl {
       : object_ptr::object_ptr(SDL_CreateWindow(title, x, y, w, h, flags)) { }
   };
 
-
-  // class window {
-  //   struct deleter {
-  //     void operator()(SDL_Window *w) { if (w) SDL_DestroyWindow(w); }
-  //   };
-  //   using ptr = std::unique_ptr<SDL_Window, deleter>;
-  //   ptr windowp;
-  // public:
-  //   window(const char *title, int x, int y, int w, int h, Uint32 flags = 0) {
-  //     auto p = SDL_CreateWindow(title, x, y, w, h, flags);
-  //     if (!p)
-  //       throw error();
-  //     windowp = ptr(p, deleter());
-  //   }
-  //   explicit window(SDL_Window* p): windowp(p, deleter()) {}
-  //   operator SDL_Window*() { return windowp.get(); }
-  // };
-
-
-  class renderer {
-    struct deleter {
-      void operator()(SDL_Renderer *r) { if (r) SDL_DestroyRenderer(r); }
-    };
-    using ptr = std::unique_ptr<SDL_Renderer, deleter>;
-    ptr rendererp;
+  class renderer: public object_ptr<SDL_Renderer, SDL_DestroyRenderer> {
   public:
-    renderer(window w, int index = -1, Uint32 flags = 0) {
-      auto p = SDL_CreateRenderer(w, index, flags);
-      if (!p)
-        throw error();
-      rendererp = ptr(p, deleter());
-    }
-    explicit renderer(SDL_Renderer* p): rendererp(p, deleter()) {}
-    operator SDL_Renderer*() { return rendererp.get(); }
+    using object_ptr::object_ptr;
+    renderer(window w, int index = -1, Uint32 flags = 0)
+      : object_ptr::object_ptr(SDL_CreateRenderer(w, index, flags)) { }
   };
 
-
-  class surface {
-    struct deleter {
-      void operator()(SDL_Surface *p) { if (p) SDL_FreeSurface(p); }
-    };
-    using ptr_type = std::unique_ptr<SDL_Surface, deleter>;
-    ptr_type ptr;
-  public:
-    explicit surface(SDL_Surface* p): ptr(p, deleter()) {
-      if (!p)
-        throw error();
-    }
-    operator SDL_Surface*() { return ptr.get(); }
-  };
-
-
-  class texture {
-    struct deleter {
-      void operator()(SDL_Texture *p) { if (p) SDL_DestroyTexture(p); }
-    };
-    using ptr_type = std::unique_ptr<SDL_Texture, deleter>;
-    ptr_type ptr;
-  public:
-    explicit texture(SDL_Texture* p): ptr(p, deleter()) {
-      if (!p)
-        throw error();
-    }
-    operator SDL_Texture*() { return ptr.get(); }
-  };
-
+  using surface = object_ptr<SDL_Surface, SDL_FreeSurface>;
+  using texture = object_ptr<SDL_Texture, SDL_DestroyTexture>;
 
   inline std::pair<window, renderer>
   create_window_and_renderer(int w, int h, Uint32 window_flags = 0) {
