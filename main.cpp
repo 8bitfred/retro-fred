@@ -1,6 +1,6 @@
 #include <iostream>
 #include "sdl.hpp"
-#include "game_map.hpp"
+#include "GameMap.hpp"
 
 // for rendering images and graphics on screen
 #include <SDL2/SDL_image.h>
@@ -11,27 +11,26 @@
 int main(int argc, char *argv[])
 {
     std::minstd_rand random_engine;
-    game_map gmap(random_engine, 33, 33);
-    for (int x = 0; x < 33; ++x) {
-        for (int y = 0; y < 33; ++y) {
-            auto c = gmap.get_cell(game_map::cell_pos{ x, y });
-            if (c == game_map::cell::empty)
+    GameMap gmap(random_engine, 17, 17);
+    for (int x = 0; x < gmap.getWidth(); ++x) {
+        for (int y = 0; y < gmap.getHeight(); ++y) {
+            auto c = gmap.getCell(GameMap::CellPos{ x, y });
+            if (c == GameMap::Cell::empty)
                 std::cout << " ";
             else
                 std::cout << "X";
         }
         std::cout << std::endl;
     }
-    return 0;
 
-    sdl::app my_app;
+    sdl::App my_app;
 
-    auto [window, renderer] = sdl::create_window_and_renderer(5 * 256, 5 * 192);
+    auto [window, renderer] = sdl::createWindowAndRenderer(5 * 256, 5 * 192);
     SDL_RenderSetScale(renderer, 5, 5);
 
-    sdl::surface surface(IMG_Load("sprites/fred_1x_01.png"));
+    sdl::SurfacePtr surface(IMG_Load("sprites/fred_1x_01.png"));
     SDL_SetColorKey(surface, SDL_TRUE, 0);
-    sdl::texture texture(SDL_CreateTextureFromSurface(renderer, surface));
+    sdl::TexturePtr texture(SDL_CreateTextureFromSurface(renderer, surface));
     // sdl::texture texture(IMG_LoadTexture(renderer, "sprites/fred_1x_01c.png"));
     while (1)
     {
