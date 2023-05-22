@@ -9,33 +9,33 @@
 namespace sdl
 {
 
-    class error : public std::runtime_error
+    class Error : public std::runtime_error
     {
     public:
         using std::runtime_error::runtime_error;
-        error() : std::runtime_error(SDL_GetError())
+        Error() : std::runtime_error(SDL_GetError())
         {
             SDL_ClearError();
         }
     };
 
-    class app
+    class App
     {
     public:
-        app(Uint32 flags = SDL_INIT_EVERYTHING)
+        App(Uint32 flags = SDL_INIT_EVERYTHING)
         {
             if (SDL_Init(flags) < 0)
-                throw error();
+                throw Error();
         }
-        ~app() { SDL_Quit(); }
-        app(app const &) = delete;
-        app &operator=(app const &) = delete;
+        ~App() { SDL_Quit(); }
+        App(App const &) = delete;
+        App &operator=(App const &) = delete;
     };
 
     template <typename Type, void (*DestroyFn)(Type *)>
-    class object_ptr
+    class ObjectPtr
     {
-        struct deleter
+        struct Deleter
         {
             void operator()(Type *p)
             {
@@ -43,46 +43,46 @@ namespace sdl
                     DestroyFn(p);
             }
         };
-        using ptr_type = std::unique_ptr<Type, deleter>;
+        using ptr_type = std::unique_ptr<Type, Deleter>;
         ptr_type ptr;
 
     public:
-        explicit object_ptr(Type *p)
+        explicit ObjectPtr(Type *p)
         {
             if (!p)
-                throw error();
+                throw Error();
             ptr = ptr_type(p);
         }
         operator Type *() { return ptr.get(); }
     };
 
-    class window : public object_ptr<SDL_Window, SDL_DestroyWindow>
+    class WindowPtr : public ObjectPtr<SDL_Window, SDL_DestroyWindow>
     {
     public:
-        using object_ptr::object_ptr;
-        window(const char *title, int x, int y, int w, int h, Uint32 flags = 0)
-            : object_ptr::object_ptr(SDL_CreateWindow(title, x, y, w, h, flags)) {}
+        using ObjectPtr::ObjectPtr;
+        WindowPtr(const char *title, int x, int y, int w, int h, Uint32 flags = 0)
+            : ObjectPtr::ObjectPtr(SDL_CreateWindow(title, x, y, w, h, flags)) {}
     };
 
-    class renderer : public object_ptr<SDL_Renderer, SDL_DestroyRenderer>
+    class RendererPtr : public ObjectPtr<SDL_Renderer, SDL_DestroyRenderer>
     {
     public:
-        using object_ptr::object_ptr;
-        renderer(window w, int index = -1, Uint32 flags = 0)
-            : object_ptr::object_ptr(SDL_CreateRenderer(w, index, flags)) {}
+        using ObjectPtr::ObjectPtr;
+        RendererPtr(WindowPtr w, int index = -1, Uint32 flags = 0)
+            : ObjectPtr::ObjectPtr(SDL_CreateRenderer(w, index, flags)) {}
     };
 
-    using surface = object_ptr<SDL_Surface, SDL_FreeSurface>;
-    using texture = object_ptr<SDL_Texture, SDL_DestroyTexture>;
+    using SurfacePtr = ObjectPtr<SDL_Surface, SDL_FreeSurface>;
+    using TexturePtr = ObjectPtr<SDL_Texture, SDL_DestroyTexture>;
 
-    inline std::pair<window, renderer>
-    create_window_and_renderer(int w, int h, Uint32 window_flags = 0)
+    inline std::pair<WindowPtr, RendererPtr>
+    createWindowAndRenderer(int w, int h, Uint32 window_flags = 0)
     {
         SDL_Window *win = nullptr;
         SDL_Renderer *rend = nullptr;
         if (SDL_CreateWindowAndRenderer(w, h, window_flags, &win, &rend) < 0)
-            throw error();
-        return {window(win), renderer(rend)};
+            throw Error();
+        return {WindowPtr(win), RendererPtr(rend)};
     }
 
 } // namespace sdl
