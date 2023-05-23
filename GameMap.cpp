@@ -1,4 +1,5 @@
 #include "GameMap.hpp"
+#include "TextureManager.hpp"
 
 GameMap::GameMap(std::minstd_rand &random_engine, int width, int height)
     : width(width), height(height), contents(width * height)
@@ -14,11 +15,18 @@ GameMap::GameMap(std::minstd_rand &random_engine, int width, int height)
         c = static_cast<Cell>(distrib(random_engine));
 
     std::vector<CellPos> forks;
-    CellPos pos{2*((width - 3) / 4) + 1, 2*((height - 3) / 4) + 1};
+    CellPos pos{2 * ((width - 3) / 4) + 1, 2 * ((height - 3) / 4) + 1};
     setCell(pos, Cell::empty);
-    enum class dir { left, right, up, down };
+    enum class dir
+    {
+        left,
+        right,
+        up,
+        down
+    };
     dir candidates[4];
-    while (true) {
+    while (true)
+    {
         int cand_count = 0;
         auto move_left = pos.hmove(-2);
         auto move_right = pos.hmove(2);
@@ -32,7 +40,8 @@ GameMap::GameMap(std::minstd_rand &random_engine, int width, int height)
             candidates[cand_count++] = dir::up;
         if (move_down.y < height && getCell(move_down) != Cell::empty)
             candidates[cand_count++] = dir::down;
-        if (cand_count == 0) {
+        if (cand_count == 0)
+        {
             if (forks.empty())
                 break;
             pos = forks.back();
@@ -42,29 +51,31 @@ GameMap::GameMap(std::minstd_rand &random_engine, int width, int height)
         dir move;
         if (cand_count == 1)
             move = candidates[0];
-        else {
+        else
+        {
             forks.push_back(pos);
             std::uniform_int_distribution<> selector(0, cand_count - 1);
             move = candidates[selector(random_engine)];
         }
         CellPos step1, step2;
-        switch (move) {
-            case dir::left:
-                step1 = pos.hmove(-1);
-                step2 = move_left;
-                break;
-            case dir::right:
-                step1 = pos.hmove(1);
-                step2 = move_right;
-                break;
-            case dir::up:
-                step1 = pos.vmove(-1);
-                step2 = move_up;
-                break;
-            case dir::down:
-                step1 = pos.vmove(1);
-                step2 = move_down;
-                break;
+        switch (move)
+        {
+        case dir::left:
+            step1 = pos.hmove(-1);
+            step2 = move_left;
+            break;
+        case dir::right:
+            step1 = pos.hmove(1);
+            step2 = move_right;
+            break;
+        case dir::up:
+            step1 = pos.vmove(-1);
+            step2 = move_up;
+            break;
+        case dir::down:
+            step1 = pos.vmove(1);
+            step2 = move_down;
+            break;
         }
         setCell(step1, Cell::empty);
         setCell(step2, Cell::empty);
@@ -72,7 +83,7 @@ GameMap::GameMap(std::minstd_rand &random_engine, int width, int height)
     }
 }
 
-GameMap::Cell GameMap::getCell(CellPos const &pos)
+GameMap::Cell GameMap::getCell(CellPos const &pos) const
 {
     if (pos.y < 0)
         return Cell::sky;
@@ -81,7 +92,81 @@ GameMap::Cell GameMap::getCell(CellPos const &pos)
     return contents[pos.y * width + pos.x];
 }
 
-void GameMap::setCell(CellPos const& pos, Cell c)
+void GameMap::setCell(CellPos const &pos, Cell c)
 {
     contents[pos.y * width + pos.x] = c;
+}
+
+SDL_Texture *GameMap::getTextureOf(TextureManager const &tmgr, CellPos const &pos) const
+{
+    switch (getCell(pos))
+    {
+    case Cell::empty:
+        return nullptr;
+    case Cell::stone1:
+        return tmgr.get(TextureManager::TextureID::stone1);
+    case Cell::stone2:
+        return tmgr.get(TextureManager::TextureID::stone2);
+    case Cell::stone3:
+        return tmgr.get(TextureManager::TextureID::stone3);
+    default:
+        return nullptr;
+    }
+}
+
+void GameMap::render(int x, int y, TextureManager const &tmgr,
+                     SDL_Renderer *renderer, SDL_Rect const *dest)
+{
+    int x_start = x / cell_width;
+    int x_offset = x % cell_width;
+    if (x_offset < 0)
+    {
+        x_start -= 1;
+        x_offset += cell_width;
+    }
+    int y_start = y / cell_height;
+    int y_offset = y % cell_height;
+    if (y_offset < 0)
+    {
+        y_start -= 1;
+        y_offset += cell_height;
+    }
+
+    CellPos cell_pos;
+    cell_pos.y = y_start;
+    SDL_Rect cell_dst;
+    SDL_Rect cell_src;
+    cell_src.y = y_offset;
+    cell_src.h = cell_height - y_offset;
+    for (int rel_y = 0; rel_y < dest->h;)
+    {
+        cell_pos.x = x_start;
+        cell_dst.y = dest->y + rel_y;
+        cell_dst.h = std::min(cell_src.h, dest->h - rel_y);
+        cell_src.h = cell_dst.h;
+
+        cell_src.x = x_offset;
+        cell_src.w = cell_width - x_offset;
+        for (int rel_x = 0; rel_x < dest->w;)
+        {
+            cell_dst.x = dest->x + rel_x;
+            cell_dst.w = std::min(cell_src.w, dest->w - rel_x);
+            cell_src.w = cell_src.w;
+
+            auto texture = getTextureOf(tmgr, cell_pos);
+            if (texture) {
+                SDL_RenderCopy(renderer, texture,
+                               &cell_src, &cell_dst);
+            }
+
+            rel_x += cell_src.w;
+            cell_src.x = 0;
+            cell_src.w = cell_width;
+            ++cell_pos.x;
+        }
+        ++cell_pos.y;
+        rel_y += cell_src.h;
+        cell_src.y = 0;
+        cell_src.h = cell_height;
+    }
 }
