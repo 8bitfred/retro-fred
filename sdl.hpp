@@ -47,13 +47,15 @@ namespace sdl
         ptr_type ptr;
 
     public:
+        ObjectPtr() = default;
         explicit ObjectPtr(Type *p)
         {
             if (!p)
                 throw Error();
             ptr = ptr_type(p);
         }
-        operator Type *() { return ptr.get(); }
+        operator Type *() const { return ptr.get(); }
+        operator bool() const { return ptr; }
     };
 
     class WindowPtr : public ObjectPtr<SDL_Window, SDL_DestroyWindow>
