@@ -9,11 +9,31 @@ GameMap::GameMap(std::minstd_rand &random_engine, int width, int height)
     if ((height % 2) != 1 || height < 5)
         throw std::runtime_error("invalid height");
 
+    initializeMap(random_engine);
+    createMaze(random_engine);
+    setUpTheRopes();
+    setHatchPosition(random_engine);
+}
+
+GameMap::Cell GameMap::getCell(CellPos const &pos) const
+{
+    if (pos.y < 0)
+        return Cell::sky;
+    if (pos.x < 0 || pos.x >= width || pos.y >= height)
+        return Cell::sand;
+    return contents[pos.y * width + pos.x];
+}
+
+void GameMap::initializeMap(std::minstd_rand &random_engine)
+{
     std::uniform_int_distribution<> distrib(static_cast<int>(Cell::stone1),
                                             static_cast<int>(Cell::stone3));
     for (auto &c : contents)
         c = static_cast<Cell>(distrib(random_engine));
+}
 
+void GameMap::createMaze(std::minstd_rand &random_engine)
+{
     std::vector<CellPos> forks;
     CellPos pos{2 * ((width - 3) / 4) + 1, 2 * ((height - 3) / 4) + 1};
     setCell(pos, Cell::empty);
@@ -83,14 +103,48 @@ GameMap::GameMap(std::minstd_rand &random_engine, int width, int height)
     }
 }
 
-GameMap::Cell GameMap::getCell(CellPos const &pos) const
+void GameMap::setUpTheRopes()
 {
-    if (pos.y < 0)
-        return Cell::sky;
-    if (pos.x < 0 || pos.x >= width || pos.y >= height)
-        return Cell::sand;
-    return contents[pos.y * width + pos.x];
+    CellPos c1;
+    for (c1.x = 1; c1.x < getWidth(); c1.x += 2) 
+    {
+        for (c1.y = 1; c1.y < (getHeight() - 2); c1.y += 2)
+        {
+            CellPos c2{c1.x, c1.y + 1};
+            CellPos c3{c1.x, c1.y + 2};
+            if (getCell(c2) == Cell::empty)
+            {
+                setCell(c2, Cell::rope_middle);
+                if (getCell(c1) == Cell::rope_end)
+                    setCell(c1, Cell::rope_middle);
+                else
+                    setCell(c1, Cell::rope_start);
+                setCell(c3, Cell::rope_end);
+            }
+        }
+    }
 }
+
+void GameMap::setHatchPosition(std::minstd_rand &random_engine)
+{
+    std::uniform_int_distribution<> distrib(1, getWidth() - 2);
+    while (true) 
+    {
+        int x = distrib(random_engine);
+        CellPos pos1{x, 1};
+        CellPos pos2{pos1.x - 1, 2};
+        CellPos pos3{pos1.x, 2};
+        CellPos pos4{pos1.x + 1, 2};
+        if (isEmpty(pos1) && isStone(pos2) && isStone(pos3) && isStone(pos4))
+        {
+            CellPos hatch_pos{x, 0};
+            setCell(hatch_pos, Cell::trapdoor);
+            setCell(pos1, Cell::rope_end);
+            return;
+        }
+    }
+}
+
 
 void GameMap::setCell(CellPos const &pos, Cell c)
 {
@@ -109,6 +163,18 @@ SDL_Texture *GameMap::getTextureOf(TextureManager const &tmgr, CellPos const &po
         return tmgr.get(TextureManager::TextureID::stone2);
     case Cell::stone3:
         return tmgr.get(TextureManager::TextureID::stone3);
+    case Cell::rope_start:
+        return tmgr.get(TextureManager::TextureID::rope_start);
+    case Cell::rope_middle:
+        return tmgr.get(TextureManager::TextureID::rope_middle);
+    case Cell::rope_end:
+        return tmgr.get(TextureManager::TextureID::rope_end);
+    case Cell::sky:
+        return tmgr.get(TextureManager::TextureID::sky);
+    case Cell::sand:
+        return tmgr.get(TextureManager::TextureID::sand);
+    case Cell::trapdoor:
+        return tmgr.get(TextureManager::TextureID::trapdoor);
     default:
         return nullptr;
     }

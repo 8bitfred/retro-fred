@@ -37,14 +37,26 @@ public:
     };
     GameMap(std::minstd_rand &random_engine, int size_x, int size_y);
     Cell getCell(CellPos const &pos) const;
+    bool isEmpty(CellPos const &pos) const { return getCell(pos) == Cell::empty; }
+    bool isStone(CellPos const &pos) const {
+        auto c = getCell(pos);
+        return static_cast<int>(c) >= static_cast<int>(Cell::stone1) &&
+               static_cast<int>(c) <= static_cast<int>(Cell::stone3);
+    }
     int getWidth() const { return width; }
     int getHeight() const { return height; }
     void render(int x, int y, TextureManager const &tmgr,
                 SDL_Renderer *renderer, SDL_Rect const *dest);
 
 private:
-    int width, height;
-    std::vector<Cell> contents;
+    void initializeMap(std::minstd_rand &random_engine);
+    void createMaze(std::minstd_rand &random_engine);
+    void setUpTheRopes();
+    void setHatchPosition(std::minstd_rand &random_engine);
+
     void setCell(CellPos const &pos, Cell c);
     SDL_Texture *getTextureOf(TextureManager const& tmgr, CellPos const &pos) const;
+
+    int width, height;
+    std::vector<Cell> contents;
 };

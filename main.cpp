@@ -29,13 +29,13 @@ int main(int argc, char *argv[])
     //sdl::TexturePtr texture(SDL_CreateTextureFromSurface(renderer, surface));
     // sdl::texture texture(IMG_LoadTexture(renderer, "sprites/fred_1x_01c.png"));
     //SDL_Rect dest{0, 0, 5*256, 5*192};
-    SDL_Rect dest{0, 0, 33*32, 33*40};
+    SDL_Rect dest{0, 0, 35*32, 35*40};
     //SDL_SetRenderDrawColor(renderer, 0x30, 0x40, 0x50, 0x10);
     SDL_RenderClear(renderer);
     // SDL_RenderCopy(renderer, fred_app.getTextureManager().get(TextureManager::TextureID::fred), nullptr, &dest);
     // SDL_Rect dest2{14 * 8 + 6, 160, 24, 32};
     // SDL_RenderCopy(renderer, fred_app.getTextureManager().get(TextureManager::TextureID::fred), nullptr, &dest2);
-    gmap.render(0, 0, fred_app.getTextureManager(), fred_app.getRenderer(), &dest);
+    gmap.render(-32, -40, fred_app.getTextureManager(), fred_app.getRenderer(), &dest);
     SDL_RenderPresent(renderer);
 
     while (1)
