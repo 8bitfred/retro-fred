@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project("fred2023")
 
 add_executable(fred main.cpp sdl.hpp
+    Config.cpp Config.hpp
     Application.cpp Application.hpp
     GameMap.cpp GameMap.hpp 
     TextureManager.cpp TextureManager.hpp)
