@@ -11,6 +11,12 @@ public:
         stone1,
         stone2,
         stone3,
+        rope_start,
+        rope_middle,
+        rope_end,
+        sky,
+        sand,
+        trapdoor,
         fred,
         count
     };
