@@ -3,7 +3,7 @@
 #include "sdl.hpp"
 #include "TextureManager.hpp"
 
-class Config;
+struct Config;
 class FredApp : sdl::App
 {
 public:
