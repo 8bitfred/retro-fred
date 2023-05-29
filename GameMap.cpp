@@ -1,5 +1,6 @@
 #include "GameMap.hpp"
 #include "TextureManager.hpp"
+#include <iostream>
 
 GameMap::GameMap(std::minstd_rand &random_engine, int width, int height)
     : width(width), height(height), contents(width * height)
@@ -30,6 +31,10 @@ void GameMap::initializeMap(std::minstd_rand &random_engine)
                                             static_cast<int>(Cell::stone3));
     for (auto &c : contents)
         c = static_cast<Cell>(distrib(random_engine));
+    // To preserve the look of the original game we fill the last column with type 1
+    // stones.
+    for (CellPos pos = {width - 1, 0}; pos.y < height; ++pos.y)
+        setCell(pos, Cell::stone1);
 }
 
 void GameMap::createMaze(std::minstd_rand &random_engine)
@@ -132,10 +137,8 @@ void GameMap::setHatchPosition(std::minstd_rand &random_engine)
     {
         int x = distrib(random_engine);
         CellPos pos1{x, 1};
-        CellPos pos2{pos1.x - 1, 2};
-        CellPos pos3{pos1.x, 2};
-        CellPos pos4{pos1.x + 1, 2};
-        if (isEmpty(pos1) && isStone(pos2) && isStone(pos3) && isStone(pos4))
+        CellPos pos2{pos1.x, 2};
+        if (isEmpty(pos1) && isStone(pos2))
         {
             CellPos hatch_pos{x, 0};
             setCell(hatch_pos, Cell::trapdoor);
@@ -183,56 +186,45 @@ SDL_Texture *GameMap::getTextureOf(TextureManager const &tmgr, CellPos const &po
 void GameMap::render(int x, int y, TextureManager const &tmgr,
                      SDL_Renderer *renderer, SDL_Rect const *dest)
 {
-    int x_start = x / cell_width;
-    int x_offset = x % cell_width;
-    if (x_offset < 0)
-    {
-        x_start -= 1;
-        x_offset += cell_width;
-    }
-    int y_start = y / cell_height;
-    int y_offset = y % cell_height;
-    if (y_offset < 0)
-    {
-        y_start -= 1;
-        y_offset += cell_height;
+    CellPos corner_cell = {x / cell_width, y / cell_height};
+    if (x < 0)
+        --corner_cell.x;
+    if (y < 0)
+        --corner_cell.y;
+
+    // Round x and y down to the closest corner of a cell, then compute those coordinates
+    // with respect to the corner of the screen
+    int round_x = corner_cell.x * cell_width - x;
+    int round_y = corner_cell.y * cell_height - y;
+
+    static bool first = true;
+    if (first) {
+        first = false;
+        std::cout << "round_x=" << round_x << " round_y=" << round_y
+                  << " corner_x=" << corner_cell.x << " corner_y=" << corner_cell.y << std::endl;
     }
 
-    CellPos cell_pos;
-    cell_pos.y = y_start;
-    SDL_Rect cell_dst;
-    SDL_Rect cell_src;
-    cell_src.y = y_offset;
-    cell_src.h = cell_height - y_offset;
-    for (int rel_y = 0; rel_y < dest->h;)
-    {
-        cell_pos.x = x_start;
-        cell_dst.y = dest->y + rel_y;
-        cell_dst.h = std::min(cell_src.h, dest->h - rel_y);
-        cell_src.h = cell_dst.h;
+    CellPos cell_pos = corner_cell;
+    SDL_Rect cell_rect;
+    cell_rect.w = cell_width;
+    cell_rect.h = cell_height;
 
-        cell_src.x = x_offset;
-        cell_src.w = cell_width - x_offset;
-        for (int rel_x = 0; rel_x < dest->w;)
+    for (cell_rect.y = round_y; cell_rect.y < dest->h; cell_rect.y += cell_rect.h) {
+        cell_pos.x = corner_cell.x;
+        for (cell_rect.x = round_x; cell_rect.x < dest->w; cell_rect.x += cell_rect.w)
         {
-            cell_dst.x = dest->x + rel_x;
-            cell_dst.w = std::min(cell_src.w, dest->w - rel_x);
-            cell_src.w = cell_src.w;
-
+            SDL_Rect cell_dst;
+            cell_dst.x = dest->x + cell_rect.x;
+            cell_dst.y = dest->y + cell_rect.y;
+            cell_dst.h = cell_rect.h;
+            cell_dst.w = cell_rect.w;
             auto texture = getTextureOf(tmgr, cell_pos);
             if (texture) {
                 SDL_RenderCopy(renderer, texture,
-                               &cell_src, &cell_dst);
+                               nullptr, &cell_dst);
             }
-
-            rel_x += cell_src.w;
-            cell_src.x = 0;
-            cell_src.w = cell_width;
             ++cell_pos.x;
         }
         ++cell_pos.y;
-        rel_y += cell_src.h;
-        cell_src.y = 0;
-        cell_src.h = cell_height;
     }
 }
