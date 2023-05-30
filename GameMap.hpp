@@ -1,7 +1,6 @@
 #pragma once
 
-#include <stdexcept>
-#include <cstdint>
+#include "Coord.hpp"
 #include <vector>
 #include <random>
 
@@ -13,8 +12,6 @@ class TextureManager;
 class GameMap
 {
 public:
-    static constexpr int cell_width = 32;
-    static constexpr int cell_height = 40;
     enum class Cell : std::uint8_t
     {
         empty,
@@ -29,13 +26,7 @@ public:
         trapdoor
     };
 
-    struct CellPos
-    {
-        int x = 0, y = 0;
-        CellPos hmove(int delta) const { return {x + delta, y}; }
-        CellPos vmove(int delta) const { return {x, y + delta}; }
-    };
-    GameMap(std::minstd_rand &random_engine, int size_x, int size_y);
+    GameMap(std::minstd_rand &random_engine, int width, int height);
     Cell getCell(CellPos const &pos) const;
     bool isEmpty(CellPos const &pos) const { return getCell(pos) == Cell::empty; }
     bool isStone(CellPos const &pos) const {

@@ -3,6 +3,7 @@
 #include "Config.hpp"
 #include "GameMap.hpp"
 #include "Application.hpp"
+#include "Game.hpp"
 
 static constexpr std::uint32_t FRAMES_PER_SECOND = 60;
 
@@ -12,10 +13,12 @@ int main(int argc, char *argv[])
     const Config cfg;
     GameMap gmap(random_engine, cfg.map_width, cfg.map_height);
 
+    Game game_test(cfg, random_engine);
+
     FredApp fred_app(cfg);
     auto renderer = fred_app.getRenderer();
 
-    SDL_Rect dest{cfg.frame_x, cfg.frame_y, cfg.frame_w, cfg.frame_h};
+    SDL_Rect dest{0, 0, cfg.window_width, cfg.window_height};
     int map_x = cfg.map_x;
     int map_y = cfg.map_y;
 

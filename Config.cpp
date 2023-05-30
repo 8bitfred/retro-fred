@@ -13,12 +13,11 @@
 
 
 Config::Config()
-: window_width(5*256)
-, window_height(5*192)
+: window_width(256)
+, window_height(192)
 , scale_x(5)
 , scale_y(5)
 , map_width(33)
 , map_height(33)
-, frame_x(0), frame_y(0), frame_w(256), frame_h(192)
 , map_x(-16), map_y(-16)
 {}
