@@ -6,7 +6,10 @@ add_executable(fred main.cpp sdl.hpp
     Config.cpp Config.hpp
     Application.cpp Application.hpp
     GameMap.cpp GameMap.hpp 
-    TextureManager.cpp TextureManager.hpp)
+    TextureManager.cpp TextureManager.hpp
+    Game.cpp Game.hpp
+    Frame.cpp Frame.hpp
+    Coord.hpp)
 target_link_libraries(fred -lSDL2 -lSDL2_image)
 target_include_directories(fred PUBLIC /usr/include/SDL2)
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)

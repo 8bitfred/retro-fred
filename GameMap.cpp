@@ -186,7 +186,8 @@ SDL_Texture *GameMap::getTextureOf(TextureManager const &tmgr, CellPos const &po
 void GameMap::render(int x, int y, TextureManager const &tmgr,
                      SDL_Renderer *renderer, SDL_Rect const *dest)
 {
-    CellPos corner_cell = {x / cell_width, y / cell_height};
+    CellPos corner_cell = {x / MapPixelPos::CELL_WIDTH_PIXELS,
+                           y / MapPixelPos::CELL_HEIGHT_PIXELS};
     if (x < 0)
         --corner_cell.x;
     if (y < 0)
@@ -194,8 +195,8 @@ void GameMap::render(int x, int y, TextureManager const &tmgr,
 
     // Round x and y down to the closest corner of a cell, then compute those coordinates
     // with respect to the corner of the screen
-    int round_x = corner_cell.x * cell_width - x;
-    int round_y = corner_cell.y * cell_height - y;
+    int round_x = corner_cell.x * MapPixelPos::CELL_WIDTH_PIXELS - x;
+    int round_y = corner_cell.y * MapPixelPos::CELL_HEIGHT_PIXELS - y;
 
     static bool first = true;
     if (first) {
@@ -206,8 +207,8 @@ void GameMap::render(int x, int y, TextureManager const &tmgr,
 
     CellPos cell_pos = corner_cell;
     SDL_Rect cell_rect;
-    cell_rect.w = cell_width;
-    cell_rect.h = cell_height;
+    cell_rect.w = MapPixelPos::CELL_WIDTH_PIXELS;
+    cell_rect.h = MapPixelPos::CELL_HEIGHT_PIXELS;
 
     for (cell_rect.y = round_y; cell_rect.y < dest->h; cell_rect.y += cell_rect.h) {
         cell_pos.x = corner_cell.x;
