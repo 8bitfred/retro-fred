@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Coord.hpp"
+#include "Sprite.hpp"
 #include <vector>
 #include <random>
 
@@ -8,6 +9,7 @@ struct SDL_Rect;
 struct SDL_Renderer;
 struct SDL_Texture;
 class TextureManager;
+class Frame;
 
 class GameMap
 {
@@ -38,6 +40,16 @@ public:
     int getHeight() const { return height; }
     void render(int x, int y, TextureManager const &tmgr,
                 SDL_Renderer *renderer, SDL_Rect const *dest);
+    void initializeMapBlocks(TextureManager const &tmgr,
+                             Frame const &frame, SpriteList &block_list) const;
+    void updateMapBlocksLeft(TextureManager const &tmgr,
+                             Frame const &frame, SpriteList &block_list) const;
+    void updateMapBlocksRight(TextureManager const &tmgr,
+                              Frame const &frame, SpriteList &block_list) const;
+   void updateMapBlocksUp(TextureManager const &tmgr,
+                          Frame const &frame, SpriteList &block_list) const;
+   void updateMapBlocksDown(TextureManager const &tmgr,
+                            Frame const &frame, SpriteList &block_list) const;
 
 private:
     void initializeMap(std::minstd_rand &random_engine);
@@ -47,6 +59,11 @@ private:
 
     void setCell(CellPos const &pos, Cell c);
     SDL_Texture *getTextureOf(TextureManager const& tmgr, CellPos const &pos) const;
+
+    bool addMapBlock(TextureManager const &tmgr,
+                     Frame const &frame, SpriteList &block_list,
+                     int offset_x, int offset_y) const;
+    void removeNonVisibleBlocks(Frame const &frame, SpriteList &block_list) const;
 
     int width, height;
     std::vector<Cell> contents;

@@ -9,7 +9,9 @@ add_executable(fred main.cpp sdl.hpp
     TextureManager.cpp TextureManager.hpp
     Game.cpp Game.hpp
     Frame.cpp Frame.hpp
-    Coord.hpp)
+    Coord.hpp
+    Sprite.cpp Sprite.hpp
+    Block.cpp Block.hpp)
 target_link_libraries(fred -lSDL2 -lSDL2_image)
 target_include_directories(fred PUBLIC /usr/include/SDL2)
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)

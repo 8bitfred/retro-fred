@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cassert>
 
 // Coordinates of a cell within the map
 struct CellPos
@@ -20,6 +21,10 @@ struct MapPos
     int y = 0;
     int cx = 0;
     int cy = 0;
+    void left() { if (cx == 0) { cx = CELL_WIDTH - 1; --x; } else --cx; }
+    void right() { if (cx == (CELL_WIDTH - 1)) { cx = 0;  ++x; } else ++cx; }
+    void up() { if (cy == 0) { cy = CELL_HEIGHT - 1; --y; } else --cy; }
+    void down() { if (cy == (CELL_HEIGHT - 1)) { cy = 0; ++y; } else ++cy; }
 };
 
 // Coordinates in pixels, referenced to the map
@@ -45,3 +50,22 @@ struct ScreenPos
     ScreenPos() = default;
     ScreenPos(int x, int y) : x(x), y(y) {}
 };
+
+
+// Convenience function to get the celing of a division
+inline constexpr int ceil_of_div(int x, int y) {
+    assert(y > 1);
+    return (x + y - 1) / y;
+}
+
+inline constexpr int round_down(int x, int y)
+{
+    assert(x > 1);
+    return (x / y) * y;
+}
+
+inline constexpr int round_up(int x, int y)
+{
+    assert(x > 1);
+    return ceil_of_div(x, y) * y;
+}

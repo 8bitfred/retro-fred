@@ -1,5 +1,7 @@
 #include "GameMap.hpp"
 #include "TextureManager.hpp"
+#include "Frame.hpp"
+#include "Block.hpp"
 #include <iostream>
 
 GameMap::GameMap(std::minstd_rand &random_engine, int width, int height)
@@ -227,5 +229,114 @@ void GameMap::render(int x, int y, TextureManager const &tmgr,
             ++cell_pos.x;
         }
         ++cell_pos.y;
+    }
+}
+
+void GameMap::initializeMapBlocks(TextureManager const &tmgr,
+                                  Frame const &frame, SpriteList &block_list) const
+{
+    int offset_x = 0, offset_y = 0;
+    while (true) {
+        if (!addMapBlock(tmgr, frame, block_list, offset_x, offset_y))
+            break;
+        while (true) {
+            ++offset_x;
+            if (!addMapBlock(tmgr, frame, block_list, offset_x, offset_y))
+                break;
+        }
+        offset_x = 0;
+        ++offset_y;
+    }
+}
+
+bool GameMap::addMapBlock(TextureManager const &tmgr,
+                          Frame const &frame, SpriteList &block_list,
+                          int offset_x, int offset_y) const
+{
+    MapPos sprite_pos = {frame.getFrame().x + offset_x, frame.getFrame().y + offset_y, 0, 0};
+    auto screen_pos = frame.getScreenPosOf(sprite_pos);
+    std::cout << "Trying to add new block x=" << sprite_pos.x
+              << " y=" << sprite_pos.y
+              << " cx=" << sprite_pos.cx
+              << " cy=" << sprite_pos.cy
+              << " screen.x=" << screen_pos.x
+              << " screen.y=" << screen_pos.y
+              << " visible_x=" << (screen_pos.x < frame.getBottomRight().x)
+              << " visible_y=" << (screen_pos.y < frame.getBottomRight().y)
+              << std::endl;
+    if (screen_pos.y >= frame.getBottomRight().y)
+        return false;
+    if (screen_pos.x >= frame.getBottomRight().x)
+        return false;
+    CellPos cell_pos = {sprite_pos.x, sprite_pos.y};
+    auto texture = getTextureOf(tmgr, cell_pos);
+    if (texture)
+        block_list.emplace_back(std::make_unique<Block>(frame, sprite_pos, texture));
+    std::cout << "returning true" << std::endl;
+    return true;
+}
+
+void GameMap::removeNonVisibleBlocks(Frame const &frame, SpriteList &block_list) const
+{
+    for (size_t i = 0; i < block_list.size(); ++i) {
+        if (!block_list[i]->isVisible(frame))
+        {
+            std::swap(block_list[i], block_list.back());
+            block_list.pop_back();
+        }
+    }
+}
+
+void GameMap::updateMapBlocksLeft(TextureManager const &tmgr,
+                                  Frame const &frame, SpriteList &block_list) const
+{
+    removeNonVisibleBlocks(frame, block_list);
+    if (frame.needsNewLeftCol())
+    {
+        for (int offset_y = 0;
+             addMapBlock(tmgr, frame, block_list, 0, offset_y);
+             ++offset_y)
+            ;
+    }
+}
+
+void GameMap::updateMapBlocksRight(TextureManager const &tmgr,
+                                   Frame const &frame, SpriteList &block_list) const
+{
+    removeNonVisibleBlocks(frame, block_list);
+    if (frame.needsNewRightCol())
+    {
+        for (int offset_y = 0;
+             addMapBlock(tmgr, frame, block_list, frame.newRightColOffset(), offset_y);
+             ++offset_y)
+            ;
+    }
+}
+
+
+void GameMap::updateMapBlocksUp(TextureManager const &tmgr,
+                                Frame const &frame, SpriteList &block_list) const
+{
+    removeNonVisibleBlocks(frame, block_list);
+    if (frame.needsNewTopRow())
+    {
+        for (int offset_x = 0;
+             addMapBlock(tmgr, frame, block_list, offset_x, 0);
+             ++offset_x)
+            ;
+    }
+}
+
+
+void GameMap::updateMapBlocksDown(TextureManager const &tmgr,
+                                  Frame const &frame, SpriteList &block_list) const
+{
+    removeNonVisibleBlocks(frame, block_list);
+    if (frame.needsNewBottomRow())
+    {
+        for (int offset_x = 0;
+             addMapBlock(tmgr, frame, block_list, offset_x, frame.newBottomRowOffset());
+             ++offset_x)
+            ;
     }
 }
