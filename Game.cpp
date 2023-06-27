@@ -1,15 +1,12 @@
 #include "Game.hpp"
 #include "Config.hpp"
+#include "Fred.hpp"
+#include "Actions.hpp"
 #include <iostream>
 #include <cstdio>
 
 namespace
 {
-    static constexpr unsigned ACTION_LEFT = 0x01;
-    static constexpr unsigned ACTION_RIGHT = 0x02;
-    static constexpr unsigned ACTION_UP = 0x04;
-    static constexpr unsigned ACTION_DOWN = 0x08;
-
     unsigned getActionOfKey(SDL_Keycode keycode)
     {
         switch (keycode)
@@ -35,15 +32,37 @@ Game::Game(Config const &cfg, std::minstd_rand &random_engine,
     , frame(cfg), game_map(random_engine, cfg.map_width, cfg.map_height)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
 {
+    initializeFred(random_engine);
     game_map.initializeMapBlocks(tmgr, frame,
                                  getSpriteList(SpriteClass::BLOCK));
+}
+
+void Game::initializeFred(std::minstd_rand &random_engine)
+{
+    CellPos fred_cell_position = {0, game_map.getHeight() - 2};
+    std::uniform_int_distribution<> distrib(1, game_map.getWidth() - 2);
+    while (true) 
+    {
+        int x = distrib(random_engine);
+        fred_cell_position.x = distrib(random_engine);
+        if (game_map.isEmpty(fred_cell_position))
+            break;
+    }
+    MapPos fred_initial_position = {fred_cell_position.x, fred_cell_position.y, 0, 1};
+    getSpriteList(SpriteClass::FRED).emplace_back(std::make_unique<Fred>(frame, fred_initial_position));
+    frame.adjustFramePos(fred_initial_position);
+}
+
+Fred *Game::getFred() 
+{ 
+    return dynamic_cast<Fred *>(getSpriteList(SpriteClass::FRED).front().get()); 
 }
 
 void Game::renderSprites(SDL_Renderer *renderer) const
 {
     for (auto const &sprites: sprite_lists) {
         for (auto const &s: sprites)
-            s->render(frame, renderer);
+            s->render(frame, tmgr, renderer);
     }
 }
 
@@ -53,6 +72,7 @@ void Game::mainLoop(SDL_Renderer *renderer)
     std::uint32_t frame_count = 0;
     bool quit = false;
     unsigned action = 0;
+    auto fred = getFred();
     while (!quit)
     {
         SDL_Event event;
@@ -77,24 +97,18 @@ void Game::mainLoop(SDL_Renderer *renderer)
         }
 
         action_this_cycle |= action;
-        if ((action_this_cycle & ACTION_RIGHT) != 0)
-        {
-            frame.right();
+        auto [deltax, deltay] = fred->updateFred(game_map, action_this_cycle);
+        frame.moveFrame(deltax, deltay);
+        if (deltax > 0)
             game_map.updateMapBlocksRight(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
-        }
-        if ((action_this_cycle & ACTION_LEFT) != 0) {
-            frame.left();
+        else if (deltax < 0)
             game_map.updateMapBlocksLeft(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
-        }
-        if ((action_this_cycle & ACTION_UP) != 0) {
-            frame.up();
-            game_map.updateMapBlocksUp(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
-        }
-        if ((action_this_cycle & ACTION_DOWN) != 0) {
-            frame.down();
+        if (deltay > 0)
             game_map.updateMapBlocksDown(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
-        }
-        if (action_this_cycle != 0) {
+        else if (deltay < 0)
+            game_map.updateMapBlocksUp(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
+        if (action_this_cycle != 0)
+        {
             std::cout << "frame: x=" << frame.getFrame().x << " y=" << frame.getFrame().y
                       << " cx=" << frame.getFrame().cx << " cy=" << frame.getFrame().cy
                       << std::endl;

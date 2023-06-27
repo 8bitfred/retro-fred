@@ -21,10 +21,29 @@ struct MapPos
     int y = 0;
     int cx = 0;
     int cy = 0;
-    void left() { if (cx == 0) { cx = CELL_WIDTH - 1; --x; } else --cx; }
-    void right() { if (cx == (CELL_WIDTH - 1)) { cx = 0;  ++x; } else ++cx; }
-    void up() { if (cy == 0) { cy = CELL_HEIGHT - 1; --y; } else --cy; }
-    void down() { if (cy == (CELL_HEIGHT - 1)) { cy = 0; ++y; } else ++cy; }
+    CellPos cellPos() const { return {x, y}; }
+    void xadd(int delta) {
+        cx += delta;
+        if (cx < 0) {
+            cx = CELL_WIDTH - 1;
+            --x;
+        }
+        else {
+            x += cx / CELL_WIDTH;
+            cx %= CELL_WIDTH;
+        }
+    }
+    void yadd(int delta) {
+        cy += delta;
+        if (cy < 0) {
+            cy = CELL_HEIGHT - 1;
+            --y;
+        }
+        else {
+            y += cy / CELL_HEIGHT;
+            cy %= CELL_HEIGHT;
+        }
+    }
 };
 
 // Coordinates in pixels, referenced to the map

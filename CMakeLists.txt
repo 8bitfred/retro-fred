@@ -11,8 +11,15 @@ add_executable(fred main.cpp sdl.hpp
     Frame.cpp Frame.hpp
     Coord.hpp
     Sprite.cpp Sprite.hpp
-    Block.cpp Block.hpp)
+    Block.cpp Block.hpp
+    Fred.cpp Fred.hpp)
 target_link_libraries(fred -lSDL2 -lSDL2_image)
 target_include_directories(fred PUBLIC /usr/include/SDL2)
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)
 set_property(TARGET fred PROPERTY CXX_STANDARD_REQUIRED True)
+
+if (MSVC)
+    add_compile_options(/W4 /WX)
+else()
+    add_compile_options(-Wall -Wextra -pedantic -Werror)
+endif()

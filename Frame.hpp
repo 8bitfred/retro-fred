@@ -16,6 +16,12 @@ public:
     ScreenPos getScreenPosOf(MapPos const &sprite_pos) const;
 
     MapPos const &getFrame() const { return gFrame; }
+    void moveFrame(int deltax, int deltay)
+    {
+        gFrame.xadd(deltax);
+        gFrame.yadd(deltay);
+    }
+    void adjustFramePos(MapPos fred_pos);
 
     bool needsNewLeftCol() const { return gFrame.cx == gNewLeftCol_cx; }
     bool needsNewRightCol() const { return gFrame.cx == gNewRightCol_cx; }
@@ -23,10 +29,6 @@ public:
     bool needsNewTopRow() const { return gFrame.cy == gNewTopRow_cy; }
     bool needsNewBottomRow() const { return gFrame.cy == gNewBottomRow_cy; }
     int newBottomRowOffset() const { return gNewBottomRowOffset; }
-    void left() { gFrame.left(); }
-    void right() { gFrame.right(); }
-    void up() { gFrame.up(); }
-    void down() { gFrame.down(); }
 
 private:
     // Position of F, in map coordinates
@@ -34,8 +36,6 @@ private:
     // Position of the game window
     ScreenPos top_left;      // (x2, y1), top left corner of the game window
     ScreenPos bottom_right;  // (x1, y2), bottom right corner of the game window
-    // Position of the Fred character in the screen
-    ScreenPos gFredPos;
     // Offset of the Fred character with respect to gFrame
     int gFredOffset_x, gFredOffset_y;
     // Position of the F point in screen coordinates

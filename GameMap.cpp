@@ -156,32 +156,30 @@ void GameMap::setCell(CellPos const &pos, Cell c)
     contents[pos.y * width + pos.x] = c;
 }
 
-SDL_Texture *GameMap::getTextureOf(TextureManager const &tmgr, CellPos const &pos) const
+TextureID GameMap::getTextureIDOf(CellPos const &pos) const
 {
     switch (getCell(pos))
     {
-    case Cell::empty:
-        return nullptr;
     case Cell::stone1:
-        return tmgr.get(TextureManager::TextureID::stone1);
+        return TextureID::BLOCK_STONE1;
     case Cell::stone2:
-        return tmgr.get(TextureManager::TextureID::stone2);
+        return TextureID::BLOCK_STONE2;
     case Cell::stone3:
-        return tmgr.get(TextureManager::TextureID::stone3);
+        return TextureID::BLOCK_STONE3;
     case Cell::rope_start:
-        return tmgr.get(TextureManager::TextureID::rope_start);
+        return TextureID::BLOCK_ROPE_START;
     case Cell::rope_middle:
-        return tmgr.get(TextureManager::TextureID::rope_middle);
+        return TextureID::BLOCK_ROPE_MIDDLE;
     case Cell::rope_end:
-        return tmgr.get(TextureManager::TextureID::rope_end);
+        return TextureID::BLOCK_ROPE_END;
     case Cell::sky:
-        return tmgr.get(TextureManager::TextureID::sky);
+        return TextureID::BLOCK_SKY;
     case Cell::sand:
-        return tmgr.get(TextureManager::TextureID::sand);
+        return TextureID::BLOCK_SAND;
     case Cell::trapdoor:
-        return tmgr.get(TextureManager::TextureID::trapdoor);
+        return TextureID::BLOCK_TRAPDOOR;
     default:
-        return nullptr;
+        assert(false);
     }
 }
 
@@ -221,8 +219,10 @@ void GameMap::render(int x, int y, TextureManager const &tmgr,
             cell_dst.y = dest->y + cell_rect.y;
             cell_dst.h = cell_rect.h;
             cell_dst.w = cell_rect.w;
-            auto texture = getTextureOf(tmgr, cell_pos);
-            if (texture) {
+            if (!isEmpty(cell_pos))
+            {
+                auto texture_id = getTextureIDOf(cell_pos);
+                auto texture = tmgr.get(texture_id);
                 SDL_RenderCopy(renderer, texture,
                                nullptr, &cell_dst);
             }
@@ -269,9 +269,11 @@ bool GameMap::addMapBlock(TextureManager const &tmgr,
     if (screen_pos.x >= frame.getBottomRight().x)
         return false;
     CellPos cell_pos = {sprite_pos.x, sprite_pos.y};
-    auto texture = getTextureOf(tmgr, cell_pos);
-    if (texture)
-        block_list.emplace_back(std::make_unique<Block>(frame, sprite_pos, texture));
+    if (!isEmpty(cell_pos))
+    {
+        auto texture_id = getTextureIDOf(cell_pos);
+        block_list.emplace_back(std::make_unique<Block>(frame, sprite_pos, texture_id));
+    }
     std::cout << "returning true" << std::endl;
     return true;
 }

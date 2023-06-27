@@ -1,12 +1,14 @@
 #pragma once
 
 #include "Coord.hpp"
+#include "TextureID.hpp"
 #include <vector>
 #include <SDL.h>
 #include <memory>
 
 
 class Frame;
+class TextureManager;
 
 class Sprite
 {
@@ -15,11 +17,12 @@ public:
         int x = 0, y = 0;
     };
     bool isVisible(Frame const &frame) const;
-    void render(Frame const &frame, SDL_Renderer *renderer) const;
+    void render(Frame const &frame, TextureManager const &tmgr,
+                SDL_Renderer *renderer) const;
 
 protected:
     Sprite(Frame const &frame, MapPos const &pos, int char_width, int char_height);
-    virtual std::pair<SDL_Texture *, CenterPos> getTexture() const = 0;
+    virtual std::pair<TextureID, CenterPos> getTexture() const = 0;
 
     // sSprite
     MapPos sSpritePos;
@@ -33,6 +36,7 @@ private:
 enum class SpriteClass
 {
     BLOCK,
+    FRED,
     COUNT
 };
 
