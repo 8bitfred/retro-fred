@@ -2,24 +2,11 @@
 
 #include <vector>
 #include "sdl.hpp"
+#include "TextureID.hpp"
 
 class TextureManager
 {
 public:
-    enum class TextureID
-    {
-        stone1,
-        stone2,
-        stone3,
-        rope_start,
-        rope_middle,
-        rope_end,
-        sky,
-        sand,
-        trapdoor,
-        fred,
-        count
-    };
     explicit TextureManager(SDL_Renderer *renderer);
     SDL_Texture *get(TextureID texture_id) const
     {

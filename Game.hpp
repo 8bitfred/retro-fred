@@ -6,10 +6,11 @@
 #include <vector>
 
 class TextureManager;
+class Fred;
 class Game
 {
 public:
-    static constexpr std::uint32_t FRAMES_PER_SECOND = 2;
+    static constexpr std::uint32_t FRAMES_PER_SECOND = 5;
 
     Game(Config const &cfg, std::minstd_rand &random_engine, TextureManager const &tmgr);
     SpriteList &getSpriteList(SpriteClass sprite_class)
@@ -20,6 +21,9 @@ public:
     void mainLoop(SDL_Renderer *renderer);
 
 private:
+    void initializeFred(std::minstd_rand &random_engine);
+    Fred *getFred();
+
     TextureManager const &tmgr;
     Frame frame;
     GameMap game_map;

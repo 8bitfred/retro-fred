@@ -47,8 +47,8 @@
 //     4 |  X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X      |
 //     --+-------+-------+-------+-------+-------+-------+-------+-------+-------+--
 //
-// Our main character, Fred, is always placed on the center of the screen. Member variable
-// gFredPos contains the screen coordinates of Fred.
+// Our main character, Fred, is always placed on the center of the screen. Local variable
+// fred_pos contains the screen coordinates of Fred.
 //
 // We use the F point to determine which part of the map should be shown in the scren. We
 // define the F point to be an integer number of cells to the left and to the top of Fred,
@@ -144,21 +144,22 @@ Frame::Frame(Config const &cfg)
     bottom_right.y = cfg.window_height - MapPixelPos::PIXELS_PER_CHAR;              // y2
 
     // Position of Fred: in the center of the screen, rounded down to a character
-    //   (in the example: gFredPos.x = 88, gFredPos.y = 72)
+    //   (in the example: fred_pos.x = 88, fred_pos.y = 72)
     auto center_x = (top_left.x + bottom_right.x - MapPixelPos::CELL_WIDTH_PIXELS) / 2;
-    gFredPos.x = round_down(center_x, MapPixelPos::PIXELS_PER_CHAR);
+    ScreenPos fred_pos;
+    fred_pos.x = round_down(center_x, MapPixelPos::PIXELS_PER_CHAR);
     auto center_y = (top_left.y + bottom_right.y - MapPixelPos::CELL_HEIGHT_PIXELS) / 2;
-    gFredPos.y = round_down(center_y, MapPixelPos::PIXELS_PER_CHAR);
+    fred_pos.y = round_down(center_y, MapPixelPos::PIXELS_PER_CHAR);
     // We want F to be an integer number of cells fom the left and top of the Fred sprite,
     // so we calculate how many cells Fred is from F
     //   (in the example gFredOffset_x = 3, gFredOffset_y = 2)
-    gFredOffset_x = ceil_of_div(gFredPos.x - top_left.x, MapPixelPos::CELL_WIDTH_PIXELS);
-    gFredOffset_y = ceil_of_div(gFredPos.y - top_left.y, MapPixelPos::CELL_HEIGHT_PIXELS);
+    gFredOffset_x = ceil_of_div(fred_pos.x - top_left.x, MapPixelPos::CELL_WIDTH_PIXELS);
+    gFredOffset_y = ceil_of_div(fred_pos.y - top_left.y, MapPixelPos::CELL_HEIGHT_PIXELS);
     // Coordinates of F, with reference to the screen (S), based on the position of Fred
     // in the Screen
     //   (in the example: gFramePos.x = -8, gFramePos.y = -8)
-    gFramePos.x = gFredPos.x - gFredOffset_x * MapPixelPos::CELL_WIDTH_PIXELS;
-    gFramePos.y = gFredPos.y - gFredOffset_y * MapPixelPos::CELL_HEIGHT_PIXELS;
+    gFramePos.x = fred_pos.x - gFredOffset_x * MapPixelPos::CELL_WIDTH_PIXELS;
+    gFramePos.y = fred_pos.y - gFredOffset_y * MapPixelPos::CELL_HEIGHT_PIXELS;
     // Note that gFramePos.x and gFramePos.y are always less than or equal to 0.
 
     // Value of gFrame.cx that triggers drawing a column of blocks on the left of the
@@ -190,8 +191,8 @@ Frame::Frame(Config const &cfg)
               << " bottom_right.x (x1)=" << bottom_right.x
               << " bottom_right.y (y2)=" << bottom_right.y
               << std::endl
-              << " gFredPos.x=" << gFredPos.x
-              << " gFredPos.y=" << gFredPos.y
+              << " fred_pos.x=" << fred_pos.x
+              << " fred_pos.y=" << fred_pos.y
               << std::endl
               << " gFredOffset_x=" << gFredOffset_x
               << " gFredOffset_y=" << gFredOffset_y
@@ -219,4 +220,12 @@ ScreenPos Frame::getScreenPosOf(MapPos const &sprite_pos) const
              (sprite_pos.y - gFrame.y) * MapPixelPos::CELL_HEIGHT_PIXELS +
              (sprite_pos.cy - gFrame.cy) * MapPixelPos::PIXELS_PER_CHAR;
     return spos;
+}
+
+void Frame::adjustFramePos(MapPos fred_pos)
+{
+    gFrame = {fred_pos.x - gFredOffset_x,
+              fred_pos.y - gFredOffset_y,
+              fred_pos.cx,
+              fred_pos.cy};
 }

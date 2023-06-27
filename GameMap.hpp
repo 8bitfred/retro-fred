@@ -8,7 +8,6 @@
 struct SDL_Rect;
 struct SDL_Renderer;
 struct SDL_Texture;
-class TextureManager;
 class Frame;
 
 class GameMap
@@ -58,7 +57,7 @@ private:
     void setHatchPosition(std::minstd_rand &random_engine);
 
     void setCell(CellPos const &pos, Cell c);
-    SDL_Texture *getTextureOf(TextureManager const& tmgr, CellPos const &pos) const;
+    TextureID getTextureIDOf(CellPos const &pos) const;
 
     bool addMapBlock(TextureManager const &tmgr,
                      Frame const &frame, SpriteList &block_list,

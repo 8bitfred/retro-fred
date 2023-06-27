@@ -1,6 +1,7 @@
 #include "Sprite.hpp"
 #include "Frame.hpp"
 #include "sdl.hpp"
+#include "TextureManager.hpp"
 
 Sprite::Sprite(Frame const &frame, MapPos const &pos,
                int char_width, int char_height)
@@ -18,13 +19,13 @@ bool Sprite::isVisible(Frame const &frame) const
            spos.x < sMaxPos.x && spos.y < sMaxPos.y;
 }
 
-void Sprite::render(Frame const &frame, SDL_Renderer *renderer) const
+void Sprite::render(Frame const &frame, TextureManager const &tmgr,
+                    SDL_Renderer *renderer) const
 {
     if (!isVisible(frame))
         return;
-    auto [texture, center_pos] = getTexture();
-    if (!texture)
-        return;
+    auto [texture_id, center_pos] = getTexture();
+    auto texture = tmgr.get(texture_id);
     SDL_Rect rect;
     auto spos = frame.getScreenPosOf(sSpritePos);
     rect.x = spos.x - center_pos.x;

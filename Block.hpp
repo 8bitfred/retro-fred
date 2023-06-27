@@ -4,11 +4,14 @@
 
 class Block: public Sprite {
 public:
-    Block(Frame const &frame, MapPos const &pos, SDL_Texture *texture);
+    Block(Frame const &frame, MapPos const &pos, TextureID texture_id);
 
 protected:
-    std::pair<SDL_Texture *, CenterPos> getTexture() const override;
+    std::pair<TextureID, CenterPos> getTexture() const override
+    {
+        return {texture_id, {}};
+    }
 
 private:
-    SDL_Texture *texture;
+    TextureID texture_id;
 };
