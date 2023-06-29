@@ -22,7 +22,6 @@ private:
         SIDE_JUMP,
         REST_ON_THE_ROPE,
         ROPE_CLIMB,
-        FIRE,
         EXIT_MAZE,
     };
     enum class Direction : std::uint8_t

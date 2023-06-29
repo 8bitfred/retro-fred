@@ -19,8 +19,8 @@ std::pair<TextureID, Sprite::CenterPos> Fred::getTexture() const
                 {TextureID::FRED_LEFT_SMALL_STEP, {}},
                 {TextureID::FRED_LEFT_CLIMBING1, {}},
                 {TextureID::FRED_LEFT_CLIMBING2, {}},
-                {TextureID::FRED_LEFT_SHOOTING, {}},
-                {TextureID::FRED_LEFT_JUMP_SHOOTING, {}},
+                {TextureID::FRED_LEFT_SHOOTING, {8, 0}},
+                {TextureID::FRED_LEFT_JUMP_SHOOTING, {8, 0}},
             },
             {
                 {TextureID::FRED_RIGHT_STANDING, {}},
@@ -28,8 +28,8 @@ std::pair<TextureID, Sprite::CenterPos> Fred::getTexture() const
                 {TextureID::FRED_RIGHT_SMALL_STEP, {}},
                 {TextureID::FRED_RIGHT_CLIMBING1, {}},
                 {TextureID::FRED_RIGHT_CLIMBING2, {}},
-                {TextureID::FRED_RIGHT_SHOOTING, {}},
-                {TextureID::FRED_RIGHT_JUMP_SHOOTING, {}},
+                {TextureID::FRED_RIGHT_SHOOTING, {0, 0}},
+                {TextureID::FRED_RIGHT_JUMP_SHOOTING, {0, 0}},
             },
         };
     return textures[static_cast<int>(direction)][static_cast<int>(type)];
@@ -59,6 +59,7 @@ std::pair<int, int> Fred::updateRestOnFoot(GameMap const &game_map, unsigned act
 {
     if (action != 0)
         return updateWalk(game_map, action);
+    type = Type::STANDING;
     return {0, 0};
 }
 
@@ -116,6 +117,12 @@ std::pair<int, int> Fred::updateWalk(GameMap const &game_map, unsigned action)
         sStage = 3;
         return {0, 0};
     }
+    else if ((action & ACTION_FIRE) != 0)
+    {
+        type = Type::SHOOTING;
+        sState = State::REST_ON_FOOT;
+        return {0, 0};
+    }
     type = Type::STANDING;
     sState = State::REST_ON_FOOT;
     return {0, 0};
@@ -132,9 +139,19 @@ std::pair<int, int> Fred::updateVerticalJump(GameMap const &game_map, unsigned a
         }
         else {
             sSpritePos.yadd(1);
-            type = Type::STANDING;
+            if ((action & ACTION_FIRE) != 0)
+                type = Type::SHOOTING;
+            else
+                type = Type::STANDING;
             sState = State::REST_ON_FOOT;
         }
+    }
+    else 
+    {
+        if ((action & ACTION_FIRE) != 0)
+            type = Type::JUMP_SHOOTING;
+        else
+            type = Type::BIG_STEP;
     }
     return {0, 0};
 }
@@ -148,8 +165,11 @@ std::pair<int, int> Fred::updateSideJump(GameMap const &game_map, unsigned actio
     {
         if (game_map.getCell(sSpritePos.cellPos()) == GameMap::Cell::empty)
         {
-            type = Type::STANDING;
             sSpritePos.yadd(1);
+            if ((action & ACTION_FIRE) != 0)
+                type = Type::SHOOTING;
+            else
+                type = Type::STANDING;
             sState = State::REST_ON_FOOT;
         }
         else 
@@ -157,6 +177,13 @@ std::pair<int, int> Fred::updateSideJump(GameMap const &game_map, unsigned actio
             type = Type::CLIMBING1;
             sState = State::REST_ON_THE_ROPE;
         }
+    }
+    else 
+    {
+        if ((action & ACTION_FIRE) != 0)
+            type = Type::JUMP_SHOOTING;
+        else
+            type = Type::BIG_STEP;
     }
     return {xdelta, 0};
 }

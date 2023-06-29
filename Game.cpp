@@ -19,6 +19,8 @@ namespace
             return ACTION_LEFT;
         case SDLK_RIGHT:
             return ACTION_RIGHT;
+        case SDLK_SPACE:
+            return ACTION_FIRE;
         default:
             return 0;
         }
