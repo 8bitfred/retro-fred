@@ -14,7 +14,7 @@ protected:
     std::pair<TextureID, CenterPos> getTexture() const override;
 
 private:
-    enum class State
+    enum class State : uint8_t
     {
         REST_ON_FOOT,
         WALK,
@@ -24,13 +24,12 @@ private:
         ROPE_CLIMB,
         EXIT_MAZE,
     };
-    enum class Direction : std::uint8_t
+    enum class FrameDir : std::int8_t
     {
-        LEFT = 0,
+        LEFT = -1,
         RIGHT = 1,
-        COUNT
     };
-    enum class Type : std::uint8_t
+    enum class FrameType : std::uint8_t
     {
         STANDING,
         BIG_STEP,
@@ -42,20 +41,19 @@ private:
         COUNT
     };
     CellPos nextCellPos() const {
-        return sprite_pos.cellPos().hmove(2 * static_cast<int>(direction) - 1);
+        return sprite_pos.cellPos().hmove(static_cast<int>(frame_dir));
     }
-    CellPos prevCellPos() const {
-        return sprite_pos.cellPos().hmove(1 - 2 * static_cast<int>(direction));
-    }
-    std::pair<int, int> updateRestOnFoot(GameMap const& game_map, unsigned action);
-    std::pair<int, int> updateWalk(GameMap const& game_map, unsigned action);
-    std::pair<int, int> updateVerticalJump(GameMap const &game_map, unsigned action);
-    std::pair<int, int> updateSideJump(GameMap const &game_map, unsigned action);
-    std::pair<int, int> updateRestOnTheRope(GameMap const &game_map, unsigned action);
-    std::pair<int, int> updateRopeClimb(GameMap const &game_map, unsigned action);
+    std::pair<int, int> stateRestOnFoot(GameMap const& game_map, unsigned action);
+    std::pair<int, int> stateWalk(GameMap const& game_map, unsigned action);
+    std::pair<int, int> checkWalkActions(GameMap const& game_map, unsigned action);
+    std::pair<int, int> stateVerticalJump(GameMap const &game_map, unsigned action);
+    std::pair<int, int> stateSideJump(GameMap const &game_map, unsigned action);
+    std::pair<int, int> stateRestOnTheRope(GameMap const &game_map, unsigned action);
+    std::pair<int, int> stateRopeClimb(GameMap const &game_map, unsigned action);
+    std::pair<int, int> checkRopeActions(GameMap const &game_map, unsigned action);
 
-    Direction direction = Direction::LEFT;
-    Type type = Type::STANDING;
-    int sStage = 0;
-    State sState = State::REST_ON_FOOT;
+    FrameDir frame_dir = FrameDir::LEFT;
+    FrameType frame_type = FrameType::STANDING;
+    int jump_stage = 0;
+    State state = State::REST_ON_FOOT;
 };
