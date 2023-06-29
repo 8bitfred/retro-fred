@@ -2,8 +2,6 @@
 #include "Config.hpp"
 #include "Fred.hpp"
 #include "Actions.hpp"
-#include <iostream>
-#include <cstdio>
 
 namespace
 {
@@ -88,13 +86,11 @@ void Game::mainLoop(SDL_Renderer *renderer)
                     auto action_of_key = getActionOfKey(event.key.keysym.sym);
                     action |= action_of_key;
                     action_this_cycle |= action_of_key;
-                    printf("KEY DOWN: %02x %02x %02x\n", action_of_key, action, action_this_cycle);
                 }
             }
             else if (event.type == SDL_KEYUP) {
                 auto action_of_key = getActionOfKey(event.key.keysym.sym);
                 action &= ~action_of_key;
-                printf("KEY UP: %02x %02x\n", action_of_key, action);
             }
         }
 

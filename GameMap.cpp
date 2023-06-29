@@ -2,7 +2,6 @@
 #include "TextureManager.hpp"
 #include "Frame.hpp"
 #include "Block.hpp"
-#include <iostream>
 
 GameMap::GameMap(std::minstd_rand &random_engine, int width, int height)
     : width_minus_one(width - 1), height(height), cell_list(width_minus_one * height)
@@ -246,15 +245,6 @@ bool GameMap::addMapBlock(TextureManager const &tmgr,
 {
     MapPos sprite_pos = {frame.gFrame().x + offset_x, frame.gFrame().y + offset_y, 0, 0};
     auto screen_pos = frame.getScreenPosOf(sprite_pos);
-    std::cout << "Trying to add new block x=" << sprite_pos.x
-              << " y=" << sprite_pos.y
-              << " cx=" << sprite_pos.cx
-              << " cy=" << sprite_pos.cy
-              << " screen.x=" << screen_pos.x
-              << " screen.y=" << screen_pos.y
-              << " visible_x=" << (screen_pos.x < frame.getBottomRight().x)
-              << " visible_y=" << (screen_pos.y < frame.getBottomRight().y)
-              << std::endl;
     if (screen_pos.y >= frame.getBottomRight().y)
         return false;
     if (screen_pos.x >= frame.getBottomRight().x)
@@ -265,7 +255,6 @@ bool GameMap::addMapBlock(TextureManager const &tmgr,
         auto texture_id = getTextureIDOf(cell_pos);
         block_list.emplace_back(std::make_unique<Block>(frame, sprite_pos, texture_id));
     }
-    std::cout << "returning true" << std::endl;
     return true;
 }
 
