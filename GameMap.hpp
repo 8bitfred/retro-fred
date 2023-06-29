@@ -15,27 +15,26 @@ class GameMap
 public:
     enum class Cell : std::uint8_t
     {
-        empty,
-        stone1,
-        stone2,
-        stone3,
-        rope_start,
-        rope_middle,
-        rope_end,
-        sky,
-        sand,
-        trapdoor
+        EMPTY,
+        STONE1,
+        STONE2,
+        STONE3,
+        ROPE_START,
+        ROPE_MAIN,
+        ROPE_END,
+        SKY,
+        SAND,
+        TRAPDOOR
     };
 
     GameMap(std::minstd_rand &random_engine, int width, int height);
     Cell getCell(CellPos const &pos) const;
-    bool isEmpty(CellPos const &pos) const { return getCell(pos) == Cell::empty; }
     bool isStone(CellPos const &pos) const {
         auto c = getCell(pos);
-        return static_cast<int>(c) >= static_cast<int>(Cell::stone1) &&
-               static_cast<int>(c) <= static_cast<int>(Cell::stone3);
+        return static_cast<int>(c) >= static_cast<int>(Cell::STONE1) &&
+               static_cast<int>(c) <= static_cast<int>(Cell::STONE3);
     }
-    int getWidth() const { return width; }
+    int getWidth() const { return width_minus_one + 1; }
     int getHeight() const { return height; }
     void render(int x, int y, TextureManager const &tmgr,
                 SDL_Renderer *renderer, SDL_Rect const *dest);
@@ -64,6 +63,6 @@ private:
                      int offset_x, int offset_y) const;
     void removeNonVisibleBlocks(Frame const &frame, SpriteList &block_list) const;
 
-    int width, height;
-    std::vector<Cell> contents;
+    int width_minus_one, height;
+    std::vector<Cell> cell_list;
 };
