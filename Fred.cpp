@@ -76,17 +76,14 @@ std::pair<int, int> Fred::updateWalk(GameMap const &game_map, unsigned action)
     }
     else if ((action & action_same_dir) != 0) {
         if (sSpritePos.cx == 0) {
-            if (auto next_cell = game_map.getCell(nextCellPos());
-                next_cell == GameMap::Cell::stone1 ||
-                next_cell == GameMap::Cell::stone2 ||
-                next_cell == GameMap::Cell::stone3)
+            if (game_map.isStone(nextCellPos()))
             {
                 type = Type::STANDING;
                 sState = State::REST_ON_FOOT;
                 return {0, 0};
             }
             else if (auto next_cell = game_map.getCell(nextCellPos().vmove(1));
-                     next_cell == GameMap::Cell::rope_middle)
+                     next_cell == GameMap::Cell::ROPE_MAIN)
             {
                 type = Type::BIG_STEP;
                 sSpritePos.xadd(xdelta);
@@ -133,7 +130,7 @@ std::pair<int, int> Fred::updateVerticalJump(GameMap const &game_map, unsigned a
     --sStage;
     if (sStage == 0) {
         if (sSpritePos.cx == 0 && 
-            game_map.getCell(sSpritePos.cellPos()) == GameMap::Cell::rope_end) {
+            game_map.getCell(sSpritePos.cellPos()) == GameMap::Cell::ROPE_END) {
             type = Type::CLIMBING1;
             sState = State::REST_ON_THE_ROPE;
         }
@@ -163,7 +160,7 @@ std::pair<int, int> Fred::updateSideJump(GameMap const &game_map, unsigned actio
     sSpritePos.xadd(xdelta);
     if (sStage == 0) 
     {
-        if (game_map.getCell(sSpritePos.cellPos()) == GameMap::Cell::empty)
+        if (game_map.getCell(sSpritePos.cellPos()) == GameMap::Cell::EMPTY)
         {
             sSpritePos.yadd(1);
             if ((action & ACTION_FIRE) != 0)
@@ -206,10 +203,9 @@ std::pair<int, int> Fred::updateRopeClimb(GameMap const &game_map, unsigned acti
         sState = State::REST_ON_THE_ROPE;
         return {0, 0};
     }
-    else if (auto next_cell = game_map.getCell(sSpritePos.cellPos().hmove(-xdelta)); 
-             (action & action_opp_dir) != 0 &&
+    else if ((action & action_opp_dir) != 0 &&
              sSpritePos.cy == 0 &&
-             next_cell == GameMap::Cell::empty || next_cell == GameMap::Cell::rope_end)
+             !game_map.isStone(sSpritePos.cellPos().hmove(-xdelta)))
     {
         direction = static_cast<Direction>(1 - static_cast<int>(direction));
         type = Type::BIG_STEP;
@@ -223,15 +219,13 @@ std::pair<int, int> Fred::updateRopeClimb(GameMap const &game_map, unsigned acti
         int ydelta = (action & ACTION_UP) != 0 ? -1 : 1;
         if (sSpritePos.cy == 0)
         {
-            auto next_cell = game_map.getCell(sSpritePos.cellPos().vmove(ydelta));
-            if (next_cell == GameMap::Cell::stone1 ||
-                next_cell == GameMap::Cell::stone2 ||
-                next_cell == GameMap::Cell::stone3)
+            auto next_pos = sSpritePos.cellPos().vmove(ydelta);
+            if (game_map.isStone(next_pos))
             {
                 sState = State::REST_ON_THE_ROPE;
                 return {0, 0};
             }
-            else if (next_cell == GameMap::Cell::trapdoor)
+            else if (game_map.getCell(next_pos) == GameMap::Cell::TRAPDOOR)
             {
                 // TODO: maze exit;
                 return {0, 0};

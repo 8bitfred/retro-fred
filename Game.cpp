@@ -47,7 +47,7 @@ void Game::initializeFred(std::minstd_rand &random_engine)
     {
         int x = distrib(random_engine);
         fred_cell_position.x = distrib(random_engine);
-        if (game_map.isEmpty(fred_cell_position))
+        if (game_map.getCell(fred_cell_position) == GameMap::Cell::EMPTY)
             break;
     }
     MapPos fred_initial_position = {fred_cell_position.x, fred_cell_position.y, 0, 1};

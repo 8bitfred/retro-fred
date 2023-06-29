@@ -7,7 +7,7 @@ enum class TextureID : std::uint8_t
     BLOCK_STONE2,
     BLOCK_STONE3,
     BLOCK_ROPE_START,
-    BLOCK_ROPE_MIDDLE,
+    BLOCK_ROPE_MAIN,
     BLOCK_ROPE_END,
     BLOCK_SKY,
     BLOCK_SAND,
