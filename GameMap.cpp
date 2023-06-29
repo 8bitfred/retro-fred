@@ -196,13 +196,6 @@ void GameMap::render(int x, int y, TextureManager const &tmgr,
     int round_x = corner_cell.x * MapPixelPos::CELL_WIDTH_PIXELS - x;
     int round_y = corner_cell.y * MapPixelPos::CELL_HEIGHT_PIXELS - y;
 
-    static bool first = true;
-    if (first) {
-        first = false;
-        std::cout << "round_x=" << round_x << " round_y=" << round_y
-                  << " corner_x=" << corner_cell.x << " corner_y=" << corner_cell.y << std::endl;
-    }
-
     CellPos cell_pos = corner_cell;
     SDL_Rect cell_rect;
     cell_rect.w = MapPixelPos::CELL_WIDTH_PIXELS;
@@ -251,7 +244,7 @@ bool GameMap::addMapBlock(TextureManager const &tmgr,
                           Frame const &frame, SpriteList &block_list,
                           int offset_x, int offset_y) const
 {
-    MapPos sprite_pos = {frame.getFrame().x + offset_x, frame.getFrame().y + offset_y, 0, 0};
+    MapPos sprite_pos = {frame.gFrame().x + offset_x, frame.gFrame().y + offset_y, 0, 0};
     auto screen_pos = frame.getScreenPosOf(sprite_pos);
     std::cout << "Trying to add new block x=" << sprite_pos.x
               << " y=" << sprite_pos.y

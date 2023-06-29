@@ -15,43 +15,43 @@ public:
 
     ScreenPos getScreenPosOf(MapPos const &sprite_pos) const;
 
-    MapPos const &getFrame() const { return gFrame; }
+    MapPos const &gFrame() const { return map_pos; }
     void moveFrame(int deltax, int deltay)
     {
-        gFrame.xadd(deltax);
-        gFrame.yadd(deltay);
+        map_pos.xadd(deltax);
+        map_pos.yadd(deltay);
     }
     void adjustFramePos(MapPos fred_pos);
 
-    bool needsNewLeftCol() const { return gFrame.cx == gNewLeftCol_cx; }
-    bool needsNewRightCol() const { return gFrame.cx == gNewRightCol_cx; }
-    int newRightColOffset() const { return gNewRightColOffset; }
-    bool needsNewTopRow() const { return gFrame.cy == gNewTopRow_cy; }
-    bool needsNewBottomRow() const { return gFrame.cy == gNewBottomRow_cy; }
-    int newBottomRowOffset() const { return gNewBottomRowOffset; }
+    bool needsNewLeftCol() const { return map_pos.cx == new_left_col_cx; }
+    bool needsNewRightCol() const { return map_pos.cx == new_right_col_cx; }
+    int newRightColOffset() const { return new_right_col_offset; }
+    bool needsNewTopRow() const { return map_pos.cy == new_top_row_cy; }
+    bool needsNewBottomRow() const { return map_pos.cy == new_bottom_row_cy; }
+    int newBottomRowOffset() const { return new_bottom_row_offset; }
 
 private:
     // Position of F, in map coordinates
-    MapPos gFrame;
+    MapPos map_pos;
     // Position of the game window
     ScreenPos top_left;      // (x2, y1), top left corner of the game window
     ScreenPos bottom_right;  // (x1, y2), bottom right corner of the game window
-    // Offset of the Fred character with respect to gFrame
-    int gFredOffset_x, gFredOffset_y;
+    // Offset of the Fred character with respect to F, in cells
+    int fred_offset_x, fred_offset_y;
     // Position of the F point in screen coordinates
-    ScreenPos gFramePos;
-    // Value of gFrame.cx when a new column becomes visible when moving left
-    int gNewLeftCol_cx;
-    // Value of gFrame.cy when a new row becomes visible when moving up
-    int gNewTopRow_cy;
-    // Value of gFrame.cx when a new column becomes visible when moving right
-    int gNewRightCol_cx;
-    // Offset from gFrame.x of the position of the new column that becomes visible when
+    ScreenPos screen_pos;
+    // Value of map_pos.cx when a new column becomes visible when moving left
+    int new_left_col_cx;
+    // Value of map_pos.cy when a new row becomes visible when moving up
+    int new_top_row_cy;
+    // Value of map_pos.cx when a new column becomes visible when moving right
+    int new_right_col_cx;
+    // Offset from map_pos.x of the position of the new column that becomes visible when
     // moving to the right.
-    int gNewRightColOffset;
-    // Value of gFrame.cy when a new row becomes visible when moving down
-    int gNewBottomRow_cy;
-    // Offset from gFrame.y of the position of the new row that becomes visible when
+    int new_right_col_offset;
+    // Value of map_pos.cy when a new row becomes visible when moving down
+    int new_bottom_row_cy;
+    // Offset from map_pos.y of the position of the new row that becomes visible when
     // moving to the bottom.
-    int gNewBottomRowOffset;
+    int new_bottom_row_offset;
 };
