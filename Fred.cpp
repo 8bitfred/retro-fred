@@ -75,7 +75,7 @@ std::pair<int, int> Fred::updateWalk(GameMap const &game_map, unsigned action)
         return {0, 0};
     }
     else if ((action & action_same_dir) != 0) {
-        if (sSpritePos.cx == 0) {
+        if (sprite_pos.cx == 0) {
             if (game_map.isStone(nextCellPos()))
             {
                 type = Type::STANDING;
@@ -86,8 +86,8 @@ std::pair<int, int> Fred::updateWalk(GameMap const &game_map, unsigned action)
                      next_cell == GameMap::Cell::ROPE_MAIN)
             {
                 type = Type::BIG_STEP;
-                sSpritePos.xadd(xdelta);
-                sSpritePos.yadd(-1);
+                sprite_pos.xadd(xdelta);
+                sprite_pos.yadd(-1);
                 sState = State::SIDE_JUMP;
                 sStage = 3;
                 return {xdelta, 0};
@@ -95,21 +95,21 @@ std::pair<int, int> Fred::updateWalk(GameMap const &game_map, unsigned action)
         }
         if (type == Type::STANDING) 
         {
-            if (sSpritePos.cx > 1)
+            if (sprite_pos.cx > 1)
                 type = Type::BIG_STEP;
             else
                 type = Type::SMALL_STEP;
         }
         else
             type = Type::STANDING;
-        sSpritePos.xadd(xdelta);
+        sprite_pos.xadd(xdelta);
         sState = State::WALK;
         return {xdelta, 0};
     }
     else if ((action & ACTION_UP) != 0) 
     {
         type = Type::BIG_STEP;
-        sSpritePos.yadd(-1);
+        sprite_pos.yadd(-1);
         sState = State::VERTICAL_JUMP;
         sStage = 3;
         return {0, 0};
@@ -129,13 +129,13 @@ std::pair<int, int> Fred::updateVerticalJump(GameMap const &game_map, unsigned a
 {
     --sStage;
     if (sStage == 0) {
-        if (sSpritePos.cx == 0 && 
-            game_map.getCell(sSpritePos.cellPos()) == GameMap::Cell::ROPE_END) {
+        if (sprite_pos.cx == 0 && 
+            game_map.getCell(sprite_pos.cellPos()) == GameMap::Cell::ROPE_END) {
             type = Type::CLIMBING1;
             sState = State::REST_ON_THE_ROPE;
         }
         else {
-            sSpritePos.yadd(1);
+            sprite_pos.yadd(1);
             if ((action & ACTION_FIRE) != 0)
                 type = Type::SHOOTING;
             else
@@ -157,12 +157,12 @@ std::pair<int, int> Fred::updateSideJump(GameMap const &game_map, unsigned actio
 {
     int xdelta = 2 * static_cast<int>(direction) - 1;
     --sStage;
-    sSpritePos.xadd(xdelta);
+    sprite_pos.xadd(xdelta);
     if (sStage == 0) 
     {
-        if (game_map.getCell(sSpritePos.cellPos()) == GameMap::Cell::EMPTY)
+        if (game_map.getCell(sprite_pos.cellPos()) == GameMap::Cell::EMPTY)
         {
-            sSpritePos.yadd(1);
+            sprite_pos.yadd(1);
             if ((action & ACTION_FIRE) != 0)
                 type = Type::SHOOTING;
             else
@@ -204,12 +204,12 @@ std::pair<int, int> Fred::updateRopeClimb(GameMap const &game_map, unsigned acti
         return {0, 0};
     }
     else if ((action & action_opp_dir) != 0 &&
-             sSpritePos.cy == 0 &&
-             !game_map.isStone(sSpritePos.cellPos().hmove(-xdelta)))
+             sprite_pos.cy == 0 &&
+             !game_map.isStone(sprite_pos.cellPos().hmove(-xdelta)))
     {
         direction = static_cast<Direction>(1 - static_cast<int>(direction));
         type = Type::BIG_STEP;
-        sSpritePos.xadd(-xdelta);
+        sprite_pos.xadd(-xdelta);
         sState = State::SIDE_JUMP;
         sStage = 3;
         return {-xdelta, 0};
@@ -217,9 +217,9 @@ std::pair<int, int> Fred::updateRopeClimb(GameMap const &game_map, unsigned acti
     else if ((action & (ACTION_UP | ACTION_DOWN)) != 0)
     {
         int ydelta = (action & ACTION_UP) != 0 ? -1 : 1;
-        if (sSpritePos.cy == 0)
+        if (sprite_pos.cy == 0)
         {
-            auto next_pos = sSpritePos.cellPos().vmove(ydelta);
+            auto next_pos = sprite_pos.cellPos().vmove(ydelta);
             if (game_map.isStone(next_pos))
             {
                 sState = State::REST_ON_THE_ROPE;
@@ -232,7 +232,7 @@ std::pair<int, int> Fred::updateRopeClimb(GameMap const &game_map, unsigned acti
             }
         }
         type = type == Type::CLIMBING1 ? Type::CLIMBING2 : Type::CLIMBING1;
-        sSpritePos.yadd(ydelta);
+        sprite_pos.yadd(ydelta);
         sState = State::ROPE_CLIMB;
         return {0, ydelta};
     }
