@@ -109,12 +109,6 @@ void Game::mainLoop(SDL_Renderer *renderer)
             game_map.updateMapBlocksDown(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
         else if (deltay < 0)
             game_map.updateMapBlocksUp(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
-        if (action_this_cycle != 0)
-        {
-            std::cout << "frame: x=" << frame.getFrame().x << " y=" << frame.getFrame().y
-                      << " cx=" << frame.getFrame().cx << " cy=" << frame.getFrame().cy
-                      << std::endl;
-        }
 
         SDL_RenderClear(renderer);
         renderSprites(renderer);
