@@ -25,12 +25,12 @@ protected:
     virtual std::pair<TextureID, CenterPos> getTexture() const = 0;
 
     // sSprite
-    MapPos sSpritePos;
+    MapPos sprite_pos;
 private:
     // Width and height, in characters
-    int sCharWidth, sCharHeight;
+    int char_width, char_height;
     // Visibility min and max positions
-    ScreenPos sMinPos, sMaxPos;
+    ScreenPos min_visible_pos, max_visible_pos;
 };
 
 enum class SpriteClass

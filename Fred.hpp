@@ -42,10 +42,10 @@ private:
         COUNT
     };
     CellPos nextCellPos() const {
-        return sSpritePos.cellPos().hmove(2 * static_cast<int>(direction) - 1);
+        return sprite_pos.cellPos().hmove(2 * static_cast<int>(direction) - 1);
     }
     CellPos prevCellPos() const {
-        return sSpritePos.cellPos().hmove(1 - 2 * static_cast<int>(direction));
+        return sprite_pos.cellPos().hmove(1 - 2 * static_cast<int>(direction));
     }
     std::pair<int, int> updateRestOnFoot(GameMap const& game_map, unsigned action);
     std::pair<int, int> updateWalk(GameMap const& game_map, unsigned action);
