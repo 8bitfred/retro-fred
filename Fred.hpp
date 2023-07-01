@@ -2,13 +2,13 @@
 
 #include "Sprite.hpp"
 
-class GameMap;
+class Game;
 
 class Fred : public Sprite
 {
 public:
     Fred(Frame const &frame, MapPos initial_position);
-    std::pair<int, int> updateFred(GameMap const &game_map, unsigned action);
+    void updateFred(Game& game, unsigned events);
 
 protected:
     std::pair<TextureID, CenterPos> getTexture() const override;
@@ -43,14 +43,14 @@ private:
     CellPos nextCellPos() const {
         return sprite_pos.cellPos().hmove(static_cast<int>(frame_dir));
     }
-    std::pair<int, int> stateRestOnFoot(GameMap const& game_map, unsigned action);
-    std::pair<int, int> stateWalk(GameMap const& game_map, unsigned action);
-    std::pair<int, int> checkWalkActions(GameMap const& game_map, unsigned action);
-    std::pair<int, int> stateVerticalJump(GameMap const &game_map, unsigned action);
-    std::pair<int, int> stateSideJump(GameMap const &game_map, unsigned action);
-    std::pair<int, int> stateRestOnTheRope(GameMap const &game_map, unsigned action);
-    std::pair<int, int> stateRopeClimb(GameMap const &game_map, unsigned action);
-    std::pair<int, int> checkRopeActions(GameMap const &game_map, unsigned action);
+    void stateRestOnFoot(Game& game, unsigned events);
+    void stateWalk(Game& game, unsigned events);
+    void checkWalkActions(Game& game, unsigned events);
+    void stateVerticalJump(Game& game, unsigned events);
+    void stateSideJump(Game& game, unsigned events);
+    void stateRestOnTheRope(Game& game, unsigned events);
+    void stateRopeClimb(Game& game, unsigned events);
+    void checkRopeActions(Game& game, unsigned events);
 
     FrameDir frame_dir = FrameDir::LEFT;
     FrameType frame_type = FrameType::STANDING;

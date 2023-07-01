@@ -10,7 +10,13 @@ class Fred;
 class Game
 {
 public:
-    static constexpr std::uint32_t FRAMES_PER_SECOND = 5;
+    static constexpr unsigned EVENT_LEFT = 0x01;
+    static constexpr unsigned EVENT_RIGHT = 0x02;
+    static constexpr unsigned EVENT_UP = 0x04;
+    static constexpr unsigned EVENT_DOWN = 0x08;
+    static constexpr unsigned EVENT_FIRE = 0x10;
+
+    static unsigned getEventOfKey(SDL_Keycode keycode);
 
     Game(Config const &cfg, std::minstd_rand &random_engine, TextureManager const &tmgr);
     Frame &getFrame() { return frame; }
@@ -20,6 +26,7 @@ public:
         return sprite_lists[static_cast<int>(sprite_class)];
     }
     void renderSprites(SDL_Renderer *renderer) const;
+    void moveFrame(int deltax, int deltay);
 
 private:
     TextureManager const &tmgr;

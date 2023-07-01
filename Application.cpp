@@ -2,30 +2,6 @@
 #include "Config.hpp"
 #include "Game.hpp"
 #include "Fred.hpp"
-#include "Actions.hpp"
-
-namespace
-{
-    unsigned getActionOfKey(SDL_Keycode keycode)
-    {
-        switch (keycode)
-        {
-        case SDLK_UP:
-            return ACTION_UP;
-        case SDLK_DOWN:
-            return ACTION_DOWN;
-        case SDLK_LEFT:
-            return ACTION_LEFT;
-        case SDLK_RIGHT:
-            return ACTION_RIGHT;
-        case SDLK_SPACE:
-            return ACTION_FIRE;
-        default:
-            return 0;
-        }
-    }
-} // namespace
-
 
 FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     : cfg(cfg)
@@ -49,39 +25,30 @@ void FredApp::playGame()
     Uint32 start_ticks = SDL_GetTicks();
     std::uint32_t frame_count = 0;
     bool quit = false;
-    unsigned action = 0;
+    unsigned events = 0;
     while (!quit)
     {
         SDL_Event event;
-        unsigned action_this_cycle = 0;
+        unsigned events_this_cycle = 0;
         while (SDL_PollEvent(&event) != 0)
         {
             if (event.type == SDL_QUIT)
                 quit = true;
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.repeat == 0) {
-                    auto action_of_key = getActionOfKey(event.key.keysym.sym);
-                    action |= action_of_key;
-                    action_this_cycle |= action_of_key;
+                    auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
+                    events |= events_of_key;
+                    events_this_cycle |= events_of_key;
                 }
             }
             else if (event.type == SDL_KEYUP) {
-                auto action_of_key = getActionOfKey(event.key.keysym.sym);
-                action &= ~action_of_key;
+                auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
+                events &= ~events_of_key;
             }
         }
 
-        action_this_cycle |= action;
-        auto [deltax, deltay] = fred->updateFred(game.getGameMap(), action_this_cycle);
-        game.getFrame().moveFrame(deltax, deltay);
-        if (deltax > 0)
-            game.getGameMap().updateMapBlocksRight(tmgr, game.getFrame(), game.getSpriteList(SpriteClass::BLOCK));
-        else if (deltax < 0)
-            game.getGameMap().updateMapBlocksLeft(tmgr, game.getFrame(), game.getSpriteList(SpriteClass::BLOCK));
-        if (deltay > 0)
-            game.getGameMap().updateMapBlocksDown(tmgr, game.getFrame(), game.getSpriteList(SpriteClass::BLOCK));
-        else if (deltay < 0)
-            game.getGameMap().updateMapBlocksUp(tmgr, game.getFrame(), game.getSpriteList(SpriteClass::BLOCK));
+        events_this_cycle |= events;
+        fred->updateFred(game, events_this_cycle);
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
