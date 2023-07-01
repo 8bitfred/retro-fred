@@ -225,7 +225,7 @@ ScreenPos Frame::getScreenPosOf(MapPos const &sprite_pos) const
 void Frame::adjustFramePos(MapPos fred_pos)
 {
     map_pos = {fred_pos.x - fred_offset_x,
-              fred_pos.y - fred_offset_y,
-              fred_pos.cx,
-              fred_pos.cy};
+               fred_pos.y - fred_offset_y,
+               fred_pos.cx,
+               fred_pos.cy};
 }

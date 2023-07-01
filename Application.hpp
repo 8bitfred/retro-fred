@@ -19,6 +19,7 @@ public:
 
 private:
     Fred* initializeFred(Game &game);
+    void debugMode(Game &game, Fred *fred, unsigned events);
 
     Config const &cfg;
     std::minstd_rand &random_engine;

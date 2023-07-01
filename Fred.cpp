@@ -1,6 +1,7 @@
 #include "Fred.hpp"
 #include "Game.hpp"
 #include "GameMap.hpp"
+#include <functional>
 
 Fred::Fred(Frame const &frame, MapPos initial_position)
 : Sprite(frame, initial_position, 4, 4)
@@ -254,4 +255,50 @@ void Fred::checkRopeActions(Game& game, unsigned events)
         return;
     }
     state = State::REST_ON_THE_ROPE;
+}
+
+void Fred::dbgResetPosition(Game &game)
+{
+    if (state != State::REST_ON_FOOT)
+        return;
+    MapPos candidate{game.getFrame().gFrame().x + game.getFrame().getFredOffsetX(),
+                     game.getFrame().gFrame().y + game.getFrame().getFredOffsetY(),
+                     0, 1};
+    auto max_x = game.getGameMap().getWidth() - 2;
+    auto max_y = game.getGameMap().getHeight() - 2;
+    candidate.x = std::max(1, std::min(max_x, candidate.x));
+    candidate.y = std::max(1, std::min(max_y, candidate.y));
+    candidate.y += (candidate.y % 2) - 1;
+
+    for (int deltax = 0; true; ++deltax)
+    {
+        if (auto cell_pos = candidate.cellPos().hmove(deltax);
+            cell_pos.x <= max_x && 
+            game.getGameMap().getCell(cell_pos) == GameMap::Cell::EMPTY)
+        {
+            candidate.x = cell_pos.x;
+            break;
+        }
+        if (auto cell_pos = candidate.cellPos().hmove(-deltax);
+            deltax > 0 && cell_pos.x >= 1 && 
+            game.getGameMap().getCell(cell_pos) == GameMap::Cell::EMPTY)
+        {
+            candidate.x = cell_pos.x;
+            break;
+        }
+    }
+
+    sprite_pos = candidate;
+    game.getFrame().adjustFramePos(sprite_pos);
+    game.dbgResetMapBlocks();
+}
+
+void Fred::dbgMoveToHatch(Game &game)
+{
+    if (state != State::REST_ON_FOOT)
+        return;
+    auto hatch_pos = game.getGameMap().dbgGetHatchPos();
+    sprite_pos = {hatch_pos.x, hatch_pos.y + 1, 0, 1};
+    game.getFrame().adjustFramePos(sprite_pos);
+    game.dbgResetMapBlocks();
 }
