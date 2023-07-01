@@ -10,6 +10,9 @@ public:
     Fred(Frame const &frame, MapPos initial_position);
     void updateFred(Game& game, unsigned events);
 
+    void dbgResetPosition(Game& game);
+    void dbgMoveToHatch(Game &game);
+
 protected:
     std::pair<TextureID, CenterPos> getTexture() const override;
 

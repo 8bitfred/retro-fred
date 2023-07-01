@@ -30,6 +30,9 @@ public:
     bool needsNewBottomRow() const { return map_pos.cy == new_bottom_row_cy; }
     int newBottomRowOffset() const { return new_bottom_row_offset; }
 
+    int getFredOffsetX() const { return fred_offset_x; }
+    int getFredOffsetY() const { return fred_offset_y; }
+
 private:
     // Position of F, in map coordinates
     MapPos map_pos;

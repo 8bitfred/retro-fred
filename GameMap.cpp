@@ -134,19 +134,26 @@ void GameMap::setHatchPosition(std::minstd_rand &random_engine)
     std::uniform_int_distribution<> distrib(1, getWidth() - 2);
     while (true) 
     {
-        int x = distrib(random_engine);
-        CellPos pos1{x, 1};
-        CellPos pos2{pos1.x, 2};
-        if (getCell(pos1) == Cell::EMPTY && isStone(pos2))
-        {
-            CellPos hatch_pos{x, 0};
-            setCell(hatch_pos, Cell::TRAPDOOR);
-            setCell(pos1, Cell::ROPE_END);
-            return;
-        }
+        if (tryHatchPosition(distrib(random_engine)))
+            break;
     }
 }
 
+
+bool GameMap::tryHatchPosition(int x)
+{
+    CellPos pos1{x, 1};
+    CellPos pos2{pos1.x, 2};
+    if (getCell(pos1) == Cell::EMPTY && isStone(pos2))
+    {
+        CellPos hatch_pos{x, 0};
+        setCell(hatch_pos, Cell::TRAPDOOR);
+        setCell(pos1, Cell::ROPE_END);
+        hatch_x = x;
+        return true;
+    }
+    return false;
+}
 
 void GameMap::setCell(CellPos const &pos, Cell c)
 {
@@ -321,4 +328,19 @@ void GameMap::updateMapBlocksDown(TextureManager const &tmgr,
              ++offset_x)
             ;
     }
+}
+
+bool GameMap::dbgMoveHatch(int deltax)
+{
+    auto hatch_pos = dbgGetHatchPos();
+    for (int x = hatch_x + deltax; x > 1 && x < getWidth(); x += deltax)
+    {
+        if (tryHatchPosition(x))
+        {
+            setCell(hatch_pos, Cell::STONE1);
+            setCell(hatch_pos.vmove(1), Cell::EMPTY);
+            return true;
+        }
+    }
+    return false;
 }

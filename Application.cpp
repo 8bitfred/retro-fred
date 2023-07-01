@@ -15,7 +15,7 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
 
 void FredApp::playGame()
 {
-    static constexpr std::uint32_t FRAMES_PER_SECOND = 20;
+    static constexpr std::uint32_t FRAMES_PER_SECOND = 5;
     Game game(cfg, random_engine, tmgr);
     auto fred = initializeFred(game);
     game.getGameMap().initializeMapBlocks(tmgr, game.getFrame(),
@@ -48,7 +48,10 @@ void FredApp::playGame()
         }
 
         events_this_cycle |= events;
-        fred->updateFred(game, events_this_cycle);
+        if ((events_this_cycle & Game::EVENT_SHIFT) != 0)
+            debugMode(game, fred, events_this_cycle);
+        else
+            fred->updateFred(game, events_this_cycle);
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
@@ -84,4 +87,30 @@ Fred* FredApp::initializeFred(Game &game)
     game.getFrame().adjustFramePos(fred_initial_position);
     game.getSpriteList(SpriteClass::FRED).emplace_back(std::move(fred_unique_ptr));
     return fred_ptr;
+}
+
+void FredApp::debugMode(Game &game, Fred *fred, unsigned events)
+{
+    if ((events & Game::EVENT_LEFT) != 0)
+        game.moveFrame(-1, 0);
+    else if ((events & Game::EVENT_RIGHT) != 0)
+        game.moveFrame(1, 0);
+    else if ((events & Game::EVENT_UP) != 0)
+        game.moveFrame(0, -1);
+    else if ((events & Game::EVENT_DOWN) != 0)
+        game.moveFrame(0, 1);
+    else if ((events & Game::EVENT_RESET_FRED) != 0)
+        fred->dbgResetPosition(game);
+    else if ((events & Game::EVENT_HATCH_LEFT) != 0)
+    {
+        if (game.getGameMap().dbgMoveHatch(-1))
+            game.dbgResetMapBlocks();
+    }
+    else if ((events & Game::EVENT_HATCH_RIGHT) != 0)
+    {
+        if (game.getGameMap().dbgMoveHatch(1))
+            game.dbgResetMapBlocks();
+    }
+    else if ((events & Game::EVENT_MOVE_TO_HATCH) != 0)
+        fred->dbgMoveToHatch(game);
 }

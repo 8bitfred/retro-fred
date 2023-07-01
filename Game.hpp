@@ -15,6 +15,11 @@ public:
     static constexpr unsigned EVENT_UP = 0x04;
     static constexpr unsigned EVENT_DOWN = 0x08;
     static constexpr unsigned EVENT_FIRE = 0x10;
+    static constexpr unsigned EVENT_SHIFT = 0x20;
+    static constexpr unsigned EVENT_RESET_FRED = 0x40;
+    static constexpr unsigned EVENT_HATCH_LEFT = 0x80;
+    static constexpr unsigned EVENT_HATCH_RIGHT = 0x100;
+    static constexpr unsigned EVENT_MOVE_TO_HATCH = 0x200;
 
     static unsigned getEventOfKey(SDL_Keycode keycode);
 
@@ -27,6 +32,7 @@ public:
     }
     void renderSprites(SDL_Renderer *renderer) const;
     void moveFrame(int deltax, int deltay);
+    void dbgResetMapBlocks();
 
 private:
     TextureManager const &tmgr;

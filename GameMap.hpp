@@ -44,16 +44,20 @@ public:
                              Frame const &frame, SpriteList &block_list) const;
     void updateMapBlocksRight(TextureManager const &tmgr,
                               Frame const &frame, SpriteList &block_list) const;
-   void updateMapBlocksUp(TextureManager const &tmgr,
-                          Frame const &frame, SpriteList &block_list) const;
-   void updateMapBlocksDown(TextureManager const &tmgr,
-                            Frame const &frame, SpriteList &block_list) const;
+    void updateMapBlocksUp(TextureManager const &tmgr,
+                           Frame const &frame, SpriteList &block_list) const;
+    void updateMapBlocksDown(TextureManager const &tmgr,
+                             Frame const &frame, SpriteList &block_list) const;
+
+    CellPos dbgGetHatchPos() const { return CellPos{hatch_x, 0}; }
+    bool dbgMoveHatch(int deltax);
 
 private:
     void initializeMap(std::minstd_rand &random_engine);
     void createMaze(std::minstd_rand &random_engine);
     void setUpTheRopes();
     void setHatchPosition(std::minstd_rand &random_engine);
+    bool tryHatchPosition(int x);
 
     void setCell(CellPos const &pos, Cell c);
     TextureID getTextureIDOf(CellPos const &pos) const;
@@ -65,4 +69,5 @@ private:
 
     int width_minus_one, height;
     std::vector<Cell> cell_list;
+    int hatch_x; // for debugging
 };
