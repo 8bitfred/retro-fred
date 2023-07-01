@@ -172,7 +172,7 @@ void Fred::stateSideJump(Game& game, unsigned events)
     sprite_pos.xadd(xdelta);
     if (jump_stage == 0) 
     {
-        if (game.getGameMap().getCell(sprite_pos.cellPos()) == GameMap::Cell::EMPTY)
+        if (game.getGameMap().isStone(sprite_pos.cellPos().vmove(1)))
         {
             sprite_pos.yadd(1);
             if ((events & Game::EVENT_FIRE) != 0)
