@@ -2,6 +2,8 @@
 #include "Config.hpp"
 #include "Game.hpp"
 #include "Fred.hpp"
+#include "AcidDrop.hpp"
+
 
 FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     : cfg(cfg)
@@ -20,7 +22,7 @@ void FredApp::playGame()
     auto fred = initializeFred(game);
     game.getGameMap().initializeMapBlocks(tmgr, game.getFrame(),
                                           game.getSpriteList(SpriteClass::BLOCK));
-
+    initializeAcidDrops(game);
 
     Uint32 start_ticks = SDL_GetTicks();
     std::uint32_t frame_count = 0;
@@ -52,6 +54,9 @@ void FredApp::playGame()
             debugMode(game, fred, events_this_cycle);
         else
             fred->updateFred(game, events_this_cycle);
+
+        for (auto const& sprite: game.getSpriteList(SpriteClass::ACID_DROP))
+            sprite->update(game, 0);
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
@@ -87,6 +92,42 @@ Fred* FredApp::initializeFred(Game &game)
     game.getFrame().adjustFramePos(fred_initial_position);
     game.getSpriteList(SpriteClass::FRED).emplace_back(std::move(fred_unique_ptr));
     return fred_ptr;
+}
+
+
+void FredApp::initializeAcidDrops(Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::ACID_DROP);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    std::uniform_int_distribution<> distrib_frame(static_cast<int>(TextureID::ACID_DROP1),
+                                                  static_cast<int>(TextureID::ACID_DROP4));
+    for (int i = 0; i < 40; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
+            if (!game.getGameMap().isStone(pos.cellPos().vmove(-1)))
+                continue;
+            if (game.getGameMap().getCell(pos.cellPos()) != GameMap::Cell::EMPTY)
+                continue;
+            if (!game.getGameMap().isStone(pos.cellPos().vmove(1)))
+                continue;
+            if (auto cell = game.getGameMap().getCell(pos.cellPos().hmove(-1));
+                cell == GameMap::Cell::ROPE_END ||
+                cell == GameMap::Cell::ROPE_MAIN ||
+                cell == GameMap::Cell::ROPE_START)
+                continue;
+            if (auto cell = game.getGameMap().getCell(pos.cellPos().hmove(1));
+                cell == GameMap::Cell::ROPE_END ||
+                cell == GameMap::Cell::ROPE_MAIN ||
+                cell == GameMap::Cell::ROPE_START)
+                continue;
+            auto texture_id = static_cast<TextureID>(distrib_frame(random_engine));
+            sprite_list.emplace_back(std::make_unique<AcidDrop>(game.getFrame(),
+                                                                pos, texture_id));
+            break;
+        }
+    }
 }
 
 void FredApp::debugMode(Game &game, Fred *fred, unsigned events)

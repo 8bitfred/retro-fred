@@ -12,6 +12,7 @@ add_executable(fred main.cpp sdl.hpp
     Coord.hpp
     Sprite.cpp Sprite.hpp
     Block.cpp Block.hpp
+    AcidDrop.hpp AcidDrop.cpp
     Fred.cpp Fred.hpp)
 target_link_libraries(fred -lSDL2 -lSDL2_image)
 target_include_directories(fred PUBLIC /usr/include/SDL2)
