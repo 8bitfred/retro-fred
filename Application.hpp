@@ -19,6 +19,7 @@ public:
 
 private:
     Fred* initializeFred(Game &game);
+    void initializeAcidDrops(Game &game);
     void debugMode(Game &game, Fred *fred, unsigned events);
 
     Config const &cfg;

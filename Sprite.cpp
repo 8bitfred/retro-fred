@@ -39,3 +39,8 @@ void Sprite::render(Frame const &frame, TextureManager const &tmgr,
     if (render_error != 0)
         throw sdl::Error();
 }
+
+void Sprite::update(Game &, unsigned)
+{
+
+}
