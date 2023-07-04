@@ -229,16 +229,15 @@ void GameMap::render(int x, int y, TextureManager const &tmgr,
     }
 }
 
-void GameMap::initializeMapBlocks(TextureManager const &tmgr,
-                                  Frame const &frame, SpriteList &block_list) const
+void GameMap::initializeMapBlocks(Frame const &frame, SpriteList &block_list) const
 {
     int offset_x = 0, offset_y = 0;
     while (true) {
-        if (!addMapBlock(tmgr, frame, block_list, offset_x, offset_y))
+        if (!addMapBlock(frame, block_list, offset_x, offset_y))
             break;
         while (true) {
             ++offset_x;
-            if (!addMapBlock(tmgr, frame, block_list, offset_x, offset_y))
+            if (!addMapBlock(frame, block_list, offset_x, offset_y))
                 break;
         }
         offset_x = 0;
@@ -246,8 +245,7 @@ void GameMap::initializeMapBlocks(TextureManager const &tmgr,
     }
 }
 
-bool GameMap::addMapBlock(TextureManager const &tmgr,
-                          Frame const &frame, SpriteList &block_list,
+bool GameMap::addMapBlock(Frame const &frame, SpriteList &block_list,
                           int offset_x, int offset_y) const
 {
     MapPos sprite_pos = {frame.gFrame().x + offset_x, frame.gFrame().y + offset_y, 0, 0};
@@ -276,55 +274,51 @@ void GameMap::removeNonVisibleBlocks(Frame const &frame, SpriteList &block_list)
     }
 }
 
-void GameMap::updateMapBlocksLeft(TextureManager const &tmgr,
-                                  Frame const &frame, SpriteList &block_list) const
+void GameMap::updateMapBlocksLeft(Frame const &frame, SpriteList &block_list) const
 {
     removeNonVisibleBlocks(frame, block_list);
     if (frame.needsNewLeftCol())
     {
         for (int offset_y = 0;
-             addMapBlock(tmgr, frame, block_list, 0, offset_y);
+             addMapBlock(frame, block_list, 0, offset_y);
              ++offset_y)
             ;
     }
 }
 
-void GameMap::updateMapBlocksRight(TextureManager const &tmgr,
-                                   Frame const &frame, SpriteList &block_list) const
+void GameMap::updateMapBlocksRight(Frame const &frame, SpriteList &block_list) const
 {
     removeNonVisibleBlocks(frame, block_list);
     if (frame.needsNewRightCol())
     {
         for (int offset_y = 0;
-             addMapBlock(tmgr, frame, block_list, frame.newRightColOffset(), offset_y);
+             addMapBlock(frame, block_list, frame.newRightColOffset(), offset_y);
              ++offset_y)
             ;
     }
 }
 
 
-void GameMap::updateMapBlocksUp(TextureManager const &tmgr,
-                                Frame const &frame, SpriteList &block_list) const
+void GameMap::updateMapBlocksUp(Frame const &frame, SpriteList &block_list) const
 {
     removeNonVisibleBlocks(frame, block_list);
     if (frame.needsNewTopRow())
     {
         for (int offset_x = 0;
-             addMapBlock(tmgr, frame, block_list, offset_x, 0);
+             addMapBlock(frame, block_list, offset_x, 0);
              ++offset_x)
             ;
     }
 }
 
 
-void GameMap::updateMapBlocksDown(TextureManager const &tmgr,
-                                  Frame const &frame, SpriteList &block_list) const
+void GameMap::updateMapBlocksDown(Frame const &frame, SpriteList &block_list) const
 {
     removeNonVisibleBlocks(frame, block_list);
     if (frame.needsNewBottomRow())
     {
         for (int offset_x = 0;
-             addMapBlock(tmgr, frame, block_list, offset_x, frame.newBottomRowOffset());
+             addMapBlock(frame, block_list, offset_x, frame.newBottomRowOffset());
              ++offset_x)
             ;
     }

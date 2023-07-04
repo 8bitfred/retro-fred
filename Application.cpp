@@ -20,7 +20,7 @@ void FredApp::playGame()
     static constexpr std::uint32_t FRAMES_PER_SECOND = 5;
     Game game(cfg, random_engine, tmgr);
     auto fred = initializeFred(game);
-    game.getGameMap().initializeMapBlocks(tmgr, game.getFrame(),
+    game.getGameMap().initializeMapBlocks(game.getFrame(),
                                           game.getSpriteList(SpriteClass::BLOCK));
     initializeAcidDrops(game);
 
@@ -81,7 +81,6 @@ Fred* FredApp::initializeFred(Game &game)
     std::uniform_int_distribution<> distrib(1, game.getGameMap().getWidth() - 2);
     while (true)
     {
-        int x = distrib(random_engine);
         fred_cell_position.x = distrib(random_engine);
         if (game.getGameMap().getCell(fred_cell_position) == GameMap::Cell::EMPTY)
             break;
