@@ -58,6 +58,10 @@ void Fred::updateFred(Game& game, unsigned events)
     case State::ROPE_CLIMB:
         stateRopeClimb(game, events);
         break;
+    case State::EXIT_MAZE:
+        break;
+    default:
+        break;
     }
 }
 

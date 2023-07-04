@@ -52,18 +52,18 @@ void Game::moveFrame(int deltax, int deltay)
 
     frame.moveFrame(deltax, deltay);
     if (deltax > 0)
-        game_map.updateMapBlocksRight(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
+        game_map.updateMapBlocksRight(frame, getSpriteList(SpriteClass::BLOCK));
     else if (deltax < 0)
-        game_map.updateMapBlocksLeft(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
+        game_map.updateMapBlocksLeft(frame, getSpriteList(SpriteClass::BLOCK));
     if (deltay > 0)
-        game_map.updateMapBlocksDown(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
+        game_map.updateMapBlocksDown(frame, getSpriteList(SpriteClass::BLOCK));
     else if (deltay < 0)
-        game_map.updateMapBlocksUp(tmgr, frame, getSpriteList(SpriteClass::BLOCK));
+        game_map.updateMapBlocksUp(frame, getSpriteList(SpriteClass::BLOCK));
 }
 
 void Game::dbgResetMapBlocks()
 {
     auto &block_list = getSpriteList(SpriteClass::BLOCK);
     block_list.clear();
-    game_map.initializeMapBlocks(tmgr, frame, block_list);
+    game_map.initializeMapBlocks(frame, block_list);
 }

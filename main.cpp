@@ -7,7 +7,7 @@
 
 static constexpr std::uint32_t FRAMES_PER_SECOND = 60;
 
-int main(int argc, char *argv[])
+int main(int, char*[])
 {
     std::minstd_rand random_engine;
     const Config cfg;
