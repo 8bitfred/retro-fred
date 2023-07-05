@@ -9,8 +9,8 @@
 FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     : cfg(cfg)
     , random_engine(random_engine)
-    , w_and_r(sdl::createWindowAndRenderer(cfg.scale_x * cfg.window_width,
-                                           cfg.scale_y * cfg.window_height)),
+    , w_and_r(sdl::createWindowAndRenderer(static_cast<int>(cfg.scale_x * cfg.window_width),
+                                           static_cast<int>(cfg.scale_y * cfg.window_height))),
       tmgr(getRenderer())
 {
     SDL_RenderSetScale(getRenderer(), cfg.scale_x, cfg.scale_y);

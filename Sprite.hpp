@@ -14,6 +14,7 @@ class Game;
 class Sprite
 {
 public:
+    virtual ~Sprite() = default;
     struct CenterPos {
         int x = 0, y = 0;
     };
