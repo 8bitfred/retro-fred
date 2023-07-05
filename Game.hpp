@@ -3,9 +3,11 @@
 #include "Frame.hpp"
 #include "GameMap.hpp"
 #include "Sprite.hpp"
+#include "SoundID.hpp"
 #include <vector>
 
 class TextureManager;
+class SoundManager;
 class Fred;
 class Game
 {
@@ -23,7 +25,8 @@ public:
 
     static unsigned getEventOfKey(SDL_Keycode keycode);
 
-    Game(Config const &cfg, std::minstd_rand &random_engine, TextureManager const &tmgr);
+    Game(Config const &cfg, std::minstd_rand &random_engine,
+         TextureManager const &tmgr, SoundManager &smgr);
     Frame &getFrame() { return frame; }
     GameMap &getGameMap() { return game_map; }
     SpriteList &getSpriteList(SpriteClass sprite_class)
@@ -32,10 +35,12 @@ public:
     }
     void renderSprites(SDL_Renderer *renderer) const;
     void moveFrame(int deltax, int deltay);
+    void playSound(SoundID sound_id);
     void dbgResetMapBlocks();
 
 private:
     TextureManager const &tmgr;
+    SoundManager &smgr;
     Frame frame;
     GameMap game_map;
     std::vector<SpriteList> sprite_lists;

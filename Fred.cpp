@@ -96,6 +96,7 @@ void Fred::checkWalkActions(Game& game, unsigned events)
             {
                 frame_type = FrameType::STANDING;
                 state = State::REST_ON_FOOT;
+                game.playSound(SoundID::WALK);
                 return;
             }
             else if (auto next_cell = game.getGameMap().getCell(nextCellPos().vmove(1));
@@ -107,6 +108,7 @@ void Fred::checkWalkActions(Game& game, unsigned events)
                 state = State::SIDE_JUMP;
                 jump_stage = 3;
                 game.moveFrame(xdelta, 0);
+                game.playSound(SoundID::JUMP);
                 return;
             }
         }
@@ -118,7 +120,10 @@ void Fred::checkWalkActions(Game& game, unsigned events)
                 frame_type = FrameType::SMALL_STEP;
         }
         else
+        {
             frame_type = FrameType::STANDING;
+            game.playSound(SoundID::WALK);
+        }
         sprite_pos.xadd(xdelta);
         state = State::WALK;
         game.moveFrame(xdelta, 0);
@@ -130,6 +135,7 @@ void Fred::checkWalkActions(Game& game, unsigned events)
         sprite_pos.yadd(-1);
         state = State::VERTICAL_JUMP;
         jump_stage = 3;
+        game.playSound(SoundID::JUMP);
         return;
     }
     else if ((events & Game::EVENT_FIRE) != 0)
@@ -233,6 +239,7 @@ void Fred::checkRopeActions(Game& game, unsigned events)
         state = State::SIDE_JUMP;
         jump_stage = 3;
         game.moveFrame(-xdelta, 0);
+        game.playSound(SoundID::JUMP);
         return;
     }
     else if ((events & (Game::EVENT_UP | Game::EVENT_DOWN)) != 0)
@@ -252,7 +259,16 @@ void Fred::checkRopeActions(Game& game, unsigned events)
                 return;
             }
         }
-        frame_type = frame_type == FrameType::CLIMBING1 ? FrameType::CLIMBING2 : FrameType::CLIMBING1;
+        if (frame_type == FrameType::CLIMBING1)
+        {
+            frame_type = FrameType::CLIMBING2;
+            game.playSound(SoundID::CLIMB2);
+        }
+        else
+        {
+            frame_type = FrameType::CLIMBING1;
+            game.playSound(SoundID::CLIMB1);
+        }
         sprite_pos.yadd(ydelta);
         state = State::ROPE_CLIMB;
         game.moveFrame(0, ydelta);

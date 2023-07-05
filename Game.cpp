@@ -1,6 +1,8 @@
 #include "Game.hpp"
 #include "Config.hpp"
 #include "Fred.hpp"
+#include "SoundManager.hpp"
+#include <iostream>
 
 unsigned Game::getEventOfKey(SDL_Keycode keycode)
 {
@@ -32,8 +34,8 @@ unsigned Game::getEventOfKey(SDL_Keycode keycode)
 }
 
 Game::Game(Config const &cfg, std::minstd_rand &random_engine,
-    TextureManager const &tmgr)
-    : tmgr(tmgr)
+    TextureManager const &tmgr, SoundManager &smgr)
+    : tmgr(tmgr), smgr(smgr)
     , frame(cfg), game_map(random_engine, cfg.map_width, cfg.map_height)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
 {
@@ -59,6 +61,16 @@ void Game::moveFrame(int deltax, int deltay)
         game_map.updateMapBlocksDown(frame, getSpriteList(SpriteClass::BLOCK));
     else if (deltay < 0)
         game_map.updateMapBlocksUp(frame, getSpriteList(SpriteClass::BLOCK));
+}
+
+void Game::playSound(SoundID sound_id)
+{
+    static Uint32 prev_ticks = SDL_GetTicks();
+    (void)sound_id;
+    // smgr.play(sound_id);
+    Uint32 const ticks = SDL_GetTicks();
+    std::cout << "delta_ticks=" << ticks - prev_ticks << std::endl;
+    prev_ticks = ticks;
 }
 
 void Game::dbgResetMapBlocks()

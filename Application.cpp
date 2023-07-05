@@ -3,6 +3,7 @@
 #include "Game.hpp"
 #include "Fred.hpp"
 #include "AcidDrop.hpp"
+#include <iostream>
 
 
 FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
@@ -17,19 +18,24 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
 
 void FredApp::playGame()
 {
-    static constexpr std::uint32_t FRAMES_PER_SECOND = 5;
-    Game game(cfg, random_engine, tmgr);
+    static constexpr std::uint32_t FRAMES_PER_SECOND = 10;
+    static constexpr std::uint32_t TICKS_PER_FRAME = 1000 / FRAMES_PER_SECOND;
+    Game game(cfg, random_engine, tmgr, smgr);
     auto fred = initializeFred(game);
     game.getGameMap().initializeMapBlocks(game.getFrame(),
                                           game.getSpriteList(SpriteClass::BLOCK));
     initializeAcidDrops(game);
 
-    Uint32 start_ticks = SDL_GetTicks();
     std::uint32_t frame_count = 0;
     bool quit = false;
     unsigned events = 0;
     while (!quit)
     {
+        Uint32 const start_ticks = SDL_GetTicks();
+        // if ((frame_count % 2) == 0) {
+        //     smgr.play(SoundID::WALK);
+        //     std::cout << "------------------ticks=" << start_ticks << std::endl;
+        // }
         SDL_Event event;
         unsigned events_this_cycle = 0;
         while (SDL_PollEvent(&event) != 0)
@@ -63,15 +69,9 @@ void FredApp::playGame()
         SDL_RenderPresent(getRenderer());
 
         ++frame_count;
-        Uint32 frame_time = frame_count * 1000 / FRAMES_PER_SECOND;
-        Uint32 ticks = SDL_GetTicks() - start_ticks;
-        if (ticks < frame_time)
-            SDL_Delay(frame_time - ticks);
-        if (frame_count == (10 * FRAMES_PER_SECOND))
-        {
-            frame_count = 0;
-            start_ticks += frame_time;
-        }
+        Uint32 const ticks = SDL_GetTicks() - start_ticks;
+        if (ticks < TICKS_PER_FRAME)
+            SDL_Delay(TICKS_PER_FRAME - ticks);
     }
 }
 
