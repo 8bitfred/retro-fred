@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 
 project("fred2023")
 
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+
 add_executable(fred main.cpp sdl.hpp
     Config.cpp Config.hpp
     Application.cpp Application.hpp
@@ -15,8 +18,7 @@ add_executable(fred main.cpp sdl.hpp
     AcidDrop.hpp AcidDrop.cpp
     Fred.cpp Fred.hpp
     SoundID.hpp SoundManager.cpp SoundManager.hpp)
-target_link_libraries(fred -lSDL2 -lSDL2_image)
-target_include_directories(fred PUBLIC /usr/include/SDL2)
+target_link_libraries(fred ${SDL2_LIBRARIES})
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)
 set_property(TARGET fred PROPERTY CXX_STANDARD_REQUIRED True)
 
