@@ -2,6 +2,7 @@
 
 #include "sdl.hpp"
 #include "TextureManager.hpp"
+#include "SoundManager.hpp"
 #include <random>
 
 struct Config;
@@ -26,4 +27,5 @@ private:
     std::minstd_rand &random_engine;
     std::pair<sdl::WindowPtr, sdl::RendererPtr> w_and_r;
     TextureManager tmgr;
+    SoundManager smgr;
 };

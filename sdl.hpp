@@ -87,4 +87,76 @@ namespace sdl
         return {WindowPtr(win), RendererPtr(rend)};
     }
 
+    class WAVData {
+        SDL_AudioSpec spec;
+        Uint8* audio_buf;
+        Uint32 audio_len;
+    public:
+        explicit WAVData(const char* file)
+        {
+            auto result = SDL_LoadWAV(file, &spec, &audio_buf, &audio_len);
+            if (!result)
+                throw Error();
+        }
+        WAVData(WAVData const &) = delete;
+        WAVData(WAVData &&other) noexcept
+            : spec(other.spec), audio_buf(other.audio_buf), audio_len(other.audio_len)
+        {
+            other.audio_buf = nullptr;
+            other.audio_len = 0;
+        }
+        ~WAVData() noexcept { SDL_FreeWAV(audio_buf); }
+        WAVData &operator=(WAVData const &) = delete;
+        WAVData &operator=(WAVData&& other) noexcept
+        {
+            spec = other.spec;
+            audio_buf = other.audio_buf;
+            audio_len = other.audio_len;
+            other.audio_buf = nullptr;
+            other.audio_len = 0;
+            return *this;
+        }
+
+        SDL_AudioSpec const* getSpec() const noexcept { return &spec; }
+        Uint8 const* getBuf() const noexcept { return audio_buf; }
+        Uint32 getLen() const noexcept { return audio_len; }
+    };
+
+    class AudioDevice
+    {
+        SDL_AudioDeviceID device_id;
+
+    public:
+        AudioDevice(char const *device, bool iscapture,
+                    SDL_AudioSpec const *desired, SDL_AudioSpec *obtained,
+                    int allowed_changes)
+        {
+            device_id = SDL_OpenAudioDevice(device, iscapture,
+                                            desired, obtained, allowed_changes);
+            if (device_id == 0)
+                throw Error();
+        }
+        AudioDevice(AudioDevice const &) = delete;
+        AudioDevice(AudioDevice &&other) noexcept : device_id(other.device_id) { other.device_id = 0; }
+        ~AudioDevice() noexcept
+        {
+            if (device_id)
+                SDL_CloseAudioDevice(device_id);
+        }
+        AudioDevice &operator=(AudioDevice const &) = delete;
+        AudioDevice &operator=(AudioDevice &&other) noexcept
+        {
+            device_id = other.device_id;
+            other.device_id = 0;
+            return *this;
+        }
+        void queueAudio(WAVData const& wav_data)
+        {
+            auto status = SDL_QueueAudio(device_id, wav_data.getBuf(), wav_data.getLen());
+            if (status < 0)
+                throw Error();
+        }
+        void pause(bool pause_on) noexcept { SDL_PauseAudioDevice(device_id, pause_on); }
+    };
+
 } // namespace sdl
