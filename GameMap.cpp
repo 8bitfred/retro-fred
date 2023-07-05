@@ -185,6 +185,7 @@ TextureID GameMap::getTextureIDOf(CellPos const &pos) const
     default:
         assert(false);
     }
+    return TextureID::COUNT; // Never reached
 }
 
 void GameMap::render(int x, int y, TextureManager const &tmgr,
