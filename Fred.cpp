@@ -38,25 +38,32 @@ std::pair<TextureID, Sprite::CenterPos> Fred::getTexture() const
 
 void Fred::updateFred(Game& game, unsigned events)
 {
+    int hmove = 0, vmove = 0;
+    bool fire = false;
+    if ((events & Game::EVENT_LEFT) != 0)
+        hmove = -1;
+    else if ((events & Game::EVENT_RIGHT) != 0)
+        hmove = 1;
+    else if ((events & Game::EVENT_UP) != 0)
+        vmove = -1;
+    else if ((events & Game::EVENT_DOWN) != 0)
+        vmove = 1;
+    else if ((events & Game::EVENT_FIRE) != 0)
+        fire = true;
+
     switch (state)
     {
-    case State::REST_ON_FOOT:
-        stateRestOnFoot(game, events);
-        break;
     case State::WALK:
-        stateWalk(game, events);
+        stateWalk(game, hmove, vmove, fire);
         break;
     case State::VERTICAL_JUMP:
-        stateVerticalJump(game, events);
+        stateVerticalJump(game, hmove, vmove, fire);
         break;
     case State::SIDE_JUMP:
-        stateSideJump(game, events);
-        break;
-    case State::REST_ON_THE_ROPE:
-        stateRestOnTheRope(game, events);
+        stateSideJump(game, hmove, vmove, fire);
         break;
     case State::ROPE_CLIMB:
-        stateRopeClimb(game, events);
+        stateRopeClimb(game, hmove, vmove, fire);
         break;
     case State::EXIT_MAZE:
         break;
@@ -65,194 +72,168 @@ void Fred::updateFred(Game& game, unsigned events)
     }
 }
 
-void Fred::stateRestOnFoot(Game& game, unsigned events)
+void Fred::stateWalk(Game& game, int hmove, int vmove, bool fire)
 {
-    if (events != 0) {
-        checkWalkActions(game, events);
-        return;
-    }
-    frame_type = FrameType::STANDING;
-}
-
-void Fred::stateWalk(Game& game, unsigned events)
-{
-    checkWalkActions(game, events);
-}
-
-void Fred::checkWalkActions(Game& game, unsigned events)
-{
-    int xdelta = static_cast<int>(frame_dir);
-    unsigned events_same_dir = frame_dir == FrameDir::LEFT ? Game::EVENT_LEFT : Game::EVENT_RIGHT;
-    unsigned events_opp_dir = frame_dir == FrameDir::LEFT ? Game::EVENT_RIGHT : Game::EVENT_LEFT;
-    if ((events & events_opp_dir) != 0) {
-        frame_dir = static_cast<FrameDir>(-static_cast<int>(frame_dir));
-        frame_type = FrameType::STANDING;
-        state = State::REST_ON_FOOT;
-        return;
-    }
-    else if ((events & events_same_dir) != 0) {
-        if (sprite_pos.cx == 0) {
-            if (game.getGameMap().isStone(nextCellPos()))
-            {
-                if (frame_type == FrameType::BIG_STEP || frame_type == FrameType::SMALL_STEP)
-                    game.playSound(SoundID::WALK);
-                frame_type = FrameType::STANDING;
-                state = State::REST_ON_FOOT;
-                return;
-            }
-            else if (auto next_cell = game.getGameMap().getCell(nextCellPos().vmove(1));
-                     next_cell == GameMap::Cell::ROPE_MAIN)
-            {
-                frame_type = FrameType::BIG_STEP;
-                sprite_pos.xadd(xdelta);
-                sprite_pos.yadd(-1);
-                state = State::SIDE_JUMP;
-                jump_stage = 3;
-                game.moveFrame(xdelta, 0);
-                game.playSound(SoundID::JUMP);
-                return;
-            }
-        }
-        if (frame_type == FrameType::STANDING) 
-        {
-            if (sprite_pos.cx > 1)
-                frame_type = FrameType::BIG_STEP;
-            else
-                frame_type = FrameType::SMALL_STEP;
-        }
-        else
-        {
-            frame_type = FrameType::STANDING;
-            game.playSound(SoundID::WALK);
-        }
-        sprite_pos.xadd(xdelta);
-        state = State::WALK;
-        game.moveFrame(xdelta, 0);
-        return;
-    }
-    else if ((events & Game::EVENT_UP) != 0) 
+    if (hmove == (-frame_dir)) 
     {
-        frame_type = FrameType::BIG_STEP;
-        sprite_pos.yadd(-1);
-        state = State::VERTICAL_JUMP;
-        jump_stage = 3;
-        game.playSound(SoundID::JUMP);
-        return;
+        frame_dir = -frame_dir;
+        frame_type = FrameType::STANDING;
     }
-    else if ((events & Game::EVENT_FIRE) != 0)
+    else if (hmove == frame_dir)
+        walkOneStep(game);
+    else if (vmove < 0)
+        startVerticalJump(game);
+    else if (fire)
     {
         frame_type = FrameType::SHOOTING;
-        state = State::REST_ON_FOOT;
-        return;
-    }
-    frame_type = FrameType::STANDING;
-    state = State::REST_ON_FOOT;
-    game.playSound(SoundID::WALK);
-}
-
-void Fred::stateVerticalJump(Game& game, unsigned events)
-{
-    --jump_stage;
-    if (jump_stage == 0) {
-        if (sprite_pos.cx == 0 && 
-            game.getGameMap().getCell(sprite_pos.cellPos()) == GameMap::Cell::ROPE_END) {
-            frame_type = FrameType::CLIMBING1;
-            state = State::REST_ON_THE_ROPE;
-        }
-        else {
-            sprite_pos.yadd(1);
-            if ((events & Game::EVENT_FIRE) != 0)
-                frame_type = FrameType::SHOOTING;
-            else
-                frame_type = FrameType::STANDING;
-            state = State::REST_ON_FOOT;
-        }
     }
     else 
     {
-        if ((events & Game::EVENT_FIRE) != 0)
-            frame_type = FrameType::JUMP_SHOOTING;
-        else
-            frame_type = FrameType::BIG_STEP;
+        if (frame_type == FrameType::BIG_STEP || frame_type == FrameType::SMALL_STEP)
+            game.playSound(SoundID::WALK);
+        frame_type = FrameType::STANDING;
     }
 }
 
-void Fred::stateSideJump(Game& game, unsigned events)
+void Fred::walkOneStep(Game &game)
 {
-    int xdelta = static_cast<int>(frame_dir);
+    if (sprite_pos.cx == 0)
+    {
+        if (game.getGameMap().isStone(nextCellPos()))
+        {
+            if (frame_type == FrameType::BIG_STEP || frame_type == FrameType::SMALL_STEP)
+                game.playSound(SoundID::WALK);
+            frame_type = FrameType::STANDING;
+            return;
+        }
+        else if (auto next_cell = game.getGameMap().getCell(nextCellPos().vmove(1));
+                 next_cell == GameMap::Cell::ROPE_MAIN)
+        {
+            sprite_pos.yadd(-1);
+            startSideJump(game);
+            return;
+        }
+    }
+    if (frame_type == FrameType::STANDING)
+    {
+        if (sprite_pos.cx > 1)
+            frame_type = FrameType::BIG_STEP;
+        else
+            frame_type = FrameType::SMALL_STEP;
+    }
+    else
+    {
+        frame_type = FrameType::STANDING;
+        game.playSound(SoundID::WALK);
+    }
+    sprite_pos.xadd(frame_dir);
+    game.moveFrame(frame_dir, 0);
+}
+
+void Fred::startSideJump(Game& game)
+{
+    frame_type = FrameType::BIG_STEP;
+    state = State::SIDE_JUMP;
+    jump_stage = 3;
+    sprite_pos.xadd(frame_dir);
+    game.moveFrame(frame_dir, 0);
+    game.playSound(SoundID::JUMP);
+}
+
+void Fred::startVerticalJump(Game& game)
+{
+    frame_type = FrameType::BIG_STEP;
+    state = State::VERTICAL_JUMP;
+    jump_stage = 3;
+    sprite_pos.yadd(-1);
+    game.playSound(SoundID::JUMP);
+}
+
+void Fred::stateVerticalJump(Game& game, int, int, bool fire)
+{
     --jump_stage;
-    sprite_pos.xadd(xdelta);
-    if (jump_stage == 0) 
+    if (jump_stage == 0)
+    {
+        if (sprite_pos.cx == 0 && 
+            game.getGameMap().getCell(sprite_pos.cellPos()) == GameMap::Cell::ROPE_END) {
+            frame_type = FrameType::CLIMBING1;
+            state = State::ROPE_CLIMB;
+        }
+        else {
+            sprite_pos.yadd(1);
+            if (fire)
+            {
+                frame_type = FrameType::SHOOTING;
+            }
+            else
+            {
+                frame_type = FrameType::STANDING;
+                game.playSound(SoundID::WALK);
+            }
+            state = State::WALK;
+        }
+    }
+    else if (fire)
+    {
+        frame_type = FrameType::JUMP_SHOOTING;
+    }
+    else
+        frame_type = FrameType::BIG_STEP;
+}
+
+void Fred::stateSideJump(Game& game, int, int, bool fire)
+{
+    --jump_stage;
+    sprite_pos.xadd(frame_dir);
+    game.moveFrame(frame_dir, 0);
+    if (jump_stage == 0)
     {
         if (game.getGameMap().isStone(sprite_pos.cellPos().vmove(1)))
         {
             sprite_pos.yadd(1);
-            if ((events & Game::EVENT_FIRE) != 0)
+            if (fire)
                 frame_type = FrameType::SHOOTING;
             else
+            {
                 frame_type = FrameType::STANDING;
-            state = State::REST_ON_FOOT;
+                game.playSound(SoundID::WALK);
+            }
+            state = State::WALK;
         }
         else 
         {
             frame_type = FrameType::CLIMBING1;
-            state = State::REST_ON_THE_ROPE;
+            state = State::ROPE_CLIMB;
         }
     }
-    else 
-    {
-        if ((events & Game::EVENT_FIRE) != 0)
-            frame_type = FrameType::JUMP_SHOOTING;
-        else
-            frame_type = FrameType::BIG_STEP;
-    }
-    game.moveFrame(xdelta, 0);
-}
-
-void Fred::stateRestOnTheRope(Game& game, unsigned events)
-{
-    if (events != 0)
-        checkRopeActions(game, events);
-}
-
-void Fred::stateRopeClimb(Game& game, unsigned events)
-{
-    checkRopeActions(game, events);
-}
-
-void Fred::checkRopeActions(Game& game, unsigned events)
-{
-    int xdelta = static_cast<int>(frame_dir);
-    unsigned events_same_dir = frame_dir == FrameDir::LEFT ? Game::EVENT_LEFT : Game::EVENT_RIGHT;
-    unsigned events_opp_dir = frame_dir == FrameDir::LEFT ? Game::EVENT_RIGHT : Game::EVENT_LEFT;
-    if ((events & events_same_dir) != 0)
-    {
-        frame_dir = static_cast<FrameDir>(-static_cast<int>(frame_dir));
-        state = State::REST_ON_THE_ROPE;
-        return;
-    }
-    else if ((events & events_opp_dir) != 0 &&
-             sprite_pos.cy == 0 &&
-             !game.getGameMap().isStone(sprite_pos.cellPos().hmove(-xdelta)))
-    {
-        frame_dir = static_cast<FrameDir>(-static_cast<int>(frame_dir));
+    else if (fire)
+        frame_type = FrameType::JUMP_SHOOTING;
+    else
         frame_type = FrameType::BIG_STEP;
-        sprite_pos.xadd(-xdelta);
-        state = State::SIDE_JUMP;
-        jump_stage = 3;
-        game.moveFrame(-xdelta, 0);
-        game.playSound(SoundID::JUMP);
+}
+
+void Fred::stateRopeClimb(Game& game, int hmove, int vmove, bool)
+{
+    if (hmove == frame_dir)
+    {
+        frame_dir = -frame_dir;
         return;
     }
-    else if ((events & (Game::EVENT_UP | Game::EVENT_DOWN)) != 0)
+    else if (hmove == (-frame_dir) &&
+             sprite_pos.cy == 0 &&
+             !game.getGameMap().isStone(sprite_pos.cellPos().hmove(hmove)))
     {
-        int ydelta = (events & Game::EVENT_UP) != 0 ? -1 : 1;
+        frame_dir = hmove;
+        startSideJump(game);
+        return;
+    }
+    else if (vmove != 0)
+    {
         if (sprite_pos.cy == 0)
         {
-            auto next_pos = sprite_pos.cellPos().vmove(ydelta);
+            auto next_pos = sprite_pos.cellPos().vmove(vmove);
             if (game.getGameMap().isStone(next_pos))
             {
-                state = State::REST_ON_THE_ROPE;
                 return;
             }
             else if (game.getGameMap().getCell(next_pos) == GameMap::Cell::TRAPDOOR)
@@ -271,17 +252,16 @@ void Fred::checkRopeActions(Game& game, unsigned events)
             frame_type = FrameType::CLIMBING1;
             game.playSound(SoundID::CLIMB1);
         }
-        sprite_pos.yadd(ydelta);
+        sprite_pos.yadd(vmove);
         state = State::ROPE_CLIMB;
-        game.moveFrame(0, ydelta);
+        game.moveFrame(0, vmove);
         return;
     }
-    state = State::REST_ON_THE_ROPE;
 }
 
 void Fred::dbgResetPosition(Game &game)
 {
-    if (state != State::REST_ON_FOOT)
+    if (state != State::WALK)
         return;
     MapPos candidate{game.getFrame().gFrame().x + game.getFrame().getFredOffsetX(),
                      game.getFrame().gFrame().y + game.getFrame().getFredOffsetY(),
@@ -317,7 +297,7 @@ void Fred::dbgResetPosition(Game &game)
 
 void Fred::dbgMoveToHatch(Game &game)
 {
-    if (state != State::REST_ON_FOOT)
+    if (state != State::WALK)
         return;
     auto hatch_pos = game.getGameMap().dbgGetHatchPos();
     sprite_pos = {hatch_pos.x, hatch_pos.y + 1, 0, 1};
