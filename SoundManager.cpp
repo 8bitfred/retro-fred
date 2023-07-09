@@ -12,8 +12,16 @@ std::vector<sdl::WAVData> SoundManager::loadWAVs()
     return wav_list;
 }
 
+SDL_AudioSpec SoundManager::initAudioSpec(sdl::WAVData const &wav_data)
+{
+    SDL_AudioSpec audio_spec = *wav_data.getSpec();
+    audio_spec.samples = 256;
+    return audio_spec;
+}
+
 SoundManager::SoundManager()
-    : wav_list(loadWAVs()), audio_device(nullptr, false, wav_list.front().getSpec(), nullptr, 0)
+    : wav_list(loadWAVs()), audio_spec(initAudioSpec(wav_list.front()))
+    , audio_device(nullptr, false, &audio_spec, nullptr, 0)
 {
     audio_device.pause(false);
 }
