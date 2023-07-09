@@ -65,12 +65,7 @@ void Game::moveFrame(int deltax, int deltay)
 
 void Game::playSound(SoundID sound_id)
 {
-    static Uint32 prev_ticks = SDL_GetTicks();
-    (void)sound_id;
-    // smgr.play(sound_id);
-    Uint32 const ticks = SDL_GetTicks();
-    std::cout << "delta_ticks=" << ticks - prev_ticks << std::endl;
-    prev_ticks = ticks;
+    smgr.play(sound_id);
 }
 
 void Game::dbgResetMapBlocks()
