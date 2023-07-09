@@ -94,9 +94,10 @@ void Fred::checkWalkActions(Game& game, unsigned events)
         if (sprite_pos.cx == 0) {
             if (game.getGameMap().isStone(nextCellPos()))
             {
+                if (frame_type == FrameType::BIG_STEP || frame_type == FrameType::SMALL_STEP)
+                    game.playSound(SoundID::WALK);
                 frame_type = FrameType::STANDING;
                 state = State::REST_ON_FOOT;
-                game.playSound(SoundID::WALK);
                 return;
             }
             else if (auto next_cell = game.getGameMap().getCell(nextCellPos().vmove(1));
@@ -146,6 +147,7 @@ void Fred::checkWalkActions(Game& game, unsigned events)
     }
     frame_type = FrameType::STANDING;
     state = State::REST_ON_FOOT;
+    game.playSound(SoundID::WALK);
 }
 
 void Fred::stateVerticalJump(Game& game, unsigned events)
