@@ -32,8 +32,3 @@ if (NOT MSVC)
 endif()
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)
 set_property(TARGET fred PROPERTY CXX_STANDARD_REQUIRED True)
-
-add_executable(test_sound TestSound.cpp)
-target_link_libraries(test_sound ${SDL2_LIBRARIES})
-set_property(TARGET test_sound PROPERTY CXX_STANDARD 20)
-set_property(TARGET test_sound PROPERTY CXX_STANDARD_REQUIRED True)
