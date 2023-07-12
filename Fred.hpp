@@ -40,9 +40,9 @@ private:
         return sprite_pos.cellPos().hmove(static_cast<int>(frame_dir));
     }
     void stateWalk(Game& game, int hmove, int vmove, bool fire);
-    void walkOneStep(Game &game);
-    void startSideJump(Game &game);
-    void startVerticalJump(Game &game);
+    void walkOneStep(Game &game, bool fire);
+    void startSideJump(Game &game, bool fire);
+    void startVerticalJump(Game &game, bool fire);
     void stateVerticalJump(Game &game, int hmove, int vmove, bool fire);
     void stateSideJump(Game& game, int hmove, int vmove, bool fire);
     void stateRopeClimb(Game& game, int hmove, int vmove, bool fire);
