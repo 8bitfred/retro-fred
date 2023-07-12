@@ -12,4 +12,5 @@ struct Config {
     float scale_x, scale_y;
     int map_width, map_height;
     int map_x, map_y;
+    bool debug_map = false;
 };

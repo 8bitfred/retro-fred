@@ -36,7 +36,7 @@ unsigned Game::getEventOfKey(SDL_Keycode keycode)
 Game::Game(Config const &cfg, std::minstd_rand &random_engine,
     TextureManager const &tmgr, SoundManager &smgr)
     : tmgr(tmgr), smgr(smgr)
-    , frame(cfg), game_map(random_engine, cfg.map_width, cfg.map_height)
+    , frame(cfg), game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
 {
 }

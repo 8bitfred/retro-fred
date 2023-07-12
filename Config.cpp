@@ -20,4 +20,5 @@ Config::Config()
 , map_width(33)
 , map_height(33)
 , map_x(-16), map_y(-16)
+, debug_map(true)
 {}

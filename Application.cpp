@@ -11,14 +11,14 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     , random_engine(random_engine)
     , w_and_r(sdl::createWindowAndRenderer(static_cast<int>(cfg.scale_x * cfg.window_width),
                                            static_cast<int>(cfg.scale_y * cfg.window_height))),
-      tmgr(getRenderer())
+      tmgr(cfg, getRenderer())
 {
     SDL_RenderSetScale(getRenderer(), cfg.scale_x, cfg.scale_y);
 }
 
 void FredApp::playGame()
 {
-    static constexpr std::uint32_t FRAMES_PER_SECOND = 10;
+    static constexpr std::uint32_t FRAMES_PER_SECOND = 6;
     static constexpr std::uint32_t TICKS_PER_FRAME = 1000 / FRAMES_PER_SECOND;
     Game game(cfg, random_engine, tmgr, smgr);
     auto fred = initializeFred(game);
@@ -77,15 +77,21 @@ void FredApp::playGame()
 
 Fred* FredApp::initializeFred(Game &game)
 {
-    CellPos fred_cell_position = {0, game.getGameMap().getHeight() - 2};
-    std::uniform_int_distribution<> distrib(1, game.getGameMap().getWidth() - 2);
-    while (true)
+    MapPos fred_initial_position;
+    if (cfg.debug_map)
+        fred_initial_position = {23, 31, 0, 1};
+    else
     {
-        fred_cell_position.x = distrib(random_engine);
-        if (game.getGameMap().getCell(fred_cell_position) == GameMap::Cell::EMPTY)
-            break;
+        CellPos fred_cell_position = {0, game.getGameMap().getHeight() - 2};
+        std::uniform_int_distribution<> distrib(1, game.getGameMap().getWidth() - 2);
+        while (true)
+        {
+            fred_cell_position.x = distrib(random_engine);
+            if (game.getGameMap().getCell(fred_cell_position) == GameMap::Cell::EMPTY)
+                break;
+        }
+        fred_initial_position = {fred_cell_position.x, fred_cell_position.y, 0, 1};
     }
-    MapPos fred_initial_position = {fred_cell_position.x, fred_cell_position.y, 0, 1};
     auto fred_unique_ptr = std::make_unique<Fred>(game.getFrame(), fred_initial_position);
     auto fred_ptr = fred_unique_ptr.get();
     game.getFrame().adjustFramePos(fred_initial_position);
