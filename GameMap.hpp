@@ -8,6 +8,7 @@
 struct SDL_Rect;
 struct SDL_Renderer;
 struct SDL_Texture;
+class Config;
 class Frame;
 
 class GameMap
@@ -27,7 +28,7 @@ public:
         TRAPDOOR
     };
 
-    GameMap(std::minstd_rand &random_engine, int width, int height);
+    GameMap(Config const& cfg, std::minstd_rand &random_engine);
     Cell getCell(CellPos const &pos) const;
     bool isStone(CellPos const &pos) const {
         auto c = getCell(pos);
@@ -64,4 +65,5 @@ private:
     int width_minus_one, height;
     std::vector<Cell> cell_list;
     int hatch_x; // for debugging
+    static std::uint8_t debug_map[];
 };
