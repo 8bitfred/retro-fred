@@ -3,6 +3,8 @@
 #include "Coord.hpp"
 
 struct Config;
+struct SDL_Renderer;
+class TextureManager;
 
 class Frame
 {
@@ -32,6 +34,8 @@ public:
 
     int getFredOffsetX() const { return fred_offset_x; }
     int getFredOffsetY() const { return fred_offset_y; }
+
+    void renderFrame(Config const& cfg, SDL_Renderer *renderer, TextureManager const &tmgr);
 
 private:
     // Position of F, in map coordinates

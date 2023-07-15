@@ -66,6 +66,7 @@ void FredApp::playGame()
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
+        game.getFrame().renderFrame(cfg, getRenderer(), tmgr);
         SDL_RenderPresent(getRenderer());
 
         ++frame_count;

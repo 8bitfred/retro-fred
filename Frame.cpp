@@ -1,5 +1,7 @@
 #include "Frame.hpp"
 #include "Config.hpp"
+#include "TextureManager.hpp"
+#include "sdl.hpp"
 #include <iostream>
 
 // Game screen
@@ -228,4 +230,39 @@ void Frame::adjustFramePos(MapPos fred_pos)
                fred_pos.y - fred_offset_y,
                fred_pos.cx,
                fred_pos.cy};
+}
+
+void Frame::renderFrame(Config const& cfg, SDL_Renderer *renderer, TextureManager const &tmgr)
+{
+    SDL_Texture *base_frame = tmgr.get(TextureID::FRAME_BASE);
+    Uint32 texture_format;
+    SDL_QueryTexture(base_frame, &texture_format, nullptr, nullptr, nullptr);
+
+    SDL_Rect const frame_char = {0, 0, 8, 8};
+    for (int x = 0; x < cfg.window_width; x += 8)
+    {
+        SDL_Rect dst_rect = {x, 0, 8, 8};
+        auto status = SDL_RenderCopy(renderer, base_frame, &frame_char, &dst_rect);
+        if (status < 0)
+            throw sdl::Error();
+        dst_rect.y = cfg.window_height - 8;
+        status = SDL_RenderCopy(renderer, base_frame, &frame_char, &dst_rect);
+        if (status < 0)
+            throw sdl::Error();
+    }
+
+    for (int y = 0; y < cfg.window_height; y += 8)
+    {
+        SDL_Rect dst_rect = {0, y, 8, 8};
+        auto status = SDL_RenderCopy(renderer, base_frame, &frame_char, &dst_rect);
+        if (status < 0)
+            throw sdl::Error();
+        for (int x = cfg.window_width - 56; x < cfg.window_width; x += 8)
+        {
+            dst_rect.x = x;
+            status = SDL_RenderCopy(renderer, base_frame, &frame_char, &dst_rect);
+            if (status < 0)
+                throw sdl::Error();
+        }
+    }
 }
