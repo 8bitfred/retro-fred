@@ -3,9 +3,6 @@
 
 enum class TextureID : std::uint8_t
 {
-    FRAME_BASE,
-    FRAME_CUSTOM,
-
     BLOCK_STONE1,
     BLOCK_STONE2,
     BLOCK_STONE3,
