@@ -11,7 +11,7 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     , random_engine(random_engine)
     , w_and_r(sdl::createWindowAndRenderer(static_cast<int>(cfg.scale_x * cfg.window_width),
                                            static_cast<int>(cfg.scale_y * cfg.window_height))),
-      tmgr(getRenderer())
+      tmgr(cfg, getRenderer())
 {
     SDL_RenderSetScale(getRenderer(), cfg.scale_x, cfg.scale_y);
 }
@@ -66,6 +66,8 @@ void FredApp::playGame()
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
+        SDL_SetRenderDrawBlendMode(getRenderer(), SDL_BLENDMODE_BLEND);
+        SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRAME_CUSTOM), nullptr, nullptr);
         SDL_RenderPresent(getRenderer());
 
         ++frame_count;

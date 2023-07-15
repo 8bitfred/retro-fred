@@ -159,4 +159,26 @@ namespace sdl
         void pause(bool pause_on) noexcept { SDL_PauseAudioDevice(device_id, pause_on); }
     };
 
+    class RenderTargetGuard
+    {
+        SDL_Renderer *renderer;
+        SDL_Texture *previous_target;
+
+    public:
+        RenderTargetGuard(SDL_Renderer *renderer, SDL_Texture *texture)
+        : renderer(renderer)
+        , previous_target(SDL_GetRenderTarget(renderer))
+        {
+            auto status = SDL_SetRenderTarget(renderer, texture);
+            if (status < 0)
+                throw Error();
+        }
+        RenderTargetGuard(RenderTargetGuard const &) = delete;
+        RenderTargetGuard &operator=(RenderTargetGuard const &) = delete;
+        ~RenderTargetGuard()
+        {
+            SDL_SetRenderTarget(renderer, previous_target);
+        }
+    };
+
 } // namespace sdl
