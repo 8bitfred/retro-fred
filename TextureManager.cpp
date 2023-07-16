@@ -26,19 +26,6 @@ TextureManager::TextureManager(SDL_Renderer *renderer)
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/aciddrop_seq_9.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/aciddrop_seq_10.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/aciddrop_seq_11.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_01.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_02.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_03.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_04.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_05.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_06.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_07.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_08.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_09.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_10.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_11.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_12.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_13.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_1x_14.png"));
+    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred.png"));
     assert(texture_list.size() == static_cast<size_t>(TextureID::COUNT));
 }
