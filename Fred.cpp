@@ -9,30 +9,41 @@ Fred::Fred(Frame const &frame, MapPos initial_position)
 
 }
 
-std::pair<TextureID, Sprite::CenterPos> Fred::getTexture() const
+Sprite::RenderInfo Fred::getTexture() const
 {
-    static std::pair<TextureID, Sprite::CenterPos> textures[2][7] =
+    // The FRED_SHEET texture contains the sprite sheet for Fred. The sheet is organized
+    // as a 4x4 matrix, where each cell in the matrix is a different frame. Each cell is
+    // 50 by 50 pixels, and each cell is separated from each other by 8 pixels. Each cell
+    // has a 1 pixel rectangle surrounding the frame, so each frame is actually 48x48
+    // pixels.
+
+    // Offset of cells 0, 1, 2 and 3:
+    static constexpr int c0 = 1;
+    static constexpr int c1 = c0 + 58;
+    static constexpr int c2 = c1 + 58;
+    static constexpr int c3 = c2 + 58;
+    static RenderInfo textures[2][7] =
         {
             {
-                {TextureID::FRED_LEFT_STANDING, {}},
-                {TextureID::FRED_LEFT_BIG_STEP, {}},
-                {TextureID::FRED_LEFT_SMALL_STEP, {}},
-                {TextureID::FRED_LEFT_CLIMBING1, {}},
-                {TextureID::FRED_LEFT_CLIMBING2, {}},
-                {TextureID::FRED_LEFT_SHOOTING, {8, 0}},
-                {TextureID::FRED_LEFT_JUMP_SHOOTING, {8, 0}},
+                {TextureID::FRED, {c0, c0, 48, 48}, 8, 8},  // frame id 0
+                {TextureID::FRED, {c1, c0, 48, 48}, 8, 8},  // frame id 1
+                {TextureID::FRED, {c2, c0, 48, 48}, 8, 8},  // frame id 2
+                {TextureID::FRED, {c2, c1, 48, 48}, 8, 8},  // frame id 6
+                {TextureID::FRED, {c3, c1, 48, 48}, 8, 8},  // frame id 7
+                {TextureID::FRED, {c2, c2, 48, 48}, 8, 8},  // frame id 10
+                {TextureID::FRED, {c0, c3, 48, 48}, 8, 8},  // frame id 12
             },
             {
-                {TextureID::FRED_RIGHT_STANDING, {}},
-                {TextureID::FRED_RIGHT_BIG_STEP, {}},
-                {TextureID::FRED_RIGHT_SMALL_STEP, {}},
-                {TextureID::FRED_RIGHT_CLIMBING1, {}},
-                {TextureID::FRED_RIGHT_CLIMBING2, {}},
-                {TextureID::FRED_RIGHT_SHOOTING, {0, 0}},
-                {TextureID::FRED_RIGHT_JUMP_SHOOTING, {0, 0}},
+                {TextureID::FRED, {c3, c0, 48, 48}, 8, 8},  // frame id 3
+                {TextureID::FRED, {c0, c1, 48, 48}, 8, 8},  // frame id 4
+                {TextureID::FRED, {c1, c1, 48, 48}, 8, 8},  // frame id 5
+                {TextureID::FRED, {c0, c2, 48, 48}, 8, 8},  // frame id 8
+                {TextureID::FRED, {c1, c2, 48, 48}, 8, 8},  // frame id 9
+                {TextureID::FRED, {c3, c2, 48, 48}, 8, 8},  // frame id 11
+                {TextureID::FRED, {c1, c3, 48, 48}, 8, 8},  // frame id 13
             },
         };
-    int dir_index = (static_cast<int>(frame_dir) + 1) >> 1;
+    int dir_index = (frame_dir + 1) >> 1;
     return textures[dir_index][static_cast<int>(frame_type)];
 }
 

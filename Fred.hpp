@@ -14,7 +14,7 @@ public:
     void dbgMoveToHatch(Game &game);
 
 protected:
-    std::pair<TextureID, CenterPos> getTexture() const override;
+    RenderInfo getTexture() const override;
 
 private:
     enum class State : uint8_t

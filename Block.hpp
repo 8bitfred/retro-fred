@@ -7,9 +7,9 @@ public:
     Block(Frame const &frame, MapPos const &pos, TextureID texture_id);
 
 protected:
-    std::pair<TextureID, CenterPos> getTexture() const override
+    RenderInfo getTexture() const override
     {
-        return {texture_id, {}};
+        return {texture_id, {0, 0, 32, 40}, 0, 0};
     }
 
 private:

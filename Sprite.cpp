@@ -26,16 +26,15 @@ void Sprite::render(Frame const &frame, TextureManager const &tmgr,
 {
     if (!isVisible(frame))
         return;
-    auto [texture_id, center_pos] = getTexture();
-    auto texture = tmgr.get(texture_id);
+    auto render_info = getTexture();
+    auto texture = tmgr.get(render_info.texture_id);
     SDL_Rect rect;
     auto spos = frame.getScreenPosOf(sprite_pos);
-    rect.x = spos.x - center_pos.x;
-    rect.y = spos.y - center_pos.y;
-    auto query_error = SDL_QueryTexture(texture, nullptr, nullptr, &rect.w, &rect.h);
-    if (query_error != 0)
-        throw sdl::Error();
-    auto render_error = SDL_RenderCopy(renderer, texture, nullptr, &rect);
+    rect.x = spos.x - render_info.center_x;
+    rect.y = spos.y - render_info.center_y;
+    rect.w = render_info.src_rect.w;
+    rect.h = render_info.src_rect.h;
+    auto render_error = SDL_RenderCopy(renderer, texture, &render_info.src_rect, &rect);
     if (render_error != 0)
         throw sdl::Error();
 }

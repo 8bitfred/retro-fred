@@ -14,10 +14,12 @@ class Game;
 class Sprite
 {
 public:
-    virtual ~Sprite() = default;
-    struct CenterPos {
-        int x = 0, y = 0;
+    struct RenderInfo {
+        TextureID texture_id;
+        SDL_Rect src_rect;
+        int center_x, center_y;
     };
+    virtual ~Sprite() = default;
     bool isVisible(Frame const &frame) const;
     void render(Frame const &frame, TextureManager const &tmgr,
                 SDL_Renderer *renderer) const;
@@ -25,7 +27,7 @@ public:
 
 protected:
     Sprite(Frame const &frame, MapPos const &pos, int char_width, int char_height);
-    virtual std::pair<TextureID, CenterPos> getTexture() const = 0;
+    virtual RenderInfo getTexture() const = 0;
 
     // sSprite
     MapPos sprite_pos;
