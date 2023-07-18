@@ -5,17 +5,19 @@
 class AcidDrop : public Sprite
 {
 public:
-    AcidDrop(Frame const &frame, MapPos const &pos, TextureID initial_texture_id)
-    : Sprite::Sprite(frame, pos, 4, 5), texture_id(initial_texture_id) {}
+    AcidDrop(Frame const &frame, MapPos const &pos, int initial_state)
+    : Sprite::Sprite(frame, pos, 2, 1), state(initial_state) {}
 
     void update(Game &game, unsigned events) override;
 
 protected:
-    RenderInfo getTexture() const override
-    {
-        return {texture_id, {0, 0, 32, 40}, 0, 0};
-    }
+    RenderInfo getTexture() const override;
 
 private:
-    TextureID texture_id = TextureID::ACID_DROP1;
+    struct StateInfo {
+        RenderInfo render_info;
+        int ydelta;
+    };
+    StateInfo getStateInfo() const;
+    int state = 0;
 };

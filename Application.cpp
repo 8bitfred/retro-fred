@@ -106,15 +106,15 @@ void FredApp::initializeAcidDrops(Game &game)
     auto &sprite_list = game.getSpriteList(SpriteClass::ACID_DROP);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
     std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
-    std::uniform_int_distribution<> distrib_frame(static_cast<int>(TextureID::ACID_DROP1),
-                                                  static_cast<int>(TextureID::ACID_DROP4));
-    for (int i = 0; i < 40; ++i) {
+    std::uniform_int_distribution<> distrib_frame(0, 3);
+    for (int i = 0; i < 20; ++i) {
         while (true)
         {
-            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
-            if (!game.getGameMap().isStone(pos.cellPos().vmove(-1)))
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 1, 0};
+            if (!game.getGameMap().isStone(pos.cellPos().vmove(-1)) &&
+                game.getGameMap().getCell(pos.cellPos().vmove(-1)) != GameMap::Cell::TRAPDOOR)
                 continue;
-            if (game.getGameMap().getCell(pos.cellPos()) != GameMap::Cell::EMPTY)
+            if (game.getGameMap().isStone(pos.cellPos()))
                 continue;
             if (!game.getGameMap().isStone(pos.cellPos().vmove(1)))
                 continue;
@@ -128,9 +128,9 @@ void FredApp::initializeAcidDrops(Game &game)
                 cell == GameMap::Cell::ROPE_MAIN ||
                 cell == GameMap::Cell::ROPE_START)
                 continue;
-            auto texture_id = static_cast<TextureID>(distrib_frame(random_engine));
+            auto initial_state = distrib_frame(random_engine);
             sprite_list.emplace_back(std::make_unique<AcidDrop>(game.getFrame(),
-                                                                pos, texture_id));
+                                                                pos, initial_state));
             break;
         }
     }
