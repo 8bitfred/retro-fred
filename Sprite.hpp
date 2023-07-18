@@ -42,6 +42,7 @@ enum class SpriteClass
 {
     BLOCK,
     ACID_DROP,
+    RAT,
     FRED,
     COUNT
 };

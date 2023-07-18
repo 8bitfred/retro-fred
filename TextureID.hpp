@@ -16,6 +16,7 @@ enum class TextureID : std::uint8_t
     BLOCK_TRAPDOOR,
 
     ACID_DROP,
+    RAT,
     FRED,
     COUNT
 };

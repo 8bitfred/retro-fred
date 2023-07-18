@@ -16,6 +16,7 @@ TextureManager::TextureManager(SDL_Renderer *renderer)
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/sandsprite_1x.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/trapdoorsprite_1x.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/aciddrop.png"));
+    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/rat.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred.png"));
     assert(texture_list.size() == static_cast<size_t>(TextureID::COUNT));
 }

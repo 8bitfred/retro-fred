@@ -3,6 +3,7 @@
 #include "Game.hpp"
 #include "Fred.hpp"
 #include "AcidDrop.hpp"
+#include "Rat.hpp"
 #include <iostream>
 
 
@@ -25,6 +26,7 @@ void FredApp::playGame()
     game.getGameMap().initializeMapBlocks(game.getFrame(),
                                           game.getSpriteList(SpriteClass::BLOCK));
     initializeAcidDrops(game);
+    initializeRats(game);
 
     std::uint32_t frame_count = 0;
     bool quit = false;
@@ -62,6 +64,8 @@ void FredApp::playGame()
             fred->updateFred(game, events_this_cycle);
 
         for (auto const& sprite: game.getSpriteList(SpriteClass::ACID_DROP))
+            sprite->update(game, 0);
+        for (auto const& sprite: game.getSpriteList(SpriteClass::RAT))
             sprite->update(game, 0);
 
         SDL_RenderClear(getRenderer());
@@ -131,6 +135,33 @@ void FredApp::initializeAcidDrops(Game &game)
             auto initial_state = distrib_frame(random_engine);
             sprite_list.emplace_back(std::make_unique<AcidDrop>(game.getFrame(),
                                                                 pos, initial_state));
+            break;
+        }
+    }
+}
+
+void FredApp::initializeRats(Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::RAT);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    for (int i = 0; i < 40; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 4};
+            if (game.getGameMap().isStone(pos.cellPos()))
+                continue;
+            if (game.getGameMap().isStone(pos.cellPos().hmove(-1)))
+                continue;
+            if (game.getGameMap().isStone(pos.cellPos().hmove(1)))
+                continue;
+            if (!game.getGameMap().isStone(pos.cellPos().vmove(1)))
+                continue;
+            if (!game.getGameMap().isStone(pos.cellPos().vmove(1).hmove(-1)))
+                continue;
+            if (!game.getGameMap().isStone(pos.cellPos().vmove(1).hmove(1)))
+                continue;
+            sprite_list.emplace_back(std::make_unique<Rat>(game.getFrame(), pos));
             break;
         }
     }
