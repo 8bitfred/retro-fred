@@ -15,18 +15,7 @@ enum class TextureID : std::uint8_t
     BLOCK_SAND,
     BLOCK_TRAPDOOR,
 
-    ACID_DROP1,
-    ACID_DROP2,
-    ACID_DROP3,
-    ACID_DROP4,
-    ACID_DROP5,
-    ACID_DROP6,
-    ACID_DROP7,
-    ACID_DROP8,
-    ACID_DROP9,
-    ACID_DROP10,
-    ACID_DROP11,
-
+    ACID_DROP,
     FRED,
     COUNT
 };
