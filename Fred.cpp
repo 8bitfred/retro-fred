@@ -25,22 +25,22 @@ Sprite::RenderInfo Fred::getTexture() const
     static RenderInfo textures[2][7] =
         {
             {
-                {TextureID::FRED, {c0, c0, 48, 48}, 8, 8},  // frame id 0
-                {TextureID::FRED, {c1, c0, 48, 48}, 8, 8},  // frame id 1
-                {TextureID::FRED, {c2, c0, 48, 48}, 8, 8},  // frame id 2
-                {TextureID::FRED, {c2, c1, 48, 48}, 8, 8},  // frame id 6
-                {TextureID::FRED, {c3, c1, 48, 48}, 8, 8},  // frame id 7
-                {TextureID::FRED, {c2, c2, 48, 48}, 8, 8},  // frame id 10
-                {TextureID::FRED, {c0, c3, 48, 48}, 8, 8},  // frame id 12
+            /* STANDING      ( 1) */ {TextureID::FRED, {c0, c0, 48, 48}, 8, 8},
+            /* BIG_STEP      ( 2) */ {TextureID::FRED, {c1, c0, 48, 48}, 8, 8},
+            /* SMALL_STEP    ( 3) */ {TextureID::FRED, {c2, c0, 48, 48}, 8, 8},
+            /* CLIMBING1     ( 7) */ {TextureID::FRED, {c2, c1, 48, 48}, 8, 8},
+            /* CLIMBING2     ( 8) */ {TextureID::FRED, {c3, c1, 48, 48}, 8, 8},
+            /* SHOOTING      (11) */ {TextureID::FRED, {c2, c2, 48, 48}, 8, 8},
+            /* JUMP_SHOOTING (13) */ {TextureID::FRED, {c0, c3, 48, 48}, 8, 8},
             },
             {
-                {TextureID::FRED, {c3, c0, 48, 48}, 8, 8},  // frame id 3
-                {TextureID::FRED, {c0, c1, 48, 48}, 8, 8},  // frame id 4
-                {TextureID::FRED, {c1, c1, 48, 48}, 8, 8},  // frame id 5
-                {TextureID::FRED, {c0, c2, 48, 48}, 8, 8},  // frame id 8
-                {TextureID::FRED, {c1, c2, 48, 48}, 8, 8},  // frame id 9
-                {TextureID::FRED, {c3, c2, 48, 48}, 8, 8},  // frame id 11
-                {TextureID::FRED, {c1, c3, 48, 48}, 8, 8},  // frame id 13
+            /* STANDING      ( 4) */ {TextureID::FRED, {c3, c0, 48, 48}, 8, 8},
+            /* BIG_STEP      ( 5) */ {TextureID::FRED, {c0, c1, 48, 48}, 8, 8},
+            /* SMALL_STEP    ( 6) */ {TextureID::FRED, {c1, c1, 48, 48}, 8, 8},
+            /* CLIMBING1     ( 9) */ {TextureID::FRED, {c0, c2, 48, 48}, 8, 8},
+            /* CLIMBING2     (10) */ {TextureID::FRED, {c1, c2, 48, 48}, 8, 8},
+            /* SHOOTING      (12) */ {TextureID::FRED, {c3, c2, 48, 48}, 8, 8},
+            /* JUMP_SHOOTING (14) */ {TextureID::FRED, {c1, c3, 48, 48}, 8, 8},
             },
         };
     int dir_index = (frame_dir + 1) >> 1;
@@ -230,6 +230,7 @@ void Fred::stateRopeClimb(Game& game, int hmove, int vmove, bool fire)
     if (hmove == frame_dir)
     {
         frame_dir = -frame_dir;
+        frame_type = FrameType::CLIMBING1;
         return;
     }
     else if (hmove == (-frame_dir) &&
@@ -247,6 +248,7 @@ void Fred::stateRopeClimb(Game& game, int hmove, int vmove, bool fire)
             auto next_pos = sprite_pos.cellPos().vmove(vmove);
             if (game.getGameMap().isStone(next_pos))
             {
+                frame_type = FrameType::CLIMBING1;
                 return;
             }
             else if (game.getGameMap().getCell(next_pos) == GameMap::Cell::TRAPDOOR)
@@ -269,6 +271,10 @@ void Fred::stateRopeClimb(Game& game, int hmove, int vmove, bool fire)
         state = State::ROPE_CLIMB;
         game.moveFrame(0, vmove);
         return;
+    }
+    else
+    {
+        frame_type = FrameType::CLIMBING1;
     }
 }
 
