@@ -258,15 +258,11 @@ void Fred::stateRopeClimb(Game& game, int hmove, int vmove, bool fire)
             }
         }
         if (frame_type == FrameType::CLIMBING1)
-        {
             frame_type = FrameType::CLIMBING2;
-            game.playSound(SoundID::CLIMB2);
-        }
         else
-        {
             frame_type = FrameType::CLIMBING1;
-            game.playSound(SoundID::CLIMB1);
-        }
+        game.playSound(climbing_sound);
+        climbing_sound = climbing_sound == SoundID::CLIMB1 ? SoundID::CLIMB2 : SoundID::CLIMB1;
         sprite_pos.yadd(vmove);
         state = State::ROPE_CLIMB;
         game.moveFrame(0, vmove);
