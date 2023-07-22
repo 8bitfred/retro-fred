@@ -4,6 +4,7 @@
 #include "Fred.hpp"
 #include "AcidDrop.hpp"
 #include "Rat.hpp"
+#include "Ghost.hpp"
 #include <iostream>
 
 
@@ -27,6 +28,7 @@ void FredApp::playGame()
                                           game.getSpriteList(SpriteClass::BLOCK));
     initializeAcidDrops(game);
     initializeRats(game);
+    initializeGhosts(game);
 
     std::uint32_t frame_count = 0;
     bool quit = false;
@@ -66,6 +68,8 @@ void FredApp::playGame()
         for (auto const& sprite: game.getSpriteList(SpriteClass::ACID_DROP))
             sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::RAT))
+            sprite->update(game, 0);
+        for (auto const& sprite: game.getSpriteList(SpriteClass::GHOST))
             sprite->update(game, 0);
 
         SDL_RenderClear(getRenderer());
@@ -162,6 +166,23 @@ void FredApp::initializeRats(Game &game)
             if (!game.getGameMap().isStone(pos.cellPos().vmove(1).hmove(1)))
                 continue;
             sprite_list.emplace_back(std::make_unique<Rat>(game.getFrame(), pos));
+            break;
+        }
+    }
+}
+
+void FredApp::initializeGhosts(Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::GHOST);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    for (int i = 0; i < 10; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 1};
+            if (game.getGameMap().isStone(pos.cellPos()))
+                continue;
+            sprite_list.emplace_back(std::make_unique<Ghost>(game.getFrame(), pos, random_engine));
             break;
         }
     }

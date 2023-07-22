@@ -24,7 +24,8 @@ add_executable(fred main.cpp sdl.hpp
     AcidDrop.hpp AcidDrop.cpp
     Fred.cpp Fred.hpp
     SoundID.hpp SoundManager.cpp SoundManager.hpp
-    Rat.cpp Rat.hpp)
+    Rat.cpp Rat.hpp
+    Ghost.cpp Ghost.hpp)
 target_link_libraries(fred ${SDL2_LIBRARIES})
 if (NOT MSVC)
     target_link_libraries(fred -lSDL2_image)
