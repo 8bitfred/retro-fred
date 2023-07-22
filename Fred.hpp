@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Sprite.hpp"
+#include "SoundID.hpp"
 
 class Game;
 
@@ -51,4 +52,5 @@ private:
     FrameType frame_type = FrameType::STANDING;
     int jump_stage = 0;
     State state = State::WALK;
+    SoundID climbing_sound = SoundID::CLIMB1;
 };
