@@ -54,7 +54,7 @@ GameMap::GameMap(Config const& cfg, std::minstd_rand &random_engine)
         {
             cell_list[i] = static_cast<Cell>(debug_map[i]);
             if (cell_list[i] == Cell::TRAPDOOR)
-                hatch_x = i;
+                hatch_x = static_cast<int>(i);
         }
         return;
     }
