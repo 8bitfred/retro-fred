@@ -8,7 +8,7 @@
 struct SDL_Rect;
 struct SDL_Renderer;
 struct SDL_Texture;
-class Config;
+struct Config;
 class Frame;
 
 class GameMap
