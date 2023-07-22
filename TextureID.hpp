@@ -17,6 +17,7 @@ enum class TextureID : std::uint8_t
 
     ACID_DROP,
     RAT,
+    GHOST,
     FRED,
     COUNT
 };

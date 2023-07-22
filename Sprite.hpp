@@ -43,6 +43,7 @@ enum class SpriteClass
     BLOCK,
     ACID_DROP,
     RAT,
+    GHOST,
     FRED,
     COUNT
 };
