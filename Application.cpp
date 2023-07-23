@@ -5,6 +5,7 @@
 #include "AcidDrop.hpp"
 #include "Rat.hpp"
 #include "Ghost.hpp"
+#include "Chameleon.hpp"
 #include <iostream>
 
 
@@ -29,6 +30,7 @@ void FredApp::playGame()
     initializeAcidDrops(game);
     initializeRats(game);
     initializeGhosts(game);
+    initializeChameleons(game);
 
     std::uint32_t frame_count = 0;
     bool quit = false;
@@ -70,6 +72,8 @@ void FredApp::playGame()
         for (auto const& sprite: game.getSpriteList(SpriteClass::RAT))
             sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::GHOST))
+            sprite->update(game, 0);
+        for (auto const& sprite: game.getSpriteList(SpriteClass::CHAMELEON))
             sprite->update(game, 0);
 
         SDL_RenderClear(getRenderer());
@@ -183,6 +187,23 @@ void FredApp::initializeGhosts(Game &game)
             if (game.getGameMap().isStone(pos.cellPos()))
                 continue;
             sprite_list.emplace_back(std::make_unique<Ghost>(game.getFrame(), pos, random_engine));
+            break;
+        }
+    }
+}
+
+void FredApp::initializeChameleons(Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::CHAMELEON);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    for (int i = 0; i < 10; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
+            if (!Chameleon::isValidCell(game.getGameMap(), pos.cellPos()))
+                continue;
+            sprite_list.emplace_back(std::make_unique<Chameleon>(game.getFrame(), pos, random_engine));
             break;
         }
     }
