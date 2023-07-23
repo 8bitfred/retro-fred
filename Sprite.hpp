@@ -44,6 +44,7 @@ enum class SpriteClass
     ACID_DROP,
     RAT,
     GHOST,
+    CHAMELEON,
     FRED,
     COUNT
 };

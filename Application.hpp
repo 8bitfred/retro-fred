@@ -23,6 +23,7 @@ private:
     void initializeAcidDrops(Game &game);
     void initializeRats(Game &game);
     void initializeGhosts(Game &game);
+    void initializeChameleons(Game &game);
     void debugMode(Game &game, Fred *fred, unsigned events);
 
     Config const &cfg;
