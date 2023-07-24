@@ -26,7 +26,8 @@ add_executable(fred main.cpp sdl.hpp
     SoundID.hpp SoundManager.cpp SoundManager.hpp
     Rat.cpp Rat.hpp
     Ghost.cpp Ghost.hpp
-    Chameleon.cpp Chameleon.hpp)
+    Chameleon.cpp Chameleon.hpp
+    Mummy.cpp Mummy.hpp)
 target_link_libraries(fred ${SDL2_LIBRARIES})
 if (NOT MSVC)
     target_link_libraries(fred -lSDL2_image)
