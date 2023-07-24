@@ -6,6 +6,7 @@
 #include "Rat.hpp"
 #include "Ghost.hpp"
 #include "Chameleon.hpp"
+#include "Mummy.hpp"
 #include <iostream>
 
 
@@ -31,6 +32,7 @@ void FredApp::playGame()
     initializeRats(game);
     initializeGhosts(game);
     initializeChameleons(game);
+    initializeMummies(game);
 
     std::uint32_t frame_count = 0;
     bool quit = false;
@@ -74,6 +76,8 @@ void FredApp::playGame()
         for (auto const& sprite: game.getSpriteList(SpriteClass::GHOST))
             sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::CHAMELEON))
+            sprite->update(game, 0);
+        for (auto const& sprite: game.getSpriteList(SpriteClass::MUMMY))
             sprite->update(game, 0);
 
         SDL_RenderClear(getRenderer());
@@ -206,6 +210,14 @@ void FredApp::initializeChameleons(Game &game)
             sprite_list.emplace_back(std::make_unique<Chameleon>(game.getFrame(), pos, random_engine));
             break;
         }
+    }
+}
+
+void FredApp::initializeMummies(Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::MUMMY);
+    for (int i = 0; i < 5; ++i) {
+        sprite_list.emplace_back(std::make_unique<Mummy>(game, random_engine));
     }
 }
 

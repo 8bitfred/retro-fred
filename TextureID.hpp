@@ -19,6 +19,7 @@ enum class TextureID : std::uint8_t
     RAT,
     GHOST,
     CHAMELEON,
+    MUMMY,
     FRED,
     COUNT
 };
