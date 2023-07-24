@@ -58,7 +58,7 @@ GameMap::GameMap(Config const& cfg, std::minstd_rand &random_engine)
         }
         return;
     }
-    if ((cfg.map_width % 2) != 1 || height < 5)
+    if ((width_minus_one % 2) != 0 || width_minus_one < 4)
         throw std::runtime_error("invalid width");
     if ((height % 2) != 1 || height < 5)
         throw std::runtime_error("invalid height");
