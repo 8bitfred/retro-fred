@@ -27,7 +27,8 @@ add_executable(fred main.cpp sdl.hpp
     Rat.cpp Rat.hpp
     Ghost.cpp Ghost.hpp
     Chameleon.cpp Chameleon.hpp
-    Mummy.cpp Mummy.hpp)
+    Mummy.cpp Mummy.hpp
+    Vampire.cpp Vampire.hpp)
 target_link_libraries(fred ${SDL2_LIBRARIES})
 if (NOT MSVC)
     target_link_libraries(fred -lSDL2_image)

@@ -7,6 +7,7 @@
 #include "Ghost.hpp"
 #include "Chameleon.hpp"
 #include "Mummy.hpp"
+#include "Vampire.hpp"
 #include <iostream>
 
 
@@ -33,6 +34,7 @@ void FredApp::playGame()
     initializeGhosts(game);
     initializeChameleons(game);
     initializeMummies(game);
+    initializeVampires(game);
 
     std::uint32_t frame_count = 0;
     bool quit = false;
@@ -78,6 +80,8 @@ void FredApp::playGame()
         for (auto const& sprite: game.getSpriteList(SpriteClass::CHAMELEON))
             sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::MUMMY))
+            sprite->update(game, 0);
+        for (auto const& sprite: game.getSpriteList(SpriteClass::VAMPIRE))
             sprite->update(game, 0);
 
         SDL_RenderClear(getRenderer());
@@ -218,6 +222,23 @@ void FredApp::initializeMummies(Game &game)
     auto &sprite_list = game.getSpriteList(SpriteClass::MUMMY);
     for (int i = 0; i < 5; ++i) {
         sprite_list.emplace_back(std::make_unique<Mummy>(game, random_engine));
+    }
+}
+
+void FredApp::initializeVampires(Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::VAMPIRE);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    for (int i = 0; i < 10; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
+            if (game.getGameMap().getCell(pos.cellPos()) != GameMap::Cell::EMPTY)
+                continue;
+            sprite_list.emplace_back(std::make_unique<Vampire>(game.getFrame(), pos, random_engine));
+            break;
+        }
     }
 }
 
