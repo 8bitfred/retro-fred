@@ -46,6 +46,7 @@ enum class SpriteClass
     GHOST,
     CHAMELEON,
     MUMMY,
+    VAMPIRE,
     FRED,
     COUNT
 };
