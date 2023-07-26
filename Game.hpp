@@ -36,6 +36,9 @@ public:
     void renderSprites(SDL_Renderer *renderer) const;
     void moveFrame(int deltax, int deltay);
     void playSound(SoundID sound_id);
+    // TODO: we should refactor this so that the Game object does not need to know about
+    // the internals of the Fred class
+    MapPos const &getFredPos() const;
     void dbgResetMapBlocks();
 
 private:

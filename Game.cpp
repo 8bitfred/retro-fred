@@ -68,6 +68,12 @@ void Game::playSound(SoundID sound_id)
     smgr.play(sound_id);
 }
 
+MapPos const &Game::getFredPos() const
+{
+    auto const &fred = dynamic_cast<Fred const &>(*sprite_lists[static_cast<int>(SpriteClass::FRED)][0]);
+    return fred.getPos();
+}
+
 void Game::dbgResetMapBlocks()
 {
     auto &block_list = getSpriteList(SpriteClass::BLOCK);

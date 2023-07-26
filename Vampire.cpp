@@ -2,7 +2,7 @@
 #include "Game.hpp"
 
 Vampire::Vampire(Frame const &frame, MapPos const &pos, std::minstd_rand &random_engine)
-    : Sprite::Sprite(frame, pos, 3, 2), random_engine(random_engine)
+    : MultiDirEnemy::MultiDirEnemy(frame, pos, 3, 2, random_engine)
 {
     std::uniform_int_distribution<> distrib(0, DIRECTION_COUNT - 1);
     direction = static_cast<Direction>(distrib(random_engine));
@@ -12,7 +12,7 @@ void Vampire::update(Game &game, unsigned)
 {
     alternate_frame ^= 1;
     if (sprite_pos.cx == 0 && sprite_pos.cy == 0)
-        changeDirection(game.getGameMap());
+        selectDirection(game.getGameMap(), getRandomSense());
     if (state == State::SLOW)
         stateSlow(game);
     else if (state == State::STATIC)
@@ -44,39 +44,6 @@ Sprite::RenderInfo Vampire::getTexture() const
     int frame_dir = dir_x + dir_y;
     int dir_index = (frame_dir + 1) >> 1;
     return textures[dir_index][alternate_frame];
-}
-
-std::pair<int, int> Vampire::getDirDelta() const
-{
-    static std::pair<int, int> dir_table[] =
-        {
-            {-1, 0},
-            {0, 1},
-            {1, 0},
-            {0, -1},
-        };
-    return dir_table[direction];
-}
-
-void Vampire::changeDirection(GameMap const& game_map)
-{
-    std::uniform_int_distribution<> distrib(0, 1);
-    int type = 2 * distrib(random_engine) - 1;
-    bool first_try = true;
-
-    while (true)
-    {
-        int next_direction = (direction + type + DIRECTION_COUNT) % DIRECTION_COUNT;
-        direction = static_cast<Direction>(next_direction);
-        auto [delta_x, delta_y] = getDirDelta();
-        if (!game_map.isStone(sprite_pos.cellPos().hmove(delta_x).vmove(delta_y)))
-            break;
-        if (first_try)
-        {
-            type = -type;
-            first_try = false;
-        }
-    }
 }
 
 void Vampire::stateSlow(Game &)
@@ -113,7 +80,7 @@ void Vampire::stateFast(Game &game)
     sprite_pos.xadd(delta_x1);
     sprite_pos.yadd(delta_y1);
     if (sprite_pos.cx == 0 && sprite_pos.cy == 0)
-        changeDirection(game.getGameMap());
+        selectDirection(game.getGameMap(), getRandomSense());
     auto [delta_x2, delta_y2] = getDirDelta();
     sprite_pos.xadd(delta_x2);
     sprite_pos.yadd(delta_y2);
