@@ -31,12 +31,12 @@ Sprite::RenderInfo Vampire::getTexture() const
     static RenderInfo textures[2][2] =
         {
             {
-                {TextureID::VAMPIRE, {c0, 8, 26, 14}, 1, 1},  // frame id 0
-                {TextureID::VAMPIRE, {c1, 8, 26, 14}, 1, 1},  // frame id 0
+                {TextureID::VAMPIRE, {c0, 8, 26, 14}, 1, 1},  // frame id 1
+                {TextureID::VAMPIRE, {c1, 8, 26, 14}, 1, 1},  // frame id 2
             },
             {
-                {TextureID::VAMPIRE, {c2, 8, 26, 14}, 1, 1},  // frame id 0
-                {TextureID::VAMPIRE, {c3, 8, 26, 14}, 1, 1},  // frame id 0
+                {TextureID::VAMPIRE, {c2, 8, 26, 14}, 1, 1},  // frame id 3
+                {TextureID::VAMPIRE, {c3, 8, 26, 14}, 1, 1},  // frame id 4
             },
         };
     // Note that only one of dir_x and dir_y is not 0 at a given time
