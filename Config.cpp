@@ -7,8 +7,8 @@
 // , scale_y(1)
 // , map_width(33)
 // , map_height(33)
-// , frame_x(0), frame_y(0), frame_w(35*32), frame_h(35*40)
 // , map_x(-32), map_y(-40)
+// , debug_map(true)
 // {}
 
 
