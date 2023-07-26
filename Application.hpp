@@ -26,6 +26,7 @@ private:
     void initializeChameleons(Game &game);
     void initializeMummies(Game &game);
     void initializeVampires(Game &game);
+    void initializeSkeletons(Game &game);
     void debugMode(Game &game, Fred *fred, unsigned events);
 
     Config const &cfg;
