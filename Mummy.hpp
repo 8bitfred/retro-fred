@@ -24,7 +24,6 @@ private:
     void stateFall(Game &game);
     void stateBounce(Game &game);
     void stateDisappear(Game &game);
-    void stateReappear(Game &game);
 
 
     enum class FrameType
@@ -40,7 +39,6 @@ private:
         FALL,
         BOUNCE,
         DISAPPEAR,
-        REAPPEAR,
     };
     State state = State::WALK;
     std::minstd_rand &random_engine;

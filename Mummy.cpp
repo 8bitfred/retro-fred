@@ -19,8 +19,6 @@ void Mummy::update(Game &game, unsigned)
         stateBounce(game);
     else if (state == State::DISAPPEAR)
         stateDisappear(game);
-    else if (state == State::REAPPEAR)
-        stateReappear(game);
 }
 
 void Mummy::stateWalk(Game &game)
@@ -83,7 +81,6 @@ void Mummy::stateBounce(Game &)
     sprite_pos.yadd(1);
     state = State::WALK;
     frame_type = FrameType::STANDING;
-    mummy_timer = 0;
     flip = false;
 }
 
@@ -91,14 +88,8 @@ void Mummy::stateDisappear(Game &game)
 {
     sprite_pos = getRandomLocation(random_engine, game.getGameMap());
     frame_dir = getRandomDirection(random_engine);
-    state = State::REAPPEAR;
-}
-
-void Mummy::stateReappear(Game &)
-{
     state = State::WALK;
     frame_type = FrameType::STANDING;
-    mummy_timer = 0;
     flip = false;
 }
 
