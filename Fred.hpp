@@ -33,8 +33,9 @@ private:
         SMALL_STEP,
         CLIMBING1,
         CLIMBING2,
-        SHOOTING,
-        JUMP_SHOOTING,
+        SHOOTING_STANDING,
+        SHOOTING_BIG_STEP,
+        SHOOTING_SMALL_STEP,
         COUNT
     };
     CellPos nextCellPos() const {
