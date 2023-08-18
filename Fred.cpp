@@ -22,25 +22,27 @@ Sprite::RenderInfo Fred::getTexture() const
     static constexpr int c1 = c0 + 58;
     static constexpr int c2 = c1 + 58;
     static constexpr int c3 = c2 + 58;
-    static RenderInfo textures[2][7] =
+    static RenderInfo textures[2][8] =
         {
             {
-            /* STANDING      ( 1) */ {TextureID::FRED, {c0, c0, 48, 48}, 8, 8},
-            /* BIG_STEP      ( 2) */ {TextureID::FRED, {c1, c0, 48, 48}, 8, 8},
-            /* SMALL_STEP    ( 3) */ {TextureID::FRED, {c2, c0, 48, 48}, 8, 8},
-            /* CLIMBING1     ( 7) */ {TextureID::FRED, {c2, c1, 48, 48}, 8, 8},
-            /* CLIMBING2     ( 8) */ {TextureID::FRED, {c3, c1, 48, 48}, 8, 8},
-            /* SHOOTING      (11) */ {TextureID::FRED, {c2, c2, 48, 48}, 8, 8},
-            /* JUMP_SHOOTING (13) */ {TextureID::FRED, {c0, c3, 48, 48}, 8, 8},
+            /* STANDING            */ {TextureID::FRED, {c0, c0, 48, 48}, 8, 8},
+            /* BIG_STEP            */ {TextureID::FRED, {c1, c0, 48, 48}, 8, 8},
+            /* SMALL_STEP          */ {TextureID::FRED, {c2, c0, 48, 48}, 8, 8},
+            /* CLIMBING1           */ {TextureID::FRED, {c2, c1, 48, 48}, 8, 8},
+            /* CLIMBING2           */ {TextureID::FRED, {c3, c1, 48, 48}, 8, 8},
+            /* SHOOTING_STANDING   */ {TextureID::FRED, {c2, c2, 48, 48}, 8, 8},
+            /* SHOOTING_BIG_STEP   */ {TextureID::FRED, {c3, c2, 48, 48}, 8, 8},
+            /* SHOOTING_SMALL_STEP */ {TextureID::FRED, {c0, c3, 48, 48}, 8, 8},
             },
             {
-            /* STANDING      ( 4) */ {TextureID::FRED, {c3, c0, 48, 48}, 8, 8},
-            /* BIG_STEP      ( 5) */ {TextureID::FRED, {c0, c1, 48, 48}, 8, 8},
-            /* SMALL_STEP    ( 6) */ {TextureID::FRED, {c1, c1, 48, 48}, 8, 8},
-            /* CLIMBING1     ( 9) */ {TextureID::FRED, {c0, c2, 48, 48}, 8, 8},
-            /* CLIMBING2     (10) */ {TextureID::FRED, {c1, c2, 48, 48}, 8, 8},
-            /* SHOOTING      (12) */ {TextureID::FRED, {c3, c2, 48, 48}, 8, 8},
-            /* JUMP_SHOOTING (14) */ {TextureID::FRED, {c1, c3, 48, 48}, 8, 8},
+            /* STANDING            */ {TextureID::FRED, {c3, c0, 48, 48}, 8, 8},
+            /* BIG_STEP            */ {TextureID::FRED, {c0, c1, 48, 48}, 8, 8},
+            /* SMALL_STEP          */ {TextureID::FRED, {c1, c1, 48, 48}, 8, 8},
+            /* CLIMBING1           */ {TextureID::FRED, {c0, c2, 48, 48}, 8, 8},
+            /* CLIMBING2           */ {TextureID::FRED, {c1, c2, 48, 48}, 8, 8},
+            /* SHOOTING_STANDING   */ {TextureID::FRED, {c1, c3, 48, 48}, 8, 8},
+            /* SHOOTING_BIG_STEP   */ {TextureID::FRED, {c2, c3, 48, 48}, 8, 8},
+            /* SHOOTING_SMALL_STEP */ {TextureID::FRED, {c3, c3, 48, 48}, 8, 8},
             },
         };
     int dir_index = (frame_dir + 1) >> 1;
@@ -96,7 +98,7 @@ void Fred::stateWalk(Game& game, int hmove, int vmove, bool fire)
         startVerticalJump(game, fire);
     else if (fire)
     {
-        frame_type = FrameType::SHOOTING;
+        frame_type = FrameType::SHOOTING_STANDING;
     }
     else 
         frame_type = FrameType::STANDING;
@@ -140,7 +142,7 @@ void Fred::walkOneStep(Game &game, bool fire)
 void Fred::startSideJump(Game& game, bool fire)
 {
     if (fire)
-        frame_type = FrameType::JUMP_SHOOTING;
+        frame_type = FrameType::SHOOTING_BIG_STEP;
     else
         frame_type = FrameType::BIG_STEP;
     state = State::SIDE_JUMP;
@@ -153,7 +155,7 @@ void Fred::startSideJump(Game& game, bool fire)
 void Fred::startVerticalJump(Game& game, bool fire)
 {
     if (fire)
-        frame_type = FrameType::JUMP_SHOOTING;
+        frame_type = FrameType::SHOOTING_BIG_STEP;
     else
         frame_type = FrameType::BIG_STEP;
     state = State::VERTICAL_JUMP;
@@ -177,7 +179,7 @@ void Fred::stateVerticalJump(Game& game, int, int, bool fire)
         sprite_pos.yadd(1);
         if (fire)
         {
-            frame_type = FrameType::SHOOTING;
+            frame_type = FrameType::SHOOTING_STANDING;
         }
         else
         {
@@ -188,7 +190,7 @@ void Fred::stateVerticalJump(Game& game, int, int, bool fire)
     }
     else if (fire)
     {
-        frame_type = FrameType::JUMP_SHOOTING;
+        frame_type = FrameType::SHOOTING_BIG_STEP;
     }
     else
         frame_type = FrameType::BIG_STEP;
@@ -205,7 +207,7 @@ void Fred::stateSideJump(Game& game, int, int, bool fire)
         {
             sprite_pos.yadd(1);
             if (fire)
-                frame_type = FrameType::SHOOTING;
+                frame_type = FrameType::SHOOTING_STANDING;
             else
             {
                 frame_type = FrameType::STANDING;
@@ -220,7 +222,7 @@ void Fred::stateSideJump(Game& game, int, int, bool fire)
         }
     }
     else if (fire)
-        frame_type = FrameType::JUMP_SHOOTING;
+        frame_type = FrameType::SHOOTING_BIG_STEP;
     else
         frame_type = FrameType::BIG_STEP;
 }
