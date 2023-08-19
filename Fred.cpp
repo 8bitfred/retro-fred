@@ -46,7 +46,10 @@ Sprite::RenderInfo Fred::getTexture() const
             },
         };
     int dir_index = (frame_dir + 1) >> 1;
-    return textures[dir_index][static_cast<int>(frame_type)];
+    int frame_index = static_cast<int>(frame_type);
+    if (frame_shooting && frame_index <= static_cast<int>(FrameType::SMALL_STEP))
+        frame_index += static_cast<int>(FrameType::SHOOTING_STANDING);
+    return textures[dir_index][frame_index];
 }
 
 void Fred::updateFred(Game& game, unsigned events)
@@ -67,25 +70,32 @@ void Fred::updateFred(Game& game, unsigned events)
     switch (state)
     {
     case State::WALK:
-        stateWalk(game, hmove, vmove, fire);
+        stateWalk(game, hmove, vmove);
         break;
     case State::VERTICAL_JUMP:
-        stateVerticalJump(game, hmove, vmove, fire);
+        stateVerticalJump(game, hmove, vmove);
         break;
     case State::SIDE_JUMP:
-        stateSideJump(game, hmove, vmove, fire);
+        stateSideJump(game, hmove, vmove);
         break;
     case State::ROPE_CLIMB:
-        stateRopeClimb(game, hmove, vmove, fire);
+        stateRopeClimb(game, hmove, vmove);
         break;
     case State::EXIT_MAZE:
         break;
     default:
         break;
     }
+    checkFire(game, fire);
 }
 
-void Fred::stateWalk(Game& game, int hmove, int vmove, bool fire)
+void Fred::checkFire(Game &, bool fire)
+{
+    if (state == State::WALK || state == State::VERTICAL_JUMP || state == State::SIDE_JUMP)
+        frame_shooting = fire;
+}
+
+void Fred::stateWalk(Game& game, int hmove, int vmove)
 {
     if (hmove == (-frame_dir)) 
     {
@@ -93,18 +103,14 @@ void Fred::stateWalk(Game& game, int hmove, int vmove, bool fire)
         frame_type = FrameType::STANDING;
     }
     else if (hmove == frame_dir)
-        walkOneStep(game, fire);
+        walkOneStep(game);
     else if (vmove < 0)
-        startVerticalJump(game, fire);
-    else if (fire)
-    {
-        frame_type = FrameType::SHOOTING_STANDING;
-    }
+        startVerticalJump(game);
     else 
         frame_type = FrameType::STANDING;
 }
 
-void Fred::walkOneStep(Game &game, bool fire)
+void Fred::walkOneStep(Game &game)
 {
     if (sprite_pos.cx == 0)
     {
@@ -119,7 +125,7 @@ void Fred::walkOneStep(Game &game, bool fire)
                  next_cell == GameMap::Cell::ROPE_MAIN)
         {
             sprite_pos.yadd(-1);
-            startSideJump(game, fire);
+            startSideJump(game);
             return;
         }
     }
@@ -139,12 +145,9 @@ void Fred::walkOneStep(Game &game, bool fire)
     game.moveFrame(frame_dir, 0);
 }
 
-void Fred::startSideJump(Game& game, bool fire)
+void Fred::startSideJump(Game& game)
 {
-    if (fire)
-        frame_type = FrameType::SHOOTING_BIG_STEP;
-    else
-        frame_type = FrameType::BIG_STEP;
+    frame_type = FrameType::BIG_STEP;
     state = State::SIDE_JUMP;
     jump_stage = 3;
     sprite_pos.xadd(frame_dir);
@@ -152,19 +155,16 @@ void Fred::startSideJump(Game& game, bool fire)
     game.playSound(SoundID::JUMP);
 }
 
-void Fred::startVerticalJump(Game& game, bool fire)
+void Fred::startVerticalJump(Game& game)
 {
-    if (fire)
-        frame_type = FrameType::SHOOTING_BIG_STEP;
-    else
-        frame_type = FrameType::BIG_STEP;
+    frame_type = FrameType::BIG_STEP;
     state = State::VERTICAL_JUMP;
     jump_stage = 3;
     sprite_pos.yadd(-1);
     game.playSound(SoundID::JUMP);
 }
 
-void Fred::stateVerticalJump(Game& game, int, int, bool fire)
+void Fred::stateVerticalJump(Game& game, int, int)
 {
     --jump_stage;
     if (jump_stage == 1 &&
@@ -177,26 +177,15 @@ void Fred::stateVerticalJump(Game& game, int, int, bool fire)
     else if (jump_stage == 0)
     {
         sprite_pos.yadd(1);
-        if (fire)
-        {
-            frame_type = FrameType::SHOOTING_STANDING;
-        }
-        else
-        {
-            frame_type = FrameType::STANDING;
-            game.playSound(SoundID::WALK);
-        }
+        frame_type = FrameType::STANDING;
+        game.playSound(SoundID::WALK);
         state = State::WALK;
-    }
-    else if (fire)
-    {
-        frame_type = FrameType::SHOOTING_BIG_STEP;
     }
     else
         frame_type = FrameType::BIG_STEP;
 }
 
-void Fred::stateSideJump(Game& game, int, int, bool fire)
+void Fred::stateSideJump(Game& game, int, int)
 {
     --jump_stage;
     sprite_pos.xadd(frame_dir);
@@ -206,13 +195,8 @@ void Fred::stateSideJump(Game& game, int, int, bool fire)
         if (game.getGameMap().isStone(sprite_pos.cellPos().vmove(1)))
         {
             sprite_pos.yadd(1);
-            if (fire)
-                frame_type = FrameType::SHOOTING_STANDING;
-            else
-            {
-                frame_type = FrameType::STANDING;
-                game.playSound(SoundID::WALK);
-            }
+            frame_type = FrameType::STANDING;
+            game.playSound(SoundID::WALK);
             state = State::WALK;
         }
         else 
@@ -221,13 +205,11 @@ void Fred::stateSideJump(Game& game, int, int, bool fire)
             state = State::ROPE_CLIMB;
         }
     }
-    else if (fire)
-        frame_type = FrameType::SHOOTING_BIG_STEP;
     else
         frame_type = FrameType::BIG_STEP;
 }
 
-void Fred::stateRopeClimb(Game& game, int hmove, int vmove, bool fire)
+void Fred::stateRopeClimb(Game& game, int hmove, int vmove)
 {
     if (hmove == frame_dir)
     {
@@ -240,7 +222,7 @@ void Fred::stateRopeClimb(Game& game, int hmove, int vmove, bool fire)
              !game.getGameMap().isStone(sprite_pos.cellPos().hmove(hmove)))
     {
         frame_dir = hmove;
-        startSideJump(game, fire);
+        startSideJump(game);
         return;
     }
     else if (vmove != 0)
