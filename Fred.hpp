@@ -41,16 +41,18 @@ private:
     CellPos nextCellPos() const {
         return sprite_pos.cellPos().hmove(static_cast<int>(frame_dir));
     }
-    void stateWalk(Game& game, int hmove, int vmove, bool fire);
-    void walkOneStep(Game &game, bool fire);
-    void startSideJump(Game &game, bool fire);
-    void startVerticalJump(Game &game, bool fire);
-    void stateVerticalJump(Game &game, int hmove, int vmove, bool fire);
-    void stateSideJump(Game& game, int hmove, int vmove, bool fire);
-    void stateRopeClimb(Game& game, int hmove, int vmove, bool fire);
+    void checkFire(Game &game, bool fire);
+    void stateWalk(Game &game, int hmove, int vmove);
+    void walkOneStep(Game &game);
+    void startSideJump(Game &game);
+    void startVerticalJump(Game &game);
+    void stateVerticalJump(Game &game, int hmove, int vmove);
+    void stateSideJump(Game& game, int hmove, int vmove);
+    void stateRopeClimb(Game& game, int hmove, int vmove);
 
     int frame_dir = -1;
     FrameType frame_type = FrameType::STANDING;
+    bool frame_shooting = false;
     int jump_stage = 0;
     State state = State::WALK;
     SoundID climbing_sound = SoundID::CLIMB1;
