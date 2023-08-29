@@ -56,14 +56,14 @@ void Fred::updateFred(Game& game, unsigned events)
 {
     int hmove = 0, vmove = 0;
     bool fire = false;
-    if ((events & Game::EVENT_LEFT) != 0)
-        hmove = -1;
-    else if ((events & Game::EVENT_RIGHT) != 0)
-        hmove = 1;
-    else if ((events & Game::EVENT_UP) != 0)
+    if ((events & Game::EVENT_UP) != 0)
         vmove = -1;
     else if ((events & Game::EVENT_DOWN) != 0)
         vmove = 1;
+    else if ((events & Game::EVENT_LEFT) != 0)
+        hmove = -1;
+    else if ((events & Game::EVENT_RIGHT) != 0)
+        hmove = 1;
     if ((events & Game::EVENT_FIRE) != 0)
         fire = true;
 
@@ -116,8 +116,6 @@ void Fred::walkOneStep(Game &game)
     {
         if (game.getGameMap().isStone(nextCellPos()))
         {
-            if (frame_type != FrameType::STANDING)
-                game.playSound(SoundID::WALK);
             frame_type = FrameType::STANDING;
             return;
         }
