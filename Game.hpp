@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Frame.hpp"
+#include "Window.hpp"
 #include "GameMap.hpp"
 #include "Sprite.hpp"
 #include "SoundID.hpp"
@@ -27,7 +27,7 @@ public:
 
     Game(Config const &cfg, std::minstd_rand &random_engine,
          TextureManager const &tmgr, SoundManager &smgr);
-    Frame &getFrame() { return frame; }
+    Window &getFrame() { return window; }
     GameMap &getGameMap() { return game_map; }
     SpriteList &getSpriteList(SpriteClass sprite_class)
     {
@@ -44,7 +44,7 @@ public:
 private:
     TextureManager const &tmgr;
     SoundManager &smgr;
-    Frame frame;
+    Window window;
     GameMap game_map;
     std::vector<SpriteList> sprite_lists;
 };

@@ -6,7 +6,7 @@
 class Ghost : public Sprite
 {
 public:
-    Ghost(Frame const &frame, MapPos const &pos, std::minstd_rand &random_engine);
+    Ghost(Window const &window, MapPos const &pos, std::minstd_rand &random_engine);
 
     void update(Game &game, unsigned events) override;
 

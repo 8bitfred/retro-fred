@@ -4,7 +4,7 @@
 
 class Block: public Sprite {
 public:
-    Block(Frame const &frame, MapPos const &pos, TextureID texture_id);
+    Block(Window const &window, MapPos const &pos, TextureID texture_id);
 
 protected:
     RenderInfo getTexture() const override

@@ -36,7 +36,7 @@ unsigned Game::getEventOfKey(SDL_Keycode keycode)
 Game::Game(Config const &cfg, std::minstd_rand &random_engine,
     TextureManager const &tmgr, SoundManager &smgr)
     : tmgr(tmgr), smgr(smgr)
-    , frame(cfg), game_map(cfg, random_engine)
+    , window(cfg), game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
 {
 }
@@ -45,22 +45,22 @@ void Game::renderSprites(SDL_Renderer *renderer) const
 {
     for (auto const &sprites: sprite_lists) {
         for (auto const &s: sprites)
-            s->render(frame, tmgr, renderer);
+            s->render(window, tmgr, renderer);
     }
 }
 
 void Game::moveFrame(int deltax, int deltay)
 {
 
-    frame.moveFrame(deltax, deltay);
+    window.moveFrame(deltax, deltay);
     if (deltax > 0)
-        game_map.updateMapBlocksRight(frame, getSpriteList(SpriteClass::BLOCK));
+        game_map.updateMapBlocksRight(window, getSpriteList(SpriteClass::BLOCK));
     else if (deltax < 0)
-        game_map.updateMapBlocksLeft(frame, getSpriteList(SpriteClass::BLOCK));
+        game_map.updateMapBlocksLeft(window, getSpriteList(SpriteClass::BLOCK));
     if (deltay > 0)
-        game_map.updateMapBlocksDown(frame, getSpriteList(SpriteClass::BLOCK));
+        game_map.updateMapBlocksDown(window, getSpriteList(SpriteClass::BLOCK));
     else if (deltay < 0)
-        game_map.updateMapBlocksUp(frame, getSpriteList(SpriteClass::BLOCK));
+        game_map.updateMapBlocksUp(window, getSpriteList(SpriteClass::BLOCK));
 }
 
 void Game::playSound(SoundID sound_id)
@@ -78,5 +78,5 @@ void Game::dbgResetMapBlocks()
 {
     auto &block_list = getSpriteList(SpriteClass::BLOCK);
     block_list.clear();
-    game_map.initializeMapBlocks(frame, block_list);
+    game_map.initializeMapBlocks(window, block_list);
 }

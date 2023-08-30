@@ -7,7 +7,7 @@
 #include <memory>
 
 
-class Frame;
+class Window;
 class TextureManager;
 class Game;
 
@@ -20,15 +20,15 @@ public:
         int center_x, center_y;
     };
     virtual ~Sprite() = default;
-    bool isVisible(Frame const &frame) const;
-    void render(Frame const &frame, TextureManager const &tmgr,
+    bool isVisible(Window const &window) const;
+    void render(Window const &window, TextureManager const &tmgr,
                 SDL_Renderer *renderer) const;
     virtual void update(Game &game, unsigned events);
     //TODO: this may not need to be exposed
     MapPos const &getPos() const { return sprite_pos; }
 
 protected:
-    Sprite(Frame const &frame, MapPos const &pos, int char_width, int char_height);
+    Sprite(Window const &window, MapPos const &pos, int char_width, int char_height);
     virtual RenderInfo getTexture() const = 0;
 
     // sSprite

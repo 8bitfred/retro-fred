@@ -1,9 +1,9 @@
 #include "Chameleon.hpp"
 #include "Game.hpp"
 
-Chameleon::Chameleon(Frame const &frame, MapPos const &pos, 
+Chameleon::Chameleon(Window const &window, MapPos const &pos, 
                      std::minstd_rand &random_engine)
-    : Sprite::Sprite(frame, pos, 1, 2), random_engine(random_engine)
+    : Sprite::Sprite(window, pos, 1, 2), random_engine(random_engine)
 {
 
 }

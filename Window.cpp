@@ -1,4 +1,4 @@
-#include "Frame.hpp"
+#include "Window.hpp"
 #include "Config.hpp"
 #include "TextureManager.hpp"
 #include "sdl.hpp"
@@ -6,7 +6,7 @@
 
 // Game screen
 //
-// The game screen consists of a 1 characer frame on all sides of the screen, a game
+// The game screen consists of a 1 characer window on all sides of the screen, a game
 // window where the map and characters are shown, and a scoreboard where the score and
 // other game information is displayed. The scoreboard is 7 characters wide and goes from
 // the top to the bottom of the screen. We allow the size of the screen to be
@@ -75,7 +75,7 @@
 //     F.x=1 F.cx=0          F.x=0 F.cx=3          F.x=0 F.cx=2          F.x=0 F.cx=1
 //
 // When moving to the left a new column of blocks becomes visible on the left side when
-// the cx coordinate of the left-most visible character in the frame is 3, in step 3, when
+// the cx coordinate of the left-most visible character in the window is 3, in step 3, when
 // F.cx is 1. When this happens we need to draw a new column of blocks at F.x. The value
 // of F.cx when a new column becomes visible on the left side when moving left depends on
 // the width of the game window. We store it in new_left_col_cx.
@@ -98,7 +98,7 @@
 //     F.x=0 F.cx=0          F.x=0 F.cx=1          F.x=0 F.cx=2          F.x=0 F.cx=3
 //
 // When moving to the right a new column of blocks becomes visible on the right side when
-// the cx coordinate of the right-most visible character in the frame is 0, in step 3,
+// the cx coordinate of the right-most visible character in the window is 0, in step 3,
 // when F.cx is 3. When this happens we need to draw a new column of blocks at F.x+7.
 // Similarly to new_left_col_cx, the value of F.cx when a new column becomes visible on the
 // right side when moving to the right is stored in new_right_col_cx. The offset, in number
@@ -107,7 +107,7 @@
 //
 // The diagrams below show examples of different values of new_left_col_cx, new_right_col_cx
 // and new_right_col_offset depending on the width of the game window. Note that there is a
-// frame of 8 pixels around the game window, so the game window starts 8 pixels to the
+// window of 8 pixels around the game window, so the game window starts 8 pixels to the
 // right of the edge of the screen. For each example we show the width of the game window,
 // the position of the Fred character with respect to the left edge of the screen, and the
 // values of new_left_col_cx, new_right_col_cx and new_right_col_offset.
@@ -136,7 +136,7 @@
 // new_top_row_cy, new_bottom_row_cy and new_bottom_row_offset are used to draw new rows at
 // top or the bottom of the screen when they become visible in the game window.
 //
-Frame::Frame(Config const &cfg)
+Window::Window(Config const &cfg)
 {
     // Screen coordinates of the game window
     //   (in the example: top_left={8,8} bottom right={200,184})
@@ -212,7 +212,7 @@ Frame::Frame(Config const &cfg)
               << std::endl;
 }
 
-ScreenPos Frame::getScreenPosOf(MapPos const &sprite_pos) const
+ScreenPos Window::getScreenPosOf(MapPos const &sprite_pos) const
 {
     ScreenPos spos;
     spos.x = screen_pos.x +
@@ -224,7 +224,7 @@ ScreenPos Frame::getScreenPosOf(MapPos const &sprite_pos) const
     return spos;
 }
 
-void Frame::adjustFramePos(MapPos fred_pos)
+void Window::adjustFramePos(MapPos fred_pos)
 {
     map_pos = {fred_pos.x - fred_offset_x,
                fred_pos.y - fred_offset_y,
@@ -232,21 +232,21 @@ void Frame::adjustFramePos(MapPos fred_pos)
                fred_pos.cy};
 }
 
-void Frame::renderFrame(Config const& cfg, SDL_Renderer *renderer, TextureManager const &tmgr)
+void Window::renderFrame(Config const& cfg, SDL_Renderer *renderer, TextureManager const &tmgr)
 {
-    SDL_Texture *base_frame = tmgr.get(TextureID::FRAME_BASE);
+    SDL_Texture *base_window = tmgr.get(TextureID::FRAME_BASE);
     Uint32 texture_format;
-    SDL_QueryTexture(base_frame, &texture_format, nullptr, nullptr, nullptr);
+    SDL_QueryTexture(base_window, &texture_format, nullptr, nullptr, nullptr);
 
-    SDL_Rect const frame_char = {0, 0, 8, 8};
+    SDL_Rect const window_char = {0, 0, 8, 8};
     for (int x = 0; x < cfg.window_width; x += 8)
     {
         SDL_Rect dst_rect = {x, 0, 8, 8};
-        auto status = SDL_RenderCopy(renderer, base_frame, &frame_char, &dst_rect);
+        auto status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
         dst_rect.y = cfg.window_height - 8;
-        status = SDL_RenderCopy(renderer, base_frame, &frame_char, &dst_rect);
+        status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
     }
@@ -254,13 +254,13 @@ void Frame::renderFrame(Config const& cfg, SDL_Renderer *renderer, TextureManage
     for (int y = 0; y < cfg.window_height; y += 8)
     {
         SDL_Rect dst_rect = {0, y, 8, 8};
-        auto status = SDL_RenderCopy(renderer, base_frame, &frame_char, &dst_rect);
+        auto status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
         for (int x = cfg.window_width - 56; x < cfg.window_width; x += 8)
         {
             dst_rect.x = x;
-            status = SDL_RenderCopy(renderer, base_frame, &frame_char, &dst_rect);
+            status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
             if (status < 0)
                 throw sdl::Error();
         }

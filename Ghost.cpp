@@ -1,8 +1,8 @@
 #include "Ghost.hpp"
 #include "Game.hpp"
 
-Ghost::Ghost(Frame const &frame, MapPos const &pos, std::minstd_rand &random_engine)
-    : Sprite::Sprite(frame, pos, 3, 4), random_engine(random_engine)
+Ghost::Ghost(Window const &window, MapPos const &pos, std::minstd_rand &random_engine)
+    : Sprite::Sprite(window, pos, 3, 4), random_engine(random_engine)
 {
     setRandomDirection();
 }

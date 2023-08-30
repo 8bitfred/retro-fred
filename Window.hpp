@@ -6,11 +6,11 @@ struct Config;
 struct SDL_Renderer;
 class TextureManager;
 
-class Frame
+class Window
 {
 public:
     static constexpr int SCOREBOARD_WIDTH = 7;
-    explicit Frame(Config const &cfg);
+    explicit Window(Config const &cfg);
 
     ScreenPos const& getTopLeft() const { return top_left; }
     ScreenPos const& getBottomRight() const { return bottom_right; }
