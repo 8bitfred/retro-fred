@@ -1,6 +1,8 @@
 #include "Mummy.hpp"
 #include "Game.hpp"
 
+int Mummy::mummy_timer = 0;
+
 Mummy::Mummy(Game& game, std::minstd_rand &random_engine)
     : Sprite::Sprite(game.getFrame(), getRandomLocation(random_engine, game.getGameMap()), 
     3, 4)
@@ -56,7 +58,6 @@ void Mummy::stateWalk(Game &game)
             return;
         }
     }
-    mummy_timer ^= 1;
     if (mummy_timer == 0)
     {
         sprite_pos.xadd(frame_dir);

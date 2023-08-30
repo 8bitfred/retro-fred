@@ -11,6 +11,7 @@ public:
     Mummy(Game& game, std::minstd_rand &random_engine);
 
     void update(Game &game, unsigned events) override;
+    static void toggleMummyTimer() { mummy_timer ^= 1; }
 
 protected:
     RenderInfo getTexture() const override;
@@ -40,10 +41,10 @@ private:
         BOUNCE,
         DISAPPEAR,
     };
+    static int mummy_timer;
     State state = State::WALK;
     std::minstd_rand &random_engine;
     int frame_dir;
     FrameType frame_type = FrameType::STEP;
-    int mummy_timer = 0;
     bool flip = false;
 };

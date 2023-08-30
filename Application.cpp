@@ -90,6 +90,7 @@ void FredApp::playGame()
         // TODO: I would like to avoid exposing the toggleClimbingFrame() API by using
         // some signal or callback
         Skeleton::toggleClimbingFrame();
+        Mummy::toggleMummyTimer();
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
