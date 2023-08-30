@@ -8,7 +8,7 @@ class Game;
 class Fred : public Sprite
 {
 public:
-    Fred(Frame const &frame, MapPos initial_position);
+    Fred(Window const &window, MapPos initial_position);
     void updateFred(Game& game, unsigned events);
 
     void dbgResetPosition(Game& game);

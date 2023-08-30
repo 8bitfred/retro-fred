@@ -3,8 +3,8 @@
 #include "GameMap.hpp"
 #include <functional>
 
-Fred::Fred(Frame const &frame, MapPos initial_position)
-: Sprite(frame, initial_position, 4, 4)
+Fred::Fred(Window const &window, MapPos initial_position)
+: Sprite(window, initial_position, 4, 4)
 {
 
 }
@@ -12,9 +12,9 @@ Fred::Fred(Frame const &frame, MapPos initial_position)
 Sprite::RenderInfo Fred::getTexture() const
 {
     // The FRED_SHEET texture contains the sprite sheet for Fred. The sheet is organized
-    // as a 4x4 matrix, where each cell in the matrix is a different frame. Each cell is
+    // as a 4x4 matrix, where each cell in the matrix is a different window. Each cell is
     // 50 by 50 pixels, and each cell is separated from each other by 8 pixels. Each cell
-    // has a 1 pixel rectangle surrounding the frame, so each frame is actually 48x48
+    // has a 1 pixel rectangle surrounding the window, so each window is actually 48x48
     // pixels.
 
     // Offset of cells 0, 1, 2 and 3:

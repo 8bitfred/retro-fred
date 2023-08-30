@@ -9,7 +9,7 @@ struct SDL_Rect;
 struct SDL_Renderer;
 struct SDL_Texture;
 struct Config;
-class Frame;
+class Window;
 
 class GameMap
 {
@@ -39,11 +39,11 @@ public:
     int getHeight() const { return height; }
     void render(int x, int y, TextureManager const &tmgr,
                 SDL_Renderer *renderer, SDL_Rect const *dest);
-    void initializeMapBlocks(Frame const &frame, SpriteList &block_list) const;
-    void updateMapBlocksLeft(Frame const &frame, SpriteList &block_list) const;
-    void updateMapBlocksRight(Frame const &frame, SpriteList &block_list) const;
-    void updateMapBlocksUp(Frame const &frame, SpriteList &block_list) const;
-    void updateMapBlocksDown(Frame const &frame, SpriteList &block_list) const;
+    void initializeMapBlocks(Window const &window, SpriteList &block_list) const;
+    void updateMapBlocksLeft(Window const &window, SpriteList &block_list) const;
+    void updateMapBlocksRight(Window const &window, SpriteList &block_list) const;
+    void updateMapBlocksUp(Window const &window, SpriteList &block_list) const;
+    void updateMapBlocksDown(Window const &window, SpriteList &block_list) const;
 
     CellPos dbgGetHatchPos() const { return CellPos{hatch_x, 0}; }
     bool dbgMoveHatch(int deltax);
@@ -58,9 +58,9 @@ private:
     void setCell(CellPos const &pos, Cell c);
     TextureID getTextureIDOf(CellPos const &pos) const;
 
-    bool addMapBlock(Frame const &frame, SpriteList &block_list,
+    bool addMapBlock(Window const &window, SpriteList &block_list,
                      int offset_x, int offset_y) const;
-    void removeNonVisibleBlocks(Frame const &frame, SpriteList &block_list) const;
+    void removeNonVisibleBlocks(Window const &window, SpriteList &block_list) const;
 
     int width_minus_one, height;
     std::vector<Cell> cell_list;

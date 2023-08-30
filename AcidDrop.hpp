@@ -5,8 +5,8 @@
 class AcidDrop : public Sprite
 {
 public:
-    AcidDrop(Frame const &frame, MapPos const &pos, int initial_state)
-    : Sprite::Sprite(frame, pos, 2, 1), state(initial_state) {}
+    AcidDrop(Window const &window, MapPos const &pos, int initial_state)
+    : Sprite::Sprite(window, pos, 2, 1), state(initial_state) {}
 
     void update(Game &game, unsigned events) override;
 

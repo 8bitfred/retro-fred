@@ -1,8 +1,8 @@
 #include "Vampire.hpp"
 #include "Game.hpp"
 
-Vampire::Vampire(Frame const &frame, MapPos const &pos, std::minstd_rand &random_engine)
-    : MultiDirEnemy::MultiDirEnemy(frame, pos, 3, 2, random_engine)
+Vampire::Vampire(Window const &window, MapPos const &pos, std::minstd_rand &random_engine)
+    : MultiDirEnemy::MultiDirEnemy(window, pos, 3, 2, random_engine)
 {
     std::uniform_int_distribution<> distrib(0, DIRECTION_COUNT - 1);
     direction = static_cast<Direction>(distrib(random_engine));
@@ -31,12 +31,12 @@ Sprite::RenderInfo Vampire::getTexture() const
     static RenderInfo textures[2][2] =
         {
             {
-                {TextureID::VAMPIRE, {c0, 8, 26, 14}, 1, 1},  // frame id 1
-                {TextureID::VAMPIRE, {c1, 8, 26, 14}, 1, 1},  // frame id 2
+                {TextureID::VAMPIRE, {c0, 8, 26, 14}, 1, 1},  // window id 1
+                {TextureID::VAMPIRE, {c1, 8, 26, 14}, 1, 1},  // window id 2
             },
             {
-                {TextureID::VAMPIRE, {c2, 8, 26, 14}, 1, 1},  // frame id 3
-                {TextureID::VAMPIRE, {c3, 8, 26, 14}, 1, 1},  // frame id 4
+                {TextureID::VAMPIRE, {c2, 8, 26, 14}, 1, 1},  // window id 3
+                {TextureID::VAMPIRE, {c3, 8, 26, 14}, 1, 1},  // window id 4
             },
         };
     // Note that only one of dir_x and dir_y is not 0 at a given time

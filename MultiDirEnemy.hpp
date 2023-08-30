@@ -8,10 +8,10 @@ class GameMap;
 class MultiDirEnemy : public Sprite
 {
 public:
-    MultiDirEnemy(Frame const &frame, MapPos const &pos,
+    MultiDirEnemy(Window const &window, MapPos const &pos,
                   int char_width, int char_height,
                   std::minstd_rand &random_engine)
-        : Sprite(frame, pos, char_width, char_height), random_engine(random_engine) {}
+        : Sprite(window, pos, char_width, char_height), random_engine(random_engine) {}
 
 protected:
     enum Direction

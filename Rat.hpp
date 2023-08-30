@@ -5,8 +5,8 @@
 class Rat : public Sprite
 {
 public:
-    Rat(Frame const &frame, MapPos const &pos)
-    : Sprite::Sprite(frame, pos, 2, 1) {}
+    Rat(Window const &window, MapPos const &pos)
+    : Sprite::Sprite(window, pos, 2, 1) {}
 
     void update(Game &game, unsigned events) override;
 

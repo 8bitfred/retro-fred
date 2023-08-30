@@ -17,7 +17,7 @@ add_executable(fred main.cpp sdl.hpp
     GameMap.cpp GameMap.hpp 
     TextureID.hpp TextureManager.cpp TextureManager.hpp
     Game.cpp Game.hpp
-    Frame.cpp Frame.hpp
+    Window.cpp Window.hpp
     Coord.hpp
     Sprite.cpp Sprite.hpp
     Block.cpp Block.hpp
