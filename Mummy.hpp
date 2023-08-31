@@ -27,7 +27,7 @@ private:
     void stateDisappear(Game &game);
 
 
-    enum class FrameType
+    enum class Frame
     {
         STEP,
         STANDING,
@@ -44,7 +44,7 @@ private:
     static int mummy_timer;
     State state = State::WALK;
     std::minstd_rand &random_engine;
-    int frame_dir;
-    FrameType frame_type = FrameType::STEP;
+    int direction;
+    Frame frame = Frame::STEP;
     bool flip = false;
 };

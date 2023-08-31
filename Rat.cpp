@@ -4,19 +4,19 @@
 void Rat::update(Game &game, unsigned)
 {
     // cx_limit is 0 if we are moving left, or 2 if we are moving right
-    int cx_limit = frame_dir + 1;
+    int cx_limit = direction + 1;
     if (sprite_pos.cx == cx_limit)
     {
         auto const &game_map = game.getGameMap();
         if (auto cell_pos = sprite_pos.cellPos();
-            game_map.isStone(cell_pos, frame_dir) || !game_map.isStone(cell_pos, 1))
-            frame_dir = -frame_dir;
+            game_map.isStone(cell_pos, direction) || !game_map.isStone(cell_pos, 1))
+            direction = -direction;
         else
-            sprite_pos.xadd(frame_dir);
+            sprite_pos.xadd(direction);
     }
     else
-        sprite_pos.xadd(frame_dir);
-    frame_type = frame_type ^ 1;
+        sprite_pos.xadd(direction);
+    alternate_frame = alternate_frame ^ 1;
 }
 
 Sprite::RenderInfo Rat::getTexture() const
@@ -37,6 +37,6 @@ Sprite::RenderInfo Rat::getTexture() const
                 {TextureID::RAT, {c3, 8, 16, 10}, 0, 1},  // frame id 1
             },
         };
-    int dir_index = (frame_dir + 1) >> 1;
-    return textures[dir_index][frame_type];
+    int dir_index = (direction + 1) >> 1;
+    return textures[dir_index][alternate_frame];
 }

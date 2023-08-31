@@ -14,6 +14,6 @@ protected:
     RenderInfo getTexture() const override;
 
 private:
-    int frame_dir = 1;
-    int frame_type = 0;
+    int direction = 1;
+    int alternate_frame = 0;
 };
