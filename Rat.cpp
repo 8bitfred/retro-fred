@@ -7,8 +7,9 @@ void Rat::update(Game &game, unsigned)
     int cx_limit = frame_dir + 1;
     if (sprite_pos.cx == cx_limit)
     {
-        if (auto next_pos = sprite_pos.cellPos().hmove(frame_dir);
-            game.getGameMap().isStone(next_pos) || !game.getGameMap().isStone(next_pos.vmove(1)))
+        auto const &game_map = game.getGameMap();
+        if (auto cell_pos = sprite_pos.cellPos();
+            game_map.isStone(cell_pos, frame_dir) || !game_map.isStone(cell_pos, 1))
             frame_dir = -frame_dir;
         else
             sprite_pos.xadd(frame_dir);

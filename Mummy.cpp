@@ -31,7 +31,7 @@ void Mummy::stateWalk(Game &game)
     int x_below = stone_limit;
     if (sprite_pos.cx == stone_limit)
     {
-        if (game.getGameMap().isStone(sprite_pos.cellPos().hmove(frame_dir)))
+        if (game.getGameMap().isStone(sprite_pos.cellPos(), frame_dir))
         {
             if (flip)
             {
@@ -48,8 +48,7 @@ void Mummy::stateWalk(Game &game)
     }
     else if (sprite_pos.cx == rope_limit)
     {
-        auto cell_below = sprite_pos.cellPos().hmove(x_below).vmove(1);
-        if (!game.getGameMap().isStone(cell_below))
+        if (!game.getGameMap().isStone(sprite_pos.cellPos(), x_below, 1))
         {
             frame_type = FrameType::FALL;
             state = State::FALL;
@@ -68,7 +67,7 @@ void Mummy::stateWalk(Game &game)
 void Mummy::stateFall(Game &game)
 {
     if (sprite_pos.cy == 1 &&
-        game.getGameMap().isStone(sprite_pos.cellPos().vmove(1)))
+        game.getGameMap().isStone(sprite_pos.cellPos(), 0, 1))
     {
         sprite_pos.yadd(-1);
         state = State::BOUNCE;

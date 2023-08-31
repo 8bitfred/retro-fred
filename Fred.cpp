@@ -119,8 +119,7 @@ void Fred::walkOneStep(Game &game)
             frame = Frame::STANDING;
             return;
         }
-        else if (auto next_cell = game.getGameMap().getBlock(nextCellPos().vmove(1));
-                 next_cell == GameMap::Cell::ROPE_MAIN)
+        else if (game.getGameMap().getBlock(nextCellPos(), 0, 1) == GameMap::Cell::ROPE_MAIN)
         {
             sprite_pos.yadd(-1);
             startSideJump(game);
@@ -190,7 +189,7 @@ void Fred::stateSideJump(Game& game, int, int)
     game.moveFrame(direction, 0);
     if (jump_stage == 0)
     {
-        if (game.getGameMap().isStone(sprite_pos.cellPos().vmove(1)))
+        if (game.getGameMap().isStone(sprite_pos.cellPos(), 0, 1))
         {
             sprite_pos.yadd(1);
             frame = Frame::STANDING;
@@ -217,7 +216,7 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
     }
     else if (input_x == (-direction) &&
              sprite_pos.cy == 0 &&
-             !game.getGameMap().isStone(sprite_pos.cellPos().hmove(input_x)))
+             !game.getGameMap().isStone(sprite_pos.cellPos(), input_x))
     {
         direction = input_x;
         startSideJump(game);
@@ -227,7 +226,7 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
     {
         if (sprite_pos.cy == 0)
         {
-            auto next_pos = sprite_pos.cellPos().vmove(input_y);
+            auto next_pos = sprite_pos.cellPos(0, input_y);
             if (game.getGameMap().isStone(next_pos))
             {
                 frame = Frame::CLIMBING1;
@@ -271,14 +270,14 @@ void Fred::dbgResetPosition(Game &game)
 
     for (int deltax = 0; true; ++deltax)
     {
-        if (auto cell_pos = candidate.cellPos().hmove(deltax);
+        if (auto cell_pos = candidate.cellPos(deltax);
             cell_pos.x <= max_x && 
             game.getGameMap().getBlock(cell_pos) == GameMap::Cell::EMPTY)
         {
             candidate.x = cell_pos.x;
             break;
         }
-        if (auto cell_pos = candidate.cellPos().hmove(-deltax);
+        if (auto cell_pos = candidate.cellPos(-deltax);
             deltax > 0 && cell_pos.x >= 1 && 
             game.getGameMap().getBlock(cell_pos) == GameMap::Cell::EMPTY)
         {

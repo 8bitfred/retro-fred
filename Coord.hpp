@@ -21,7 +21,9 @@ struct MapPos
     int y = 0;
     int cx = 0;
     int cy = 0;
-    CellPos cellPos() const { return {x, y}; }
+    CellPos cellPos(int offset_x = 0, int offset_y = 0) const {
+        return {x + offset_x, y + offset_y};
+    }
     void xadd(int delta) {
         cx += delta;
         if (cx < 0) {
