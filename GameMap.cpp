@@ -106,10 +106,10 @@ void GameMap::createMaze(std::minstd_rand &random_engine)
     while (true)
     {
         int cand_count = 0;
-        auto move_left = pos.hmove(-2);
-        auto move_right = pos.hmove(2);
-        auto move_up = pos.vmove(-2);
-        auto move_down = pos.vmove(2);
+        CellPos move_left{pos.x - 2, pos.y};
+        CellPos move_right{pos.x + 2, pos.y};
+        CellPos move_up{pos.x, pos.y - 2};
+        CellPos move_down{pos.x, pos.y + 2};
         if (move_left.x > 0 && getBlock(move_left) != Cell::EMPTY)
             candidates[cand_count++] = dir::left;
         if (move_right.x < getWidth() && getBlock(move_right) != Cell::EMPTY)
@@ -139,19 +139,19 @@ void GameMap::createMaze(std::minstd_rand &random_engine)
         switch (move)
         {
         case dir::left:
-            step1 = pos.hmove(-1);
+            step1 = {pos.x - 1, pos.y};
             step2 = move_left;
             break;
         case dir::right:
-            step1 = pos.hmove(1);
+            step1 = {pos.x + 1, pos.y};
             step2 = move_right;
             break;
         case dir::up:
-            step1 = pos.vmove(-1);
+            step1 = {pos.x, pos.y - 1};
             step2 = move_up;
             break;
         case dir::down:
-            step1 = pos.vmove(1);
+            step1 = {pos.x, pos.y + 1};
             step2 = move_down;
             break;
         }
@@ -387,7 +387,7 @@ bool GameMap::dbgMoveHatch(int deltax)
         if (tryHatchPosition(x))
         {
             setCell(hatch_pos, Cell::STONE1);
-            setCell(hatch_pos.vmove(1), Cell::EMPTY);
+            setCell(CellPos{hatch_pos.x, hatch_pos.y + 1}, Cell::EMPTY);
             return true;
         }
     }

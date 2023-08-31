@@ -25,7 +25,7 @@ void Chameleon::update(Game &game, unsigned)
     }
     int limit = direction_y < 0 ? 0 : 3;
     if (sprite_pos.cy == limit && 
-        !isValidCell(game.getGameMap(), sprite_pos.cellPos().vmove(direction_y)))
+        !isValidCell(game.getGameMap(), sprite_pos.cellPos(0, direction_y)))
     {
         direction_y = -direction_y;
         return;
@@ -36,8 +36,8 @@ void Chameleon::update(Game &game, unsigned)
 bool Chameleon::isValidCell(GameMap const &game_map, CellPos const &pos)
 {
     return !game_map.isStone(pos) &&
-        game_map.isStone(pos.hmove(-1)) &&
-        game_map.isStone(pos.hmove(1));
+        game_map.isStone(pos, -1) &&
+        game_map.isStone(pos, 1);
 }
 
 Sprite::RenderInfo Chameleon::getTexture() const

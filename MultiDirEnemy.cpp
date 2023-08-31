@@ -29,7 +29,7 @@ void MultiDirEnemy::selectDirection(GameMap const &game_map, bool clockwise)
         int next_direction = (direction + type + DIRECTION_COUNT) % DIRECTION_COUNT;
         direction = static_cast<Direction>(next_direction);
         auto [delta_x, delta_y] = getDirDelta();
-        if (auto next_pos = sprite_pos.cellPos().hmove(delta_x).vmove(delta_y);
+        if (auto next_pos = sprite_pos.cellPos(delta_x, delta_y);
             !game_map.isStone(next_pos) && game_map.getBlock(next_pos) != GameMap::Cell::TRAPDOOR)
             break;
         if (first_try)

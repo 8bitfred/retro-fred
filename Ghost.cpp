@@ -17,25 +17,25 @@ void Ghost::update(Game &game, unsigned)
     {
         char_limit = sprite_pos.cx == 1;
         map_limit = sprite_pos.x == (game.getGameMap().getWidth() - 2);
-        is_stone = game.getGameMap().isStone(sprite_pos.cellPos().hmove(1));
+        is_stone = game.getGameMap().isStone(sprite_pos.cellPos(), 1);
     }
     else if (velocity.x < 0)
     {
         char_limit = sprite_pos.cx == 0;
         map_limit = sprite_pos.x == 1;
-        is_stone = game.getGameMap().isStone(sprite_pos.cellPos().hmove(-1));
+        is_stone = game.getGameMap().isStone(sprite_pos.cellPos(), -1);
     }
     else if (velocity.y > 0)
     {
         char_limit = sprite_pos.cy == 1;
         map_limit = sprite_pos.y == (game.getGameMap().getHeight() - 2);
-        is_stone = game.getGameMap().isStone(sprite_pos.cellPos().vmove(1));
+        is_stone = game.getGameMap().isStone(sprite_pos.cellPos(), 0, 1);
     }
     else
     {
         char_limit = sprite_pos.cy == 1;
         map_limit = sprite_pos.y == 1;
-        is_stone = game.getGameMap().isStone(sprite_pos.cellPos().vmove(-1));
+        is_stone = game.getGameMap().isStone(sprite_pos.cellPos(), 0, -1);
     }
 
     if (char_limit)

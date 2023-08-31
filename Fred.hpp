@@ -39,7 +39,7 @@ private:
         COUNT
     };
     CellPos nextCellPos() const {
-        return sprite_pos.cellPos().hmove(static_cast<int>(direction));
+        return sprite_pos.cellPos(direction);
     }
     void checkFire(Game &game, bool fire);
     void stateWalk(Game &game, int input_x, int input_y);
