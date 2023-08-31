@@ -16,7 +16,7 @@ void Skeleton::update(Game &game, unsigned)
         {
             auto next_pos = sprite_pos.cellPos().hmove(delta_x).vmove(delta_y);
             if (game.getGameMap().isStone(next_pos) ||
-                game.getGameMap().getCell(next_pos) == GameMap::Cell::TRAPDOOR)
+                game.getGameMap().getBlock(next_pos) == GameMap::Cell::TRAPDOOR)
                 selectDirection(game.getGameMap(), getRandomSense());
         }
         else

@@ -119,7 +119,7 @@ void Fred::walkOneStep(Game &game)
             frame = Frame::STANDING;
             return;
         }
-        else if (auto next_cell = game.getGameMap().getCell(nextCellPos().vmove(1));
+        else if (auto next_cell = game.getGameMap().getBlock(nextCellPos().vmove(1));
                  next_cell == GameMap::Cell::ROPE_MAIN)
         {
             sprite_pos.yadd(-1);
@@ -167,7 +167,7 @@ void Fred::stateVerticalJump(Game& game, int, int)
     --jump_stage;
     if (jump_stage == 1 &&
         sprite_pos.cx == 0 &&
-        game.getGameMap().getCell(sprite_pos.cellPos()) == GameMap::Cell::ROPE_END)
+        game.getGameMap().getBlock(sprite_pos.cellPos()) == GameMap::Cell::ROPE_END)
     {
         frame = Frame::CLIMBING1;
         state = State::ROPE_CLIMB;
@@ -233,7 +233,7 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
                 frame = Frame::CLIMBING1;
                 return;
             }
-            else if (game.getGameMap().getCell(next_pos) == GameMap::Cell::TRAPDOOR)
+            else if (game.getGameMap().getBlock(next_pos) == GameMap::Cell::TRAPDOOR)
             {
                 // TODO: maze exit;
                 return;
@@ -273,14 +273,14 @@ void Fred::dbgResetPosition(Game &game)
     {
         if (auto cell_pos = candidate.cellPos().hmove(deltax);
             cell_pos.x <= max_x && 
-            game.getGameMap().getCell(cell_pos) == GameMap::Cell::EMPTY)
+            game.getGameMap().getBlock(cell_pos) == GameMap::Cell::EMPTY)
         {
             candidate.x = cell_pos.x;
             break;
         }
         if (auto cell_pos = candidate.cellPos().hmove(-deltax);
             deltax > 0 && cell_pos.x >= 1 && 
-            game.getGameMap().getCell(cell_pos) == GameMap::Cell::EMPTY)
+            game.getGameMap().getBlock(cell_pos) == GameMap::Cell::EMPTY)
         {
             candidate.x = cell_pos.x;
             break;
