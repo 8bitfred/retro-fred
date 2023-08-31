@@ -7,7 +7,7 @@ Mummy::Mummy(Game& game, std::minstd_rand &random_engine)
     : Sprite::Sprite(game.getFrame(), getRandomLocation(random_engine, game.getGameMap()), 
     3, 4)
     , random_engine(random_engine)
-    , frame_dir(getRandomDirection(random_engine))
+    , direction(getRandomDirection(random_engine))
 {
 }
 
@@ -26,22 +26,22 @@ void Mummy::update(Game &game, unsigned)
 void Mummy::stateWalk(Game &game)
 {
     // 0 if frame_dir < 0, 1 if frame_dir > 0
-    int stone_limit = (frame_dir + 1) / 2;
+    int stone_limit = (direction + 1) / 2;
     int rope_limit = stone_limit + 2;
     int x_below = stone_limit;
     if (sprite_pos.cx == stone_limit)
     {
-        if (game.getGameMap().isStone(sprite_pos.cellPos(), frame_dir))
+        if (game.getGameMap().isStone(sprite_pos.cellPos(), direction))
         {
             if (flip)
             {
-                frame_type = FrameType::POP;
+                frame = Frame::POP;
                 state = State::DISAPPEAR;
             }
             else
             {
                 flip = true;
-                frame_dir = -frame_dir;
+                direction = -direction;
             }
             return;
         }
@@ -50,17 +50,17 @@ void Mummy::stateWalk(Game &game)
     {
         if (!game.getGameMap().isStone(sprite_pos.cellPos(), x_below, 1))
         {
-            frame_type = FrameType::FALL;
+            frame = Frame::FALL;
             state = State::FALL;
-            sprite_pos.xadd(frame_dir);
+            sprite_pos.xadd(direction);
             sprite_pos.yadd(2);
             return;
         }
     }
     if (mummy_timer == 0)
     {
-        sprite_pos.xadd(frame_dir);
-        frame_type = frame_type == FrameType::STANDING ? FrameType::STEP : FrameType::STANDING;
+        sprite_pos.xadd(direction);
+        frame = frame == Frame::STANDING ? Frame::STEP : Frame::STANDING;
     }
 }
 
@@ -80,16 +80,16 @@ void Mummy::stateBounce(Game &)
 {
     sprite_pos.yadd(1);
     state = State::WALK;
-    frame_type = FrameType::STANDING;
+    frame = Frame::STANDING;
     flip = false;
 }
 
 void Mummy::stateDisappear(Game &game)
 {
     sprite_pos = getRandomLocation(random_engine, game.getGameMap());
-    frame_dir = getRandomDirection(random_engine);
+    direction = getRandomDirection(random_engine);
     state = State::WALK;
-    frame_type = FrameType::STANDING;
+    frame = Frame::STANDING;
     flip = false;
 }
 
@@ -118,8 +118,8 @@ Sprite::RenderInfo Mummy::getTexture() const
                 {TextureID::MUMMY, {c6, 8, 24, 34}, 0, 1},
             },
         };
-    int dir_index = (frame_dir + 1) >> 1;
-    return textures[dir_index][static_cast<int>(frame_type)];
+    int dir_index = (direction + 1) >> 1;
+    return textures[dir_index][static_cast<int>(frame)];
 }
 
 MapPos Mummy::getRandomLocation(std::minstd_rand &random_engine,

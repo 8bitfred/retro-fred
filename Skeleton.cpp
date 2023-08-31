@@ -25,17 +25,17 @@ void Skeleton::update(Game &game, unsigned)
     auto [delta_x, delta_y] = getDirDelta();
     if (delta_x != 0)
     {
-        if (frame_type != FrameType::STANDING)
-            frame_type = FrameType::STANDING;
+        if (frame != Frame::STANDING)
+            frame = Frame::STANDING;
         else if (sprite_pos.cx < 2)
-            frame_type = FrameType::BIG_STEP;
+            frame = Frame::BIG_STEP;
         else
-            frame_type = FrameType::SMALL_STEP;
+            frame = Frame::SMALL_STEP;
         sprite_pos.xadd(delta_x);
     }
     else
     {
-        frame_type = climbing_frame == 0 ? FrameType::CLIMBING1 : FrameType::CLIMBING2;
+        frame = climbing_frame == 0 ? Frame::CLIMBING1 : Frame::CLIMBING2;
         sprite_pos.yadd(delta_y);
     }
 }
@@ -72,5 +72,5 @@ Sprite::RenderInfo Skeleton::getTexture() const
     auto [dir_x, dir_y] = getDirDelta();
     // dir_x is 0 if moving left or vertically, and 1 if moving right
     int dir_index = (dir_x + 1) >> 1;
-    return textures[dir_index][static_cast<int>(frame_type)];
+    return textures[dir_index][static_cast<int>(frame)];
 }

@@ -18,7 +18,7 @@ protected:
     RenderInfo getTexture() const override;
 
 private:
-    enum class FrameType
+    enum class Frame
     {
         STANDING,
         BIG_STEP,
@@ -27,5 +27,5 @@ private:
         CLIMBING2,
     };
     static int climbing_frame;
-    FrameType frame_type = FrameType::STANDING;
+    Frame frame = Frame::STANDING;
 };
