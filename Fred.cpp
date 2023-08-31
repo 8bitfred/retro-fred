@@ -45,41 +45,41 @@ Sprite::RenderInfo Fred::getTexture() const
             /* SHOOTING_SMALL_STEP */ {TextureID::FRED, {c3, c3, 48, 48}, 8, 8},
             },
         };
-    int dir_index = (frame_dir + 1) >> 1;
-    int frame_index = static_cast<int>(frame_type);
-    if (frame_shooting && frame_index <= static_cast<int>(FrameType::SMALL_STEP))
-        frame_index += static_cast<int>(FrameType::SHOOTING_STANDING);
+    int dir_index = (direction + 1) >> 1;
+    int frame_index = static_cast<int>(frame);
+    if (shooting && frame_index <= static_cast<int>(Frame::SMALL_STEP))
+        frame_index += static_cast<int>(Frame::SHOOTING_STANDING);
     return textures[dir_index][frame_index];
 }
 
 void Fred::updateFred(Game& game, unsigned events)
 {
-    int hmove = 0, vmove = 0;
+    int input_x = 0, input_y = 0;
     bool fire = false;
     if ((events & Game::EVENT_UP) != 0)
-        vmove = -1;
+        input_y = -1;
     else if ((events & Game::EVENT_DOWN) != 0)
-        vmove = 1;
+        input_y = 1;
     else if ((events & Game::EVENT_LEFT) != 0)
-        hmove = -1;
+        input_x = -1;
     else if ((events & Game::EVENT_RIGHT) != 0)
-        hmove = 1;
+        input_x = 1;
     if ((events & Game::EVENT_FIRE) != 0)
         fire = true;
 
     switch (state)
     {
     case State::WALK:
-        stateWalk(game, hmove, vmove);
+        stateWalk(game, input_x, input_y);
         break;
     case State::VERTICAL_JUMP:
-        stateVerticalJump(game, hmove, vmove);
+        stateVerticalJump(game, input_x, input_y);
         break;
     case State::SIDE_JUMP:
-        stateSideJump(game, hmove, vmove);
+        stateSideJump(game, input_x, input_y);
         break;
     case State::ROPE_CLIMB:
-        stateRopeClimb(game, hmove, vmove);
+        stateRopeClimb(game, input_x, input_y);
         break;
     case State::EXIT_MAZE:
         break;
@@ -92,22 +92,22 @@ void Fred::updateFred(Game& game, unsigned events)
 void Fred::checkFire(Game &, bool fire)
 {
     if (state == State::WALK || state == State::VERTICAL_JUMP || state == State::SIDE_JUMP)
-        frame_shooting = fire;
+        shooting = fire;
 }
 
-void Fred::stateWalk(Game& game, int hmove, int vmove)
+void Fred::stateWalk(Game& game, int input_x, int input_y)
 {
-    if (hmove == (-frame_dir)) 
+    if (input_x == (-direction)) 
     {
-        frame_dir = -frame_dir;
-        frame_type = FrameType::STANDING;
+        direction = -direction;
+        frame = Frame::STANDING;
     }
-    else if (hmove == frame_dir)
+    else if (input_x == direction)
         walkOneStep(game);
-    else if (vmove < 0)
+    else if (input_y < 0)
         startVerticalJump(game);
     else 
-        frame_type = FrameType::STANDING;
+        frame = Frame::STANDING;
 }
 
 void Fred::walkOneStep(Game &game)
@@ -116,7 +116,7 @@ void Fred::walkOneStep(Game &game)
     {
         if (game.getGameMap().isStone(nextCellPos()))
         {
-            frame_type = FrameType::STANDING;
+            frame = Frame::STANDING;
             return;
         }
         else if (auto next_cell = game.getGameMap().getCell(nextCellPos().vmove(1));
@@ -127,35 +127,35 @@ void Fred::walkOneStep(Game &game)
             return;
         }
     }
-    if (frame_type == FrameType::STANDING)
+    if (frame == Frame::STANDING)
     {
         if (sprite_pos.cx > 1)
-            frame_type = FrameType::BIG_STEP;
+            frame = Frame::BIG_STEP;
         else
-            frame_type = FrameType::SMALL_STEP;
+            frame = Frame::SMALL_STEP;
     }
     else
     {
-        frame_type = FrameType::STANDING;
+        frame = Frame::STANDING;
         game.playSound(SoundID::WALK);
     }
-    sprite_pos.xadd(frame_dir);
-    game.moveFrame(frame_dir, 0);
+    sprite_pos.xadd(direction);
+    game.moveFrame(direction, 0);
 }
 
 void Fred::startSideJump(Game& game)
 {
-    frame_type = FrameType::BIG_STEP;
+    frame = Frame::BIG_STEP;
     state = State::SIDE_JUMP;
     jump_stage = 3;
-    sprite_pos.xadd(frame_dir);
-    game.moveFrame(frame_dir, 0);
+    sprite_pos.xadd(direction);
+    game.moveFrame(direction, 0);
     game.playSound(SoundID::JUMP);
 }
 
 void Fred::startVerticalJump(Game& game)
 {
-    frame_type = FrameType::BIG_STEP;
+    frame = Frame::BIG_STEP;
     state = State::VERTICAL_JUMP;
     jump_stage = 3;
     sprite_pos.yadd(-1);
@@ -169,68 +169,68 @@ void Fred::stateVerticalJump(Game& game, int, int)
         sprite_pos.cx == 0 &&
         game.getGameMap().getCell(sprite_pos.cellPos()) == GameMap::Cell::ROPE_END)
     {
-        frame_type = FrameType::CLIMBING1;
+        frame = Frame::CLIMBING1;
         state = State::ROPE_CLIMB;
     }
     else if (jump_stage == 0)
     {
         sprite_pos.yadd(1);
-        frame_type = FrameType::STANDING;
+        frame = Frame::STANDING;
         game.playSound(SoundID::WALK);
         state = State::WALK;
     }
     else
-        frame_type = FrameType::BIG_STEP;
+        frame = Frame::BIG_STEP;
 }
 
 void Fred::stateSideJump(Game& game, int, int)
 {
     --jump_stage;
-    sprite_pos.xadd(frame_dir);
-    game.moveFrame(frame_dir, 0);
+    sprite_pos.xadd(direction);
+    game.moveFrame(direction, 0);
     if (jump_stage == 0)
     {
         if (game.getGameMap().isStone(sprite_pos.cellPos().vmove(1)))
         {
             sprite_pos.yadd(1);
-            frame_type = FrameType::STANDING;
+            frame = Frame::STANDING;
             game.playSound(SoundID::WALK);
             state = State::WALK;
         }
         else 
         {
-            frame_type = FrameType::CLIMBING1;
+            frame = Frame::CLIMBING1;
             state = State::ROPE_CLIMB;
         }
     }
     else
-        frame_type = FrameType::BIG_STEP;
+        frame = Frame::BIG_STEP;
 }
 
-void Fred::stateRopeClimb(Game& game, int hmove, int vmove)
+void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
 {
-    if (hmove == frame_dir)
+    if (input_x == direction)
     {
-        frame_dir = -frame_dir;
-        frame_type = FrameType::CLIMBING1;
+        direction = -direction;
+        frame = Frame::CLIMBING1;
         return;
     }
-    else if (hmove == (-frame_dir) &&
+    else if (input_x == (-direction) &&
              sprite_pos.cy == 0 &&
-             !game.getGameMap().isStone(sprite_pos.cellPos().hmove(hmove)))
+             !game.getGameMap().isStone(sprite_pos.cellPos().hmove(input_x)))
     {
-        frame_dir = hmove;
+        direction = input_x;
         startSideJump(game);
         return;
     }
-    else if (vmove != 0)
+    else if (input_y != 0)
     {
         if (sprite_pos.cy == 0)
         {
-            auto next_pos = sprite_pos.cellPos().vmove(vmove);
+            auto next_pos = sprite_pos.cellPos().vmove(input_y);
             if (game.getGameMap().isStone(next_pos))
             {
-                frame_type = FrameType::CLIMBING1;
+                frame = Frame::CLIMBING1;
                 return;
             }
             else if (game.getGameMap().getCell(next_pos) == GameMap::Cell::TRAPDOOR)
@@ -239,20 +239,20 @@ void Fred::stateRopeClimb(Game& game, int hmove, int vmove)
                 return;
             }
         }
-        if (frame_type == FrameType::CLIMBING1)
-            frame_type = FrameType::CLIMBING2;
+        if (frame == Frame::CLIMBING1)
+            frame = Frame::CLIMBING2;
         else
-            frame_type = FrameType::CLIMBING1;
+            frame = Frame::CLIMBING1;
         game.playSound(climbing_sound);
         climbing_sound = climbing_sound == SoundID::CLIMB1 ? SoundID::CLIMB2 : SoundID::CLIMB1;
-        sprite_pos.yadd(vmove);
+        sprite_pos.yadd(input_y);
         state = State::ROPE_CLIMB;
-        game.moveFrame(0, vmove);
+        game.moveFrame(0, input_y);
         return;
     }
     else
     {
-        frame_type = FrameType::CLIMBING1;
+        frame = Frame::CLIMBING1;
     }
 }
 

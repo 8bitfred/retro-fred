@@ -26,7 +26,7 @@ private:
         ROPE_CLIMB,
         EXIT_MAZE,
     };
-    enum class FrameType : std::uint8_t
+    enum class Frame : std::uint8_t
     {
         STANDING,
         BIG_STEP,
@@ -39,20 +39,20 @@ private:
         COUNT
     };
     CellPos nextCellPos() const {
-        return sprite_pos.cellPos().hmove(static_cast<int>(frame_dir));
+        return sprite_pos.cellPos().hmove(static_cast<int>(direction));
     }
     void checkFire(Game &game, bool fire);
-    void stateWalk(Game &game, int hmove, int vmove);
+    void stateWalk(Game &game, int input_x, int input_y);
     void walkOneStep(Game &game);
     void startSideJump(Game &game);
     void startVerticalJump(Game &game);
-    void stateVerticalJump(Game &game, int hmove, int vmove);
-    void stateSideJump(Game& game, int hmove, int vmove);
-    void stateRopeClimb(Game& game, int hmove, int vmove);
+    void stateVerticalJump(Game &game, int input_x, int input_y);
+    void stateSideJump(Game& game, int input_x, int input_y);
+    void stateRopeClimb(Game& game, int input_x, int input_y);
 
-    int frame_dir = -1;
-    FrameType frame_type = FrameType::STANDING;
-    bool frame_shooting = false;
+    int direction = -1;
+    Frame frame = Frame::STANDING;
+    bool shooting = false;
     int jump_stage = 0;
     State state = State::WALK;
     SoundID climbing_sound = SoundID::CLIMB1;
