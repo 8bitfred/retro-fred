@@ -131,7 +131,7 @@ MapPos Mummy::getRandomLocation(std::minstd_rand &random_engine,
     while (true)
     {
         MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 1};
-        if (game_map.getCell(pos.cellPos()) == GameMap::Cell::EMPTY)
+        if (game_map.getBlock(pos.cellPos()) == GameMap::Cell::EMPTY)
             return pos;
     }
 }

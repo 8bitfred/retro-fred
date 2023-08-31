@@ -69,15 +69,17 @@ GameMap::GameMap(Config const& cfg, std::minstd_rand &random_engine)
     setHatchPosition(random_engine);
 }
 
-GameMap::Cell GameMap::getCell(CellPos const &pos) const
+GameMap::Cell GameMap::getBlock(CellPos const &pos, int offset_x, int offset_y) const
 {
-    if (pos.y < 0)
+    int x = pos.x + offset_x;
+    int y = pos.y + offset_y;
+    if (y < 0)
         return Cell::SKY;
-    if (pos.x < 0 || pos.x > width_minus_one || pos.y >= height)
+    if (x < 0 || x > width_minus_one || y >= height)
         return Cell::SAND;
-    if (pos.x == width_minus_one)
+    if (x == width_minus_one)
         return Cell::STONE1;
-    return cell_list[pos.y * width_minus_one + pos.x];
+    return cell_list[y * width_minus_one + x];
 }
 
 void GameMap::initializeMap(std::minstd_rand &random_engine)
@@ -108,13 +110,13 @@ void GameMap::createMaze(std::minstd_rand &random_engine)
         auto move_right = pos.hmove(2);
         auto move_up = pos.vmove(-2);
         auto move_down = pos.vmove(2);
-        if (move_left.x > 0 && getCell(move_left) != Cell::EMPTY)
+        if (move_left.x > 0 && getBlock(move_left) != Cell::EMPTY)
             candidates[cand_count++] = dir::left;
-        if (move_right.x < getWidth() && getCell(move_right) != Cell::EMPTY)
+        if (move_right.x < getWidth() && getBlock(move_right) != Cell::EMPTY)
             candidates[cand_count++] = dir::right;
-        if (move_up.y > 0 && getCell(move_up) != Cell::EMPTY)
+        if (move_up.y > 0 && getBlock(move_up) != Cell::EMPTY)
             candidates[cand_count++] = dir::up;
-        if (move_down.y < getHeight() && getCell(move_down) != Cell::EMPTY)
+        if (move_down.y < getHeight() && getBlock(move_down) != Cell::EMPTY)
             candidates[cand_count++] = dir::down;
         if (cand_count == 0)
         {
@@ -168,10 +170,10 @@ void GameMap::setUpTheRopes()
         {
             CellPos c2{c1.x, c1.y + 1};
             CellPos c3{c1.x, c1.y + 2};
-            if (getCell(c2) == Cell::EMPTY)
+            if (getBlock(c2) == Cell::EMPTY)
             {
                 setCell(c2, Cell::ROPE_MAIN);
-                if (getCell(c1) == Cell::ROPE_END)
+                if (getBlock(c1) == Cell::ROPE_END)
                     setCell(c1, Cell::ROPE_MAIN);
                 else
                     setCell(c1, Cell::ROPE_START);
@@ -196,7 +198,7 @@ bool GameMap::tryHatchPosition(int x)
 {
     CellPos pos1{x, 1};
     CellPos pos2{pos1.x, 2};
-    if (getCell(pos1) == Cell::EMPTY && isStone(pos2))
+    if (getBlock(pos1) == Cell::EMPTY && isStone(pos2))
     {
         CellPos hatch_pos{x, 0};
         setCell(hatch_pos, Cell::TRAPDOOR);
@@ -214,7 +216,7 @@ void GameMap::setCell(CellPos const &pos, Cell c)
 
 TextureID GameMap::getTextureIDOf(CellPos const &pos) const
 {
-    switch (getCell(pos))
+    switch (getBlock(pos))
     {
     case Cell::STONE1:
         return TextureID::BLOCK_STONE1;
@@ -269,7 +271,7 @@ void GameMap::render(int x, int y, TextureManager const &tmgr,
             cell_dst.y = dest->y + cell_rect.y;
             cell_dst.h = cell_rect.h;
             cell_dst.w = cell_rect.w;
-            if (getCell(cell_pos) != Cell::EMPTY)
+            if (getBlock(cell_pos) != Cell::EMPTY)
             {
                 auto texture_id = getTextureIDOf(cell_pos);
                 auto texture = tmgr.get(texture_id);
@@ -308,7 +310,7 @@ bool GameMap::addMapBlock(Window const &window, SpriteList &block_list,
     if (screen_pos.x >= window.getBottomRight().x)
         return false;
     CellPos cell_pos = {sprite_pos.x, sprite_pos.y};
-    if (getCell(cell_pos) != Cell::EMPTY)
+    if (getBlock(cell_pos) != Cell::EMPTY)
     {
         auto texture_id = getTextureIDOf(cell_pos);
         block_list.emplace_back(std::make_unique<Block>(window, sprite_pos, texture_id));

@@ -29,9 +29,10 @@ public:
     };
 
     GameMap(Config const& cfg, std::minstd_rand &random_engine);
-    Cell getCell(CellPos const &pos) const;
-    bool isStone(CellPos const &pos) const {
-        auto c = getCell(pos);
+    Cell getBlock(CellPos const &pos, int offset_x = 0, int offset_y = 0) const;
+    bool isStone(CellPos const &pos, int offset_x = 0, int offset_y = 0) const
+    {
+        auto c = getBlock(pos, offset_x, offset_y);
         return static_cast<int>(c) >= static_cast<int>(Cell::STONE1) &&
                static_cast<int>(c) <= static_cast<int>(Cell::STONE3);
     }

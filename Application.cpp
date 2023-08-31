@@ -116,7 +116,7 @@ Fred* FredApp::initializeFred(Game &game)
         while (true)
         {
             fred_cell_position.x = distrib(random_engine);
-            if (game.getGameMap().getCell(fred_cell_position) == GameMap::Cell::EMPTY)
+            if (game.getGameMap().getBlock(fred_cell_position) == GameMap::Cell::EMPTY)
                 break;
         }
         fred_initial_position = {fred_cell_position.x, fred_cell_position.y, 0, 1};
@@ -140,18 +140,18 @@ void FredApp::initializeAcidDrops(Game &game)
         {
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 1, 0};
             if (!game.getGameMap().isStone(pos.cellPos().vmove(-1)) &&
-                game.getGameMap().getCell(pos.cellPos().vmove(-1)) != GameMap::Cell::TRAPDOOR)
+                game.getGameMap().getBlock(pos.cellPos().vmove(-1)) != GameMap::Cell::TRAPDOOR)
                 continue;
             if (game.getGameMap().isStone(pos.cellPos()))
                 continue;
             if (!game.getGameMap().isStone(pos.cellPos().vmove(1)))
                 continue;
-            if (auto cell = game.getGameMap().getCell(pos.cellPos().hmove(-1));
+            if (auto cell = game.getGameMap().getBlock(pos.cellPos().hmove(-1));
                 cell == GameMap::Cell::ROPE_END ||
                 cell == GameMap::Cell::ROPE_MAIN ||
                 cell == GameMap::Cell::ROPE_START)
                 continue;
-            if (auto cell = game.getGameMap().getCell(pos.cellPos().hmove(1));
+            if (auto cell = game.getGameMap().getBlock(pos.cellPos().hmove(1));
                 cell == GameMap::Cell::ROPE_END ||
                 cell == GameMap::Cell::ROPE_MAIN ||
                 cell == GameMap::Cell::ROPE_START)
@@ -242,7 +242,7 @@ void FredApp::initializeVampires(Game &game)
         while (true)
         {
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
-            if (game.getGameMap().getCell(pos.cellPos()) != GameMap::Cell::EMPTY)
+            if (game.getGameMap().getBlock(pos.cellPos()) != GameMap::Cell::EMPTY)
                 continue;
             sprite_list.emplace_back(std::make_unique<Vampire>(game.getFrame(), pos, random_engine));
             break;
@@ -259,7 +259,7 @@ void FredApp::initializeSkeletons(Game &game)
         while (true)
         {
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 1};
-            if (game.getGameMap().getCell(pos.cellPos()) != GameMap::Cell::EMPTY)
+            if (game.getGameMap().getBlock(pos.cellPos()) != GameMap::Cell::EMPTY)
                 continue;
             sprite_list.emplace_back(std::make_unique<Skeleton>(game.getFrame(), pos, random_engine));
             break;
