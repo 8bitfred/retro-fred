@@ -69,7 +69,6 @@ void Mummy::stateFall(Game &game)
     if (sprite_pos.cy == 1 &&
         game.getGameMap().isStone(sprite_pos.cellPos(), 0, 1))
     {
-        sprite_pos.yadd(-1);
         state = State::BOUNCE;
         return;
     }
@@ -78,10 +77,15 @@ void Mummy::stateFall(Game &game)
 
 void Mummy::stateBounce(Game &)
 {
-    sprite_pos.yadd(1);
-    state = State::WALK;
-    frame = Frame::STANDING;
-    flip = false;
+    if (sprite_pos.cy == 1)
+        sprite_pos.yadd(-1);
+    else 
+    {
+        sprite_pos.yadd(1);
+        state = State::WALK;
+        frame = Frame::STANDING;
+        flip = false;
+    }
 }
 
 void Mummy::stateDisappear(Game &game)
