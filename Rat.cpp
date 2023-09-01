@@ -9,7 +9,7 @@ void Rat::update(Game &game, unsigned)
     {
         auto const &game_map = game.getGameMap();
         if (auto cell_pos = sprite_pos.cellPos();
-            game_map.isStone(cell_pos, direction) || !game_map.isStone(cell_pos, 1))
+            game_map.isStone(cell_pos, direction) || !game_map.isStone(cell_pos, 0, 1))
             direction = -direction;
         else
             sprite_pos.xadd(direction);
