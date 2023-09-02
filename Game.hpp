@@ -42,7 +42,7 @@ public:
     void dbgResetMapBlocks();
 
     bool canShoot() const;
-    void fireBullet(MapPos initial_position, int direction);
+    void fireGun(MapPos initial_position, int direction);
 
 private:
     TextureManager const &tmgr;
