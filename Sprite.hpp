@@ -51,6 +51,7 @@ enum class SpriteClass
     VAMPIRE,
     SKELETON,
     FRED,
+    BULLET,
     COUNT
 };
 

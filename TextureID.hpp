@@ -22,6 +22,7 @@ enum class TextureID : std::uint8_t
     MUMMY,
     VAMPIRE,
     SKELETON,
+    BULLET,
     FRED,
     COUNT
 };

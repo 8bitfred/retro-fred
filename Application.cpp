@@ -9,6 +9,7 @@
 #include "Mummy.hpp"
 #include "Vampire.hpp"
 #include "Skeleton.hpp"
+#include "Bullet.hpp"
 #include <iostream>
 
 
@@ -67,12 +68,6 @@ void FredApp::playGame()
             }
         }
 
-        events_this_cycle |= events;
-        if ((events_this_cycle & Game::EVENT_SHIFT) != 0)
-            debugMode(game, fred, events_this_cycle);
-        else
-            fred->updateFred(game, events_this_cycle);
-
         for (auto const& sprite: game.getSpriteList(SpriteClass::ACID_DROP))
             sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::RAT))
@@ -87,10 +82,25 @@ void FredApp::playGame()
             sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::SKELETON))
             sprite->update(game, 0);
+        for (auto const& sprite: game.getSpriteList(SpriteClass::BULLET))
+            sprite->update(game, 0);
+        if (auto &bullet_list = game.getSpriteList(SpriteClass::BULLET);
+            !bullet_list.empty())
+        {
+            auto const &bullet = dynamic_cast<Bullet const &>(*bullet_list.back());
+            if (bullet.maxDistance())
+                bullet_list.pop_back();
+        }
         // TODO: I would like to avoid exposing the toggleClimbingFrame() API by using
         // some signal or callback
         Skeleton::toggleClimbingFrame();
         Mummy::toggleMummyTimer();
+
+        events_this_cycle |= events;
+        if ((events_this_cycle & Game::EVENT_SHIFT) != 0)
+            debugMode(game, fred, events_this_cycle);
+        else
+            fred->updateFred(game, events_this_cycle);
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
