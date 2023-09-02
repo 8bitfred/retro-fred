@@ -24,28 +24,19 @@ struct MapPos
     CellPos cellPos(int offset_x = 0, int offset_y = 0) const {
         return {x + offset_x, y + offset_y};
     }
-    void xadd(int delta) {
-        cx += delta;
-        if (cx < 0) {
-            cx = CELL_WIDTH - 1;
-            --x;
-        }
-        else {
-            x += cx / CELL_WIDTH;
-            cx %= CELL_WIDTH;
-        }
-    }
-    void yadd(int delta) {
-        cy += delta;
-        if (cy < 0) {
-            cy = CELL_HEIGHT - 1;
-            --y;
-        }
-        else {
-            y += cy / CELL_HEIGHT;
-            cy %= CELL_HEIGHT;
+    static constexpr void modulo_add(int &i, int &ci, int delta, int mod)
+    {
+        ci += delta;
+        i += ci / mod;
+        ci = ci % mod;
+        if (ci < 0) 
+        {
+            --i;
+            ci += mod;
         }
     }
+    void xadd(int delta) { modulo_add(x, cx, delta, CELL_WIDTH); }
+    void yadd(int delta) { modulo_add(y, cy, delta, CELL_HEIGHT); }
 };
 
 // Coordinates in pixels, referenced to the map
