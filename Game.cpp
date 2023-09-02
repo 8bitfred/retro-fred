@@ -2,7 +2,7 @@
 #include "Config.hpp"
 #include "Fred.hpp"
 #include "SoundManager.hpp"
-#include <iostream>
+#include "Bullet.hpp"
 
 unsigned Game::getEventOfKey(SDL_Keycode keycode)
 {
@@ -79,4 +79,15 @@ void Game::dbgResetMapBlocks()
     auto &block_list = getSpriteList(SpriteClass::BLOCK);
     block_list.clear();
     game_map.initializeMapBlocks(window, block_list);
+}
+
+bool Game::canShoot() const
+{
+    return sprite_lists[static_cast<int>(SpriteClass::BULLET)].empty();
+}
+
+void Game::fireBullet(MapPos initial_position, int direction)
+{
+    auto &sprite_list = getSpriteList(SpriteClass::BULLET);
+    sprite_list.emplace_back(std::make_unique<Bullet>(window, initial_position, direction));
 }

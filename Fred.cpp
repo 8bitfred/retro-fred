@@ -89,10 +89,24 @@ void Fred::updateFred(Game& game, unsigned events)
     checkFire(game, fire);
 }
 
-void Fred::checkFire(Game &, bool fire)
+void Fred::checkFire(Game &game, bool fire)
 {
-    if (state == State::WALK || state == State::VERTICAL_JUMP || state == State::SIDE_JUMP)
-        shooting = fire;
+    if (fire && game.canShoot())
+    {
+        if (state == State::WALK || state == State::VERTICAL_JUMP || state == State::SIDE_JUMP)
+        {
+            shooting = true;
+            auto bullet_pos = sprite_pos;
+            bullet_pos.yadd(1);
+            if (direction > 0)
+                bullet_pos.xadd(4);
+            else
+                bullet_pos.xadd(-3);
+            game.fireBullet(bullet_pos, direction);
+            return;
+        }
+    }
+    shooting = false;
 }
 
 void Fred::stateWalk(Game& game, int input_x, int input_y)
