@@ -86,7 +86,7 @@ bool Game::canShoot() const
     return sprite_lists[static_cast<int>(SpriteClass::BULLET)].empty();
 }
 
-void Game::fireBullet(MapPos initial_position, int direction)
+void Game::fireGun(MapPos initial_position, int direction)
 {
     auto &sprite_list = getSpriteList(SpriteClass::BULLET);
     sprite_list.emplace_back(std::make_unique<Bullet>(window, initial_position, direction));

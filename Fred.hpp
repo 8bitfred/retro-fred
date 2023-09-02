@@ -23,7 +23,7 @@ private:
         WALK,
         VERTICAL_JUMP,
         SIDE_JUMP,
-        ROPE_CLIMB,
+        CLIMB,
         EXIT_MAZE,
     };
     enum class Frame : std::uint8_t
@@ -38,9 +38,6 @@ private:
         SHOOTING_SMALL_STEP,
         COUNT
     };
-    CellPos nextCellPos() const {
-        return sprite_pos.cellPos(direction);
-    }
     void checkFire(Game &game, bool fire);
     void stateWalk(Game &game, int input_x, int input_y);
     void walkOneStep(Game &game);
