@@ -8,35 +8,34 @@ struct CellPos
 {
     int x = 0;
     int y = 0;
-    CellPos hmove(int delta) const { return {x + delta, y}; }
-    CellPos vmove(int delta) const { return {x, y + delta}; }
 };
 
 // Coordinates of a character withing the map
-struct MapPos
+class MapPos
 {
+    int char_x = 0;
+    int char_y = 0;
+    static constexpr int div(int a, int b) { return a / b + (a < 0 ? -1 : 0); }
+    static constexpr int mod(int a, int b) { return a % b + (a < 0 ? b : 0); }
+
+public:
     static constexpr int CELL_WIDTH = 4;
     static constexpr int CELL_HEIGHT = 5;
-    int x = 0;
-    int y = 0;
-    int cx = 0;
-    int cy = 0;
-    CellPos cellPos(int offset_x = 0, int offset_y = 0) const {
-        return {x + offset_x, y + offset_y};
-    }
-    static constexpr void modulo_add(int &i, int &ci, int delta, int mod)
+    constexpr MapPos() = default;
+    constexpr MapPos(int x, int y, int cx, int cy)
+        : char_x(x * CELL_WIDTH + cx), char_y(y * CELL_HEIGHT + cy) {}
+    constexpr int x() const { return div(char_x, CELL_WIDTH); }
+    constexpr int y() const { return div(char_y, CELL_HEIGHT); }
+    constexpr int cx() const { return mod(char_x, CELL_WIDTH); }
+    constexpr int cy() const { return mod(char_y, CELL_HEIGHT); }
+    constexpr int getCharX() const { return char_x; }
+    constexpr int getCharY() const { return char_y; }
+    constexpr CellPos cellPos(int offset_x = 0, int offset_y = 0) const
     {
-        ci += delta;
-        i += ci / mod;
-        ci = ci % mod;
-        if (ci < 0) 
-        {
-            --i;
-            ci += mod;
-        }
+        return {x() + offset_x, y() + offset_y};
     }
-    void xadd(int delta) { modulo_add(x, cx, delta, CELL_WIDTH); }
-    void yadd(int delta) { modulo_add(y, cy, delta, CELL_HEIGHT); }
+    constexpr void xadd(int delta) { char_x += delta; }
+    constexpr void yadd(int delta) { char_y += delta; }
 };
 
 // Coordinates in pixels, referenced to the map
@@ -50,8 +49,8 @@ struct MapPixelPos
     MapPixelPos() = default;
     MapPixelPos(int x, int y) : x(x), y(y) {}
     explicit MapPixelPos(MapPos map_pos)
-        : x((map_pos.x * MapPos::CELL_WIDTH + map_pos.cx) * PIXELS_PER_CHAR)
-        , y((map_pos.y * MapPos::CELL_HEIGHT + map_pos.cy) * PIXELS_PER_CHAR) {}
+        : x(map_pos.getCharX() * PIXELS_PER_CHAR)
+        , y(map_pos.getCharY() * PIXELS_PER_CHAR) {}
 };
 
 // Coordinates in pixels, referenced to the screen

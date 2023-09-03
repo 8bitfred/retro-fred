@@ -5,7 +5,7 @@ void Rat::update(Game &game, unsigned)
 {
     // cx_limit is 0 if we are moving left, or 2 if we are moving right
     int cx_limit = direction + 1;
-    if (sprite_pos.cx == cx_limit)
+    if (sprite_pos.cx() == cx_limit)
     {
         auto const &game_map = game.getGameMap();
         if (auto cell_pos = sprite_pos.cellPos();

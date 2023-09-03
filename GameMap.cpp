@@ -303,13 +303,13 @@ void GameMap::initializeMapBlocks(Window const &window, SpriteList &block_list) 
 bool GameMap::addMapBlock(Window const &window, SpriteList &block_list,
                           int offset_x, int offset_y) const
 {
-    MapPos sprite_pos = {window.gFrame().x + offset_x, window.gFrame().y + offset_y, 0, 0};
+    MapPos sprite_pos = {window.gFrame().x() + offset_x, window.gFrame().y() + offset_y, 0, 0};
     auto screen_pos = window.getScreenPosOf(sprite_pos);
     if (screen_pos.y >= window.getBottomRight().y)
         return false;
     if (screen_pos.x >= window.getBottomRight().x)
         return false;
-    CellPos cell_pos = {sprite_pos.x, sprite_pos.y};
+    auto cell_pos = sprite_pos.cellPos();
     if (getBlock(cell_pos) != Cell::EMPTY)
     {
         auto texture_id = getTextureIDOf(cell_pos);

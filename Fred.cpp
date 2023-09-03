@@ -123,7 +123,7 @@ void Fred::stateWalk(Game& game, int input_x, int input_y)
 
 void Fred::walkOneStep(Game &game)
 {
-    if (sprite_pos.cx == 0)
+    if (sprite_pos.cx() == 0)
     {
         if (game.getGameMap().isStone(sprite_pos.cellPos(), direction))
         {
@@ -139,7 +139,7 @@ void Fred::walkOneStep(Game &game)
     }
     if (frame == Frame::STANDING)
     {
-        if (sprite_pos.cx > 1)
+        if (sprite_pos.cx() > 1)
             frame = Frame::BIG_STEP;
         else
             frame = Frame::SMALL_STEP;
@@ -176,7 +176,7 @@ void Fred::stateVerticalJump(Game& game, int, int)
 {
     --jump_stage;
     if (jump_stage == 1 &&
-        sprite_pos.cx == 0 &&
+        sprite_pos.cx() == 0 &&
         game.getGameMap().getBlock(sprite_pos.cellPos()) == GameMap::Cell::ROPE_END)
     {
         frame = Frame::CLIMBING1;
@@ -222,7 +222,7 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
         return;
     }
     else if (input_x == (-direction) &&
-             sprite_pos.cy == 0 &&
+             sprite_pos.cy() == 0 &&
              !game.getGameMap().isStone(sprite_pos.cellPos(), input_x))
     {
         direction = input_x;
@@ -231,7 +231,7 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
     }
     else if (input_y != 0)
     {
-        if (sprite_pos.cy == 0)
+        if (sprite_pos.cy() == 0)
         {
             auto next_pos = sprite_pos.cellPos(0, input_y);
             if (game.getGameMap().isStone(next_pos))
@@ -265,9 +265,8 @@ void Fred::dbgResetPosition(Game &game)
 {
     if (state != State::WALK)
         return;
-    MapPos candidate{game.getFrame().gFrame().x + game.getFrame().getFredOffsetX(),
-                     game.getFrame().gFrame().y + game.getFrame().getFredOffsetY(),
-                     0, 1};
+    auto candidate = game.getFrame().gFrame().cellPos(game.getFrame().getFredOffsetX(),
+                                                      game.getFrame().getFredOffsetY());
     auto max_x = game.getGameMap().getWidth() - 2;
     auto max_y = game.getGameMap().getHeight() - 2;
     candidate.x = std::max(1, std::min(max_x, candidate.x));
@@ -276,23 +275,22 @@ void Fred::dbgResetPosition(Game &game)
 
     for (int deltax = 0; true; ++deltax)
     {
-        if (auto cell_pos = candidate.cellPos(deltax);
+        if (CellPos cell_pos{candidate.x + deltax, candidate.y};
             cell_pos.x <= max_x && 
             game.getGameMap().getBlock(cell_pos) == GameMap::Cell::EMPTY)
         {
-            candidate.x = cell_pos.x;
+            sprite_pos = MapPos(cell_pos.x, cell_pos.y, 0, 1);
             break;
         }
-        if (auto cell_pos = candidate.cellPos(-deltax);
+        if (CellPos cell_pos{candidate.x - deltax, candidate.y};
             deltax > 0 && cell_pos.x >= 1 && 
             game.getGameMap().getBlock(cell_pos) == GameMap::Cell::EMPTY)
         {
-            candidate.x = cell_pos.x;
+            sprite_pos = MapPos(cell_pos.x, cell_pos.y, 0, 1);
             break;
         }
     }
 
-    sprite_pos = candidate;
     game.getFrame().adjustFramePos(sprite_pos);
     game.dbgResetMapBlocks();
 }

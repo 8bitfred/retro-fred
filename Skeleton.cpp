@@ -5,13 +5,13 @@ int Skeleton::climbing_frame = 0;
 
 void Skeleton::update(Game &game, unsigned)
 {
-    if (sprite_pos.cx == 0 && sprite_pos.cy == 1)
+    if (sprite_pos.cx() == 0 && sprite_pos.cy() == 1)
     {
         auto [delta_x, delta_y] = getDirDelta();
         auto const &fred_pos = game.getFredPos();
         int distance = delta_x != 0 ?
-            (sprite_pos.y - fred_pos.y) * delta_x :
-            (sprite_pos.x - fred_pos.x) * -delta_y;
+            (sprite_pos.y() - fred_pos.y()) * delta_x :
+            (sprite_pos.x() - fred_pos.x()) * -delta_y;
         if (distance == 0)
         {
             auto next_pos = sprite_pos.cellPos(delta_x, delta_y);
@@ -27,7 +27,7 @@ void Skeleton::update(Game &game, unsigned)
     {
         if (frame != Frame::STANDING)
             frame = Frame::STANDING;
-        else if (sprite_pos.cx < 2)
+        else if (sprite_pos.cx() < 2)
             frame = Frame::BIG_STEP;
         else
             frame = Frame::SMALL_STEP;

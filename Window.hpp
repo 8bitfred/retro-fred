@@ -25,11 +25,11 @@ public:
     }
     void adjustFramePos(MapPos fred_pos);
 
-    bool needsNewLeftCol() const { return map_pos.cx == new_left_col_cx; }
-    bool needsNewRightCol() const { return map_pos.cx == new_right_col_cx; }
+    bool needsNewLeftCol() const { return map_pos.cx() == new_left_col_cx; }
+    bool needsNewRightCol() const { return map_pos.cx() == new_right_col_cx; }
     int newRightColOffset() const { return new_right_col_offset; }
-    bool needsNewTopRow() const { return map_pos.cy == new_top_row_cy; }
-    bool needsNewBottomRow() const { return map_pos.cy == new_bottom_row_cy; }
+    bool needsNewTopRow() const { return map_pos.cy() == new_top_row_cy; }
+    bool needsNewBottomRow() const { return map_pos.cy() == new_bottom_row_cy; }
     int newBottomRowOffset() const { return new_bottom_row_offset; }
 
     int getFredOffsetX() const { return fred_offset_x; }
@@ -47,16 +47,16 @@ private:
     int fred_offset_x, fred_offset_y;
     // Position of the F point in screen coordinates
     ScreenPos screen_pos;
-    // Value of map_pos.cx when a new column becomes visible when moving left
+    // Value of map_pos.cx() when a new column becomes visible when moving left
     int new_left_col_cx;
-    // Value of map_pos.cy when a new row becomes visible when moving up
+    // Value of map_pos.cy() when a new row becomes visible when moving up
     int new_top_row_cy;
-    // Value of map_pos.cx when a new column becomes visible when moving right
+    // Value of map_pos.cx() when a new column becomes visible when moving right
     int new_right_col_cx;
     // Offset from map_pos.x of the position of the new column that becomes visible when
     // moving to the right.
     int new_right_col_offset;
-    // Value of map_pos.cy when a new row becomes visible when moving down
+    // Value of map_pos.cy() when a new row becomes visible when moving down
     int new_bottom_row_cy;
     // Offset from map_pos.y of the position of the new row that becomes visible when
     // moving to the bottom.

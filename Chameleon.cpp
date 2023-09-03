@@ -11,7 +11,7 @@ Chameleon::Chameleon(Window const &window, MapPos const &pos,
 void Chameleon::update(Game &game, unsigned)
 {
     alternate_frame ^= 1;
-    if (sprite_pos.cx == 1 || sprite_pos.cx == 2)
+    if (sprite_pos.cx() == 1 || sprite_pos.cx() == 2)
     {
         sprite_pos.xadd(direction_x);
         return;
@@ -24,7 +24,7 @@ void Chameleon::update(Game &game, unsigned)
         return;
     }
     int limit = direction_y < 0 ? 0 : 3;
-    if (sprite_pos.cy == limit && 
+    if (sprite_pos.cy() == limit && 
         !isValidCell(game.getGameMap(), sprite_pos.cellPos(0, direction_y)))
     {
         direction_y = -direction_y;
@@ -75,7 +75,7 @@ Sprite::RenderInfo Chameleon::getTexture() const
             },
         };
     // side is 0 if cx is 0 or 2, and 1 if cx is 1 or 3
-    int side = sprite_pos.cx % 2;
+    int side = sprite_pos.cx() % 2;
     // vdir is 0 if direction_y is -1 and 1 if direction_y is +1
     int vdir = (direction_y + 1) >> 1;
     return textures[side][vdir][alternate_frame];
