@@ -171,7 +171,7 @@ Window::Window(Config const &cfg)
     // first_left=2 new_left_col_cx)
     auto first_left = (top_left.x - screen_pos.x) / MapPixelPos::PIXELS_PER_CHAR;
     new_left_col_cx = MapPos::CELL_WIDTH - 1 - first_left;
-    // Same for map_pos.cy and new rows on the top
+    // Same for map_pos.cy() and new rows on the top
     auto first_top = (top_left.y - screen_pos.y) / MapPixelPos::PIXELS_PER_CHAR;
     new_top_row_cy = MapPos::CELL_HEIGHT - 1 - first_top;
     // Similarly, for the right side we calculate the position of the last visible
@@ -181,7 +181,7 @@ Window::Window(Config const &cfg)
     auto last_right = (bottom_right.x - 1 - screen_pos.x) / MapPixelPos::PIXELS_PER_CHAR;
     new_right_col_cx = (MapPos::CELL_WIDTH - (last_right % MapPos::CELL_WIDTH)) % MapPos::CELL_WIDTH;
     new_right_col_offset = ceil_of_div(last_right, MapPos::CELL_WIDTH);
-    // Same for map_pos.cy and new rows on the bottom
+    // Same for map_pos.cy() and new rows on the bottom
     auto last_bottom = (bottom_right.y - 1 - screen_pos.y) / MapPixelPos::PIXELS_PER_CHAR;
     new_bottom_row_cy = (MapPos::CELL_HEIGHT - (last_bottom % MapPos::CELL_HEIGHT)) % MapPos::CELL_HEIGHT;
     new_bottom_row_offset = ceil_of_div(last_bottom, MapPos::CELL_HEIGHT);
@@ -216,20 +216,18 @@ ScreenPos Window::getScreenPosOf(MapPos const &sprite_pos) const
 {
     ScreenPos spos;
     spos.x = screen_pos.x +
-             (sprite_pos.x - map_pos.x) * MapPixelPos::CELL_WIDTH_PIXELS +
-             (sprite_pos.cx - map_pos.cx) * MapPixelPos::PIXELS_PER_CHAR;
+             (sprite_pos.getCharX() - map_pos.getCharX()) * MapPixelPos::PIXELS_PER_CHAR;
     spos.y = screen_pos.y +
-             (sprite_pos.y - map_pos.y) * MapPixelPos::CELL_HEIGHT_PIXELS +
-             (sprite_pos.cy - map_pos.cy) * MapPixelPos::PIXELS_PER_CHAR;
+             (sprite_pos.getCharY() - map_pos.getCharY()) * MapPixelPos::PIXELS_PER_CHAR;
     return spos;
 }
 
 void Window::adjustFramePos(MapPos fred_pos)
 {
-    map_pos = {fred_pos.x - fred_offset_x,
-               fred_pos.y - fred_offset_y,
-               fred_pos.cx,
-               fred_pos.cy};
+    map_pos = MapPos{fred_pos.x() - fred_offset_x,
+                     fred_pos.y() - fred_offset_y,
+                     fred_pos.cx(),
+                     fred_pos.cy()};
 }
 
 void Window::renderFrame(Config const& cfg, SDL_Renderer *renderer, TextureManager const &tmgr)

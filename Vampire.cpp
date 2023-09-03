@@ -11,7 +11,7 @@ Vampire::Vampire(Window const &window, MapPos const &pos, std::minstd_rand &rand
 void Vampire::update(Game &game, unsigned)
 {
     alternate_frame ^= 1;
-    if (sprite_pos.cx == 0 && sprite_pos.cy == 0)
+    if (sprite_pos.cx() == 0 && sprite_pos.cy() == 0)
         selectDirection(game.getGameMap(), getRandomSense());
     if (state == State::SLOW)
         stateSlow(game);
@@ -79,7 +79,7 @@ void Vampire::stateFast(Game &game)
     auto [delta_x1, delta_y1] = getDirDelta();
     sprite_pos.xadd(delta_x1);
     sprite_pos.yadd(delta_y1);
-    if (sprite_pos.cx == 0 && sprite_pos.cy == 0)
+    if (sprite_pos.cx() == 0 && sprite_pos.cy() == 0)
         selectDirection(game.getGameMap(), getRandomSense());
     auto [delta_x2, delta_y2] = getDirDelta();
     sprite_pos.xadd(delta_x2);
