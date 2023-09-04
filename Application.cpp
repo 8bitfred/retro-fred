@@ -84,13 +84,6 @@ void FredApp::playGame()
             sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::BULLET))
             sprite->update(game, 0);
-        if (auto &bullet_list = game.getSpriteList(SpriteClass::BULLET);
-            !bullet_list.empty())
-        {
-            auto const &bullet = dynamic_cast<Bullet const &>(*bullet_list.back());
-            if (bullet.maxDistance())
-                bullet_list.pop_back();
-        }
         // TODO: I would like to avoid exposing the toggleClimbingFrame() API by using
         // some signal or callback
         Skeleton::toggleClimbingFrame();
@@ -101,6 +94,14 @@ void FredApp::playGame()
             debugMode(game, fred, events_this_cycle);
         else
             fred->updateFred(game, events_this_cycle);
+
+        if (auto &bullet_list = game.getSpriteList(SpriteClass::BULLET);
+            !bullet_list.empty())
+        {
+            auto &bullet = dynamic_cast<Bullet &>(*bullet_list.back());
+            if (!bullet.isAlive(game))
+                bullet_list.pop_back();
+        }
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());

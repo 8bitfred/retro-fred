@@ -31,7 +31,7 @@ add_executable(fred main.cpp sdl.hpp
     MultiDirEnemy.cpp MultiDirEnemy.hpp
     Vampire.cpp Vampire.hpp
     Skeleton.cpp Skeleton.hpp
-    Bullet.hpp)
+    Bullet.cpp Bullet.hpp)
 target_link_libraries(fred ${SDL2_LIBRARIES})
 if (NOT MSVC)
     target_link_libraries(fred -lSDL2_image)
