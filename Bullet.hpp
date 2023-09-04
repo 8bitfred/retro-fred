@@ -8,13 +8,8 @@ public:
     Bullet(Window const &window, MapPos initial_position, int direction)
         : Sprite(window, initial_position, 3, 2), direction(direction) {}
 
-    void update(Game &, unsigned) override
-    {
-        sprite_pos.xadd(2*direction);
-        distance += 2;
-    }
-
-    bool maxDistance() const { return distance >= MAX_DISTANCE; }
+    void update(Game &, unsigned) override { sprite_pos.xadd(2 * direction); }
+    bool isAlive(Game &game);
 
 protected:
     RenderInfo getTexture() const override
@@ -24,5 +19,4 @@ protected:
 
 private:
     int direction;
-    int distance = 0;
 };
