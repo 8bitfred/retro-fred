@@ -5,8 +5,6 @@
 #include "Application.hpp"
 #include "Game.hpp"
 
-static constexpr std::uint32_t FRAMES_PER_SECOND = 60;
-
 int main(int, char*[])
 {
     std::minstd_rand random_engine;
