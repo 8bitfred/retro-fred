@@ -12,6 +12,7 @@ public:
     : MultiDirEnemy(window, pos, 4, 4, random_engine) {}
 
     void update(Game &game, unsigned events) override;
+    BulletEffect bulletHit() override { return BulletEffect::DIE; }
     static void toggleClimbingFrame() { climbing_frame ^= 1; }
 
 protected:

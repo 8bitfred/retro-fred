@@ -10,6 +10,7 @@ class Vampire : public MultiDirEnemy
 public:
     Vampire(Window const &window, MapPos const &pos, std::minstd_rand &random_engine);
 
+    BulletEffect bulletHit() override { return BulletEffect::DIE; }
     void update(Game &game, unsigned events) override;
 
 protected:

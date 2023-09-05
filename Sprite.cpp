@@ -43,3 +43,19 @@ void Sprite::update(Game &, unsigned)
 {
 
 }
+
+bool Sprite::checkCollision(Sprite const &other)
+{
+    auto x2 = sprite_pos.getCharX() + char_width;
+    auto other_x2 = other.sprite_pos.getCharX() + other.char_width;
+    if (x2 <= other.sprite_pos.getCharX() ||
+        other_x2 <= sprite_pos.getCharX())
+        return false;
+
+    auto y2 = sprite_pos.getCharY() + char_height;
+    auto other_y2 = other.sprite_pos.getCharY() + other.char_height;
+    if (y2 <= other.sprite_pos.getCharY() ||
+        other_y2 <= sprite_pos.getCharY())
+        return false;
+    return true;
+}

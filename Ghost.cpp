@@ -13,19 +13,19 @@ void Ghost::update(Game &game, unsigned)
     bool char_limit = false;
     bool map_limit = false;
     bool is_stone = false;
-    if (velocity.x > 0)
+    if (direction.x > 0)
     {
         char_limit = sprite_pos.cx() == 1;
         map_limit = sprite_pos.x() == (game.getGameMap().getWidth() - 2);
         is_stone = game.getGameMap().isStone(sprite_pos.cellPos(), 1);
     }
-    else if (velocity.x < 0)
+    else if (direction.x < 0)
     {
         char_limit = sprite_pos.cx() == 0;
         map_limit = sprite_pos.x() == 1;
         is_stone = game.getGameMap().isStone(sprite_pos.cellPos(), -1);
     }
-    else if (velocity.y > 0)
+    else if (direction.y > 0)
     {
         char_limit = sprite_pos.cy() == 1;
         map_limit = sprite_pos.y() == (game.getGameMap().getHeight() - 2);
@@ -55,8 +55,8 @@ void Ghost::update(Game &game, unsigned)
             }
         }
     }
-    sprite_pos.xadd(velocity.x);
-    sprite_pos.yadd(velocity.y);
+    sprite_pos.xadd(direction.x);
+    sprite_pos.yadd(direction.y);
 }
 
 Sprite::RenderInfo Ghost::getTexture() const
@@ -78,14 +78,14 @@ Sprite::RenderInfo Ghost::getTexture() const
             },
         };
     // Note that only one of velocity.x and velocity.y is not 0 at a given time
-    int frame_dir = velocity.x + velocity.y;
+    int frame_dir = direction.x + direction.y;
     int dir_index = (frame_dir + 1) >> 1;
     return textures[dir_index][alternate_frame];
 }
 
 void Ghost::setRandomDirection()
 {
-    static Velocity directions[] = {
+    static Direction directions[] = {
         {-1, 0},
         {1, 0},
         {0, -1},
@@ -94,8 +94,8 @@ void Ghost::setRandomDirection()
     std::uniform_int_distribution<> distrib(0, 3);
     while (true) {
         int choice = distrib(random_engine);
-        if (velocity != directions[choice]) {
-            velocity = directions[choice];
+        if (direction != directions[choice]) {
+            direction = directions[choice];
             break;
         }
     }

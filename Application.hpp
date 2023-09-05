@@ -3,11 +3,13 @@
 #include "sdl.hpp"
 #include "TextureManager.hpp"
 #include "SoundManager.hpp"
+#include "Sprite.hpp"  // TODO: this is only necessary for checkBullet()
 #include <random>
 
 struct Config;
 class Game;
 class Fred;
+class Bullet;
 
 class FredApp : sdl::App
 {
@@ -27,6 +29,7 @@ private:
     void initializeMummies(Game &game);
     void initializeVampires(Game &game);
     void initializeSkeletons(Game &game);
+    bool checkBullet(Game &game, Bullet &bullet, SpriteClass sprite_class);
     void debugMode(Game &game, Fred *fred, unsigned events);
 
     Config const &cfg;

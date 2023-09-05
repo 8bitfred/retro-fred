@@ -11,6 +11,7 @@ public:
     Mummy(Game& game, std::minstd_rand &random_engine);
 
     void update(Game &game, unsigned events) override;
+    BulletEffect bulletHit() override { return BulletEffect::DIE; }
     static void toggleMummyTimer() { mummy_timer ^= 1; }
 
 protected:
