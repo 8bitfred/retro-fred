@@ -26,6 +26,15 @@ public:
     virtual void update(Game &game, unsigned events);
     //TODO: this may not need to be exposed
     MapPos const &getPos() const { return sprite_pos; }
+    bool checkCollision(Sprite const &other);
+
+    enum class BulletEffect
+    {
+        IGNORE,
+        HIT,
+        DIE
+    };
+    virtual BulletEffect bulletHit() { return BulletEffect::IGNORE; }
 
 protected:
     Sprite(Window const &window, MapPos const &pos, int char_width, int char_height);
@@ -52,6 +61,7 @@ enum class SpriteClass
     SKELETON,
     FRED,
     BULLET,
+    SMOKE,
     COUNT
 };
 

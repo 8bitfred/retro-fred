@@ -10,6 +10,7 @@
 #include "Vampire.hpp"
 #include "Skeleton.hpp"
 #include "Bullet.hpp"
+#include "Smoke.hpp"
 #include <iostream>
 
 
@@ -84,6 +85,16 @@ void FredApp::playGame()
             sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::BULLET))
             sprite->update(game, 0);
+        auto &smoke_list = game.getSpriteList(SpriteClass::SMOKE);
+        for (size_t i = 0; i < smoke_list.size();)
+        {
+            auto &smoke = dynamic_cast<Smoke &>(*game.getSpriteList(SpriteClass::SMOKE)[i]);
+            smoke.update(game, 0);
+            if (!smoke.isAlive())
+                smoke_list.erase(smoke_list.begin() + i);
+            else
+                ++i;
+        }
         // TODO: I would like to avoid exposing the toggleClimbingFrame() API by using
         // some signal or callback
         Skeleton::toggleClimbingFrame();
@@ -99,8 +110,14 @@ void FredApp::playGame()
             !bullet_list.empty())
         {
             auto &bullet = dynamic_cast<Bullet &>(*bullet_list.back());
-            if (!bullet.isAlive(game))
+            if (!bullet.isAlive(game) ||
+                checkBullet(game, bullet, SpriteClass::GHOST) ||
+                checkBullet(game, bullet, SpriteClass::MUMMY) ||
+                checkBullet(game, bullet, SpriteClass::VAMPIRE) ||
+                checkBullet(game, bullet, SpriteClass::SKELETON))
+            {
                 bullet_list.pop_back();
+            }
         }
 
         SDL_RenderClear(getRenderer());
@@ -276,6 +293,28 @@ void FredApp::initializeSkeletons(Game &game)
             break;
         }
     }
+}
+
+bool FredApp::checkBullet(Game &game, Bullet &bullet, SpriteClass sprite_class)
+{
+    auto &sprite_list = game.getSpriteList(sprite_class);
+    for (size_t i = 0; i < sprite_list.size(); ++i)
+    {
+        auto &sprite = *sprite_list[i];
+        if (!sprite.checkCollision(bullet))
+            continue;
+        auto effect = sprite.bulletHit();
+        if (effect == Sprite::BulletEffect::HIT)
+            return true;
+        else if (effect == Sprite::BulletEffect::DIE)
+        {
+            auto &smoke_list = game.getSpriteList(SpriteClass::SMOKE);
+            smoke_list.emplace_back(std::make_unique<Smoke>(game.getFrame(), sprite.getPos()));
+            sprite_list.erase(sprite_list.begin() + i);
+            return true;
+        }
+    }
+    return false;
 }
 
 void FredApp::debugMode(Game &game, Fred *fred, unsigned events)

@@ -9,18 +9,24 @@ public:
     Ghost(Window const &window, MapPos const &pos, std::minstd_rand &random_engine);
 
     void update(Game &game, unsigned events) override;
+    BulletEffect bulletHit() override
+    {
+        direction.x *= -1;
+        direction.y *= -1;
+        return BulletEffect::HIT;
+    }
 
 protected:
     RenderInfo getTexture() const override;
 
 private:
-    struct Velocity {
+    struct Direction {
         int x = 0, y = 0;
-        bool operator==(Velocity const &) const = default;
+        bool operator==(Direction const &) const = default;
     };
     std::minstd_rand &random_engine;
     int alternate_frame = 0;
-    Velocity velocity;
+    Direction direction;
 
     void setRandomDirection();
 };
