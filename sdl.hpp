@@ -56,6 +56,8 @@ namespace sdl
         }
         operator Type *() const { return ptr.get(); }
         operator bool() const { return ptr; }
+        Type *operator->() const { return ptr.get(); }
+        Type *get() const { return ptr.get(); }
     };
 
     class WindowPtr : public ObjectPtr<SDL_Window, SDL_DestroyWindow>
@@ -76,6 +78,17 @@ namespace sdl
 
     using SurfacePtr = ObjectPtr<SDL_Surface, SDL_FreeSurface>;
     using TexturePtr = ObjectPtr<SDL_Texture, SDL_DestroyTexture>;
+
+    class LockedSurfacePtr : public ObjectPtr<SDL_Surface, SDL_UnlockSurface>
+    {
+    public:
+        LockedSurfacePtr() = default;
+        explicit LockedSurfacePtr(SDL_Surface *p): ObjectPtr(p)
+        {
+            if (SDL_LockSurface(p) < 0)
+                throw Error();
+        }
+    };
 
     inline std::pair<WindowPtr, RendererPtr>
     createWindowAndRenderer(int w, int h, Uint32 window_flags = 0)

@@ -1,6 +1,28 @@
 #include "TextureManager.hpp"
 #include <SDL_image.h>
 #include <cassert>
+#include <cstdio>
+#include <iostream>
+#include <map>
+
+sdl::TexturePtr TextureManager::createTextureAndChangeColor(SDL_Renderer *renderer,
+                                                            SDL_Surface *src,
+                                                            Uint32 in_color,
+                                                            Uint32 out_color)
+{
+    assert(src->format->format == SDL_PIXELFORMAT_ABGR8888);
+    sdl::SurfacePtr dst(SDL_CreateRGBSurfaceWithFormat(0, src->w, src->h,
+                        32, src->format->format));
+    sdl::LockedSurfacePtr locked_src(src);
+    sdl::LockedSurfacePtr locked_dst(dst);
+
+    auto src_ptr = reinterpret_cast<Uint32 *>(locked_src->pixels);
+    auto dst_ptr = reinterpret_cast<Uint32 *>(locked_dst->pixels);
+    int count = src->w * src->h;
+    for (int i = 0; i < count; ++i, ++src_ptr, ++dst_ptr)
+        *dst_ptr = *src_ptr == in_color ? out_color : *src_ptr;
+    return sdl::TexturePtr(SDL_CreateTextureFromSurface(renderer, dst));
+}
 
 TextureManager::TextureManager(SDL_Renderer *renderer)
 {
@@ -24,6 +46,19 @@ TextureManager::TextureManager(SDL_Renderer *renderer)
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/skeleton.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/bullet.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/smoke.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred.png"));
+    //texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred.png"));
+
+    sdl::SurfacePtr fred_surface(IMG_Load("sprites/fred.png"));
+    texture_list.emplace_back(SDL_CreateTextureFromSurface(renderer, fred_surface));
+    texture_list.emplace_back(createTextureAndChangeColor(renderer, fred_surface,
+                                                          0xff00ffff, 0xff0000ff));
+    texture_list.emplace_back(createTextureAndChangeColor(renderer, fred_surface,
+                                                          0xff00ffff, 0xffffff00));
+    texture_list.emplace_back(createTextureAndChangeColor(renderer, fred_surface,
+                                                          0xff00ffff, 0xff00ff00));
+    texture_list.emplace_back(createTextureAndChangeColor(renderer, fred_surface,
+                                                          0xff00ffff, 0xffff00ff));
+    texture_list.emplace_back(createTextureAndChangeColor(renderer, fred_surface,
+                                                          0xff00ffff, 0xffff0000));
     assert(texture_list.size() == static_cast<size_t>(TextureID::COUNT));
 }

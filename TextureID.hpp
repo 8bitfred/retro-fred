@@ -25,5 +25,10 @@ enum class TextureID : std::uint8_t
     BULLET,
     SMOKE,
     FRED,
+    FRED_RED,
+    FRED_CYAN,
+    FRED_GREEN,
+    FRED_MAGENTA,
+    FRED_BLUE,
     COUNT
 };
