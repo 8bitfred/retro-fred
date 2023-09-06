@@ -6,7 +6,7 @@ class Bullet: public Sprite {
 public:
     static constexpr int MAX_DISTANCE = 10;
     Bullet(Window const &window, MapPos initial_position, int direction)
-        : Sprite(window, initial_position, 3, 2), direction(direction) {}
+        : Sprite(window, initial_position, 3, 1), direction(direction) {}
 
     void update(Game &, unsigned) override { sprite_pos.xadd(2 * direction); }
     bool isAlive(Game &game);
