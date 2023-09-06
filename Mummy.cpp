@@ -25,9 +25,11 @@ void Mummy::update(Game &game, unsigned)
 
 void Mummy::stateWalk(Game &game)
 {
-    // 0 if frame_dir < 0, 1 if frame_dir > 0
+    // 0 if direction < 0, 1 if direction > 0
     int stone_limit = (direction + 1) / 2;
+    // 2 if direction < 0, 3 if direction > 0
     int rope_limit = stone_limit + 2;
+    // 0 if direction < 0, 1 if direction > 0
     int x_below = stone_limit;
     if (sprite_pos.cx() == stone_limit)
     {
@@ -42,6 +44,7 @@ void Mummy::stateWalk(Game &game)
             {
                 flip = true;
                 direction = -direction;
+                frame = Frame::STANDING;
             }
             return;
         }
@@ -57,7 +60,7 @@ void Mummy::stateWalk(Game &game)
             return;
         }
     }
-    if (mummy_timer == 0)
+    if (mummy_timer == 1)
     {
         sprite_pos.xadd(direction);
         frame = frame == Frame::STANDING ? Frame::STEP : Frame::STANDING;

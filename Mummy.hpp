@@ -46,6 +46,6 @@ private:
     State state = State::WALK;
     std::minstd_rand &random_engine;
     int direction;
-    Frame frame = Frame::STEP;
+    Frame frame = Frame::STANDING;
     bool flip = false;
 };
