@@ -309,7 +309,9 @@ bool FredApp::checkBullet(Game &game, Bullet &bullet, SpriteClass sprite_class)
         else if (effect == Sprite::BulletEffect::DIE)
         {
             auto &smoke_list = game.getSpriteList(SpriteClass::SMOKE);
-            smoke_list.emplace_back(std::make_unique<Smoke>(game.getFrame(), sprite.getPos()));
+            auto smoke_pos = sprite.getPos();
+            smoke_pos.yadd(1);
+            smoke_list.emplace_back(std::make_unique<Smoke>(game.getFrame(), smoke_pos));
             sprite_list.erase(sprite_list.begin() + i);
             return true;
         }
