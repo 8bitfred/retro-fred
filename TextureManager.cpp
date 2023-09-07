@@ -50,14 +50,19 @@ TextureManager::TextureManager(SDL_Renderer *renderer)
 
     sdl::SurfacePtr fred_surface(IMG_Load("sprites/fred.png"));
     texture_list.emplace_back(SDL_CreateTextureFromSurface(renderer, fred_surface));
+    // red
     texture_list.emplace_back(createTextureAndChangeColor(renderer, fred_surface,
                                                           0xff00ffff, 0xff0000ff));
+    // cyan
     texture_list.emplace_back(createTextureAndChangeColor(renderer, fred_surface,
                                                           0xff00ffff, 0xffffff00));
+    // green
     texture_list.emplace_back(createTextureAndChangeColor(renderer, fred_surface,
                                                           0xff00ffff, 0xff00ff00));
+    // magenta
     texture_list.emplace_back(createTextureAndChangeColor(renderer, fred_surface,
                                                           0xff00ffff, 0xffff00ff));
+    // blue
     texture_list.emplace_back(createTextureAndChangeColor(renderer, fred_surface,
                                                           0xff00ffff, 0xffff0000));
     assert(texture_list.size() == static_cast<size_t>(TextureID::COUNT));
