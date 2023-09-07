@@ -12,7 +12,7 @@ public:
     bool isAlive() const { return state < 3; }
 
 protected:
-    RenderInfo getTexture() const override;
+    RenderInfo const &getTexture() const override;
 
 private:
     int state = 0;

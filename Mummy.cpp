@@ -100,7 +100,7 @@ void Mummy::stateDisappear(Game &game)
     flip = false;
 }
 
-Sprite::RenderInfo Mummy::getTexture() const
+Sprite::RenderInfo const &Mummy::getTexture() const
 {
     static constexpr int c0 = 1;
     static constexpr int c1 = c0 + 34;

@@ -16,7 +16,7 @@ public:
     static void toggleClimbingFrame() { climbing_frame ^= 1; }
 
 protected:
-    RenderInfo getTexture() const override;
+    RenderInfo const &getTexture() const override;
 
 private:
     enum class Frame

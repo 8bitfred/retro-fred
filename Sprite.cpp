@@ -26,7 +26,7 @@ void Sprite::render(Window const &window, TextureManager const &tmgr,
 {
     if (!isVisible(window))
         return;
-    auto render_info = getTexture();
+    auto const &render_info = getTexture();
     auto texture = tmgr.get(render_info.texture_id);
     SDL_Rect rect;
     auto spos = window.getScreenPosOf(sprite_pos);

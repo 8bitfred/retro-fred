@@ -17,7 +17,7 @@ public:
     void dbgMoveToHatch(Game &game);
 
 protected:
-    RenderInfo getTexture() const override;
+    RenderInfo const &getTexture() const override;
 
 private:
     enum class State : uint8_t

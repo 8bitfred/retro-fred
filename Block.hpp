@@ -7,11 +7,8 @@ public:
     Block(Window const &window, MapPos const &pos, TextureID texture_id);
 
 protected:
-    RenderInfo getTexture() const override
-    {
-        return {texture_id, {0, 0, 32, 40}, 0, 0};
-    }
+    RenderInfo const &getTexture() const override { return render_info; }
 
 private:
-    TextureID texture_id;
+    RenderInfo render_info;
 };

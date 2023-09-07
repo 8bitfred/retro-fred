@@ -9,7 +9,7 @@ Fred::Fred(Window const &window, MapPos initial_position)
 
 }
 
-Sprite::RenderInfo Fred::getTexture() const
+Sprite::RenderInfo const &Fred::getTexture() const
 {
     // The FRED_SHEET texture contains the sprite sheet for Fred. The sheet is organized
     // as a 4x4 matrix, where each cell in the matrix is a different window. Each cell is
@@ -49,7 +49,8 @@ Sprite::RenderInfo Fred::getTexture() const
     int frame_index = static_cast<int>(frame);
     if (shooting && frame_index <= static_cast<int>(Frame::SMALL_STEP))
         frame_index += static_cast<int>(Frame::SHOOTING_STANDING);
-    auto render_info = textures[dir_index][frame_index];
+    // TODO: we should not be modifying the static structure.
+    auto &render_info = textures[dir_index][frame_index];
     render_info.texture_id = collisionInProgress() ? TextureID::FRED_RED : TextureID::FRED;
     return render_info;
 }

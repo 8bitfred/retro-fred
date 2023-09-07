@@ -11,13 +11,13 @@ public:
     void update(Game &game, unsigned events) override;
 
 protected:
-    RenderInfo getTexture() const override;
+    RenderInfo const &getTexture() const override;
 
 private:
     struct StateInfo {
         RenderInfo render_info;
         int ydelta;
     };
-    StateInfo getStateInfo() const;
+    StateInfo const &getStateInfo() const;
     int state = 0;
 };

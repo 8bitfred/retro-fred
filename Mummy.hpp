@@ -15,7 +15,7 @@ public:
     static void toggleMummyTimer() { mummy_timer ^= 1; }
 
 protected:
-    RenderInfo getTexture() const override;
+    RenderInfo const &getTexture() const override;
 
 private:
     static MapPos getRandomLocation(std::minstd_rand &random_engine, 
