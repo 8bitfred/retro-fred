@@ -1,6 +1,6 @@
 #include "AcidDrop.hpp"
 
-AcidDrop::StateInfo AcidDrop::getStateInfo() const
+AcidDrop::StateInfo const &AcidDrop::getStateInfo() const
 {
     // Offset of cells 0, 1, 2 and 3:
     static constexpr int x_c0 = 1;
@@ -35,7 +35,7 @@ void AcidDrop::update(Game &, unsigned)
 }
 
 
-Sprite::RenderInfo AcidDrop::getTexture() const
+Sprite::RenderInfo const &AcidDrop::getTexture() const
 {
     return getStateInfo().render_info;
 }

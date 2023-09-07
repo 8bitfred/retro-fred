@@ -21,7 +21,7 @@ void Vampire::update(Game &game, unsigned)
         stateFast(game);
 }
 
-Sprite::RenderInfo Vampire::getTexture() const
+Sprite::RenderInfo const &Vampire::getTexture() const
 {
     // Offset of cells 0, 1, 2 and 3:
     static constexpr int c0 = 8;

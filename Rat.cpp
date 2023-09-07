@@ -19,7 +19,7 @@ void Rat::update(Game &game, unsigned)
     alternate_frame = alternate_frame ^ 1;
 }
 
-Sprite::RenderInfo Rat::getTexture() const
+Sprite::RenderInfo const &Rat::getTexture() const
 {
     // Offset of cells 0, 1, 2 and 3:
     static constexpr int c0 = 1;

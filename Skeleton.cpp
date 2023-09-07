@@ -40,7 +40,7 @@ void Skeleton::update(Game &game, unsigned)
     }
 }
 
-Sprite::RenderInfo Skeleton::getTexture() const
+Sprite::RenderInfo const &Skeleton::getTexture() const
 {
     static constexpr int c0 = 8;
     static constexpr int c1 = c0 + 58;

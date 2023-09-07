@@ -11,7 +11,7 @@ public:
     void update(Game &game, unsigned events) override;
 
 protected:
-    RenderInfo getTexture() const override;
+    RenderInfo const &getTexture() const override;
 
 private:
     int direction = 1;

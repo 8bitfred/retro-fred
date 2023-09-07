@@ -40,7 +40,7 @@ bool Chameleon::isValidCell(GameMap const &game_map, CellPos const &pos)
         game_map.isStone(pos, 1);
 }
 
-Sprite::RenderInfo Chameleon::getTexture() const
+Sprite::RenderInfo const &Chameleon::getTexture() const
 {
     // Offset of cells 0, 1, 2 and 3:
     static constexpr int c0 = 1;

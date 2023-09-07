@@ -59,7 +59,7 @@ void Ghost::update(Game &game, unsigned)
     sprite_pos.yadd(direction.y);
 }
 
-Sprite::RenderInfo Ghost::getTexture() const
+Sprite::RenderInfo const &Ghost::getTexture() const
 {
     // Offset of cells 0, 1, 2 and 3:
     static constexpr int c0 = 8;

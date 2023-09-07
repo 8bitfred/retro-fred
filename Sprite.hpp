@@ -38,7 +38,7 @@ public:
 
 protected:
     Sprite(Window const &window, MapPos const &pos, int char_width, int char_height);
-    virtual RenderInfo getTexture() const = 0;
+    virtual RenderInfo const &getTexture() const = 0;
 
     // sSprite
     MapPos sprite_pos;

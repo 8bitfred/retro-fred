@@ -12,9 +12,10 @@ public:
     bool isAlive(Game &game);
 
 protected:
-    RenderInfo getTexture() const override
+    RenderInfo const &getTexture() const override
     {
-        return {TextureID::BULLET, {1, 1, 24, 16}, 0, 0};
+        static RenderInfo render_info = {TextureID::BULLET, {1, 1, 24, 16}, 0, 0};
+        return render_info;
     }
 
 private:

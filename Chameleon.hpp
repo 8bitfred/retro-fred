@@ -15,7 +15,7 @@ public:
     static bool isValidCell(GameMap const &game_map, CellPos const &pos);
 
 protected:
-    RenderInfo getTexture() const override;
+    RenderInfo const &getTexture() const override;
 
 private:
     std::minstd_rand &random_engine;

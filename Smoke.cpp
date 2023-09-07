@@ -1,7 +1,7 @@
 #include "Smoke.hpp"
 #include <cassert>
 
-Sprite::RenderInfo Smoke::getTexture() const
+Sprite::RenderInfo const &Smoke::getTexture() const
 {
     // Offset of cells 0, 1, 2 and 3:
     static constexpr int c0 = 8;

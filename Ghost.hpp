@@ -17,7 +17,7 @@ public:
     }
 
 protected:
-    RenderInfo getTexture() const override;
+    RenderInfo const &getTexture() const override;
 
 private:
     struct Direction {
