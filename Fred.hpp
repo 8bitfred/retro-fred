@@ -10,6 +10,8 @@ class Fred : public Sprite
 public:
     Fred(Window const &window, MapPos initial_position);
     void updateFred(Game& game, unsigned events);
+    bool collisionInProgress() const { return collision_timer != 0; }
+    void checkCollisionWithEnemy(Sprite const &other);
 
     void dbgResetPosition(Game& game);
     void dbgMoveToHatch(Game &game);
@@ -53,4 +55,5 @@ private:
     int jump_stage = 0;
     State state = State::WALK;
     SoundID climbing_sound = SoundID::CLIMB1;
+    int collision_timer = 0;
 };

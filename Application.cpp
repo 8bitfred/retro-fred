@@ -120,6 +120,49 @@ void FredApp::playGame()
             }
         }
 
+        for (auto const &sprite : game.getSpriteList(SpriteClass::ACID_DROP))
+        {
+            if (fred->collisionInProgress())
+                break;
+            fred->checkCollisionWithEnemy(*sprite);
+        }
+        for (auto const& sprite: game.getSpriteList(SpriteClass::RAT))
+        {
+            if (fred->collisionInProgress())
+                break;
+            fred->checkCollisionWithEnemy(*sprite);
+        }
+        for (auto const& sprite: game.getSpriteList(SpriteClass::GHOST))
+        {
+            if (fred->collisionInProgress())
+                break;
+            fred->checkCollisionWithEnemy(*sprite);
+        }
+        for (auto const& sprite: game.getSpriteList(SpriteClass::CHAMELEON))
+        {
+            if (fred->collisionInProgress())
+                break;
+            fred->checkCollisionWithEnemy(*sprite);
+        }
+        for (auto const& sprite: game.getSpriteList(SpriteClass::MUMMY))
+        {
+            if (fred->collisionInProgress())
+                break;
+            fred->checkCollisionWithEnemy(*sprite);
+        }
+        for (auto const& sprite: game.getSpriteList(SpriteClass::VAMPIRE))
+        {
+            if (fred->collisionInProgress())
+                break;
+            fred->checkCollisionWithEnemy(*sprite);
+        }
+        for (auto const& sprite: game.getSpriteList(SpriteClass::SKELETON))
+        {
+            if (fred->collisionInProgress())
+                break;
+            fred->checkCollisionWithEnemy(*sprite);
+        }
+
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
         game.getFrame().renderFrame(cfg, getRenderer(), tmgr);

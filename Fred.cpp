@@ -49,7 +49,9 @@ Sprite::RenderInfo Fred::getTexture() const
     int frame_index = static_cast<int>(frame);
     if (shooting && frame_index <= static_cast<int>(Frame::SMALL_STEP))
         frame_index += static_cast<int>(Frame::SHOOTING_STANDING);
-    return textures[dir_index][frame_index];
+    auto render_info = textures[dir_index][frame_index];
+    render_info.texture_id = collisionInProgress() ? TextureID::FRED_RED : TextureID::FRED;
+    return render_info;
 }
 
 void Fred::updateFred(Game& game, unsigned events)
@@ -87,6 +89,8 @@ void Fred::updateFred(Game& game, unsigned events)
         break;
     }
     checkFire(game, input_fire);
+    if (collision_timer > 0)
+        --collision_timer;
 }
 
 void Fred::checkFire(Game &game, bool input_fire)
@@ -259,6 +263,12 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
     {
         frame = Frame::CLIMBING1;
     }
+}
+
+void Fred::checkCollisionWithEnemy(Sprite const &other)
+{
+    if (checkCollision(other))
+        collision_timer = 5;
 }
 
 void Fred::dbgResetPosition(Game &game)
