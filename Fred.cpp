@@ -55,6 +55,38 @@ Sprite::RenderInfo const &Fred::getTexture() const
     return render_info;
 }
 
+std::vector<SDL_Rect> const &Fred::getHitBoxes() const
+{
+    static std::vector<SDL_Rect> boxes[2][8] =
+        {
+            {
+            /* STANDING            */ {{ 9, 0, 14, 32}, { 0, 13, 26, 10}},
+            /* BIG_STEP            */ {{ 9, 1, 14, 31}, { 0, 12, 32, 20}},
+            /* SMALL_STEP          */ {{ 9, 1, 14, 31}, { 0, 15, 24,  8}, { 7, 24, 19, 8}},
+            /* CLIMBING1           */ {{14, 1, 18, 23}, {10, 20,  9, 10}},
+            /* CLIMBING2           */ {{13, 0, 19, 23}, {10, 21, 11, 10}},
+            /* SHOOTING_STANDING   */ {{ 9, 0, 14, 32}, { 0,  9, 26, 14}},
+            /* SHOOTING_BIG_STEP   */ {{ 9, 1, 14, 31}, { 0, 10, 32, 22}},
+            /* SHOOTING_SMALL_STEP */ {{ 9, 1, 14, 31}, { 0, 10, 24, 13}, { 7, 24, 19, 8}},
+            },
+            {
+            /* STANDING            */ {{ 9, 0, 14, 32}, { 6, 13, 26, 10}},
+            /* BIG_STEP            */ {{ 9, 1, 14, 31}, { 0, 12, 32, 20}},
+            /* SMALL_STEP          */ {{ 9, 1, 14, 31}, { 8, 15, 24,  8}, { 6, 24, 19, 8}},
+            /* CLIMBING1           */ {{ 0, 1, 18, 23}, {13, 20,  9, 10}},
+            /* CLIMBING2           */ {{ 0, 0, 19, 23}, {11, 21, 11, 10}},
+            /* SHOOTING_STANDING   */ {{ 9, 0, 14, 32}, { 6,  9, 26, 14}},
+            /* SHOOTING_BIG_STEP   */ {{ 9, 1, 14, 31}, { 0, 10, 32, 22}},
+            /* SHOOTING_SMALL_STEP */ {{ 9, 1, 14, 31}, { 8, 10, 24, 13}, { 6, 24, 19, 8}},
+            },
+        };
+    int dir_index = (direction + 1) >> 1;
+    int frame_index = static_cast<int>(frame);
+    if (shooting && frame_index <= static_cast<int>(Frame::SMALL_STEP))
+        frame_index += static_cast<int>(Frame::SHOOTING_STANDING);
+    return boxes[dir_index][frame_index];
+}
+
 void Fred::updateFred(Game& game, unsigned events)
 {
     int input_x = 0, input_y = 0;
