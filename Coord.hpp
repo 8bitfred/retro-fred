@@ -21,6 +21,7 @@ class MapPos
 public:
     static constexpr int CELL_WIDTH = 4;
     static constexpr int CELL_HEIGHT = 5;
+    static constexpr int PIXELS_PER_CHAR = 8;
     constexpr MapPos() = default;
     constexpr MapPos(int x, int y, int cx, int cy)
         : char_x(x * CELL_WIDTH + cx), char_y(y * CELL_HEIGHT + cy) {}
@@ -30,6 +31,8 @@ public:
     constexpr int cy() const { return mod(char_y, CELL_HEIGHT); }
     constexpr int getCharX() const { return char_x; }
     constexpr int getCharY() const { return char_y; }
+    constexpr int px() const { return char_x * PIXELS_PER_CHAR; }
+    constexpr int py() const { return char_y * PIXELS_PER_CHAR; }
     constexpr CellPos cellPos(int offset_x = 0, int offset_y = 0) const
     {
         return {x() + offset_x, y() + offset_y};
@@ -39,9 +42,10 @@ public:
 };
 
 // Coordinates in pixels, referenced to the map
+// TODO: get rid of MapPixelPos, and use only MapPos
 struct MapPixelPos
 {
-    static constexpr int PIXELS_PER_CHAR = 8;
+    static constexpr int PIXELS_PER_CHAR = MapPos::PIXELS_PER_CHAR;
     static constexpr int CELL_WIDTH_PIXELS = MapPos::CELL_WIDTH * PIXELS_PER_CHAR;
     static constexpr int CELL_HEIGHT_PIXELS = MapPos::CELL_HEIGHT * PIXELS_PER_CHAR;
     int x = 0;
@@ -49,8 +53,8 @@ struct MapPixelPos
     MapPixelPos() = default;
     MapPixelPos(int x, int y) : x(x), y(y) {}
     explicit MapPixelPos(MapPos map_pos)
-        : x(map_pos.getCharX() * PIXELS_PER_CHAR)
-        , y(map_pos.getCharY() * PIXELS_PER_CHAR) {}
+        : x(map_pos.px())
+        , y(map_pos.py()) {}
 };
 
 // Coordinates in pixels, referenced to the screen

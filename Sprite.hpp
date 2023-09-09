@@ -39,10 +39,16 @@ public:
 protected:
     Sprite(Window const &window, MapPos const &pos, int char_width, int char_height);
     virtual RenderInfo const &getTexture() const = 0;
+    virtual std::vector<SDL_Rect> const &getHitBoxes() const
+    {
+        static std::vector<SDL_Rect> empty;
+        return empty;
+    }
 
     // sSprite
     MapPos sprite_pos;
 private:
+    bool checkHitBoxes(SDL_Rect const &rect2) const;
     // Width and height, in characters
     int char_width, char_height;
     // Visibility min and max positions

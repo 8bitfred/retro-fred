@@ -18,6 +18,7 @@ public:
 
 protected:
     RenderInfo const &getTexture() const override;
+    std::vector<SDL_Rect> const &getHitBoxes() const override;
 
 private:
     enum class State : uint8_t
