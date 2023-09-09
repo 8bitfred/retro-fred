@@ -12,17 +12,17 @@ AcidDrop::StateInfo const &AcidDrop::getStateInfo() const
     static constexpr int y_c1 = y_c0 + 36;
 
     static StateInfo state_info[] = {
-        /*  0 */ {{TextureID::ACID_DROP, {x_c0, y_c0, 16, 10}, 0, 1}, 0},
-        /*  1 */ {{TextureID::ACID_DROP, {x_c1, y_c0, 16, 10}, 0, 1}, 0},
-        /*  2 */ {{TextureID::ACID_DROP, {x_c2, y_c0, 16, 10}, 0, 1}, 0},
-        /*  3 */ {{TextureID::ACID_DROP, {x_c3, y_c0, 16, 10}, 0, 1}, 0},
-        /*  4 */ {{TextureID::ACID_DROP, {x_c0, y_c1, 16, 10}, 0, 1}, 0},
-        /*  5 */ {{TextureID::ACID_DROP, {x_c1, y_c1, 16, 10}, 0, 1}, 1},
-        /*  6 */ {{TextureID::ACID_DROP, {x_c0, y_c1, 16, 10}, 0, 1}, 1},
-        /*  7 */ {{TextureID::ACID_DROP, {x_c0, y_c1, 16, 10}, 0, 1}, 1},
-        /*  8 */ {{TextureID::ACID_DROP, {x_c0, y_c1, 16, 10}, 0, 1}, 1},
-        /*  9 */ {{TextureID::ACID_DROP, {x_c0, y_c1, 16, 10}, 0, 1}, 0},
-        /* 10 */ {{TextureID::ACID_DROP, {x_c2, y_c1, 16, 10}, 0, 1}, -4},
+        /*  0 */ {{TextureID::ACID_DROP, {x_c0+5, y_c0,  7, 10}, -5, 1}, 0},
+        /*  1 */ {{TextureID::ACID_DROP, {x_c1+5, y_c0,  7, 10}, -5, 1}, 0},
+        /*  2 */ {{TextureID::ACID_DROP, {x_c2+5, y_c0,  7, 10}, -5, 1}, 0},
+        /*  3 */ {{TextureID::ACID_DROP, {x_c3+5, y_c0,  7, 10}, -5, 1}, 0},
+        /*  4 */ {{TextureID::ACID_DROP, {x_c0+5, y_c1,  7, 10}, -5, 1}, 0},
+        /*  5 */ {{TextureID::ACID_DROP, {x_c1+5, y_c1,  7, 10}, -5, 1}, 1},
+        /*  6 */ {{TextureID::ACID_DROP, {x_c0+5, y_c1,  7, 10}, -5, 1}, 1},
+        /*  7 */ {{TextureID::ACID_DROP, {x_c0+5, y_c1,  7, 10}, -5, 1}, 1},
+        /*  8 */ {{TextureID::ACID_DROP, {x_c0+5, y_c1,  7, 10}, -5, 1}, 1},
+        /*  9 */ {{TextureID::ACID_DROP, {x_c0+5, y_c1,  7, 10}, -5, 1}, 0},
+        /* 10 */ {{TextureID::ACID_DROP, {x_c2,   y_c1, 16, 10},  0, 1}, -4},
     };
 
     return state_info[state];
