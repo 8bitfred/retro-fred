@@ -11,7 +11,7 @@ class Chameleon : public Sprite
         int x = -1, y = -1;
     };
     std::minstd_rand &random_engine;
-    int alternate_frame = 0;
+    int alternate_frame = 1;
     Direction direction;
 public:
     Chameleon(MapPos const &pos, std::minstd_rand &random_engine)
