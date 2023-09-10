@@ -7,19 +7,19 @@ class GameMap;
 
 class Vampire : public MultiDirEnemy
 {
-    enum class State
+    enum class Mode
     {
         SLOW,
         STATIC,
         FAST,
     };
 
-    void stateSlow(Game &game);
-    void stateStatic(Game &game);
-    void stateFast(Game &game);
+    void moveSlow(Game &game);
+    void moveStatic(Game &game);
+    void moveFast(Game &game);
 
     int alternate_frame = 0;
-    State state = State::SLOW;
+    Mode mode = Mode::SLOW;
 
 public:
     Vampire(MapPos const &pos, std::minstd_rand &random_engine);
