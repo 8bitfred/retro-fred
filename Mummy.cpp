@@ -105,7 +105,7 @@ Sprite::BoxParams const &Mummy::getBoxParams() const
         {      1, 9, {0, -1, 24, 34}, {{2, 0, 20, 32}} },
         {   34+1, 9, {0, -1, 24, 34}, {{2, 0, 20, 32}} },
         { 2*34+1, 9, {0, -1, 24, 34}, {{1, 5, 19, 23}} },
-        { 6*34+1, 9, {0, -1, 24, 34}, {{1, 5, 19, 23}} },
+        { 3*34+1, 9, {0, -1, 24, 34}, {{1, 5, 19, 23}} },
     };
     static_assert(static_cast<int>(Frame::COUNT) == std::size(box_params));
     return box_params[static_cast<int>(frame)];
