@@ -5,8 +5,18 @@
 
 class Ghost : public Sprite
 {
+    struct Direction {
+        int x = 0, y = 0;
+        bool operator==(Direction const &) const = default;
+    };
+    std::minstd_rand &random_engine;
+    int alternate_frame = 0;
+    Direction direction;
+
+    void setRandomDirection();
+
 public:
-    Ghost(Window const &window, MapPos const &pos, std::minstd_rand &random_engine);
+    Ghost(MapPos const &pos, std::minstd_rand &random_engine);
 
     void update(Game &game, unsigned events) override;
     BulletEffect bulletHit() override
@@ -17,16 +27,6 @@ public:
     }
 
 protected:
-    RenderInfo const &getTexture() const override;
-
-private:
-    struct Direction {
-        int x = 0, y = 0;
-        bool operator==(Direction const &) const = default;
-    };
-    std::minstd_rand &random_engine;
-    int alternate_frame = 0;
-    Direction direction;
-
-    void setRandomDirection();
+    BoxParams const &getBoxParams() const override;
+    RenderParams getRenderParams() const override;
 };

@@ -1,14 +1,16 @@
 #pragma once
 
 #include "Sprite.hpp"
+#include "GameMap.hpp"
 
 class Block: public Sprite {
+    GameMap::Cell cell;
+
 public:
-    Block(Window const &window, MapPos const &pos, TextureID texture_id);
+    Block(MapPos const &pos, GameMap::Cell cell)
+        : Sprite(pos), cell(cell) {}
 
 protected:
-    RenderInfo const &getTexture() const override { return render_info; }
-
-private:
-    RenderInfo render_info;
+    virtual RenderParams getRenderParams() const override;
+    virtual BoxParams &getBoxParams() const override;
 };

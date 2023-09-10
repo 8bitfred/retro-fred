@@ -14,16 +14,29 @@ class Game;
 class Sprite
 {
 public:
-    struct RenderInfo {
-        TextureID texture_id;
-        SDL_Rect src_rect;
-        int center_x, center_y;
+    struct BoxParams {
+        // Position of the "center" (reference point) of the sprite in the texture
+        int pos_x = 0, pos_y = 0;
+        // Bounding box, with respect to the "center" (reference point) of the sprite
+        SDL_Rect bounding_box;
+        // Hit boxes, defined with respect to the "center" of the sprite
+        std::vector<SDL_Rect> hit_boxes;
+    };
+    struct ColorModulation {
+        Uint8 r = 0xff, g = 0xff, b = 0xff;
+    };
+    struct RenderParams
+    {
+        TextureID texture_id = TextureID::COUNT;
+        bool hflip = false;
+        ColorModulation color_mod;
     };
     virtual ~Sprite() = default;
     bool isVisible(Window const &window) const;
     void render(Window const &window, TextureManager const &tmgr,
                 SDL_Renderer *renderer) const;
-    virtual void update(Game &game, unsigned events);
+    // TODO: update() could be made =0
+    virtual void update(Game &, unsigned) {}
     //TODO: this may not need to be exposed
     MapPos const &getPos() const { return sprite_pos; }
     bool checkCollision(Sprite const &other);
@@ -37,22 +50,17 @@ public:
     virtual BulletEffect bulletHit() { return BulletEffect::IGNORE; }
 
 protected:
-    Sprite(Window const &window, MapPos const &pos, int char_width, int char_height);
-    virtual RenderInfo const &getTexture() const = 0;
-    virtual std::vector<SDL_Rect> const &getHitBoxes() const
-    {
-        static std::vector<SDL_Rect> empty;
-        return empty;
-    }
+    explicit Sprite(MapPos const &pos): sprite_pos(pos) { }
+    virtual BoxParams const &getBoxParams() const = 0;
+    virtual RenderParams getRenderParams() const = 0;
 
     // sSprite
     MapPos sprite_pos;
 private:
-    bool checkHitBoxes(SDL_Rect const &rect2) const;
-    // Width and height, in characters
-    int char_width, char_height;
-    // Visibility min and max positions
-    ScreenPos min_visible_pos, max_visible_pos;
+    static SDL_Rect getHitboxPos(int px, int py,
+                                 SDL_Rect const &bounding_box,
+                                 SDL_Rect const &hitbox, bool hflip);
+    bool checkHitBoxes(SDL_Rect const &rect2, SDL_Rect const &bounding_box, bool hflip) const;
 };
 
 enum class SpriteClass

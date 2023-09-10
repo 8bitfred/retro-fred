@@ -7,16 +7,6 @@ class GameMap;
 
 class Vampire : public MultiDirEnemy
 {
-public:
-    Vampire(Window const &window, MapPos const &pos, std::minstd_rand &random_engine);
-
-    BulletEffect bulletHit() override { return BulletEffect::DIE; }
-    void update(Game &game, unsigned events) override;
-
-protected:
-    RenderInfo const &getTexture() const override;
-
-private:
     enum class State
     {
         SLOW,
@@ -30,4 +20,14 @@ private:
 
     int alternate_frame = 0;
     State state = State::SLOW;
+
+public:
+    Vampire(MapPos const &pos, std::minstd_rand &random_engine);
+
+    BulletEffect bulletHit() override { return BulletEffect::DIE; }
+    void update(Game &game, unsigned events) override;
+
+protected:
+    BoxParams const &getBoxParams() const override;
+    RenderParams getRenderParams() const override;
 };

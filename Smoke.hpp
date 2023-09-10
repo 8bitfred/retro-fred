@@ -4,16 +4,13 @@
 
 class Smoke : public Sprite
 {
+    int state = 0;
 public:
-    Smoke(Window const &window, MapPos const &pos)
-    : Sprite::Sprite(window, pos, 5, 4) {}
-
+    explicit Smoke(MapPos pos): Sprite(pos) {}
     void update(Game &, unsigned) override { ++state; }
     bool isAlive() const { return state < 3; }
 
 protected:
-    RenderInfo const &getTexture() const override;
-
-private:
-    int state = 0;
+    BoxParams const &getBoxParams() const override;
+    RenderParams getRenderParams() const override;
 };

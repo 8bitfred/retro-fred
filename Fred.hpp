@@ -8,7 +8,7 @@ class Game;
 class Fred : public Sprite
 {
 public:
-    Fred(Window const &window, MapPos initial_position);
+    explicit Fred(MapPos pos): Sprite(pos) {}
     void updateFred(Game& game, unsigned events);
     bool collisionInProgress() const { return collision_timer != 0; }
     void checkCollisionWithEnemy(Sprite const &other);
@@ -17,8 +17,8 @@ public:
     void dbgMoveToHatch(Game &game);
 
 protected:
-    RenderInfo const &getTexture() const override;
-    std::vector<SDL_Rect> const &getHitBoxes() const override;
+    BoxParams const &getBoxParams() const override;
+    RenderParams getRenderParams() const override;
 
 private:
     enum class State : uint8_t

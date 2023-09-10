@@ -3,88 +3,41 @@
 #include "GameMap.hpp"
 #include <functional>
 
-Fred::Fred(Window const &window, MapPos initial_position)
-: Sprite(window, initial_position, 4, 4)
+Sprite::BoxParams const &Fred::getBoxParams() const
 {
+    static BoxParams box_params[] = {
+        { 9,      9,      {-1, -1, 34, 34},       // STANDING
+            {{ 9, 0, 14, 32}, { 0, 13, 26, 10}} },
+        { 9+  58, 9,      {-1, -1, 34, 34},       // BIG_STEP
+            {{ 9, 1, 14, 31}, { 0, 12, 32, 20}} },
+        { 9+2*58, 9,      {-1, -1, 34, 34},       // SMALL_STEP
+            {{ 9, 1, 14, 31}, { 0, 15, 24,  8}, { 7, 24, 19, 8}} },
+        { 9+2*58, 9+  58, {-1, -1, 34, 34},       // CLIMBING1
+            {{14, 1, 18, 23}, {10, 20,  9, 11}} },
+        { 9+3*58, 9+  58, {-1, -1, 34, 34},       // CLIMBING2
+            {{13, 0, 19, 23}, {10, 21, 11, 11}} },
+        { 9+2*58, 9+2*58, {-8, -1, 48, 34},       // SHOOTING_STANDING
+            {{ 9, 0, 14, 32}, { 0,  9, 26, 14}} },
+        { 9+3*58, 9+2*58, {-8, -1, 48, 34},       // SHOOTING_BIG_STEP
+            {{ 9, 1, 14, 31}, { 0, 10, 32, 22}} },
+        { 9,      9+3*58, {-8, -1, 48, 34},       // SHOOTING_SMALL_STEP
+            {{ 9, 1, 14, 31}, { 0, 10, 24, 13}, { 7, 24, 19, 8}} },
+    };
 
-}
-
-Sprite::RenderInfo const &Fred::getTexture() const
-{
-    // The FRED_SHEET texture contains the sprite sheet for Fred. The sheet is organized
-    // as a 4x4 matrix, where each cell in the matrix is a different window. Each cell is
-    // 50 by 50 pixels, and each cell is separated from each other by 8 pixels. Each cell
-    // has a 1 pixel rectangle surrounding the window, so each window is actually 48x48
-    // pixels.
-
-    // Offset of cells 0, 1, 2 and 3:
-    static constexpr int c0 = 1;
-    static constexpr int c1 = c0 + 58;
-    static constexpr int c2 = c1 + 58;
-    static constexpr int c3 = c2 + 58;
-    static RenderInfo textures[2][8] =
-        {
-            {
-            /* STANDING            */ {TextureID::FRED, {c0, c0, 48, 48}, 8, 8},
-            /* BIG_STEP            */ {TextureID::FRED, {c1, c0, 48, 48}, 8, 8},
-            /* SMALL_STEP          */ {TextureID::FRED, {c2, c0, 48, 48}, 8, 8},
-            /* CLIMBING1           */ {TextureID::FRED, {c2, c1, 48, 48}, 8, 8},
-            /* CLIMBING2           */ {TextureID::FRED, {c3, c1, 48, 48}, 8, 8},
-            /* SHOOTING_STANDING   */ {TextureID::FRED, {c2, c2, 48, 48}, 8, 8},
-            /* SHOOTING_BIG_STEP   */ {TextureID::FRED, {c3, c2, 48, 48}, 8, 8},
-            /* SHOOTING_SMALL_STEP */ {TextureID::FRED, {c0, c3, 48, 48}, 8, 8},
-            },
-            {
-            /* STANDING            */ {TextureID::FRED, {c3, c0, 48, 48}, 8, 8},
-            /* BIG_STEP            */ {TextureID::FRED, {c0, c1, 48, 48}, 8, 8},
-            /* SMALL_STEP          */ {TextureID::FRED, {c1, c1, 48, 48}, 8, 8},
-            /* CLIMBING1           */ {TextureID::FRED, {c0, c2, 48, 48}, 8, 8},
-            /* CLIMBING2           */ {TextureID::FRED, {c1, c2, 48, 48}, 8, 8},
-            /* SHOOTING_STANDING   */ {TextureID::FRED, {c1, c3, 48, 48}, 8, 8},
-            /* SHOOTING_BIG_STEP   */ {TextureID::FRED, {c2, c3, 48, 48}, 8, 8},
-            /* SHOOTING_SMALL_STEP */ {TextureID::FRED, {c3, c3, 48, 48}, 8, 8},
-            },
-        };
-    int dir_index = (direction + 1) >> 1;
     int frame_index = static_cast<int>(frame);
     if (shooting && frame_index <= static_cast<int>(Frame::SMALL_STEP))
         frame_index += static_cast<int>(Frame::SHOOTING_STANDING);
-    // TODO: we should not be modifying the static structure.
-    auto &render_info = textures[dir_index][frame_index];
-    render_info.texture_id = collisionInProgress() ? TextureID::FRED_RED : TextureID::FRED;
-    return render_info;
+    return box_params[frame_index];
 }
 
-std::vector<SDL_Rect> const &Fred::getHitBoxes() const
+Sprite::RenderParams Fred::getRenderParams() const
 {
-    static std::vector<SDL_Rect> boxes[2][8] =
-        {
-            {
-            /* STANDING            */ {{ 9, 0, 14, 32}, { 0, 13, 26, 10}},
-            /* BIG_STEP            */ {{ 9, 1, 14, 31}, { 0, 12, 32, 20}},
-            /* SMALL_STEP          */ {{ 9, 1, 14, 31}, { 0, 15, 24,  8}, { 7, 24, 19, 8}},
-            /* CLIMBING1           */ {{14, 1, 18, 23}, {10, 20,  9, 10}},
-            /* CLIMBING2           */ {{13, 0, 19, 23}, {10, 21, 11, 10}},
-            /* SHOOTING_STANDING   */ {{ 9, 0, 14, 32}, { 0,  9, 26, 14}},
-            /* SHOOTING_BIG_STEP   */ {{ 9, 1, 14, 31}, { 0, 10, 32, 22}},
-            /* SHOOTING_SMALL_STEP */ {{ 9, 1, 14, 31}, { 0, 10, 24, 13}, { 7, 24, 19, 8}},
-            },
-            {
-            /* STANDING            */ {{ 9, 0, 14, 32}, { 6, 13, 26, 10}},
-            /* BIG_STEP            */ {{ 9, 1, 14, 31}, { 0, 12, 32, 20}},
-            /* SMALL_STEP          */ {{ 9, 1, 14, 31}, { 8, 15, 24,  8}, { 6, 24, 19, 8}},
-            /* CLIMBING1           */ {{ 0, 1, 18, 23}, {13, 20,  9, 10}},
-            /* CLIMBING2           */ {{ 0, 0, 19, 23}, {11, 21, 11, 10}},
-            /* SHOOTING_STANDING   */ {{ 9, 0, 14, 32}, { 6,  9, 26, 14}},
-            /* SHOOTING_BIG_STEP   */ {{ 9, 1, 14, 31}, { 0, 10, 32, 22}},
-            /* SHOOTING_SMALL_STEP */ {{ 9, 1, 14, 31}, { 8, 10, 24, 13}, { 6, 24, 19, 8}},
-            },
-        };
-    int dir_index = (direction + 1) >> 1;
-    int frame_index = static_cast<int>(frame);
-    if (shooting && frame_index <= static_cast<int>(Frame::SMALL_STEP))
-        frame_index += static_cast<int>(Frame::SHOOTING_STANDING);
-    return boxes[dir_index][frame_index];
+    ColorModulation color_mod;
+    if (collision_timer != 0)
+        color_mod = {255, 0, 0};
+    else
+        color_mod = {255, 255, 0};
+    return {TextureID::FRED, direction == 1, color_mod};
 }
 
 void Fred::updateFred(Game& game, unsigned events)

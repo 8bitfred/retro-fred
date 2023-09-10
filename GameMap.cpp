@@ -214,75 +214,47 @@ void GameMap::setCell(CellPos const &pos, Cell c)
     cell_list[pos.y * width_minus_one + pos.x] = c;
 }
 
-TextureID GameMap::getTextureIDOf(CellPos const &pos) const
-{
-    switch (getBlock(pos))
-    {
-    case Cell::STONE1:
-        return TextureID::BLOCK_STONE1;
-    case Cell::STONE2:
-        return TextureID::BLOCK_STONE2;
-    case Cell::STONE3:
-        return TextureID::BLOCK_STONE3;
-    case Cell::ROPE_START:
-        return TextureID::BLOCK_ROPE_START;
-    case Cell::ROPE_MAIN:
-        return TextureID::BLOCK_ROPE_MAIN;
-    case Cell::ROPE_END:
-        return TextureID::BLOCK_ROPE_END;
-    case Cell::SKY:
-        return TextureID::BLOCK_SKY;
-    case Cell::SAND:
-        return TextureID::BLOCK_SAND;
-    case Cell::TRAPDOOR:
-        return TextureID::BLOCK_TRAPDOOR;
-    default:
-        assert(false);
-    }
-    return TextureID::COUNT; // Never reached
-}
+// void GameMap::render(int x, int y, TextureManager const &tmgr,
+//                      SDL_Renderer *renderer, SDL_Rect const *dest)
+// {
+//     CellPos corner_cell = {x / MapPixelPos::CELL_WIDTH_PIXELS,
+//                            y / MapPixelPos::CELL_HEIGHT_PIXELS};
+//     if (x < 0)
+//         --corner_cell.x;
+//     if (y < 0)
+//         --corner_cell.y;
 
-void GameMap::render(int x, int y, TextureManager const &tmgr,
-                     SDL_Renderer *renderer, SDL_Rect const *dest)
-{
-    CellPos corner_cell = {x / MapPixelPos::CELL_WIDTH_PIXELS,
-                           y / MapPixelPos::CELL_HEIGHT_PIXELS};
-    if (x < 0)
-        --corner_cell.x;
-    if (y < 0)
-        --corner_cell.y;
+//     // Round x and y down to the closest corner of a cell, then compute those coordinates
+//     // with respect to the corner of the screen
+//     int round_x = corner_cell.x * MapPixelPos::CELL_WIDTH_PIXELS - x;
+//     int round_y = corner_cell.y * MapPixelPos::CELL_HEIGHT_PIXELS - y;
 
-    // Round x and y down to the closest corner of a cell, then compute those coordinates
-    // with respect to the corner of the screen
-    int round_x = corner_cell.x * MapPixelPos::CELL_WIDTH_PIXELS - x;
-    int round_y = corner_cell.y * MapPixelPos::CELL_HEIGHT_PIXELS - y;
+//     CellPos cell_pos = corner_cell;
+//     SDL_Rect cell_rect;
+//     cell_rect.w = MapPixelPos::CELL_WIDTH_PIXELS;
+//     cell_rect.h = MapPixelPos::CELL_HEIGHT_PIXELS;
 
-    CellPos cell_pos = corner_cell;
-    SDL_Rect cell_rect;
-    cell_rect.w = MapPixelPos::CELL_WIDTH_PIXELS;
-    cell_rect.h = MapPixelPos::CELL_HEIGHT_PIXELS;
-
-    for (cell_rect.y = round_y; cell_rect.y < dest->h; cell_rect.y += cell_rect.h) {
-        cell_pos.x = corner_cell.x;
-        for (cell_rect.x = round_x; cell_rect.x < dest->w; cell_rect.x += cell_rect.w)
-        {
-            SDL_Rect cell_dst;
-            cell_dst.x = dest->x + cell_rect.x;
-            cell_dst.y = dest->y + cell_rect.y;
-            cell_dst.h = cell_rect.h;
-            cell_dst.w = cell_rect.w;
-            if (getBlock(cell_pos) != Cell::EMPTY)
-            {
-                auto texture_id = getTextureIDOf(cell_pos);
-                auto texture = tmgr.get(texture_id);
-                SDL_RenderCopy(renderer, texture,
-                               nullptr, &cell_dst);
-            }
-            ++cell_pos.x;
-        }
-        ++cell_pos.y;
-    }
-}
+//     for (cell_rect.y = round_y; cell_rect.y < dest->h; cell_rect.y += cell_rect.h) {
+//         cell_pos.x = corner_cell.x;
+//         for (cell_rect.x = round_x; cell_rect.x < dest->w; cell_rect.x += cell_rect.w)
+//         {
+//             SDL_Rect cell_dst;
+//             cell_dst.x = dest->x + cell_rect.x;
+//             cell_dst.y = dest->y + cell_rect.y;
+//             cell_dst.h = cell_rect.h;
+//             cell_dst.w = cell_rect.w;
+//             if (getBlock(cell_pos) != Cell::EMPTY)
+//             {
+//                 auto texture_id = getTextureIDOf(cell_pos);
+//                 auto texture = tmgr.get(texture_id);
+//                 SDL_RenderCopy(renderer, texture,
+//                                nullptr, &cell_dst);
+//             }
+//             ++cell_pos.x;
+//         }
+//         ++cell_pos.y;
+//     }
+// }
 
 void GameMap::initializeMapBlocks(Window const &window, SpriteList &block_list) const
 {
@@ -309,12 +281,8 @@ bool GameMap::addMapBlock(Window const &window, SpriteList &block_list,
         return false;
     if (screen_pos.x >= window.getBottomRight().x)
         return false;
-    auto cell_pos = sprite_pos.cellPos();
-    if (getBlock(cell_pos) != Cell::EMPTY)
-    {
-        auto texture_id = getTextureIDOf(cell_pos);
-        block_list.emplace_back(std::make_unique<Block>(window, sprite_pos, texture_id));
-    }
+    if (auto cell = getBlock(sprite_pos.cellPos()); cell != Cell::EMPTY)
+        block_list.emplace_back(std::make_unique<Block>(sprite_pos, cell));
     return true;
 }
 
