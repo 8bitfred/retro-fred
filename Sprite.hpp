@@ -66,6 +66,7 @@ private:
 enum class SpriteClass
 {
     BLOCK,
+    BULLET,
     ACID_DROP,
     RAT,
     GHOST,
@@ -73,9 +74,8 @@ enum class SpriteClass
     MUMMY,
     VAMPIRE,
     SKELETON,
-    FRED,
-    BULLET,
     SMOKE,
+    FRED,
     COUNT
 };
 

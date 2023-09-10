@@ -69,6 +69,8 @@ void FredApp::playGame()
             }
         }
 
+        for (auto const& sprite: game.getSpriteList(SpriteClass::BULLET))
+            sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::ACID_DROP))
             sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::RAT))
@@ -82,8 +84,6 @@ void FredApp::playGame()
         for (auto const& sprite: game.getSpriteList(SpriteClass::VAMPIRE))
             sprite->update(game, 0);
         for (auto const& sprite: game.getSpriteList(SpriteClass::SKELETON))
-            sprite->update(game, 0);
-        for (auto const& sprite: game.getSpriteList(SpriteClass::BULLET))
             sprite->update(game, 0);
         auto &smoke_list = game.getSpriteList(SpriteClass::SMOKE);
         for (size_t i = 0; i < smoke_list.size();)
