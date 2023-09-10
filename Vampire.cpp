@@ -1,8 +1,8 @@
 #include "Vampire.hpp"
 #include "Game.hpp"
 
-Vampire::Vampire(Window const &window, MapPos const &pos, std::minstd_rand &random_engine)
-    : MultiDirEnemy::MultiDirEnemy(window, pos, 3, 2, random_engine)
+Vampire::Vampire(MapPos const &pos, std::minstd_rand &random_engine)
+    : MultiDirEnemy::MultiDirEnemy(pos, random_engine)
 {
     std::uniform_int_distribution<> distrib(0, DIRECTION_COUNT - 1);
     direction = static_cast<Direction>(distrib(random_engine));
@@ -21,30 +21,24 @@ void Vampire::update(Game &game, unsigned)
         stateFast(game);
 }
 
-Sprite::RenderInfo const &Vampire::getTexture() const
+Sprite::BoxParams const &Vampire::getBoxParams() const
 {
-    // Offset of cells 0, 1, 2 and 3:
-    static constexpr int c0 = 8;
-    static constexpr int c1 = c0 + 50;
-    static constexpr int c2 = c1 + 50;
-    static constexpr int c3 = c2 + 50;
-    static RenderInfo textures[2][2] =
-        {
-            {
-                {TextureID::VAMPIRE, {c0, 8, 26, 14}, 1, 1},  // window id 1
-                {TextureID::VAMPIRE, {c1, 8, 26, 14}, 1, 1},  // window id 2
-            },
-            {
-                {TextureID::VAMPIRE, {c2, 8, 26, 14}, 1, 1},  // window id 3
-                {TextureID::VAMPIRE, {c3, 8, 26, 14}, 1, 1},  // window id 4
-            },
-        };
+    static BoxParams box_params[] = {
+        {    9, 9, { -1, -1, 26, 18}, {{0, 0, 24, 12}}},
+        { 50+9, 9, { -1, -1, 26, 18}, {{2, 3, 20, 13}}},
+    };
+    return box_params[alternate_frame];
+}
+
+Sprite::RenderParams Vampire::getRenderParams() const
+{
     // Note that only one of dir_x and dir_y is not 0 at a given time
     auto [dir_x, dir_y] = getDirDelta();
     int frame_dir = dir_x + dir_y;
-    int dir_index = (frame_dir + 1) >> 1;
-    return textures[dir_index][alternate_frame];
+    return {TextureID::VAMPIRE, frame_dir == 1, {}};
 }
+
+
 
 void Vampire::stateSlow(Game &)
 {

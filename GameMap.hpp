@@ -38,8 +38,8 @@ public:
     }
     int getWidth() const { return width_minus_one + 1; }
     int getHeight() const { return height; }
-    void render(int x, int y, TextureManager const &tmgr,
-                SDL_Renderer *renderer, SDL_Rect const *dest);
+    // void render(int x, int y, TextureManager const &tmgr,
+    //             SDL_Renderer *renderer, SDL_Rect const *dest);
     void initializeMapBlocks(Window const &window, SpriteList &block_list) const;
     void updateMapBlocksLeft(Window const &window, SpriteList &block_list) const;
     void updateMapBlocksRight(Window const &window, SpriteList &block_list) const;
@@ -57,7 +57,6 @@ private:
     bool tryHatchPosition(int x);
 
     void setCell(CellPos const &pos, Cell c);
-    TextureID getTextureIDOf(CellPos const &pos) const;
 
     bool addMapBlock(Window const &window, SpriteList &block_list,
                      int offset_x, int offset_y) const;

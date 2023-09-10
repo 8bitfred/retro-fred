@@ -4,16 +4,15 @@
 
 class Rat : public Sprite
 {
+    int direction = 1;
+    int alternate_frame = 0;
 public:
-    Rat(Window const &window, MapPos const &pos)
-    : Sprite::Sprite(window, pos, 2, 1) {}
+    explicit Rat(MapPos const &pos)
+    : Sprite::Sprite(pos) {}
 
     void update(Game &game, unsigned events) override;
 
 protected:
-    RenderInfo const &getTexture() const override;
-
-private:
-    int direction = 1;
-    int alternate_frame = 0;
+    BoxParams const &getBoxParams() const override;
+    RenderParams getRenderParams() const override;
 };

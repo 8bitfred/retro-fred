@@ -7,19 +7,21 @@ class GameMap;
 
 class Chameleon : public Sprite
 {
+    struct Direction {
+        int x = -1, y = -1;
+    };
+    std::minstd_rand &random_engine;
+    int alternate_frame = 0;
+    Direction direction;
 public:
-    Chameleon(Window const &window, MapPos const &pos, std::minstd_rand &random_engine);
+    Chameleon(MapPos const &pos, std::minstd_rand &random_engine)
+        : Sprite::Sprite(pos), random_engine(random_engine) {}
 
     void update(Game &game, unsigned events) override;
 
     static bool isValidCell(GameMap const &game_map, CellPos const &pos);
 
 protected:
-    RenderInfo const &getTexture() const override;
-
-private:
-    std::minstd_rand &random_engine;
-    int alternate_frame = 0;
-    int direction_x = -1;
-    int direction_y = -1;
+    BoxParams const &getBoxParams() const override;
+    RenderParams getRenderParams() const override;
 };

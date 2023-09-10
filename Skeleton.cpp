@@ -40,37 +40,22 @@ void Skeleton::update(Game &game, unsigned)
     }
 }
 
-Sprite::RenderInfo const &Skeleton::getTexture() const
+Sprite::BoxParams const &Skeleton::getBoxParams() const
 {
-    static constexpr int c0 = 8;
-    static constexpr int c1 = c0 + 58;
-    static constexpr int c2 = c1 + 58;
-    static constexpr int c3 = c2 + 58;
-    static constexpr int c4 = c3 + 58;
-    static constexpr int c5 = c4 + 58;
-    static constexpr int c6 = c5 + 58;
-    static constexpr int c7 = c6 + 58;
+    static BoxParams box_params[] = {
+        {      9, 9, { -1, -1, 34, 34 }, {{11, 0, 12, 32}, {0, 11, 29, 12}} },
+        {   58+9, 9, { -1, -1, 34, 34 }, {{12, 1, 17, 31}, {0, 13, 12, 16}} },
+        { 2*58+9, 9, { -1, -1, 34, 34 }, {{11, 1, 13, 31}, {0, 13, 28, 13}} },
+        { 6*58+9, 9, { -1, -1, 34, 34 }, {{ 5, 0, 22, 29}} },
+        { 7*58+9, 9, { -1, -1, 34, 34 }, {{ 5, 0, 22, 31}} },
+    };
+    static_assert(std::size(box_params) == static_cast<size_t>(Frame::COUNT));
+    return box_params[static_cast<size_t>(frame)];
+}
 
-    static RenderInfo textures[2][5] =
-        {
-            {
-                {TextureID::SKELETON, {c0, 8, 34, 34}, 1, 1},  // frame id 1
-                {TextureID::SKELETON, {c1, 8, 34, 34}, 1, 1},  // frame id 2
-                {TextureID::SKELETON, {c2, 8, 34, 34}, 1, 1},  // frame id 3
-                {TextureID::SKELETON, {c6, 8, 34, 34}, 1, 1},  // frame id 7
-                {TextureID::SKELETON, {c7, 8, 34, 34}, 1, 1},  // frame id 8
-            },
-            {
-                {TextureID::SKELETON, {c3, 8, 34, 34}, 1, 1},  // frame id 4
-                {TextureID::SKELETON, {c4, 8, 34, 34}, 1, 1},  // frame id 5
-                {TextureID::SKELETON, {c5, 8, 34, 34}, 1, 1},  // frame id 6
-                {TextureID::SKELETON, {c6, 8, 34, 34}, 1, 1},  // frame id 7
-                {TextureID::SKELETON, {c7, 8, 34, 34}, 1, 1},  // frame id 8
-            },
-        };
+Sprite::RenderParams Skeleton::getRenderParams() const
+{
     // dir_x is -1 when moving left, +1 when moving right, and 0 if moving vertically
     auto [dir_x, dir_y] = getDirDelta();
-    // dir_x is 0 if moving left or vertically, and 1 if moving right
-    int dir_index = (dir_x + 1) >> 1;
-    return textures[dir_index][static_cast<int>(frame)];
+    return {TextureID::SKELETON, dir_x == 1, {}};
 }

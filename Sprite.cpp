@@ -3,76 +3,92 @@
 #include "sdl.hpp"
 #include "TextureManager.hpp"
 
-Sprite::Sprite(Window const &window, MapPos const &pos,
-               int char_width, int char_height)
-    : sprite_pos(pos)
-    , char_width(char_width)
-    , char_height(char_height)
-    , max_visible_pos(window.getBottomRight())
-{
-    min_visible_pos.x = window.getTopLeft().x - char_width * MapPixelPos::PIXELS_PER_CHAR + 1;
-    min_visible_pos.y = window.getTopLeft().y - char_height * MapPixelPos::PIXELS_PER_CHAR + 1;
-}
-
 bool Sprite::isVisible(Window const &window) const
 {
+    auto const &box_params = getBoxParams();
+    // TODO: screen_rect should be a constant in the window class
+    SDL_Rect screen_rect = {window.getTopLeft().x, window.getTopLeft().y,
+                            window.getBottomRight().x - window.getTopLeft().x,
+                            window.getBottomRight().y - window.getTopLeft().y};
     auto spos = window.getScreenPosOf(sprite_pos);
-    return spos.x > min_visible_pos.x && spos.y > min_visible_pos.y &&
-           spos.x < max_visible_pos.x && spos.y < max_visible_pos.y;
+    SDL_Rect dst_rect = {spos.x + box_params.bounding_box.x,
+                         spos.y + box_params.bounding_box.y,
+                         box_params.bounding_box.w, box_params.bounding_box.h};
+    return SDL_HasIntersection(&screen_rect, &dst_rect);
 }
 
 void Sprite::render(Window const &window, TextureManager const &tmgr,
                     SDL_Renderer *renderer) const
 {
-    if (!isVisible(window))
-        return;
-    auto const &render_info = getTexture();
-    auto texture = tmgr.get(render_info.texture_id);
-    SDL_Rect rect;
+    auto const &box_params = getBoxParams();
+    // TODO: screen_rect should be a constant in the window class
+    SDL_Rect screen_rect = {window.getTopLeft().x, window.getTopLeft().y,
+                            window.getBottomRight().x - window.getTopLeft().x,
+                            window.getBottomRight().y - window.getTopLeft().y};
     auto spos = window.getScreenPosOf(sprite_pos);
-    rect.x = spos.x - render_info.center_x;
-    rect.y = spos.y - render_info.center_y;
-    rect.w = render_info.src_rect.w;
-    rect.h = render_info.src_rect.h;
-    auto render_error = SDL_RenderCopy(renderer, texture, &render_info.src_rect, &rect);
+    SDL_Rect dst_rect = {spos.x + box_params.bounding_box.x,
+                         spos.y + box_params.bounding_box.y,
+                         box_params.bounding_box.w, box_params.bounding_box.h};
+    if (!SDL_HasIntersection(&screen_rect, &dst_rect))
+        return;
+    auto render_params = getRenderParams();
+    SDL_Rect src_rect = {box_params.pos_x + box_params.bounding_box.x,
+                         box_params.pos_y + box_params.bounding_box.y,
+                         box_params.bounding_box.w, box_params.bounding_box.h};
+    auto texture = tmgr.get(render_params.texture_id);
+    SDL_SetTextureColorMod(texture,
+                           render_params.color_mod.r, 
+                           render_params.color_mod.g,
+                           render_params.color_mod.b);
+    auto render_error = SDL_RenderCopyEx(renderer, texture,
+                                         &src_rect, &dst_rect, 0, nullptr,
+                                         render_params.hflip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     if (render_error != 0)
         throw sdl::Error();
 #if 0 // enable to show bounding and hit boxes
-    if (static_cast<int>(render_info.texture_id) < static_cast<int>(TextureID::ACID_DROP))
+    if (static_cast<int>(render_params.texture_id) < static_cast<int>(TextureID::ACID_DROP))
         return;
     Uint8 saved_r, saved_g, saved_b, saved_a;
     SDL_BlendMode saved_bm;
     SDL_GetRenderDrawColor(renderer, &saved_r, &saved_g, &saved_b, &saved_a);
     SDL_GetRenderDrawBlendMode(renderer, &saved_bm);
-    SDL_SetRenderDrawColor(renderer, 200, 0, 200, 128);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    if (getHitBoxes().empty())
-        SDL_RenderDrawRect(renderer, &rect);
-    else {
-        for (auto const &box : getHitBoxes())
-        {
-            SDL_Rect r2{spos.x + box.x, spos.y + box.y, box.w, box.h};
-            SDL_RenderDrawRect(renderer, &r2);
-        }
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
+    SDL_RenderDrawRect(renderer, &dst_rect);
+    SDL_SetRenderDrawColor(renderer, 255, 200, 0, 128);
+    for (auto const &box : box_params.hit_boxes)
+    {
+        SDL_Rect hitbox_rect = getHitboxPos(spos.x, spos.y,
+                                            box_params.bounding_box, box, render_params.hflip);
+        SDL_RenderDrawRect(renderer, &hitbox_rect);
     }
     SDL_SetRenderDrawColor(renderer, saved_r, saved_g, saved_b, saved_a);
     SDL_SetRenderDrawBlendMode(renderer, saved_bm);
 #endif
 }
 
-void Sprite::update(Game &, unsigned)
+SDL_Rect Sprite::getHitboxPos(int px, int py,
+                              SDL_Rect const &bounding_box,
+                              SDL_Rect const &hitbox, bool hflip)
 {
-
+    if (hflip)
+    {
+        auto dx = bounding_box.x + bounding_box.w - (hitbox.x + hitbox.w);
+        return {px + bounding_box.x + dx, py + hitbox.y, hitbox.w, hitbox.h};
+    }
+    else 
+    {
+        return {px + hitbox.x, py + hitbox.y, hitbox.w, hitbox.h};
+    }
 }
 
-bool Sprite::checkHitBoxes(SDL_Rect const &rect2) const
+bool Sprite::checkHitBoxes(SDL_Rect const &rect2, SDL_Rect const &bounding_box, bool hflip) const
 {
-    for (auto const &box : getHitBoxes())
+    for (auto const &box : getBoxParams().hit_boxes)
     {
-        SDL_Rect rect1{sprite_pos.px() + box.x,
-                       sprite_pos.py() + box.y,
-                       box.w, box.h};
+        SDL_Rect rect1 = getHitboxPos(sprite_pos.px(), sprite_pos.py(),
+                                      bounding_box, box, hflip);
         if (SDL_HasIntersection(&rect1, &rect2))
             return true;
     }
@@ -81,32 +97,33 @@ bool Sprite::checkHitBoxes(SDL_Rect const &rect2) const
 
 bool Sprite::checkCollision(Sprite const &other)
 {
-    RenderInfo const &ri1 = getTexture();
-    RenderInfo const &ri2 = other.getTexture();
-    SDL_Rect bounds1{sprite_pos.px() - ri1.center_x,
-                     sprite_pos.py() - ri1.center_y,
-                     ri1.src_rect.w, ri1.src_rect.h};
-    SDL_Rect bounds2{other.sprite_pos.px() - ri2.center_x,
-                     other.sprite_pos.py() - ri2.center_y,
-                     ri2.src_rect.w, ri2.src_rect.h};
+    auto const &box_params1 = getBoxParams();
+    auto const &box_params2 = other.getBoxParams();
+    SDL_Rect bounds1{sprite_pos.px() + box_params1.bounding_box.x,
+                     sprite_pos.py() + box_params1.bounding_box.y,
+                     box_params1.bounding_box.w, box_params1.bounding_box.h};
+    SDL_Rect bounds2{other.sprite_pos.px() + box_params2.bounding_box.x,
+                     other.sprite_pos.py() + box_params2.bounding_box.y,
+                     box_params2.bounding_box.w, box_params2.bounding_box.h};
     if (!SDL_HasIntersection(&bounds1, &bounds2))
         return false;
 
-    if (getHitBoxes().empty() && other.getHitBoxes().empty())
+    if (box_params1.hit_boxes.empty() && box_params2.hit_boxes.empty())
         return true;
 
-    if (getHitBoxes().empty())
-        return other.checkHitBoxes(bounds1);
-    else if (other.getHitBoxes().empty())
-        return checkHitBoxes(bounds2);
+    auto render_params1 = getRenderParams();
+    auto render_params2 = other.getRenderParams();
+    if (box_params1.hit_boxes.empty())
+        return other.checkHitBoxes(bounds1, box_params2.bounding_box, render_params2.hflip);
+    else if (box_params2.hit_boxes.empty())
+        return checkHitBoxes(bounds2, box_params1.bounding_box, render_params1.hflip);
     else
     {
-        for (auto const &box : getHitBoxes())
+        for (auto const &box : box_params1.hit_boxes)
         {
-            SDL_Rect hbox1{sprite_pos.px() + box.x,
-                           sprite_pos.py() + box.y,
-                           box.w, box.h};
-            if (other.checkHitBoxes(hbox1))
+            SDL_Rect hbox1 = getHitboxPos(sprite_pos.px(), sprite_pos.py(),
+                                          box_params1.bounding_box, box, render_params1.hflip);
+            if (other.checkHitBoxes(hbox1, box_params2.bounding_box, render_params2.hflip))
                 return true;
         }
     }

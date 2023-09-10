@@ -4,8 +4,7 @@
 int Mummy::mummy_timer = 0;
 
 Mummy::Mummy(Game& game, std::minstd_rand &random_engine)
-    : Sprite::Sprite(game.getFrame(), getRandomLocation(random_engine, game.getGameMap()), 
-    3, 4)
+    : Sprite::Sprite(getRandomLocation(random_engine, game.getGameMap()))
     , random_engine(random_engine)
     , direction(getRandomDirection(random_engine))
 {
@@ -100,33 +99,21 @@ void Mummy::stateDisappear(Game &game)
     flip = false;
 }
 
-Sprite::RenderInfo const &Mummy::getTexture() const
+Sprite::BoxParams const &Mummy::getBoxParams() const
 {
-    static constexpr int c0 = 1;
-    static constexpr int c1 = c0 + 34;
-    static constexpr int c2 = c1 + 34;
-    static constexpr int c3 = c2 + 34;
-    static constexpr int c4 = c3 + 34;
-    static constexpr int c5 = c4 + 34;
-    static constexpr int c6 = c5 + 34;
+    static BoxParams box_params[] = {
+        {      1, 9, {0, -1, 24, 34}, {{2, 0, 20, 32}} },
+        {   34+1, 9, {0, -1, 24, 34}, {{2, 0, 20, 32}} },
+        { 2*34+1, 9, {0, -1, 24, 34}, {{1, 5, 19, 23}} },
+        { 6*34+1, 9, {0, -1, 24, 34}, {{1, 5, 19, 23}} },
+    };
+    static_assert(static_cast<int>(Frame::COUNT) == std::size(box_params));
+    return box_params[static_cast<int>(frame)];
+}
 
-    static RenderInfo textures[2][4] =
-        {
-            {
-                {TextureID::MUMMY, {c0, 8, 24, 34}, 0, 1},
-                {TextureID::MUMMY, {c1, 8, 24, 34}, 0, 1},
-                {TextureID::MUMMY, {c2, 8, 24, 34}, 0, 1},
-                {TextureID::MUMMY, {c6, 8, 24, 34}, 0, 1},
-            },
-            {
-                {TextureID::MUMMY, {c3, 8, 24, 34}, 0, 1},
-                {TextureID::MUMMY, {c4, 8, 24, 34}, 0, 1},
-                {TextureID::MUMMY, {c5, 8, 24, 34}, 0, 1},
-                {TextureID::MUMMY, {c6, 8, 24, 34}, 0, 1},
-            },
-        };
-    int dir_index = (direction + 1) >> 1;
-    return textures[dir_index][static_cast<int>(frame)];
+Sprite::RenderParams Mummy::getRenderParams() const
+{
+    return {TextureID::MUMMY, direction == 1 && frame != Frame::POP, {}};
 }
 
 MapPos Mummy::getRandomLocation(std::minstd_rand &random_engine,

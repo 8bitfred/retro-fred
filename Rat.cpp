@@ -19,24 +19,16 @@ void Rat::update(Game &game, unsigned)
     alternate_frame = alternate_frame ^ 1;
 }
 
-Sprite::RenderInfo const &Rat::getTexture() const
+Sprite::BoxParams const &Rat::getBoxParams() const
 {
-    // Offset of cells 0, 1, 2 and 3:
-    static constexpr int c0 = 1;
-    static constexpr int c1 = c0 + 26;
-    static constexpr int c2 = c1 + 26;
-    static constexpr int c3 = c2 + 26;
-    static RenderInfo textures[2][2] =
-        {
-            {
-                {TextureID::RAT, {c0, 8, 16, 10}, 0, 1},  // frame id 0
-                {TextureID::RAT, {c1, 8, 16, 10}, 0, 1},  // frame id 1
-            },
-            {
-                {TextureID::RAT, {c2, 8, 16, 10}, 0, 1},  // frame id 0
-                {TextureID::RAT, {c3, 8, 16, 10}, 0, 1},  // frame id 1
-            },
-        };
-    int dir_index = (direction + 1) >> 1;
-    return textures[dir_index][alternate_frame];
+    static BoxParams box_params[2] = {
+        {    1, 9, {0, -1, 16, 10}, {{2, 1, 12, 8}} },
+        { 26+1, 9, {0, -1, 16, 10}, {{2, 1, 12, 8}} },
+    };
+    return box_params[alternate_frame];
+}
+
+Sprite::RenderParams Rat::getRenderParams() const
+{
+    return {TextureID::RAT, direction == 1, {}};
 }

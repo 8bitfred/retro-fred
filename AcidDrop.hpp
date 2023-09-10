@@ -4,20 +4,14 @@
 
 class AcidDrop : public Sprite
 {
+    unsigned frame_id = 0;
 public:
-    AcidDrop(Window const &window, MapPos const &pos, int initial_state)
-    : Sprite::Sprite(window, pos, 2, 1), state(initial_state) {}
+    AcidDrop(MapPos const &pos, unsigned frame_id)
+    : Sprite::Sprite(pos), frame_id(frame_id) {}
 
     void update(Game &game, unsigned events) override;
 
 protected:
-    RenderInfo const &getTexture() const override;
-
-private:
-    struct StateInfo {
-        RenderInfo render_info;
-        int ydelta;
-    };
-    StateInfo const &getStateInfo() const;
-    int state = 0;
+    BoxParams const &getBoxParams() const override;
+    RenderParams getRenderParams() const override;
 };
