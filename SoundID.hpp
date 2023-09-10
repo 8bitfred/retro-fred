@@ -3,9 +3,12 @@
 
 enum class SoundID : std::uint8_t
 {
-    WALK,
-    JUMP,
+    PICK_OBJECT,
+    COLLISION,
+    FIRE,
     CLIMB1,
     CLIMB2,
+    JUMP,
+    WALK,
     COUNT
 };

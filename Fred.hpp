@@ -11,7 +11,7 @@ public:
     explicit Fred(MapPos pos): Sprite(pos) {}
     void updateFred(Game& game, unsigned events);
     bool collisionInProgress() const { return collision_timer != 0; }
-    void checkCollisionWithEnemy(Sprite const &other);
+    void checkCollisionWithEnemy(Game &game, Sprite const &other);
 
     void dbgResetPosition(Game& game);
     void dbgMoveToHatch(Game &game);

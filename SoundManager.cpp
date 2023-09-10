@@ -4,10 +4,13 @@
 std::vector<sdl::WAVData> SoundManager::loadWAVs()
 {
     std::vector<sdl::WAVData> wav_list;
-    wav_list.emplace_back("sounds/walk.wav");
+    wav_list.emplace_back("sounds/pick_object.wav");
+    wav_list.emplace_back("sounds/collision.wav");
+    wav_list.emplace_back("sounds/fire.wav");
+    wav_list.emplace_back("sounds/climb1.wav");
+    wav_list.emplace_back("sounds/climb2.wav");
     wav_list.emplace_back("sounds/jump.wav");
-    wav_list.emplace_back("sounds/climb_1.wav");
-    wav_list.emplace_back("sounds/climb_2.wav");
+    wav_list.emplace_back("sounds/walk.wav");
     assert(wav_list.size() == static_cast<size_t>(SoundID::COUNT));
     return wav_list;
 }
