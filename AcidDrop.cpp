@@ -15,13 +15,13 @@ void AcidDrop::update(Game &, unsigned)
     }
     else if (sprite_pos.cy() == 4)
     {                       // State 6-Check Splash
-        if (frame_id == 6)
+        if (frame_id != 6)
+            frame_id = 6;   // State 3-Splash
+        else
         {                   // State 8-Reset
             frame_id = 0;
             sprite_pos.yadd(-4);
         }
-        else
-            frame_id = 6;   // State 3-Splash
     }
     else
         sprite_pos.yadd(1); // State 9-Fall
