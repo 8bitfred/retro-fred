@@ -3,27 +3,25 @@
 
 void Chameleon::update(Game &game, unsigned)
 {
+    // State 2-Check X Position
+    if (sprite_pos.cx() == 0 || sprite_pos.cx() == 3)
+    {   // State 3-Set Wall Side
+        std::uniform_int_distribution<> distrib(0, 63);
+        if (distrib(random_engine) == 3)
+        {
+            direction.x = -direction.x;     // State 11-Toggle Horizontal Direction
+            sprite_pos.xadd(direction.x);   // State 10-Move Horizontally
+        }
+        else if (int limit = direction.y < 0 ? 0 : 3;
+                 sprite_pos.cy() == limit &&
+                 !isValidCell(game.getGameMap(), sprite_pos.cellPos(0, direction.y)))
+            direction.y = -direction.y;     // State 12-Toggle Vertical Direction
+        else
+            sprite_pos.yadd(direction.y);   // State 8-Update Vert Coordinates
+    }
+    else
+        sprite_pos.xadd(direction.x);       // State 10-Move Horizontally
     alternate_frame ^= 1;
-    if (sprite_pos.cx() == 1 || sprite_pos.cx() == 2)
-    {
-        sprite_pos.xadd(direction.x);
-        return;
-    }
-    std::uniform_int_distribution<> distrib(0, 63);
-    if (distrib(random_engine) == 3)
-    {
-        direction.x = -direction.x;
-        sprite_pos.xadd(direction.x);
-        return;
-    }
-    int limit = direction.y < 0 ? 0 : 3;
-    if (sprite_pos.cy() == limit && 
-        !isValidCell(game.getGameMap(), sprite_pos.cellPos(0, direction.y)))
-    {
-        direction.y = -direction.y;
-        return;
-    }
-    sprite_pos.yadd(direction.y);
 }
 
 bool Chameleon::isValidCell(GameMap const &game_map, CellPos const &pos)
