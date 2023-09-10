@@ -2,29 +2,29 @@
 
 void AcidDrop::update(Game &, unsigned)
 {
-    // State 4-Check Position
+    // State 5-Check Position
     if (sprite_pos.cy() == 0)
-    {                       // State 3-Check Frame
+    {                       // State 4-Check Grow
         if (frame_id != 5)
             ++frame_id;     // State 2-Grow
         else
-        {                   // State 6-Start Fall
+        {                   // State 7-Start Fall
             frame_id = 4;
             sprite_pos.yadd(1);
         }
     }
     else if (sprite_pos.cy() == 4)
-    {                       // State 5-Check Splash
-        if (frame_id == 4)
-            frame_id = 6;   // State 8-Splash
-        else
-        {                   // State 9-Reset
+    {                       // State 6-Check Splash
+        if (frame_id == 6)
+        {                   // State 8-Reset
             frame_id = 0;
             sprite_pos.yadd(-4);
         }
+        else
+            frame_id = 6;   // State 3-Splash
     }
     else
-        sprite_pos.yadd(1); // State 7-Fall
+        sprite_pos.yadd(1); // State 9-Fall
 }
 
 
