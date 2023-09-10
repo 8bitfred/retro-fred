@@ -5,7 +5,7 @@
 class Rat : public Sprite
 {
     int direction = 1;
-    int alternate_frame = 0;
+    int alternate_frame = 1;
 public:
     explicit Rat(MapPos const &pos)
     : Sprite::Sprite(pos) {}
