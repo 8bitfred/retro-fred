@@ -68,6 +68,23 @@ void Game::playSound(SoundID sound_id)
     smgr.play(sound_id);
 }
 
+void Game::addSound(SoundID sound_id)
+{
+    static_assert(static_cast<int>(SoundID::COUNT) < sizeof(pending_sounds) * 8);
+    pending_sounds |= 1 << static_cast<int>(sound_id);
+}
+
+void Game::playPendingSounds()
+{
+    std::uint32_t mask = 1;
+    for (int i = 0; i < static_cast<int>(SoundID::COUNT); ++i, mask <<= 1)
+    {
+        if ((pending_sounds & mask) != 0)
+            playSound(static_cast<SoundID>(i));
+    }
+    pending_sounds = 0;
+}
+
 MapPos const &Game::getFredPos() const
 {
     auto const &fred = dynamic_cast<Fred const &>(*sprite_lists[static_cast<int>(SpriteClass::FRED)][0]);
@@ -90,4 +107,5 @@ void Game::fireGun(MapPos initial_position, int direction)
 {
     auto &sprite_list = getSpriteList(SpriteClass::BULLET);
     sprite_list.emplace_back(std::make_unique<Bullet>(initial_position, direction));
+    addSound(SoundID::FIRE);
 }

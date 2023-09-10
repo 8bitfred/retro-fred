@@ -137,7 +137,7 @@ void Fred::walkOneStep(Game &game)
     else
     {
         frame = Frame::STANDING;
-        game.playSound(SoundID::WALK);
+        game.addSound(SoundID::WALK);
     }
     sprite_pos.xadd(direction);
     game.moveFrame(direction, 0);
@@ -150,7 +150,7 @@ void Fred::startSideJump(Game& game)
     jump_stage = 3;
     sprite_pos.xadd(direction);
     game.moveFrame(direction, 0);
-    game.playSound(SoundID::JUMP);
+    game.addSound(SoundID::JUMP);
 }
 
 void Fred::startVerticalJump(Game& game)
@@ -159,7 +159,7 @@ void Fred::startVerticalJump(Game& game)
     state = State::VERTICAL_JUMP;
     jump_stage = 3;
     sprite_pos.yadd(-1);
-    game.playSound(SoundID::JUMP);
+    game.addSound(SoundID::JUMP);
 }
 
 void Fred::stateVerticalJump(Game& game, int, int)
@@ -176,7 +176,7 @@ void Fred::stateVerticalJump(Game& game, int, int)
     {
         sprite_pos.yadd(1);
         frame = Frame::STANDING;
-        game.playSound(SoundID::WALK);
+        game.addSound(SoundID::WALK);
         state = State::WALK;
     }
 }
@@ -192,7 +192,7 @@ void Fred::stateSideJump(Game& game, int, int)
         {
             sprite_pos.yadd(1);
             frame = Frame::STANDING;
-            game.playSound(SoundID::WALK);
+            game.addSound(SoundID::WALK);
             state = State::WALK;
         }
         else 
@@ -239,7 +239,7 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
             frame = Frame::CLIMBING2;
         else
             frame = Frame::CLIMBING1;
-        game.playSound(climbing_sound);
+        game.addSound(climbing_sound);
         climbing_sound = climbing_sound == SoundID::CLIMB1 ? SoundID::CLIMB2 : SoundID::CLIMB1;
         sprite_pos.yadd(input_y);
         game.moveFrame(0, input_y);
@@ -251,10 +251,13 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
     }
 }
 
-void Fred::checkCollisionWithEnemy(Sprite const &other)
+void Fred::checkCollisionWithEnemy(Game &game, Sprite const &other)
 {
     if (checkCollision(other))
+    {
         collision_timer = 5;
+        game.addSound(SoundID::COLLISION);
+    }
 }
 
 void Fred::dbgResetPosition(Game &game)

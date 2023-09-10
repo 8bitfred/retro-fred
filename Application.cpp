@@ -124,49 +124,50 @@ void FredApp::playGame()
         {
             if (fred->collisionInProgress())
                 break;
-            fred->checkCollisionWithEnemy(*sprite);
+            fred->checkCollisionWithEnemy(game, *sprite);
         }
         for (auto const& sprite: game.getSpriteList(SpriteClass::RAT))
         {
             if (fred->collisionInProgress())
                 break;
-            fred->checkCollisionWithEnemy(*sprite);
+            fred->checkCollisionWithEnemy(game, *sprite);
         }
         for (auto const& sprite: game.getSpriteList(SpriteClass::GHOST))
         {
             if (fred->collisionInProgress())
                 break;
-            fred->checkCollisionWithEnemy(*sprite);
+            fred->checkCollisionWithEnemy(game, *sprite);
         }
         for (auto const& sprite: game.getSpriteList(SpriteClass::CHAMELEON))
         {
             if (fred->collisionInProgress())
                 break;
-            fred->checkCollisionWithEnemy(*sprite);
+            fred->checkCollisionWithEnemy(game, *sprite);
         }
         for (auto const& sprite: game.getSpriteList(SpriteClass::MUMMY))
         {
             if (fred->collisionInProgress())
                 break;
-            fred->checkCollisionWithEnemy(*sprite);
+            fred->checkCollisionWithEnemy(game, *sprite);
         }
         for (auto const& sprite: game.getSpriteList(SpriteClass::VAMPIRE))
         {
             if (fred->collisionInProgress())
                 break;
-            fred->checkCollisionWithEnemy(*sprite);
+            fred->checkCollisionWithEnemy(game, *sprite);
         }
         for (auto const& sprite: game.getSpriteList(SpriteClass::SKELETON))
         {
             if (fred->collisionInProgress())
                 break;
-            fred->checkCollisionWithEnemy(*sprite);
+            fred->checkCollisionWithEnemy(game, *sprite);
         }
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
         game.getFrame().renderFrame(cfg, getRenderer(), tmgr);
         SDL_RenderPresent(getRenderer());
+        game.playPendingSounds();
 
         ++frame_count;
         Uint32 const ticks = SDL_GetTicks() - start_ticks;
