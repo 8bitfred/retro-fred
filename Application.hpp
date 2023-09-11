@@ -29,6 +29,7 @@ private:
     void initializeMummies(Game &game);
     void initializeVampires(Game &game);
     void initializeSkeletons(Game &game);
+    void initializeObjects(Game &game);
     bool checkBullet(Game &game, Bullet &bullet, SpriteClass sprite_class);
     void debugMode(Game &game, Fred *fred, unsigned events);
 

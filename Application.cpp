@@ -11,6 +11,7 @@
 #include "Skeleton.hpp"
 #include "Bullet.hpp"
 #include "Smoke.hpp"
+#include "Object.hpp"
 #include <iostream>
 
 
@@ -39,6 +40,7 @@ void FredApp::playGame()
     initializeMummies(game);
     initializeVampires(game);
     initializeSkeletons(game);
+    initializeObjects(game);
 
     std::uint32_t frame_count = 0;
     bool quit = false;
@@ -162,6 +164,7 @@ void FredApp::playGame()
                 break;
             fred->checkCollisionWithEnemy(game, *sprite);
         }
+        fred->checkCollisionWithObject(game);
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
@@ -335,6 +338,31 @@ void FredApp::initializeSkeletons(Game &game)
             sprite_list.emplace_back(std::make_unique<Skeleton>(pos, random_engine));
             break;
         }
+    }
+}
+
+void FredApp::initializeObjects(Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::OBJECT);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    std::uniform_int_distribution<> distrib_t(0, static_cast<int>(Object::Type::COUNT));
+    // TODO: the number of objects depends on the game level. Also not all objects are
+    // allowed in all levels.
+    for (int counter = 25; counter > 0;)
+    {
+        MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 1, 3};
+        if (game.getGameMap().getBlock(pos.cellPos()) != GameMap::Cell::EMPTY)
+            continue;
+        Object::Type object_type = {};
+        if (counter >= 16)
+            object_type = Object::Type::BULLETS;
+        else if (counter < static_cast<int>(Object::Type::COUNT))
+            object_type = static_cast<Object::Type>(counter);
+        else
+            object_type = static_cast<Object::Type>(distrib_t(random_engine));
+        sprite_list.emplace_back(std::make_unique<Object>(pos, object_type));
+        --counter;
     }
 }
 
