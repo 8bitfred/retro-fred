@@ -260,6 +260,21 @@ void Fred::checkCollisionWithEnemy(Game &game, Sprite const &other)
     }
 }
 
+void Fred::checkCollisionWithObject(Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::OBJECT);
+    for (auto p = sprite_list.begin(), end = sprite_list.end(); p != end; ++p)
+    {
+        Sprite &sprite = *(*p);
+        if (checkCollision(sprite))
+        {
+            game.addSound(SoundID::PICK_OBJECT);
+            sprite_list.erase(p);
+            break;
+        }
+    }
+}
+
 void Fred::dbgResetPosition(Game &game)
 {
     if (state != State::WALK)

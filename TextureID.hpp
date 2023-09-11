@@ -3,17 +3,18 @@
 
 enum class TextureID : std::uint8_t
 {
-    FRAME_BASE,
     BLOCK,
+    BULLET,
     ACID_DROP,
-    RAT,
-    GHOST,
-    CHAMELEON,
+    SKELETON,
     MUMMY,
     VAMPIRE,
-    SKELETON,
-    BULLET,
+    RAT,
+    CHAMELEON,
+    OBJECT,
+    GHOST,
     SMOKE,
     FRED,
+    FRAME_BASE,
     COUNT
 };
