@@ -5,6 +5,7 @@
 struct Config;
 struct SDL_Renderer;
 class TextureManager;
+class Game;
 
 class Window
 {
@@ -35,7 +36,8 @@ public:
     int getFredOffsetX() const { return fred_offset_x; }
     int getFredOffsetY() const { return fred_offset_y; }
 
-    void renderFrame(Config const& cfg, SDL_Renderer *renderer, TextureManager const &tmgr);
+    void renderFrame(Config const& cfg, Game const& game, 
+                    SDL_Renderer *renderer, TextureManager const &tmgr);
 
 private:
     // Position of F, in map coordinates

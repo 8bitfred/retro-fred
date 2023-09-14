@@ -2,6 +2,7 @@
 #include "Config.hpp"
 #include "TextureManager.hpp"
 #include "sdl.hpp"
+#include "Game.hpp"
 #include <iostream>
 
 // Game screen
@@ -230,7 +231,8 @@ void Window::adjustFramePos(MapPos fred_pos)
                      fred_pos.cy()};
 }
 
-void Window::renderFrame(Config const& cfg, SDL_Renderer *renderer, TextureManager const &tmgr)
+void Window::renderFrame(Config const& cfg, Game const &game,
+                         SDL_Renderer *renderer, TextureManager const &tmgr)
 {
     SDL_Texture *base_window = tmgr.get(TextureID::FRAME_BASE);
     Uint32 texture_format;
@@ -262,5 +264,41 @@ void Window::renderFrame(Config const& cfg, SDL_Renderer *renderer, TextureManag
             if (status < 0)
                 throw sdl::Error();
         }
+    }
+
+    SDL_Rect src_scoreboard{8, 8, 40, 176};
+    SDL_Rect dst_scoreboard{cfg.window_width - 48, 8, 40, 176};
+    auto status = SDL_RenderCopy(renderer, base_window, &src_scoreboard, &dst_scoreboard);
+    if (status < 0)
+        throw sdl::Error();
+
+    char buf[3];
+    std::snprintf(buf, sizeof(buf), "%02d", game.getBulletCount());
+    tmgr.renderText(renderer, buf,
+                    dst_scoreboard.x + 3 * 8, dst_scoreboard.y,
+                    0, 0, 0);
+    std::snprintf(buf, sizeof(buf), "%02d", game.getLevel());
+    tmgr.renderText(renderer, buf,
+                    dst_scoreboard.x + 3 * 8, dst_scoreboard.y + 8,
+                    0, 0, 0);
+    std::snprintf(buf, sizeof(buf), "%02d", game.getFredPos().y());
+    tmgr.renderText(renderer, buf,
+                    dst_scoreboard.x + 3 * 8, dst_scoreboard.y + 2*8,
+                    0, 0, 0);
+    tmgr.renderScore(renderer, game.getScore(),
+                     dst_scoreboard.x + 2, dst_scoreboard.y + 17 * 8,
+                     206, 206, 206);
+    tmgr.renderScore(renderer, 0,
+                     dst_scoreboard.x + 2, dst_scoreboard.y + 20 * 8,
+                     206, 206, 206);
+
+    SDL_Texture *power_texture = tmgr.get(TextureID::POWER);
+    for (int i = game.getPower(); i < 15; ++i)
+    {
+        SDL_Rect power_rect = {dst_scoreboard.x + 8 * (i % 5),
+                               dst_scoreboard.y + 8 * (12 + (i / 5)),
+                               8, 8};
+        if (SDL_RenderCopy(renderer, power_texture, nullptr, &power_rect) < 0)
+            throw sdl::Error();
     }
 }

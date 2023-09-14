@@ -19,6 +19,7 @@ public:
     };
     Object(MapPos const &pos, Type type)
         : Sprite::Sprite(pos), type(type) {}
+    void apply(Game &game) const;
 
 protected:
     BoxParams const &getBoxParams() const override;

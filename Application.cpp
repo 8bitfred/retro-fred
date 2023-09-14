@@ -168,7 +168,7 @@ void FredApp::playGame()
 
         SDL_RenderClear(getRenderer());
         game.renderSprites(getRenderer());
-        game.getFrame().renderFrame(cfg, getRenderer(), tmgr);
+        game.getFrame().renderFrame(cfg, game, getRenderer(), tmgr);
         SDL_RenderPresent(getRenderer());
         game.playPendingSounds();
 
