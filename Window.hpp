@@ -36,10 +36,12 @@ public:
     int getFredOffsetX() const { return fred_offset_x; }
     int getFredOffsetY() const { return fred_offset_y; }
 
-    void renderFrame(Config const& cfg, Game const& game, 
-                    SDL_Renderer *renderer, TextureManager const &tmgr);
+    // TODO: Game should be const
+    void renderFrame(Config const& cfg, Game& game, 
+                     SDL_Renderer *renderer, TextureManager const &tmgr);
 
 private:
+    void drawMinimap(Game &game, SDL_Renderer *renderer, int x, int y);
     // Position of F, in map coordinates
     MapPos map_pos;
     // Position of the game window

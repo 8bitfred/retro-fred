@@ -6,6 +6,7 @@
 #include "SoundID.hpp"
 #include <vector>
 #include <algorithm>
+#include <optional>
 
 class TextureManager;
 class SoundManager;
@@ -47,6 +48,7 @@ public:
     MapPos const &getFredPos() const;
     int getBulletCount() const { return bullet_count; }
     int getScore() const { return score; }
+    int getTreasureCount() const { return treasure_count; }
     int getLevel() const { return level; }
     int getPower() const { return power; }
     void decPower();
@@ -55,8 +57,14 @@ public:
         power += 2;
         power = std::min(power, MAX_POWER);
     }
-    void addScore(int points) { score += points; }
+    void addTreasure(int points)
+    {
+        score += points;
+        ++treasure_count;
+    }
     void rechargeBullets() { bullet_count = MAX_BULLETS; }
+    std::optional<CellPos> getMinimapPos() const { return minimap_pos; }
+    void setMinimapPos(CellPos const &pos) { minimap_pos = pos; }
     void dbgResetMapBlocks();
 
     bool canShoot() const;
@@ -72,5 +80,7 @@ private:
     int bullet_count = MAX_BULLETS;
     int level = 1;
     int score = 0;
+    int treasure_count = 0;
     int power = MAX_POWER;
+    std::optional<CellPos> minimap_pos;
 };
