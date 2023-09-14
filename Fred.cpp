@@ -1,6 +1,7 @@
 #include "Fred.hpp"
 #include "Game.hpp"
 #include "GameMap.hpp"
+#include "Object.hpp" // TODO: this should not be exposed her
 #include <functional>
 
 Sprite::BoxParams const &Fred::getBoxParams() const
@@ -257,6 +258,7 @@ void Fred::checkCollisionWithEnemy(Game &game, Sprite const &other)
     {
         collision_timer = 5;
         game.addSound(SoundID::COLLISION);
+        game.decPower();
     }
 }
 
@@ -265,11 +267,12 @@ void Fred::checkCollisionWithObject(Game &game)
     auto &sprite_list = game.getSpriteList(SpriteClass::OBJECT);
     for (auto p = sprite_list.begin(), end = sprite_list.end(); p != end; ++p)
     {
-        Sprite &sprite = *(*p);
-        if (checkCollision(sprite))
+        auto const &object_p = dynamic_cast<Object const *>(p->get());
+        if (checkCollision(*object_p))
         {
             game.addSound(SoundID::PICK_OBJECT);
             sprite_list.erase(p);
+            object_p->apply(game);
             break;
         }
     }

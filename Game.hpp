@@ -5,6 +5,7 @@
 #include "Sprite.hpp"
 #include "SoundID.hpp"
 #include <vector>
+#include <algorithm>
 
 class TextureManager;
 class SoundManager;
@@ -22,6 +23,9 @@ public:
     static constexpr unsigned EVENT_HATCH_LEFT = 0x80;
     static constexpr unsigned EVENT_HATCH_RIGHT = 0x100;
     static constexpr unsigned EVENT_MOVE_TO_HATCH = 0x200;
+
+    static constexpr int MAX_POWER = 15;
+    static constexpr int MAX_BULLETS = 6;
 
     static unsigned getEventOfKey(SDL_Keycode keycode);
 
@@ -41,6 +45,18 @@ public:
     // TODO: we should refactor this so that the Game object does not need to know about
     // the internals of the Fred class
     MapPos const &getFredPos() const;
+    int getBulletCount() const { return bullet_count; }
+    int getScore() const { return score; }
+    int getLevel() const { return level; }
+    int getPower() const { return power; }
+    void decPower();
+    void incPower()
+    {
+        power += 2;
+        power = std::min(power, MAX_POWER);
+    }
+    void addScore(int points) { score += points; }
+    void rechargeBullets() { bullet_count = MAX_BULLETS; }
     void dbgResetMapBlocks();
 
     bool canShoot() const;
@@ -53,4 +69,8 @@ private:
     GameMap game_map;
     std::vector<SpriteList> sprite_lists;
     std::uint32_t pending_sounds = 0;
+    int bullet_count = MAX_BULLETS;
+    int level = 1;
+    int score = 0;
+    int power = MAX_POWER;
 };

@@ -100,7 +100,7 @@ void Game::dbgResetMapBlocks()
 
 bool Game::canShoot() const
 {
-    return sprite_lists[static_cast<int>(SpriteClass::BULLET)].empty();
+    return sprite_lists[static_cast<int>(SpriteClass::BULLET)].empty() && bullet_count > 0;
 }
 
 void Game::fireGun(MapPos initial_position, int direction)
@@ -108,4 +108,14 @@ void Game::fireGun(MapPos initial_position, int direction)
     auto &sprite_list = getSpriteList(SpriteClass::BULLET);
     sprite_list.emplace_back(std::make_unique<Bullet>(initial_position, direction));
     addSound(SoundID::FIRE);
+    --bullet_count;
+    if (bullet_count <= 0)
+        bullet_count = 6;
+}
+
+void Game::decPower()
+{
+    --power;
+    if (power == 0)
+        power = 15;
 }
