@@ -6,27 +6,28 @@ void Object::apply(Game &game) const
     switch (type)
     {
         case Type::MAP:
+            game.setMinimapPos(game.getFredPos().cellPos());
             break;
         case Type::LIFE:
             game.incPower();
             break;
         case Type::BUST:
-            game.addScore(800);
+            game.addTreasure(800);
             break;
         case Type::STONE:
-            game.addScore(1000);
+            game.addTreasure(1000);
             break;
         case Type::BULLETS:
             game.rechargeBullets();
             break;
         case Type::STATUE:
-            game.addScore(500);
+            game.addTreasure(500);
             break;
         case Type::MASK:
-            game.addScore(1500);
+            game.addTreasure(1500);
             break;
         case Type::AMULET:
-            game.addScore(500);
+            game.addTreasure(500);
             break;
         default:;
     }

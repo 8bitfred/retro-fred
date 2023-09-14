@@ -231,7 +231,7 @@ void Window::adjustFramePos(MapPos fred_pos)
                      fred_pos.cy()};
 }
 
-void Window::renderFrame(Config const& cfg, Game const &game,
+void Window::renderFrame(Config const& cfg, Game &game,
                          SDL_Renderer *renderer, TextureManager const &tmgr)
 {
     SDL_Texture *base_window = tmgr.get(TextureID::FRAME_BASE);
@@ -300,5 +300,34 @@ void Window::renderFrame(Config const& cfg, Game const &game,
                                8, 8};
         if (SDL_RenderCopy(renderer, power_texture, nullptr, &power_rect) < 0)
             throw sdl::Error();
+    }
+    drawMinimap(game, renderer, dst_scoreboard.x, dst_scoreboard.y + 5 * 8);
+}
+
+void Window::drawMinimap(Game &game, SDL_Renderer *renderer, int x, int y)
+{
+    auto minimap_pos = game.getMinimapPos();
+    if (!minimap_pos)
+        return;
+    sdl::ColorGuard color_guard(renderer, 206, 206, 206, 255);
+    SDL_Rect dst{x, y, 2, 2};
+    for (int i = -10; i < 10; ++i)
+    {
+        for (int j = -10; j < 10; ++j)
+        {
+            if (auto cell = game.getGameMap().getBlock(*minimap_pos, j, i);
+                cell == GameMap::Cell::EMPTY ||
+                cell == GameMap::Cell::ROPE_START ||
+                cell == GameMap::Cell::ROPE_MAIN ||
+                cell == GameMap::Cell::ROPE_END ||
+                cell == GameMap::Cell::TRAPDOOR)
+            {
+                if (SDL_RenderFillRect(renderer, &dst) < 0)
+                    throw sdl::Error();
+            }
+            dst.x += 2;
+        }
+        dst.x = x;
+        dst.y += 2;
     }
 }

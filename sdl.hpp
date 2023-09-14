@@ -100,6 +100,31 @@ namespace sdl
         return {WindowPtr(win), RendererPtr(rend)};
     }
 
+    class ColorGuard {
+        SDL_Renderer *renderer;
+        Uint8 saved_red, saved_green, saved_blue, saved_alpha;
+        SDL_BlendMode saved_blend_mode;
+    public:
+        ColorGuard(SDL_Renderer *renderer,
+        Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha,
+        SDL_BlendMode blend_mode = SDL_BLENDMODE_NONE)
+        : renderer(renderer)
+        {
+            if (SDL_GetRenderDrawBlendMode(renderer, &saved_blend_mode) < 0)
+                throw Error();
+            if (SDL_GetRenderDrawColor(renderer, &saved_red, &saved_green,
+                                       &saved_blue, &saved_alpha) < 0)
+                throw Error();
+            SDL_SetRenderDrawBlendMode(renderer, blend_mode);
+            SDL_SetRenderDrawColor(renderer, red, green, blue, alpha);
+        }
+        ~ColorGuard()
+        {
+            SDL_SetRenderDrawBlendMode(renderer, saved_blend_mode);
+            SDL_SetRenderDrawColor(renderer, saved_red, saved_green, saved_blue, saved_alpha);
+        }
+    };
+
     class WAVData {
         SDL_AudioSpec spec;
         Uint8* audio_buf;

@@ -349,7 +349,7 @@ void FredApp::initializeObjects(Game &game)
     std::uniform_int_distribution<> distrib_t(0, static_cast<int>(Object::Type::COUNT));
     // TODO: the number of objects depends on the game level. Also not all objects are
     // allowed in all levels.
-    for (int counter = 25; counter > 0;)
+    for (int counter = 0; counter < 25;)
     {
         MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 1, 3};
         if (game.getGameMap().getBlock(pos.cellPos()) != GameMap::Cell::EMPTY)
@@ -362,7 +362,7 @@ void FredApp::initializeObjects(Game &game)
         else
             object_type = static_cast<Object::Type>(distrib_t(random_engine));
         sprite_list.emplace_back(std::make_unique<Object>(pos, object_type));
-        --counter;
+        ++counter;
     }
 }
 
