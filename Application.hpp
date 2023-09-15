@@ -21,7 +21,8 @@ public:
     void playGame();
 
 private:
-    Fred* initializeFred(Game &game);
+    void initializeSprites(Game &game);
+    void initializeFred(Game &game);
     void initializeAcidDrops(Game &game);
     void initializeRats(Game &game);
     void initializeGhosts(Game &game);
@@ -30,8 +31,10 @@ private:
     void initializeVampires(Game &game);
     void initializeSkeletons(Game &game);
     void initializeObjects(Game &game);
-    bool checkBullet(Game &game, Bullet &bullet, SpriteClass sprite_class);
-    void debugMode(Game &game, Fred *fred, unsigned events);
+    void updateSprites(Game &game);
+    void checkCollisionsWithEnemies(Game &game);
+    void checkBulletCollisions(Game &game);
+    void debugMode(Game &game, unsigned events);
 
     Config const &cfg;
     std::minstd_rand &random_engine;

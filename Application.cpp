@@ -15,6 +15,35 @@
 #include <iostream>
 
 
+class KeyState
+{
+    unsigned state = 0;
+public:
+    std::pair<bool, unsigned> updateKeyState()
+    {
+        SDL_Event event;
+        unsigned key_presses = 0;
+        while (SDL_PollEvent(&event) != 0)
+        {
+            if (event.type == SDL_QUIT)
+                return {true, 0};
+            else if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.repeat == 0) {
+                    auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
+                    state |= events_of_key;
+                    key_presses |= events_of_key;
+                }
+            }
+            else if (event.type == SDL_KEYUP) {
+                auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
+                state &= ~events_of_key;
+            }
+        }
+        return {false, state | key_presses};
+    }
+};
+
 FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     : cfg(cfg)
     , random_engine(random_engine)
@@ -30,140 +59,28 @@ void FredApp::playGame()
     static constexpr std::uint32_t FRAMES_PER_SECOND = 6;
     static constexpr std::uint32_t TICKS_PER_FRAME = 1000 / FRAMES_PER_SECOND;
     Game game(cfg, random_engine, tmgr, smgr);
-    auto fred = initializeFred(game);
+    initializeSprites(game);
+    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
     game.getGameMap().initializeMapBlocks(game.getFrame(),
                                           game.getSpriteList(SpriteClass::BLOCK));
-    initializeAcidDrops(game);
-    initializeRats(game);
-    initializeGhosts(game);
-    initializeChameleons(game);
-    initializeMummies(game);
-    initializeVampires(game);
-    initializeSkeletons(game);
-    initializeObjects(game);
 
     std::uint32_t frame_count = 0;
-    bool quit = false;
-    unsigned events = 0;
-    while (!quit)
+    KeyState key_state;
+    while (true)
     {
         Uint32 const start_ticks = SDL_GetTicks();
-        // if ((frame_count % 2) == 0) {
-        //     smgr.play(SoundID::WALK);
-        //     std::cout << "------------------ticks=" << start_ticks << std::endl;
-        // }
-        SDL_Event event;
-        unsigned events_this_cycle = 0;
-        while (SDL_PollEvent(&event) != 0)
-        {
-            if (event.type == SDL_QUIT)
-                quit = true;
-            else if (event.type == SDL_KEYDOWN) {
-                if (event.key.repeat == 0) {
-                    auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
-                    events |= events_of_key;
-                    events_this_cycle |= events_of_key;
-                }
-            }
-            else if (event.type == SDL_KEYUP) {
-                auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
-                events &= ~events_of_key;
-            }
-        }
+        auto [quit, events] = key_state.updateKeyState();
+        if (quit)
+            break;
+        updateSprites(game);
 
-        for (auto const& sprite: game.getSpriteList(SpriteClass::BULLET))
-            sprite->update(game, 0);
-        for (auto const& sprite: game.getSpriteList(SpriteClass::ACID_DROP))
-            sprite->update(game, 0);
-        for (auto const& sprite: game.getSpriteList(SpriteClass::RAT))
-            sprite->update(game, 0);
-        for (auto const& sprite: game.getSpriteList(SpriteClass::GHOST))
-            sprite->update(game, 0);
-        for (auto const& sprite: game.getSpriteList(SpriteClass::CHAMELEON))
-            sprite->update(game, 0);
-        for (auto const& sprite: game.getSpriteList(SpriteClass::MUMMY))
-            sprite->update(game, 0);
-        for (auto const& sprite: game.getSpriteList(SpriteClass::VAMPIRE))
-            sprite->update(game, 0);
-        for (auto const& sprite: game.getSpriteList(SpriteClass::SKELETON))
-            sprite->update(game, 0);
-        auto &smoke_list = game.getSpriteList(SpriteClass::SMOKE);
-        for (size_t i = 0; i < smoke_list.size();)
-        {
-            auto &smoke = dynamic_cast<Smoke &>(*game.getSpriteList(SpriteClass::SMOKE)[i]);
-            smoke.update(game, 0);
-            if (!smoke.isAlive())
-                smoke_list.erase(smoke_list.begin() + i);
-            else
-                ++i;
-        }
-        // TODO: I would like to avoid exposing the toggleClimbingFrame() API by using
-        // some signal or callback
-        Skeleton::toggleClimbingFrame();
-        Mummy::toggleMummyTimer();
-
-        events_this_cycle |= events;
-        if ((events_this_cycle & Game::EVENT_SHIFT) != 0)
-            debugMode(game, fred, events_this_cycle);
+        if ((events & Game::EVENT_SHIFT) != 0)
+            debugMode(game, events);
         else
-            fred->updateFred(game, events_this_cycle);
+            fred->updateFred(game, events);
 
-        if (auto &bullet_list = game.getSpriteList(SpriteClass::BULLET);
-            !bullet_list.empty())
-        {
-            auto &bullet = dynamic_cast<Bullet &>(*bullet_list.back());
-            if (!bullet.isAlive(game) ||
-                checkBullet(game, bullet, SpriteClass::GHOST) ||
-                checkBullet(game, bullet, SpriteClass::MUMMY) ||
-                checkBullet(game, bullet, SpriteClass::VAMPIRE) ||
-                checkBullet(game, bullet, SpriteClass::SKELETON))
-            {
-                bullet_list.pop_back();
-            }
-        }
-
-        for (auto const &sprite : game.getSpriteList(SpriteClass::ACID_DROP))
-        {
-            if (fred->collisionInProgress())
-                break;
-            fred->checkCollisionWithEnemy(game, *sprite);
-        }
-        for (auto const& sprite: game.getSpriteList(SpriteClass::RAT))
-        {
-            if (fred->collisionInProgress())
-                break;
-            fred->checkCollisionWithEnemy(game, *sprite);
-        }
-        for (auto const& sprite: game.getSpriteList(SpriteClass::GHOST))
-        {
-            if (fred->collisionInProgress())
-                break;
-            fred->checkCollisionWithEnemy(game, *sprite);
-        }
-        for (auto const& sprite: game.getSpriteList(SpriteClass::CHAMELEON))
-        {
-            if (fred->collisionInProgress())
-                break;
-            fred->checkCollisionWithEnemy(game, *sprite);
-        }
-        for (auto const& sprite: game.getSpriteList(SpriteClass::MUMMY))
-        {
-            if (fred->collisionInProgress())
-                break;
-            fred->checkCollisionWithEnemy(game, *sprite);
-        }
-        for (auto const& sprite: game.getSpriteList(SpriteClass::VAMPIRE))
-        {
-            if (fred->collisionInProgress())
-                break;
-            fred->checkCollisionWithEnemy(game, *sprite);
-        }
-        for (auto const& sprite: game.getSpriteList(SpriteClass::SKELETON))
-        {
-            if (fred->collisionInProgress())
-                break;
-            fred->checkCollisionWithEnemy(game, *sprite);
-        }
+        checkBulletCollisions(game);
+        checkCollisionsWithEnemies(game);
         fred->checkCollisionWithObject(game);
 
         SDL_RenderClear(getRenderer());
@@ -179,7 +96,20 @@ void FredApp::playGame()
     }
 }
 
-Fred* FredApp::initializeFred(Game &game)
+void FredApp::initializeSprites(Game &game)
+{
+    initializeFred(game);
+    initializeAcidDrops(game);
+    initializeRats(game);
+    initializeGhosts(game);
+    initializeChameleons(game);
+    initializeMummies(game);
+    initializeVampires(game);
+    initializeSkeletons(game);
+    initializeObjects(game);
+}
+
+void FredApp::initializeFred(Game &game)
 {
     MapPos fred_initial_position;
     if (cfg.debug_map)
@@ -197,10 +127,8 @@ Fred* FredApp::initializeFred(Game &game)
         fred_initial_position = {fred_cell_position.x, fred_cell_position.y, 0, 1};
     }
     auto fred_unique_ptr = std::make_unique<Fred>(fred_initial_position);
-    auto fred_ptr = fred_unique_ptr.get();
     game.getFrame().adjustFramePos(fred_initial_position);
     game.getSpriteList(SpriteClass::FRED).emplace_back(std::move(fred_unique_ptr));
-    return fred_ptr;
 }
 
 
@@ -366,32 +294,111 @@ void FredApp::initializeObjects(Game &game)
     }
 }
 
-bool FredApp::checkBullet(Game &game, Bullet &bullet, SpriteClass sprite_class)
+
+void FredApp::updateSprites(Game &game)
 {
-    auto &sprite_list = game.getSpriteList(sprite_class);
-    for (size_t i = 0; i < sprite_list.size(); ++i)
+    for (auto const &sprite : game.getSpriteList(SpriteClass::BULLET))
+        sprite->update(game, 0);
+    for (auto const &sprite : game.getSpriteList(SpriteClass::ACID_DROP))
+        sprite->update(game, 0);
+    for (auto const &sprite : game.getSpriteList(SpriteClass::RAT))
+        sprite->update(game, 0);
+    for (auto const &sprite : game.getSpriteList(SpriteClass::GHOST))
+        sprite->update(game, 0);
+    for (auto const &sprite : game.getSpriteList(SpriteClass::CHAMELEON))
+        sprite->update(game, 0);
+    for (auto const &sprite : game.getSpriteList(SpriteClass::MUMMY))
+        sprite->update(game, 0);
+    for (auto const &sprite : game.getSpriteList(SpriteClass::VAMPIRE))
+        sprite->update(game, 0);
+    for (auto const &sprite : game.getSpriteList(SpriteClass::SKELETON))
+        sprite->update(game, 0);
+    auto &smoke_list = game.getSpriteList(SpriteClass::SMOKE);
+    for (size_t i = 0; i < smoke_list.size();)
     {
-        auto &sprite = *sprite_list[i];
-        if (!sprite.checkCollision(bullet))
-            continue;
-        auto effect = sprite.bulletHit();
-        if (effect == Sprite::BulletEffect::HIT)
-            return true;
-        else if (effect == Sprite::BulletEffect::DIE)
-        {
-            auto &smoke_list = game.getSpriteList(SpriteClass::SMOKE);
-            auto smoke_pos = sprite.getPos();
-            smoke_pos.yadd(1);
-            smoke_list.emplace_back(std::make_unique<Smoke>(smoke_pos));
-            sprite_list.erase(sprite_list.begin() + i);
-            return true;
-        }
+        auto &smoke = dynamic_cast<Smoke &>(*game.getSpriteList(SpriteClass::SMOKE)[i]);
+        smoke.update(game, 0);
+        if (!smoke.isAlive())
+            smoke_list.erase(smoke_list.begin() + i);
+        else
+            ++i;
     }
-    return false;
+    // TODO: I would like to avoid exposing the toggleClimbingFrame() API by using
+    // some signal or callback
+    Skeleton::toggleClimbingFrame();
+    Mummy::toggleMummyTimer();
 }
 
-void FredApp::debugMode(Game &game, Fred *fred, unsigned events)
+void FredApp::checkCollisionsWithEnemies(Game &game)
 {
+    static SpriteClass enemies[] = { SpriteClass::ACID_DROP,
+                                     SpriteClass::RAT,
+                                     SpriteClass::GHOST,
+                                     SpriteClass::CHAMELEON,
+                                     SpriteClass::MUMMY,
+                                     SpriteClass::VAMPIRE,
+                                     SpriteClass::SKELETON };
+    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
+    for (auto enemy_class : enemies)
+    {
+        for (auto const &sprite : game.getSpriteList(enemy_class))
+        {
+            if (fred->collisionInProgress())
+                return;
+            fred->checkCollisionWithEnemy(game, *sprite);
+        }
+    }
+}
+
+void FredApp::checkBulletCollisions(Game &game)
+{
+    static SpriteClass bullet_enemies[] = {
+        SpriteClass::GHOST,
+        SpriteClass::MUMMY,
+        SpriteClass::VAMPIRE,
+        SpriteClass::SKELETON,
+    };
+
+    auto &bullet_list = game.getSpriteList(SpriteClass::BULLET);
+    if (bullet_list.empty())
+        return;
+    auto &bullet = dynamic_cast<Bullet &>(*bullet_list.back());
+    if (!bullet.isAlive(game))
+    {
+        bullet_list.pop_back();
+        return;
+    }
+    for (auto enemy_class : bullet_enemies)
+    {
+        auto &sprite_list = game.getSpriteList(enemy_class);
+        for (size_t i = 0; i < sprite_list.size(); ++i)
+        {
+            auto &sprite = *sprite_list[i];
+            if (!sprite.checkCollision(bullet))
+                continue;
+            auto effect = sprite.bulletHit();
+            if (effect == Sprite::BulletEffect::HIT)
+            {
+                bullet_list.pop_back();
+                return;
+            }
+            else if (effect == Sprite::BulletEffect::DIE)
+            {
+                auto &smoke_list = game.getSpriteList(SpriteClass::SMOKE);
+                auto smoke_pos = sprite.getPos();
+                smoke_pos.yadd(1);
+                smoke_list.emplace_back(std::make_unique<Smoke>(smoke_pos));
+                sprite_list.erase(sprite_list.begin() + i);
+                bullet_list.pop_back();
+                return;
+            }
+        }
+    }
+}
+
+void FredApp::debugMode(Game &game, unsigned events)
+{
+    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
     if ((events & Game::EVENT_LEFT) != 0)
         game.moveFrame(-1, 0);
     else if ((events & Game::EVENT_RIGHT) != 0)
