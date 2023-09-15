@@ -139,6 +139,9 @@
 //
 Window::Window(Config const &cfg)
 {
+    window_width = cfg.window_width;
+    window_height = cfg.window_height;
+
     // Screen coordinates of the game window
     //   (in the example: top_left={8,8} bottom right={200,184})
     top_left.x = MapPixelPos::PIXELS_PER_CHAR;  // x2
@@ -231,33 +234,33 @@ void Window::adjustFramePos(MapPos fred_pos)
                      fred_pos.cy()};
 }
 
-void Window::renderFrame(Config const& cfg, Game &game,
-                         SDL_Renderer *renderer, TextureManager const &tmgr)
+void Window::renderFrame(Game &game, SDL_Renderer *renderer,
+                         TextureManager const &tmgr)
 {
     SDL_Texture *base_window = tmgr.get(TextureID::FRAME_BASE);
     Uint32 texture_format;
     SDL_QueryTexture(base_window, &texture_format, nullptr, nullptr, nullptr);
 
     SDL_Rect const window_char = {0, 0, 8, 8};
-    for (int x = 0; x < cfg.window_width; x += 8)
+    for (int x = 0; x < window_width; x += 8)
     {
         SDL_Rect dst_rect = {x, 0, 8, 8};
         auto status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
-        dst_rect.y = cfg.window_height - 8;
+        dst_rect.y = window_height - 8;
         status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
     }
 
-    for (int y = 0; y < cfg.window_height; y += 8)
+    for (int y = 0; y < window_height; y += 8)
     {
         SDL_Rect dst_rect = {0, y, 8, 8};
         auto status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
-        for (int x = cfg.window_width - 56; x < cfg.window_width; x += 8)
+        for (int x = window_width - 56; x < window_width; x += 8)
         {
             dst_rect.x = x;
             status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
@@ -267,7 +270,7 @@ void Window::renderFrame(Config const& cfg, Game &game,
     }
 
     SDL_Rect src_scoreboard{8, 8, 40, 176};
-    SDL_Rect dst_scoreboard{cfg.window_width - 48, 8, 40, 176};
+    SDL_Rect dst_scoreboard{window_width - 48, 8, 40, 176};
     auto status = SDL_RenderCopy(renderer, base_window, &src_scoreboard, &dst_scoreboard);
     if (status < 0)
         throw sdl::Error();

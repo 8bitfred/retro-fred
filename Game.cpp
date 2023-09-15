@@ -41,12 +41,15 @@ Game::Game(Config const &cfg, std::minstd_rand &random_engine,
 {
 }
 
-void Game::renderSprites(SDL_Renderer *renderer) const
+void Game::render(SDL_Renderer *renderer)
 {
+    SDL_RenderClear(renderer);
     for (auto const &sprites: sprite_lists) {
         for (auto const &s: sprites)
             s->render(window, tmgr, renderer);
     }
+    window.renderFrame(*this, renderer, tmgr);
+    SDL_RenderPresent(renderer);
 }
 
 void Game::moveFrame(int deltax, int deltay)
