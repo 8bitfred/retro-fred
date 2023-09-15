@@ -38,7 +38,8 @@ public:
     {
         return sprite_lists[static_cast<int>(sprite_class)];
     }
-    void renderSprites(SDL_Renderer *renderer) const;
+    // TODO: this function should be const
+    void render(SDL_Renderer *renderer);
     void moveFrame(int deltax, int deltay);
     void playSound(SoundID sound_id);
     void addSound(SoundID sound_id);
