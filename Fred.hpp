@@ -13,6 +13,7 @@ public:
     bool collisionInProgress() const { return collision_timer != 0; }
     void checkCollisionWithEnemy(Game &game, Sprite const &other);
     void checkCollisionWithObject(Game &game);
+    bool exiting() const { return state == State::EXIT_MAZE; }
 
     void dbgResetPosition(Game& game);
     void dbgMoveToHatch(Game &game);
@@ -50,6 +51,7 @@ private:
     void stateVerticalJump(Game &game, int input_x, int input_y);
     void stateSideJump(Game& game, int input_x, int input_y);
     void stateRopeClimb(Game& game, int input_x, int input_y);
+    void stateExitMaze(Game &game);
 
     int direction = -1;
     Frame frame = Frame::STANDING;

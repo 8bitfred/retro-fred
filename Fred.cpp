@@ -71,6 +71,7 @@ void Fred::updateFred(Game& game, unsigned events)
         stateRopeClimb(game, input_x, input_y);
         break;
     case State::EXIT_MAZE:
+        stateExitMaze(game);
         break;
     default:
         break;
@@ -232,7 +233,7 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
             }
             else if (game.getGameMap().getBlock(next_pos) == GameMap::Cell::TRAPDOOR)
             {
-                // TODO: maze exit;
+                state = State::EXIT_MAZE;
                 return;
             }
         }
@@ -250,6 +251,13 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
     {
         frame = Frame::CLIMBING1;
     }
+}
+
+void Fred::stateExitMaze(Game &game)
+{
+    sprite_pos.yadd(-1);
+    game.moveFrame(0, -1);
+    frame = frame == Frame::CLIMBING1 ? Frame::CLIMBING2 : Frame::CLIMBING1;
 }
 
 void Fred::checkCollisionWithEnemy(Game &game, Sprite const &other)

@@ -32,6 +32,7 @@ public:
 
     Game(Config const &cfg, std::minstd_rand &random_engine,
          TextureManager const &tmgr, SoundManager &smgr);
+    void nextLevel(Config const &cfg, std::minstd_rand &random_engine);
     Window &getFrame() { return window; }
     GameMap &getGameMap() { return game_map; }
     SpriteList &getSpriteList(SpriteClass sprite_class)
@@ -63,6 +64,7 @@ public:
         score += points;
         ++treasure_count;
     }
+    void addScore(int points) { score += points; }
     void rechargeBullets() { bullet_count = MAX_BULLETS; }
     std::optional<CellPos> getMinimapPos() const { return minimap_pos; }
     void setMinimapPos(CellPos const &pos) { minimap_pos = pos; }
