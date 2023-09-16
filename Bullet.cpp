@@ -4,7 +4,9 @@
 bool Bullet::isAlive(Game &game)
 {
     auto const &fred_pos = game.getFredPos();
-    if (game.getGameMap().isStone(sprite_pos.cellPos()))
+    MapPos center_pos = sprite_pos;
+    center_pos.xadd(1);
+    if (game.getGameMap().isStone(center_pos.cellPos()))
         return false;
     int distance;
     if (direction > 0)
@@ -16,7 +18,7 @@ bool Bullet::isAlive(Game &game)
 
 Sprite::BoxParams const &Bullet::getBoxParams() const
 {
-    static BoxParams box_params = {1, 1, {0, 0, 24, 8}, {}};
+    static BoxParams box_params = {1, 1, {10, 5, 4, 4}, {{0, 0, 24, 8}}};
     return box_params;
 }
 
