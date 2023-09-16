@@ -13,6 +13,7 @@
 #include "Smoke.hpp"
 #include "Object.hpp"
 #include <iostream>
+#include <cstdio>
 
 
 class KeyState
@@ -56,9 +57,25 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
 
 void FredApp::playGame()
 {
+    Game game(cfg, random_engine, tmgr, smgr);
+
+    while (true)
+    {
+        auto status = playLevel(game);
+        if (status == LevelStatus::NEXT_LEVEL)
+        {
+            showLevelSummary(game);
+            game.nextLevel(cfg, random_engine);
+        }
+        else
+            break;
+    }
+}
+
+FredApp::LevelStatus FredApp::playLevel(Game &game)
+{
     static constexpr std::uint32_t FRAMES_PER_SECOND = 6;
     static constexpr std::uint32_t TICKS_PER_FRAME = 1000 / FRAMES_PER_SECOND;
-    Game game(cfg, random_engine, tmgr, smgr);
     initializeSprites(game);
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
     game.getGameMap().initializeMapBlocks(game.getFrame(),
@@ -71,22 +88,32 @@ void FredApp::playGame()
         Uint32 const start_ticks = SDL_GetTicks();
         auto [quit, events] = key_state.updateKeyState();
         if (quit)
-            break;
+            return LevelStatus::QUIT;
         updateSprites(game);
 
         if ((events & Game::EVENT_SHIFT) != 0)
             debugMode(game, events);
-        else
+        else {
             fred->updateFred(game, events);
+            if (fred->exiting())
+            {
+                game.render(getRenderer());
+                SDL_Delay(TICKS_PER_FRAME / 2);
+                for (int i = 0; i < 4; ++i)
+                {
+                    fred->updateFred(game, events);
+                    game.render(getRenderer());
+                    SDL_Delay(TICKS_PER_FRAME / 2);
+                }
+                return LevelStatus::NEXT_LEVEL;
+            }
+        }
 
         checkBulletCollisions(game);
         checkCollisionsWithEnemies(game);
         fred->checkCollisionWithObject(game);
 
-        SDL_RenderClear(getRenderer());
-        game.renderSprites(getRenderer());
-        game.getFrame().renderFrame(cfg, game, getRenderer(), tmgr);
-        SDL_RenderPresent(getRenderer());
+        game.render(getRenderer());
         game.playPendingSounds();
 
         ++frame_count;
@@ -394,6 +421,32 @@ void FredApp::checkBulletCollisions(Game &game)
             }
         }
     }
+}
+
+void FredApp::showLevelSummary(Game &game)
+{
+    SDL_RenderClear(getRenderer());
+    tmgr.renderText(getRenderer(), "AT LAST YOU GOT OUT!", 24, 24,
+                    206, 206, 206);
+    tmgr.renderText(getRenderer(), "BONUS FOR GETTING OUT:", 24, 40,
+                    206, 206, 206);
+    tmgr.renderText(getRenderer(), "5000", 96, 56,
+                    206, 206, 206);
+    tmgr.renderText(getRenderer(), "TREASURES YOU GOT:", 24, 72,
+                    206, 206, 206);
+    char buf[12];
+    // TODO: get rid of snprintf
+    std::snprintf(buf, sizeof (buf), "%02d", game.getTreasureCount());
+    tmgr.renderText(getRenderer(), buf, 96, 88, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "BONUS FOR TREASURES:", 24, 104,
+                    206, 206, 206);
+    std::snprintf(buf, sizeof (buf), "%05d", game.getTreasureCount() * 1000);
+    tmgr.renderText(getRenderer(), buf, 96, 120, 206, 206, 206);
+    game.getFrame().renderFrame(game, getRenderer(), tmgr);
+    SDL_RenderPresent(getRenderer());
+    game.playSound(SoundID::EXIT_MAZE);
+    SDL_Delay(7000);
+    game.addScore(5000 + game.getTreasureCount() * 1000);
 }
 
 void FredApp::debugMode(Game &game, unsigned events)

@@ -21,6 +21,13 @@ public:
     void playGame();
 
 private:
+    enum class LevelStatus
+    {
+        QUIT,
+        NEXT_LEVEL,
+        GAME_OVER,
+    };
+    LevelStatus playLevel(Game &game);
     void initializeSprites(Game &game);
     void initializeFred(Game &game);
     void initializeAcidDrops(Game &game);
@@ -35,6 +42,7 @@ private:
     void checkCollisionsWithEnemies(Game &game);
     void checkBulletCollisions(Game &game);
     void debugMode(Game &game, unsigned events);
+    void showLevelSummary(Game &game);
 
     Config const &cfg;
     std::minstd_rand &random_engine;

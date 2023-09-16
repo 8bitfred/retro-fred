@@ -41,6 +41,15 @@ Game::Game(Config const &cfg, std::minstd_rand &random_engine,
 {
 }
 
+void Game::nextLevel(Config const &cfg, std::minstd_rand &random_engine)
+{
+    ++level;
+    game_map = GameMap(cfg, random_engine);
+    for (auto &list : sprite_lists)
+        list.clear();
+    treasure_count = 0;
+}
+
 void Game::render(SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
