@@ -165,7 +165,7 @@ void FredApp::initializeAcidDrops(Game &game)
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
     std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
     std::uniform_int_distribution<> distrib_frame(0, 3);
-    for (int i = 0; i < 20; ++i) {
+    for (int i = 0; i < game.getSpriteCount().acid_drops; ++i) {
         while (true)
         {
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 1, 0};
@@ -198,7 +198,7 @@ void FredApp::initializeRats(Game &game)
     auto &sprite_list = game.getSpriteList(SpriteClass::RAT);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
     std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
-    for (int i = 0; i < 40; ++i) {
+    for (int i = 0; i < game.getSpriteCount().rats; ++i) {
         while (true)
         {
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 4};
@@ -225,7 +225,7 @@ void FredApp::initializeGhosts(Game &game)
     auto &sprite_list = game.getSpriteList(SpriteClass::GHOST);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
     std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < game.getSpriteCount().ghosts; ++i) {
         while (true)
         {
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 1};
@@ -242,7 +242,7 @@ void FredApp::initializeChameleons(Game &game)
     auto &sprite_list = game.getSpriteList(SpriteClass::CHAMELEON);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
     std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < game.getSpriteCount().chameleons; ++i) {
         while (true)
         {
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
@@ -257,7 +257,7 @@ void FredApp::initializeChameleons(Game &game)
 void FredApp::initializeMummies(Game &game)
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::MUMMY);
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < game.getSpriteCount().mummies; ++i) {
         sprite_list.emplace_back(std::make_unique<Mummy>(game, random_engine));
     }
 }
@@ -267,7 +267,7 @@ void FredApp::initializeVampires(Game &game)
     auto &sprite_list = game.getSpriteList(SpriteClass::VAMPIRE);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
     std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < game.getSpriteCount().vampires; ++i) {
         while (true)
         {
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
@@ -284,7 +284,7 @@ void FredApp::initializeSkeletons(Game &game)
     auto &sprite_list = game.getSpriteList(SpriteClass::SKELETON);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
     std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < game.getSpriteCount().skeletons; ++i) {
         while (true)
         {
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 1};
@@ -304,7 +304,7 @@ void FredApp::initializeObjects(Game &game)
     std::uniform_int_distribution<> distrib_t(0, static_cast<int>(Object::Type::COUNT));
     // TODO: the number of objects depends on the game level. Also not all objects are
     // allowed in all levels.
-    for (int counter = 0; counter < 25;)
+    for (int counter = 0; counter < game.getSpriteCount().objects;)
     {
         MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 1, 3};
         if (game.getGameMap().getBlock(pos.cellPos()) != GameMap::Cell::EMPTY)
@@ -316,6 +316,12 @@ void FredApp::initializeObjects(Game &game)
             object_type = static_cast<Object::Type>(counter);
         else
             object_type = static_cast<Object::Type>(distrib_t(random_engine));
+        while ((!game.getSpriteCount().has_busts && object_type == Object::Type::BUST) ||
+               (!game.getSpriteCount().has_stones && object_type == Object::Type::STONE) ||
+               (!game.getSpriteCount().has_masks && object_type == Object::Type::MASK))
+        {
+            object_type = static_cast<Object::Type>(distrib_t(random_engine));
+        }
         sprite_list.emplace_back(std::make_unique<Object>(pos, object_type));
         ++counter;
     }
