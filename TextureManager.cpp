@@ -24,6 +24,7 @@ TextureManager::TextureManager(SDL_Renderer *renderer)
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/zx_font.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/small_digits.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/power.png"));
+    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_puffing.png"));
     assert(texture_list.size() == static_cast<size_t>(TextureID::COUNT));
 }
 

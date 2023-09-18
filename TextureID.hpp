@@ -19,5 +19,6 @@ enum class TextureID : std::uint8_t
     ZX_FONT,
     SMALL_DIGITS,
     POWER,
+    FRED_PUFFING,
     COUNT
 };
