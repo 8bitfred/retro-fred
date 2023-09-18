@@ -28,11 +28,27 @@ public:
     static constexpr int MAX_POWER = 15;
     static constexpr int MAX_BULLETS = 6;
 
+    struct SpriteCount
+    {
+        int acid_drops = 0;
+        int rats = 0;
+        int ghosts = 0;
+        int chameleons = 0;
+        int mummies = 0;
+        int vampires = 0;
+        int skeletons = 0;
+        int objects = 0;
+        bool has_busts = false;
+        bool has_stones = false;
+        bool has_masks = false;
+    };
+
     static unsigned getEventOfKey(SDL_Keycode keycode);
 
     Game(Config const &cfg, std::minstd_rand &random_engine,
          TextureManager const &tmgr, SoundManager &smgr);
     void nextLevel(Config const &cfg, std::minstd_rand &random_engine);
+    SpriteCount const &getSpriteCount() const { return sprite_count; }
     Window &getFrame() { return window; }
     GameMap &getGameMap() { return game_map; }
     SpriteList &getSpriteList(SpriteClass sprite_class)
@@ -74,14 +90,16 @@ public:
     void fireGun(MapPos initial_position, int direction);
 
 private:
+    static SpriteCount getSpriteCountOfLevel(Config const &cfg, int level);
     TextureManager const &tmgr;
-    SoundManager &smgr;
+    SoundManager &smgr;    
     Window window;
     GameMap game_map;
     std::vector<SpriteList> sprite_lists;
     std::uint32_t pending_sounds = 0;
     int bullet_count = MAX_BULLETS;
     int level = 1;
+    SpriteCount sprite_count;
     int score = 0;
     int treasure_count = 0;
     int power = MAX_POWER;

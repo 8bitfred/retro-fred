@@ -3,6 +3,7 @@
 #include "Fred.hpp"
 #include "SoundManager.hpp"
 #include "Bullet.hpp"
+#include <algorithm>
 
 unsigned Game::getEventOfKey(SDL_Keycode keycode)
 {
@@ -38,6 +39,7 @@ Game::Game(Config const &cfg, std::minstd_rand &random_engine,
     : tmgr(tmgr), smgr(smgr)
     , window(cfg), game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
+    , sprite_count(getSpriteCountOfLevel(cfg, level))
 {
 }
 
@@ -48,6 +50,8 @@ void Game::nextLevel(Config const &cfg, std::minstd_rand &random_engine)
     for (auto &list : sprite_lists)
         list.clear();
     treasure_count = 0;
+    sprite_count = getSpriteCountOfLevel(cfg, level);
+    minimap_pos.reset();
 }
 
 void Game::render(SDL_Renderer *renderer)
@@ -130,4 +134,22 @@ void Game::decPower()
     --power;
     if (power == 0)
         power = 15;
+}
+
+Game::SpriteCount Game::getSpriteCountOfLevel(Config const &cfg, int level)
+{
+    static SpriteCount level_config[] = {
+    //    A   R   G   C   M   V   S   O
+        {20, 40, 10,  0,  0,  0,  0, 16, false, false, false},
+        {25, 25, 10, 10,  5,  0,  0, 17, false, false, false},
+        {30, 30, 10, 15, 10,  5,  0, 18,  true, false, false},
+        {35, 35, 15, 20, 15, 15, 10, 21,  true,  true,  true},
+        {30, 30, 15, 20, 15, 10,  5, 19,  true,  true,  true},
+        { 1,  1,  1,  0,  0, 30, 20, 25,  true,  true,  true},
+    };
+
+    if (cfg.debug_map)
+        return {15, 15, 7, 15, 7, 7, 7, 25, true, true, true};
+    else
+        return level_config[std::min(static_cast<size_t>(level - 1), std::size(level_config) - 1)];
 }
