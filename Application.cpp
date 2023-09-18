@@ -448,6 +448,9 @@ void FredApp::showLevelSummary(Game &game)
                     206, 206, 206);
     std::snprintf(buf, sizeof (buf), "%05d", game.getTreasureCount() * 1000);
     tmgr.renderText(getRenderer(), buf, 96, 120, 206, 206, 206);
+    SDL_Rect fred_puffing{88, 128, 32, 40};
+    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_PUFFING),
+                   nullptr, &fred_puffing);
     game.getFrame().renderFrame(game, getRenderer(), tmgr);
     SDL_RenderPresent(getRenderer());
     game.playSound(SoundID::EXIT_MAZE);
