@@ -8,6 +8,7 @@ namespace {
         "usage: fred [--help]\n"
         "            [--debug] [--fullmap]\n"
         "            [--infinite-ammo] [--infinite-power]\n"
+        "            [--scale f.f]\n"
         "\n"
         "    [--help]    Show this message\n"
         "    [--debug]   Use debug map, use debug levels for\n"
@@ -18,6 +19,9 @@ namespace {
         "    [--infinite-power]\n"
         "                Unlimited power\n"
         "    [--boxes]   Show sprite bound and hit boxes\n"
+        "    [--scale f.f]\n"
+        "                Set the scale of the SDL renderer.\n"
+        "                Defaults to 5.\n"
         "\n"
         "\n"
         "keybindings during gameplay:\n"
@@ -58,6 +62,16 @@ Config::Config(int argc, char *argv[])
             infinite_power = true;
         else if (svarg == "--boxes")
             boxes = true;
+        else if (svarg == "--scale")
+        {
+            ++i;
+            if (i >= argc)
+            {
+                std::cerr << "missing argument for option --scale" << std::endl;
+                std::exit(2);
+            }
+            scale_x = scale_y = static_cast<float>(std::atof(argv[i]));
+        }
         else
         {
             std::cerr << "unknown option: " << svarg << std::endl;
