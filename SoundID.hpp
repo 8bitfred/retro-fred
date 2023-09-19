@@ -11,5 +11,6 @@ enum class SoundID : std::uint8_t
     JUMP,
     WALK,
     EXIT_MAZE,
+    GAME_OVER,
     COUNT
 };

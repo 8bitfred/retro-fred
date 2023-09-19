@@ -67,6 +67,11 @@ void FredApp::playGame()
             showLevelSummary(game);
             game.nextLevel(cfg, random_engine);
         }
+        else if (status == LevelStatus::GAME_OVER)
+        {
+            SDL_Delay(5000);
+            break;
+        }
         else
             break;
     }
@@ -74,8 +79,6 @@ void FredApp::playGame()
 
 FredApp::LevelStatus FredApp::playLevel(Game &game)
 {
-    static constexpr std::uint32_t FRAMES_PER_SECOND = 6;
-    static constexpr std::uint32_t TICKS_PER_FRAME = 1000 / FRAMES_PER_SECOND;
     initializeSprites(game);
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
     game.getGameMap().initializeMapBlocks(game.getFrame(),
@@ -97,20 +100,18 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
             fred->updateFred(game, events);
             if (fred->exiting())
             {
-                game.render(getRenderer());
-                SDL_Delay(TICKS_PER_FRAME / 2);
-                for (int i = 0; i < 4; ++i)
-                {
-                    fred->updateFred(game, events);
-                    game.render(getRenderer());
-                    SDL_Delay(TICKS_PER_FRAME / 2);
-                }
+                endOfLevelSequence(game);
                 return LevelStatus::NEXT_LEVEL;
             }
         }
 
         checkBulletCollisions(game);
         checkCollisionsWithEnemies(game);
+        if (fred->gameOver())
+        {
+            gameOverSequence(game);
+            return LevelStatus::GAME_OVER;
+        }
         fred->checkCollisionWithObject(game);
 
         game.render(getRenderer());
@@ -427,6 +428,37 @@ void FredApp::checkBulletCollisions(Game &game)
             }
         }
     }
+}
+
+void FredApp::endOfLevelSequence(Game &game)
+{
+    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
+    game.render(getRenderer());
+    SDL_Delay(TICKS_PER_FRAME / 2);
+    for (int i = 0; i < 4; ++i)
+    {
+        fred->updateFred(game, 0);
+        game.render(getRenderer());
+        SDL_Delay(TICKS_PER_FRAME / 2);
+    }
+}
+
+void FredApp::gameOverSequence(Game &game)
+{
+    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
+    game.playSound(SoundID::GAME_OVER);
+    for (int i = 0; i < 6; ++i)
+    {
+        game.render(getRenderer());
+        SDL_Delay(500);
+        fred->updateFred(game, 0);
+    }
+    game.getSpriteList(SpriteClass::FRED).pop_back();
+    auto spos = game.getFrame().getCenterCell();
+    SDL_Rect game_over_pos{spos.x - 16, spos.y - 8, 72, 40};
+    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::GAME_OVER),
+                   nullptr, &game_over_pos);
+    SDL_RenderPresent(getRenderer());
 }
 
 void FredApp::showLevelSummary(Game &game)

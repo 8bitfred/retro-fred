@@ -12,6 +12,7 @@ std::vector<sdl::WAVData> SoundManager::loadWAVs()
     wav_list.emplace_back("sounds/jump.wav");
     wav_list.emplace_back("sounds/walk.wav");
     wav_list.emplace_back("sounds/exit_maze.wav");
+    wav_list.emplace_back("sounds/game_over.wav");
     assert(wav_list.size() == static_cast<size_t>(SoundID::COUNT));
     return wav_list;
 }

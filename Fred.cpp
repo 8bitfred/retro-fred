@@ -1,7 +1,7 @@
 #include "Fred.hpp"
 #include "Game.hpp"
 #include "GameMap.hpp"
-#include "Object.hpp" // TODO: this should not be exposed her
+#include "Object.hpp" // TODO: this should not be exposed here
 #include <functional>
 
 Sprite::BoxParams const &Fred::getBoxParams() const
@@ -33,12 +33,17 @@ Sprite::BoxParams const &Fred::getBoxParams() const
 
 Sprite::RenderParams Fred::getRenderParams() const
 {
-    ColorModulation color_mod;
-    if (collision_timer != 0)
-        color_mod = {255, 0, 0};
-    else
-        color_mod = {255, 255, 0};
-    return {TextureID::FRED, direction == 1, color_mod};
+    ColorModulation color_mods[] = {
+        {255, 255,   0},  // yellow
+        {  0, 255, 255},  // cyan
+        {  0, 255,   0},  // green
+        {255,   0, 255},  // magenta
+        {255,   0,   0},  // red
+        {  0,   0, 255},  // blue
+        {  0,   0,   0},  // black
+    };
+    static_assert(std::size(color_mods) == static_cast<size_t>(Color::COUNT));
+    return {TextureID::FRED, direction == 1, color_mods[static_cast<size_t>(color)]};
 }
 
 void Fred::updateFred(Game& game, unsigned events)
@@ -73,12 +78,17 @@ void Fred::updateFred(Game& game, unsigned events)
     case State::EXIT_MAZE:
         stateExitMaze(game);
         break;
+    case State::GAME_OVER:
+        stateGameOver(game);
+        break;
     default:
         break;
     }
     checkFire(game, input_fire);
     if (collision_timer > 0)
         --collision_timer;
+    else
+        color = Color::YELLOW;
 }
 
 void Fred::checkFire(Game &game, bool input_fire)
@@ -260,13 +270,29 @@ void Fred::stateExitMaze(Game &game)
     frame = frame == Frame::CLIMBING1 ? Frame::CLIMBING2 : Frame::CLIMBING1;
 }
 
+void Fred::stateGameOver(Game &)
+{
+    color = static_cast<Color>(static_cast<int>(color) + 1);
+}
+
 void Fred::checkCollisionWithEnemy(Game &game, Sprite const &other)
 {
+    // TODO: this function assumes that collisionInProgress has been checked before
+    // calling it
     if (checkCollision(other))
     {
-        collision_timer = 5;
-        game.addSound(SoundID::COLLISION);
-        game.decPower();
+        if (game.decPower())
+        {
+            game.addSound(SoundID::COLLISION);
+            collision_timer = 5;
+            color = Color::RED;
+        }
+        else
+        {
+            state = State::GAME_OVER;
+            color = Color::CYAN;
+            collision_timer = 6;
+        }
     }
 }
 

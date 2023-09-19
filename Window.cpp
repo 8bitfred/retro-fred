@@ -152,20 +152,19 @@ Window::Window(Config const &cfg)
     // Position of Fred: in the center of the screen, rounded down to a character
     //   (in the example: fred_pos.x = 88, fred_pos.y = 72)
     auto center_x = (top_left.x + bottom_right.x - MapPixelPos::CELL_WIDTH_PIXELS) / 2;
-    ScreenPos fred_pos;
-    fred_pos.x = round_down(center_x, MapPixelPos::PIXELS_PER_CHAR);
+    center_cell.x = round_down(center_x, MapPixelPos::PIXELS_PER_CHAR);
     auto center_y = (top_left.y + bottom_right.y - MapPixelPos::CELL_HEIGHT_PIXELS) / 2;
-    fred_pos.y = round_down(center_y, MapPixelPos::PIXELS_PER_CHAR);
+    center_cell.y = round_down(center_y, MapPixelPos::PIXELS_PER_CHAR);
     // We want F to be an integer number of cells fom the left and top of the Fred sprite,
     // so we calculate how many cells Fred is from F
     //   (in the example fred_offset_x = 3, fred_offset_y = 2)
-    fred_offset_x = ceil_of_div(fred_pos.x - top_left.x, MapPixelPos::CELL_WIDTH_PIXELS);
-    fred_offset_y = ceil_of_div(fred_pos.y - top_left.y, MapPixelPos::CELL_HEIGHT_PIXELS);
+    fred_offset_x = ceil_of_div(center_cell.x - top_left.x, MapPixelPos::CELL_WIDTH_PIXELS);
+    fred_offset_y = ceil_of_div(center_cell.y - top_left.y, MapPixelPos::CELL_HEIGHT_PIXELS);
     // Coordinates of F, with reference to the screen (S), based on the position of Fred
     // in the Screen
     //   (in the example: screen_pos.x = -8, screen_pos.y = -8)
-    screen_pos.x = fred_pos.x - fred_offset_x * MapPixelPos::CELL_WIDTH_PIXELS;
-    screen_pos.y = fred_pos.y - fred_offset_y * MapPixelPos::CELL_HEIGHT_PIXELS;
+    screen_pos.x = center_cell.x - fred_offset_x * MapPixelPos::CELL_WIDTH_PIXELS;
+    screen_pos.y = center_cell.y - fred_offset_y * MapPixelPos::CELL_HEIGHT_PIXELS;
     // Note that screen_pos.x and screen_pos.y are always less than or equal to 0.
 
     // Value of map_pos.cx that triggers drawing a column of blocks on the left of the
@@ -197,8 +196,8 @@ Window::Window(Config const &cfg)
               << " bottom_right.x (x1)=" << bottom_right.x
               << " bottom_right.y (y2)=" << bottom_right.y
               << std::endl
-              << " fred_pos.x=" << fred_pos.x
-              << " fred_pos.y=" << fred_pos.y
+              << " center_cell.x=" << center_cell.x
+              << " center_cell.y=" << center_cell.y
               << std::endl
               << " fred_offset_x=" << fred_offset_x
               << " fred_offset_y=" << fred_offset_y

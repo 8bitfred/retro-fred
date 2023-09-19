@@ -27,6 +27,9 @@ private:
         NEXT_LEVEL,
         GAME_OVER,
     };
+    static constexpr std::uint32_t FRAMES_PER_SECOND = 6;
+    static constexpr std::uint32_t TICKS_PER_FRAME = 1000 / FRAMES_PER_SECOND;
+
     LevelStatus playLevel(Game &game);
     void initializeSprites(Game &game);
     void initializeFred(Game &game);
@@ -42,6 +45,8 @@ private:
     void checkCollisionsWithEnemies(Game &game);
     void checkBulletCollisions(Game &game);
     void debugMode(Game &game, unsigned events);
+    void endOfLevelSequence(Game &game);
+    void gameOverSequence(Game &game);
     void showLevelSummary(Game &game);
 
     Config const &cfg;
