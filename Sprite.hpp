@@ -10,7 +10,7 @@
 class Window;
 class TextureManager;
 class Game;
-class Config;
+struct Config;
 
 class Sprite
 {
