@@ -1,19 +1,25 @@
 #include "SoundManager.hpp"
-#include <cassert>
+#include "Config.hpp"
 
-std::vector<sdl::WAVData> SoundManager::loadWAVs()
+std::vector<sdl::WAVData> SoundManager::loadWAVs(Config const &cfg)
 {
+    char const *wav_files[] = {
+        "sounds/pick_object.wav",
+        "sounds/collision.wav",
+        "sounds/fire.wav",
+        "sounds/climb1.wav",
+        "sounds/climb2.wav",
+        "sounds/jump.wav",
+        "sounds/walk.wav",
+        "sounds/exit_maze.wav",
+        "sounds/game_over.wav",
+    };
+    static_assert(std::size(wav_files) == static_cast<size_t>(SoundID::COUNT));
     std::vector<sdl::WAVData> wav_list;
-    wav_list.emplace_back("sounds/pick_object.wav");
-    wav_list.emplace_back("sounds/collision.wav");
-    wav_list.emplace_back("sounds/fire.wav");
-    wav_list.emplace_back("sounds/climb1.wav");
-    wav_list.emplace_back("sounds/climb2.wav");
-    wav_list.emplace_back("sounds/jump.wav");
-    wav_list.emplace_back("sounds/walk.wav");
-    wav_list.emplace_back("sounds/exit_maze.wav");
-    wav_list.emplace_back("sounds/game_over.wav");
-    assert(wav_list.size() == static_cast<size_t>(SoundID::COUNT));
+    for (auto p : wav_files) {
+        auto path = cfg.resource_path / p;
+        wav_list.emplace_back(path.c_str());
+    }
     return wav_list;
 }
 
@@ -24,8 +30,8 @@ SDL_AudioSpec SoundManager::initAudioSpec(sdl::WAVData const &wav_data)
     return audio_spec;
 }
 
-SoundManager::SoundManager()
-    : wav_list(loadWAVs()), audio_spec(initAudioSpec(wav_list.front()))
+SoundManager::SoundManager(Config const &cfg)
+    : wav_list(loadWAVs(cfg)), audio_spec(initAudioSpec(wav_list.front()))
     , audio_device(nullptr, false, &audio_spec, nullptr, 0)
 {
     audio_device.pause(false);
