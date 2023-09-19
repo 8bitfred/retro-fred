@@ -18,7 +18,7 @@ std::vector<sdl::WAVData> SoundManager::loadWAVs(Config const &cfg)
     std::vector<sdl::WAVData> wav_list;
     for (auto p : wav_files) {
         auto path = cfg.resource_path / p;
-        wav_list.emplace_back(path.c_str());
+        wav_list.emplace_back(path.string().c_str());
     }
     return wav_list;
 }
