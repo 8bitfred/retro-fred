@@ -10,6 +10,7 @@
 class Window;
 class TextureManager;
 class Game;
+class Config;
 
 class Sprite
 {
@@ -33,7 +34,8 @@ public:
     };
     virtual ~Sprite() = default;
     bool isVisible(Window const &window) const;
-    void render(Window const &window, TextureManager const &tmgr,
+    void render(Config const &cfg,
+                Window const &window, TextureManager const &tmgr,
                 SDL_Renderer *renderer) const;
     // TODO: update() could be made =0
     virtual void update(Game &, unsigned) {}

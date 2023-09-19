@@ -2,6 +2,7 @@
 #include "Window.hpp"
 #include "sdl.hpp"
 #include "TextureManager.hpp"
+#include "Config.hpp"
 
 bool Sprite::isVisible(Window const &window) const
 {
@@ -17,7 +18,8 @@ bool Sprite::isVisible(Window const &window) const
     return SDL_HasIntersection(&screen_rect, &dst_rect);
 }
 
-void Sprite::render(Window const &window, TextureManager const &tmgr,
+void Sprite::render(Config const &cfg,
+                    Window const &window, TextureManager const &tmgr,
                     SDL_Renderer *renderer) const
 {
     auto const &box_params = getBoxParams();
@@ -45,27 +47,29 @@ void Sprite::render(Window const &window, TextureManager const &tmgr,
                                          render_params.hflip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     if (render_error != 0)
         throw sdl::Error();
-#if 0 // enable to show bounding and hit boxes
-    if (static_cast<int>(render_params.texture_id) < static_cast<int>(TextureID::ACID_DROP))
-        return;
-    Uint8 saved_r, saved_g, saved_b, saved_a;
-    SDL_BlendMode saved_bm;
-    SDL_GetRenderDrawColor(renderer, &saved_r, &saved_g, &saved_b, &saved_a);
-    SDL_GetRenderDrawBlendMode(renderer, &saved_bm);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
-    SDL_RenderDrawRect(renderer, &dst_rect);
-    SDL_SetRenderDrawColor(renderer, 255, 200, 0, 128);
-    for (auto const &box : box_params.hit_boxes)
+    if (cfg.boxes)
     {
-        SDL_Rect hitbox_rect = getHitboxPos(spos.x, spos.y,
-                                            box_params.bounding_box, box, render_params.hflip);
-        SDL_RenderDrawRect(renderer, &hitbox_rect);
+        if (static_cast<int>(render_params.texture_id) < static_cast<int>(TextureID::ACID_DROP))
+            return;
+        Uint8 saved_r, saved_g, saved_b, saved_a;
+        SDL_BlendMode saved_bm;
+        SDL_GetRenderDrawColor(renderer, &saved_r, &saved_g, &saved_b, &saved_a);
+        SDL_GetRenderDrawBlendMode(renderer, &saved_bm);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
+        SDL_RenderDrawRect(renderer, &dst_rect);
+        SDL_SetRenderDrawColor(renderer, 255, 200, 0, 128);
+        for (auto const &box : box_params.hit_boxes)
+        {
+            SDL_Rect hitbox_rect = getHitboxPos(spos.x, spos.y,
+                                                box_params.bounding_box, box, render_params.hflip);
+            SDL_RenderDrawRect(renderer, &hitbox_rect);
+        }
+        SDL_SetRenderDrawColor(renderer, saved_r, saved_g, saved_b, saved_a);
+        SDL_SetRenderDrawBlendMode(renderer, saved_bm);
     }
-    SDL_SetRenderDrawColor(renderer, saved_r, saved_g, saved_b, saved_a);
-    SDL_SetRenderDrawBlendMode(renderer, saved_bm);
-#endif
 }
 
 SDL_Rect Sprite::getHitboxPos(int px, int py,

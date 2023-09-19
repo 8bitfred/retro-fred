@@ -1,24 +1,68 @@
 #include "Config.hpp"
+#include <string_view>
+#include <iostream>
+#include <cstdlib>
 
-// Config::Config()
-// : window_width(35*32)
-// , window_height(35*40)
-// , scale_x(1)
-// , scale_y(1)
-// , map_width(33)
-// , map_height(33)
-// , map_x(-32), map_y(-40)
-// , debug_map(true)
-// {}
+namespace {
+    const char *usage =
+        "usage: fred [--help]\n"
+        "            [--debug] [--fullmap]\n"
+        "            [--infinite-ammo] [--infinite-power]\n"
+        "\n"
+        "    [--help]    Show this message\n"
+        "    [--debug]   Use debug map, use debug levels for\n"
+        "                creatures and objects\n"
+        "    [--fullmap] Create a window with the whole map\n"
+        "    [--infinite-ammo]\n"
+        "                Unlimited number of bullets\n"
+        "    [--infinite-power]\n"
+        "                Unlimited power\n"
+        "    [--boxes]   Show sprite bound and hit boxes\n"
+        "\n"
+        "\n"
+        "keybindings during gameplay:\n"
+        "\n"
+        "    left, right   Move left and right\n"
+        "    up            Jump\n"
+        "    space         Fire\n"
+        "    Ctrl+Q        Quit\n"
+        "    LShift+arrows Move window around the map\n"
+        "    LShift+H      Move Fred to the exit\n"
+        "    LShift+F      Move Fred to the closes position\n"
+        "    LShift+O      Move exit to the left\n"
+        "    LShift+P      Move exit to the right\n"
+        "\n";
+}
 
-
-Config::Config()
-: window_width(256)
-, window_height(192)
-, scale_x(5)
-, scale_y(5)
-, map_width(33)
-, map_height(33)
-, map_x(-16), map_y(-16)
-, debug_map(true)
-{}
+Config::Config(int argc, char *argv[])
+{
+    for (int i = 1; i < argc; ++i)
+    {
+        std::string_view svarg(argv[i]);
+        if (svarg == "--help")
+        {
+            std::cout << usage;
+            std::exit(0);
+        }
+        else if (svarg == "--debug")
+            debug_map = true;
+        else if (svarg == "--fullmap")
+        {
+            window_width = (map_width + 2) * CELL_WIDTH * PIXELS_PER_CHAR;
+            window_height = (map_height + 2) * CELL_HEIGHT * PIXELS_PER_CHAR;
+            scale_x = scale_y = 1;
+        }
+        else if (svarg == "--infinite-ammo")
+            infinite_ammo = true;
+        else if (svarg == "--infinite-power")
+            infinite_power = true;
+        else if (svarg == "--boxes")
+            boxes = true;
+        else
+        {
+            std::cerr << "unknown option: " << svarg << std::endl;
+            std::cerr << usage << std::endl;
+            std::exit(2);
+        }
+    }
+}
