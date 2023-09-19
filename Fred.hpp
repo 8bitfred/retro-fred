@@ -14,6 +14,7 @@ public:
     void checkCollisionWithEnemy(Game &game, Sprite const &other);
     void checkCollisionWithObject(Game &game);
     bool exiting() const { return state == State::EXIT_MAZE; }
+    bool gameOver() const { return state == State::GAME_OVER; }
 
     void dbgResetPosition(Game& game);
     void dbgMoveToHatch(Game &game);
@@ -30,6 +31,7 @@ private:
         SIDE_JUMP,
         CLIMB,
         EXIT_MAZE,
+        GAME_OVER,
     };
     enum class Frame : std::uint8_t
     {
@@ -43,6 +45,17 @@ private:
         SHOOTING_SMALL_STEP,
         COUNT
     };
+    enum class Color : std::uint8_t
+    {
+        YELLOW,
+        CYAN,
+        GREEN,
+        MAGENTA,
+        RED,
+        BLUE,
+        BLACK,
+        COUNT
+    };
     void checkFire(Game &game, bool fire);
     void stateWalk(Game &game, int input_x, int input_y);
     void walkOneStep(Game &game);
@@ -52,9 +65,11 @@ private:
     void stateSideJump(Game& game, int input_x, int input_y);
     void stateRopeClimb(Game& game, int input_x, int input_y);
     void stateExitMaze(Game &game);
+    void stateGameOver(Game &game);
 
     int direction = -1;
     Frame frame = Frame::STANDING;
+    Color color = Color::YELLOW;
     bool shooting = false;
     int jump_stage = 0;
     State state = State::WALK;

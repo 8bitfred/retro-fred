@@ -69,7 +69,7 @@ public:
     int getTreasureCount() const { return treasure_count; }
     int getLevel() const { return level; }
     int getPower() const { return power; }
-    void decPower();
+    bool decPower();
     void incPower()
     {
         power += 2;

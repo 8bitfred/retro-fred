@@ -129,11 +129,12 @@ void Game::fireGun(MapPos initial_position, int direction)
         bullet_count = 6;
 }
 
-void Game::decPower()
+bool Game::decPower()
 {
     --power;
-    if (power == 0)
-        power = 15;
+    // if (power == 0)
+    //     power = 15;
+    return power > 0;
 }
 
 Game::SpriteCount Game::getSpriteCountOfLevel(Config const &cfg, int level)

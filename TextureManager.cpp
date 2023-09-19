@@ -20,6 +20,7 @@ TextureManager::TextureManager(SDL_Renderer *renderer)
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/ghost.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/smoke.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred.png"));
+    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/game_over.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/window.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/zx_font.png"));
     texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/small_digits.png"));

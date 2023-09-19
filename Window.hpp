@@ -15,7 +15,7 @@ public:
 
     ScreenPos const& getTopLeft() const { return top_left; }
     ScreenPos const& getBottomRight() const { return bottom_right; }
-
+    ScreenPos const &getCenterCell() const { return center_cell; }
     ScreenPos getScreenPosOf(MapPos const &sprite_pos) const;
 
     MapPos const &gFrame() const { return map_pos; }
@@ -50,6 +50,7 @@ private:
     // Position of the game window
     ScreenPos top_left;      // (x2, y1), top left corner of the game window
     ScreenPos bottom_right;  // (x1, y2), bottom right corner of the game window
+    ScreenPos center_cell;
     // Offset of the Fred character with respect to F, in cells
     int fred_offset_x, fred_offset_y;
     // Position of the F point in screen coordinates
