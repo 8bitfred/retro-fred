@@ -29,6 +29,10 @@ unsigned Game::getEventOfKey(SDL_Keycode keycode)
         return EVENT_HATCH_RIGHT;
     case SDLK_h:
         return EVENT_MOVE_TO_HATCH;
+    case SDLK_LCTRL:
+        return EVENT_LCTRL;
+    case SDLK_RCTRL:
+        return EVENT_RCTRL;
     default:
         return 0;
     }
@@ -36,14 +40,14 @@ unsigned Game::getEventOfKey(SDL_Keycode keycode)
 
 Game::Game(Config const &cfg, std::minstd_rand &random_engine,
     TextureManager const &tmgr, SoundManager &smgr)
-    : tmgr(tmgr), smgr(smgr)
+    : cfg(cfg), tmgr(tmgr), smgr(smgr)
     , window(cfg), game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
     , sprite_count(getSpriteCountOfLevel(cfg, level))
 {
 }
 
-void Game::nextLevel(Config const &cfg, std::minstd_rand &random_engine)
+void Game::nextLevel(std::minstd_rand &random_engine)
 {
     ++level;
     game_map = GameMap(cfg, random_engine);
@@ -59,7 +63,7 @@ void Game::render(SDL_Renderer *renderer)
     SDL_RenderClear(renderer);
     for (auto const &sprites: sprite_lists) {
         for (auto const &s: sprites)
-            s->render(window, tmgr, renderer);
+            s->render(cfg, window, tmgr, renderer);
     }
     window.renderFrame(*this, renderer, tmgr);
     SDL_RenderPresent(renderer);
@@ -125,16 +129,21 @@ void Game::fireGun(MapPos initial_position, int direction)
     sprite_list.emplace_back(std::make_unique<Bullet>(initial_position, direction));
     addSound(SoundID::FIRE);
     --bullet_count;
-    if (bullet_count <= 0)
-        bullet_count = 6;
+    if (bullet_count == 0 && cfg.infinite_ammo)
+        bullet_count = MAX_BULLETS;
 }
 
 bool Game::decPower()
 {
     --power;
-    // if (power == 0)
-    //     power = 15;
-    return power > 0;
+    if (power > 0)
+        return true;
+    if (cfg.infinite_power)
+    {
+        power = MAX_POWER;
+        return true;
+    }
+    return false;
 }
 
 Game::SpriteCount Game::getSpriteCountOfLevel(Config const &cfg, int level)

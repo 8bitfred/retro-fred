@@ -31,6 +31,9 @@ public:
             else if (event.type == SDL_KEYDOWN)
             {
                 if (event.key.repeat == 0) {
+                    if ((state & (Game::EVENT_RCTRL | Game::EVENT_LCTRL)) != 0 &&
+                         event.key.keysym.sym == SDLK_q)
+                         return {true, 0};
                     auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
                     state |= events_of_key;
                     key_presses |= events_of_key;
@@ -65,7 +68,7 @@ void FredApp::playGame()
         if (status == LevelStatus::NEXT_LEVEL)
         {
             showLevelSummary(game);
-            game.nextLevel(cfg, random_engine);
+            game.nextLevel(random_engine);
         }
         else if (status == LevelStatus::GAME_OVER)
         {

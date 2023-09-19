@@ -189,30 +189,30 @@ Window::Window(Config const &cfg)
     new_bottom_row_cy = (MapPos::CELL_HEIGHT - (last_bottom % MapPos::CELL_HEIGHT)) % MapPos::CELL_HEIGHT;
     new_bottom_row_offset = ceil_of_div(last_bottom, MapPos::CELL_HEIGHT);
 
-    std::cout << "Frame info:"
-              << std::endl
-              << " top_left.x (x2)=" << top_left.x
-              << " top_left.y (y1)=" << top_left.y
-              << " bottom_right.x (x1)=" << bottom_right.x
-              << " bottom_right.y (y2)=" << bottom_right.y
-              << std::endl
-              << " center_cell.x=" << center_cell.x
-              << " center_cell.y=" << center_cell.y
-              << std::endl
-              << " fred_offset_x=" << fred_offset_x
-              << " fred_offset_y=" << fred_offset_y
-              << std::endl
-              << " screen_pos.x=" << screen_pos.x
-              << " screen_pos.y=" << screen_pos.y
-              << std::endl
-              << " new_left_col_cx=" << new_left_col_cx
-              << " new_right_col_cx=" << new_right_col_cx
-              << " new_right_col_offset=" << new_right_col_offset
-              << std::endl
-              << " new_top_row_cy=" << new_top_row_cy
-              << " new_bottom_row_cy=" << new_bottom_row_cy
-              << " new_bottom_row_offset=" << new_bottom_row_offset
-              << std::endl;
+    // std::cout << "Frame info:"
+    //           << std::endl
+    //           << " top_left.x (x2)=" << top_left.x
+    //           << " top_left.y (y1)=" << top_left.y
+    //           << " bottom_right.x (x1)=" << bottom_right.x
+    //           << " bottom_right.y (y2)=" << bottom_right.y
+    //           << std::endl
+    //           << " center_cell.x=" << center_cell.x
+    //           << " center_cell.y=" << center_cell.y
+    //           << std::endl
+    //           << " fred_offset_x=" << fred_offset_x
+    //           << " fred_offset_y=" << fred_offset_y
+    //           << std::endl
+    //           << " screen_pos.x=" << screen_pos.x
+    //           << " screen_pos.y=" << screen_pos.y
+    //           << std::endl
+    //           << " new_left_col_cx=" << new_left_col_cx
+    //           << " new_right_col_cx=" << new_right_col_cx
+    //           << " new_right_col_offset=" << new_right_col_offset
+    //           << std::endl
+    //           << " new_top_row_cy=" << new_top_row_cy
+    //           << " new_bottom_row_cy=" << new_bottom_row_cy
+    //           << " new_bottom_row_offset=" << new_bottom_row_offset
+    //           << std::endl;
 }
 
 ScreenPos Window::getScreenPosOf(MapPos const &sprite_pos) const
