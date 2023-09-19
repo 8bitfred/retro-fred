@@ -1,32 +1,38 @@
 #include "TextureManager.hpp"
+#include "Config.hpp"
 #include <SDL_image.h>
 #include <cassert>
 #include <cstdio>
 #include <map>
 #include <algorithm>
 
-TextureManager::TextureManager(SDL_Renderer *renderer)
+TextureManager::TextureManager(Config const &cfg, SDL_Renderer *renderer)
 {
-    // This list must match the order of elements in the TextureID enum
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/block.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/bullet.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/aciddrop.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/skeleton.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/mummy.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/vampire.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/rat.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/chameleon.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/object.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/ghost.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/smoke.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/game_over.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/window.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/zx_font.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/small_digits.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/power.png"));
-    texture_list.emplace_back(IMG_LoadTexture(renderer, "sprites/fred_puffing.png"));
-    assert(texture_list.size() == static_cast<size_t>(TextureID::COUNT));
+    char const *sprite_list[] = {
+        "sprites/block.png",
+        "sprites/bullet.png",
+        "sprites/aciddrop.png",
+        "sprites/skeleton.png",
+        "sprites/mummy.png",
+        "sprites/vampire.png",
+        "sprites/rat.png",
+        "sprites/chameleon.png",
+        "sprites/object.png",
+        "sprites/ghost.png",
+        "sprites/smoke.png",
+        "sprites/fred.png",
+        "sprites/game_over.png",
+        "sprites/window.png",
+        "sprites/zx_font.png",
+        "sprites/small_digits.png",
+        "sprites/power.png",
+        "sprites/fred_puffing.png",
+    };
+    static_assert(std::size(sprite_list) == static_cast<size_t>(TextureID::COUNT));
+    for (auto p : sprite_list) {
+        auto path = cfg.resource_path / p;
+        texture_list.emplace_back(IMG_LoadTexture(renderer, path.c_str()));
+    }
 }
 
 void TextureManager::renderText(SDL_Renderer *renderer, std::string_view text,

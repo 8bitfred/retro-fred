@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 
 struct Config {
     Config(int argc, char *argv[]);
@@ -15,4 +16,5 @@ struct Config {
     bool infinite_ammo = false;
     bool infinite_power = false;
     bool boxes = false;
+    std::filesystem::path resource_path;
 };
