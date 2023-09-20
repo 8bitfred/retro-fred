@@ -13,6 +13,7 @@ struct Config {
     float scale_x = 5, scale_y = 5;
     int map_width = 33, map_height = 33;
     bool debug_map = false;
+    bool debug_keys = false;
     bool infinite_ammo = false;
     bool infinite_power = false;
     bool boxes = false;

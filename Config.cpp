@@ -11,8 +11,11 @@ namespace {
         "            [--scale f.f]\n"
         "\n"
         "    [--help]    Show this message\n"
-        "    [--debug]   Use debug map, use debug levels for\n"
+        "    [--debug-map]\n"
+        "                Use debug map, use debug levels for\n"
         "                creatures and objects\n"
+        "    [--debug-keys]\n"
+        "                Enable debug keys.\n"
         "    [--fullmap] Create a window with the whole map\n"
         "    [--infinite-ammo]\n"
         "                Unlimited number of bullets\n"
@@ -27,7 +30,7 @@ namespace {
         "keybindings during gameplay:\n"
         "\n"
         "    left, right   Move left and right\n"
-        "    up            Jump\n"
+        "    up, down      Jump/move up and move down\n"
         "    space         Fire\n"
         "    Ctrl+Q        Quit\n"
         "    LShift+arrows Move window around the map\n"
@@ -48,8 +51,10 @@ Config::Config(int argc, char *argv[])
             std::cout << usage;
             std::exit(0);
         }
-        else if (svarg == "--debug")
+        else if (svarg == "--debug-map")
             debug_map = true;
+        else if (svarg == "--debug-keys")
+            debug_keys = true;
         else if (svarg == "--fullmap")
         {
             window_width = (map_width + 2) * CELL_WIDTH * PIXELS_PER_CHAR;
