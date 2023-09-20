@@ -98,7 +98,7 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
             return LevelStatus::QUIT;
         updateSprites(game);
 
-        if ((events & Game::EVENT_SHIFT) != 0)
+        if ((events & Game::EVENT_SHIFT) != 0 && cfg.debug_keys)
             debugMode(game, events);
         else {
             fred->updateFred(game, events);
