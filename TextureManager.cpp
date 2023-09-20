@@ -31,7 +31,7 @@ TextureManager::TextureManager(Config const &cfg, SDL_Renderer *renderer)
     static_assert(std::size(sprite_list) == static_cast<size_t>(TextureID::COUNT));
     for (auto p : sprite_list) {
         auto path = cfg.resource_path / p;
-        texture_list.emplace_back(IMG_LoadTexture(renderer, path.c_str()));
+        texture_list.emplace_back(IMG_LoadTexture(renderer, path.string().c_str()));
     }
 }
 
