@@ -123,8 +123,8 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
 
         ++frame_count;
         Uint32 const ticks = SDL_GetTicks() - start_ticks;
-        if (ticks < TICKS_PER_FRAME)
-            SDL_Delay(TICKS_PER_FRAME - ticks);
+        if (ticks < cfg.ticks_per_frame)
+            SDL_Delay(cfg.ticks_per_frame - ticks);
     }
 }
 
@@ -438,12 +438,12 @@ void FredApp::endOfLevelSequence(Game &game)
 {
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
     game.render(getRenderer());
-    SDL_Delay(TICKS_PER_FRAME / 2);
+    SDL_Delay(cfg.ticks_per_frame / 2);
     for (int i = 0; i < 4; ++i)
     {
         fred->updateFred(game, 0);
         game.render(getRenderer());
-        SDL_Delay(TICKS_PER_FRAME / 2);
+        SDL_Delay(cfg.ticks_per_frame / 2);
     }
 }
 
