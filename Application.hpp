@@ -27,8 +27,6 @@ private:
         NEXT_LEVEL,
         GAME_OVER,
     };
-    static constexpr std::uint32_t FRAMES_PER_SECOND = 6;
-    static constexpr std::uint32_t TICKS_PER_FRAME = 1000 / FRAMES_PER_SECOND;
 
     LevelStatus playLevel(Game &game);
     void initializeSprites(Game &game);

@@ -77,6 +77,17 @@ Config::Config(int argc, char *argv[])
             }
             scale_x = scale_y = static_cast<float>(std::atof(argv[i]));
         }
+        else if (svarg == "--fps")
+        {
+            ++i;
+            if (i >= argc)
+            {
+                std::cerr << "missing argument for option --fps" << std::endl;
+                std::exit(2);
+            }
+            auto fps = std::atoi(argv[i]);
+            ticks_per_frame = 1000 / fps;
+        }
         else
         {
             std::cerr << "unknown option: " << svarg << std::endl;
