@@ -231,6 +231,7 @@ void Window::adjustFramePos(MapPos fred_pos)
                      fred_pos.y() - fred_offset_y,
                      fred_pos.cx(),
                      fred_pos.cy()};
+    map_pos.yadd(-1);
 }
 
 void Window::renderFrame(Game &game, SDL_Renderer *renderer,
