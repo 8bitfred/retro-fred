@@ -73,6 +73,7 @@ public:
     // TODO: we should refactor this so that the Game object does not need to know about
     // the internals of the Fred class
     MapPos const &getFredPos() const;
+    Config const &getConfig() const { return cfg; }
     int getBulletCount() const { return bullet_count; }
     unsigned getScore() const { return score; }
     unsigned getHighScore() const { return high_score; }

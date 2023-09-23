@@ -6,28 +6,31 @@
 namespace {
     const char *usage =
         "usage: fred [--help]\n"
-        "            [--debug] [--fullmap]\n"
+        "            [--debug] [--fullmap] [--minimap-exit]\n"
         "            [--infinite-ammo] [--infinite-power]\n"
         "            [--scale SCALE] [--fps FPS]\n"
         "\n"
-        "    [--help]    Show this message\n"
-        "    [--debug-map]\n"
-        "                Use debug map, use debug levels for\n"
-        "                creatures and objects\n"
-        "    [--debug-keys]\n"
-        "                Enable debug keys.\n"
-        "    [--fullmap] Create a window with the whole map\n"
-        "    [--infinite-ammo]\n"
-        "                Unlimited number of bullets\n"
-        "    [--infinite-power]\n"
-        "                Unlimited power\n"
-        "    [--boxes]   Show sprite bound and hit boxes\n"
-        "    [--scale SCALE]\n"
-        "                Set the scale of the SDL renderer.\n"
-        "                Defaults to 5. SCALE can be a float.\n"
-        "    [--fps FPS]\n"
-        "                Set frames per second to FPS.\n"
-        "                Defaults to 6.\n"
+        "    --help    Show this message\n"
+        "    --debug-map\n"
+        "              Use debug map, use debug levels for\n"
+        "              creatures and objects\n"
+        "    --debug-keys\n"
+        "              Enable debug keys.\n"
+        "    --fullmap\n"
+        "              Create a window with the whole map\n"
+        "    --minimap-exit\n"
+        "              Show map exit in minimap\n"
+        "    --infinite-ammo\n"
+        "              Unlimited number of bullets\n"
+        "    --infinite-power\n"
+        "              Unlimited power\n"
+        "    --boxes   Show sprite bound and hit boxes\n"
+        "    --scale SCALE\n"
+        "              Set the scale of the SDL renderer.\n"
+        "              Defaults to 5. SCALE can be a float.\n"
+        "    --fps FPS\n"
+        "              Set frames per second to FPS.\n"
+        "              Defaults to 6.\n"
         "\n"
         "\n"
         "keybindings during gameplay:\n"
@@ -41,6 +44,8 @@ namespace {
         "    LShift+F      Move Fred to the closes position\n"
         "    LShift+O      Move exit to the left\n"
         "    LShift+P      Move exit to the right\n"
+        "    LShift+K      Force game over sequence\n"
+        "    LShift+M      Show mini-map from current position.\n"
         "\n";
 }
 
@@ -64,6 +69,8 @@ Config::Config(int argc, char *argv[])
             window_height = (map_height + 2) * CELL_HEIGHT * PIXELS_PER_CHAR;
             scale_x = scale_y = 1;
         }
+        else if (svarg == "--minimap-exit")
+            minimap_exit = true;
         else if (svarg == "--infinite-ammo")
             infinite_ammo = true;
         else if (svarg == "--infinite-power")

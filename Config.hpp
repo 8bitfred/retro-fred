@@ -18,5 +18,6 @@ struct Config {
     bool infinite_ammo = false;
     bool infinite_power = false;
     bool boxes = false;
+    bool minimap_exit = false;
     std::filesystem::path resource_path;
 };
