@@ -30,6 +30,7 @@ public:
     static constexpr unsigned EVENT_MOVE_TO_HATCH = 0x200;
     static constexpr unsigned EVENT_LCTRL = 0x400;
     static constexpr unsigned EVENT_RCTRL = 0x800;
+    static constexpr unsigned EVENT_DIE = 0x1000;
 
     static constexpr unsigned MAX_POWER = 15;
     static constexpr unsigned MAX_BULLETS = 6;

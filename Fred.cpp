@@ -355,3 +355,10 @@ void Fred::dbgMoveToHatch(Game &game)
     game.getFrame().adjustFramePos(sprite_pos);
     game.dbgResetMapBlocks();
 }
+
+void Fred::dbgDie()
+{
+    state = State::GAME_OVER;
+    color = Color::CYAN;
+    collision_timer = 6;
+}
