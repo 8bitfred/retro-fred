@@ -61,6 +61,7 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
                                            static_cast<int>(cfg.scale_y * cfg.window_height)))
     , tmgr(cfg, getRenderer())
     , smgr(cfg)
+    , high_scores(4, {0, ""})
 {
     SDL_RenderSetScale(getRenderer(), cfg.scale_x, cfg.scale_y);
 }
@@ -568,7 +569,7 @@ void FredApp::mainLoop()
 
 void FredApp::playGame()
 {
-    Game game(cfg, random_engine, tmgr, smgr);
+    Game game(cfg, random_engine, tmgr, smgr, high_scores.front().first);
 
     while (true)
     {
@@ -581,6 +582,8 @@ void FredApp::playGame()
         else if (status == LevelStatus::GAME_OVER)
         {
             SDL_Delay(5000);
+            if (game.getScore() > high_scores.back().first)
+                enterHighScore(game.getScore());
             return;
         }
         else if (status == LevelStatus::QUIT)
@@ -626,9 +629,84 @@ void FredApp::todaysGreatest()
 {
     SDL_RenderClear(getRenderer());
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::TODAYS_GREATEST), nullptr, nullptr);
+    sdl::ColorGuard color_guard(getRenderer(), 255, 255, 255, 255);
+    SDL_Rect rect_initials = {24, 80, 24, 8}; // 88
+    SDL_Rect rect_score = {19, 130, 35, 5};
+    for (auto const &[score, name] : high_scores)
+    {
+        if (score == 0)
+            continue;
+        if (SDL_RenderFillRect(getRenderer(), &rect_initials) < 0)
+            throw sdl::Error();
+        if (SDL_RenderFillRect(getRenderer(), &rect_score) < 0)
+            throw sdl::Error();
+        tmgr.renderText(getRenderer(), name, rect_initials.x, rect_initials.y, 0, 0, 0);
+        tmgr.renderScore(getRenderer(), score, rect_score.x, rect_score.y, 0, 0, 0);
+        rect_initials.x += 64;
+        rect_score.x += 64;
+    }
     SDL_RenderPresent(getRenderer());
 
     timer = 8000;
     state = State::HIGH_SCORES;
     smgr.play(SoundID::FUNERAL_MARCH);
+}
+
+void FredApp::enterHighScore(unsigned score)
+{
+    std::string initials = "A";
+    KeyState key_state;
+    while (true)
+    {
+        SDL_RenderClear(getRenderer());
+        sdl::ColorGuard color_guard(getRenderer(), 0, 206, 0, 255);
+        if (SDL_RenderFillRect(getRenderer(), nullptr) < 0)
+            throw sdl::Error();
+        tmgr.renderText(getRenderer(), "CONGRATULATIONS", 8 * 8, 0, 0, 0, 0);
+        tmgr.renderText(getRenderer(), "YOU HAVE ONE OF TODAY'S GREATEST",
+                        0, 8, 0, 0, 0);
+        tmgr.renderText(getRenderer(), "ENTER YOUR INITIALS WITH LEFT,",
+                        0, 16, 0, 0, 0);
+        tmgr.renderText(getRenderer(), "RIGHT & SPACE",
+                        0, 24, 0, 0, 0);
+        tmgr.renderText(getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
+        SDL_RenderPresent(getRenderer());
+
+        SDL_Delay(cfg.ticks_per_frame);
+
+        auto [quit, events] = key_state.updateKeyState();
+        if (quit) {
+            state = State::QUIT;
+            return;
+        }
+        if (events & Game::EVENT_LEFT)
+        {
+            if (initials.back() == 'A')
+                initials.back() = 'Z';
+            else
+                --initials.back();
+        }
+        else if (events & Game::EVENT_RIGHT)
+        {
+            if (initials.back() == 'Z')
+                initials.back() = 'A';
+            else
+                ++initials.back();
+        }
+        else if (events & Game::EVENT_FIRE)
+        {
+            if (initials.size() == 3)
+            {
+                auto pos = std::upper_bound(high_scores.begin(), high_scores.end(),
+                                            score, [](unsigned x, auto const &y)
+                                            { return x > y.first; });
+                high_scores.emplace(pos, score, std::move(initials));
+                if (high_scores.size() > 4)
+                    high_scores.resize(4);
+                break;
+            }
+            else
+                initials += "A";
+        }
+   }
 }

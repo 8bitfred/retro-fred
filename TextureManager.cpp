@@ -69,7 +69,7 @@ void TextureManager::renderScore(SDL_Renderer *renderer, unsigned score,
         throw sdl::Error();
     score = std::min(score, 999999u);
     SDL_Rect src(0, 0, 5, 5);
-    SDL_Rect dst(x + 5 * 6 + 1, y + 2, 5, 5);
+    SDL_Rect dst(x + 5 * 6, y, 5, 5);
     for (int i = 0; i < 6; ++i)
     {
         int digit = score % 10;

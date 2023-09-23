@@ -58,6 +58,7 @@ private:
     void splashScreen();
     void menu();
     void todaysGreatest();
+    void enterHighScore(unsigned score);
 
     Config const &cfg;
     std::minstd_rand &random_engine;
@@ -67,4 +68,5 @@ private:
 
     State state;
     int timer = 0;
+    std::vector<std::pair<unsigned, std::string>> high_scores;
 };
