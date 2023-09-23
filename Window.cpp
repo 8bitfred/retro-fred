@@ -323,7 +323,7 @@ void Window::drawMinimap(Game &game, SDL_Renderer *renderer, int x, int y)
                 cell == GameMap::Cell::ROPE_START ||
                 cell == GameMap::Cell::ROPE_MAIN ||
                 cell == GameMap::Cell::ROPE_END ||
-                cell == GameMap::Cell::TRAPDOOR)
+                (cell == GameMap::Cell::TRAPDOOR && game.getConfig().minimap_exit))
             {
                 if (SDL_RenderFillRect(renderer, &dst) < 0)
                     throw sdl::Error();
