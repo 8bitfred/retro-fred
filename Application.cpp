@@ -599,6 +599,8 @@ void FredApp::playGame()
 void FredApp::splashScreen()
 {
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::SPLASH_SCREEN), nullptr, nullptr);
+    tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 0, 0, 0);
+    tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 0, 0, 0);
     SDL_RenderPresent(getRenderer());
     timer = 5000;
     state = State::SPLASH_SCREEN;
