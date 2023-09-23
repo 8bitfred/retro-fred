@@ -18,17 +18,21 @@ public:
     SDL_Window *getWindow() const { return w_and_r.first; }
     SDL_Renderer *getRenderer() const { return w_and_r.second; }
     TextureManager const &getTextureManager() const { return tmgr; }
-    void playGame();
+    void mainLoop();
 
 private:
-    enum class LevelStatus
+    enum class GameStatus
     {
         QUIT,
+        MENU,
         NEXT_LEVEL,
         GAME_OVER,
+        START_GAME,
+        TODAYS_GREATEST,
     };
 
-    LevelStatus playLevel(Game &game);
+    GameStatus playGame();
+    GameStatus playLevel(Game &game);
     void initializeSprites(Game &game);
     void initializeFred(Game &game);
     void initializeAcidDrops(Game &game);
@@ -46,6 +50,9 @@ private:
     void endOfLevelSequence(Game &game);
     void gameOverSequence(Game &game);
     void showLevelSummary(Game &game);
+    GameStatus splashScreen();
+    GameStatus menu();
+    GameStatus todaysGreatest();
 
     Config const &cfg;
     std::minstd_rand &random_engine;

@@ -9,6 +9,9 @@
 TextureManager::TextureManager(Config const &cfg, SDL_Renderer *renderer)
 {
     char const *sprite_list[] = {
+        "sprites/splash_screen.png",
+        "sprites/fred_logo.png",
+        "sprites/todays_greatest.png",
         "sprites/block.png",
         "sprites/bullet.png",
         "sprites/aciddrop.png",

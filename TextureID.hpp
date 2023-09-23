@@ -3,6 +3,9 @@
 
 enum class TextureID : std::uint8_t
 {
+    SPLASH_SCREEN,
+    FRED_LOGO,
+    TODAYS_GREATEST,
     BLOCK,
     BULLET,
     ACID_DROP,

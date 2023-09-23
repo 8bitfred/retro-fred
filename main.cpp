@@ -19,6 +19,6 @@ int main(int argc, char* argv[])
         random_engine.seed(distrib(random_dev));
     }
     FredApp fred_app(cfg, random_engine);
-    fred_app.playGame();
+    fred_app.mainLoop();
     return 0;
 }
