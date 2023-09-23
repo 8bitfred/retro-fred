@@ -15,38 +15,44 @@
 #include <iostream>
 #include <cstdio>
 
-
-class KeyState
+namespace
 {
-    unsigned state = 0;
-public:
-    std::pair<bool, unsigned> updateKeyState()
+    class KeyState
     {
-        SDL_Event event;
-        unsigned key_presses = 0;
-        while (SDL_PollEvent(&event) != 0)
+        unsigned state = 0;
+
+    public:
+        std::pair<bool, unsigned> updateKeyState()
         {
-            if (event.type == SDL_QUIT)
-                return {true, 0};
-            else if (event.type == SDL_KEYDOWN)
+            SDL_Event event;
+            unsigned key_presses = 0;
+            while (SDL_PollEvent(&event) != 0)
             {
-                if (event.key.repeat == 0) {
-                    if ((state & (Game::EVENT_RCTRL | Game::EVENT_LCTRL)) != 0 &&
-                         event.key.keysym.sym == SDLK_q)
-                         return {true, 0};
+                if (event.type == SDL_QUIT)
+                    return {true, 0};
+                else if (event.type == SDL_KEYDOWN)
+                {
+                    if (event.key.repeat == 0)
+                    {
+                        if ((state & (Game::EVENT_RCTRL | Game::EVENT_LCTRL)) != 0 &&
+                            event.key.keysym.sym == SDLK_q)
+                            return {true, 0};
+                        auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
+                        state |= events_of_key;
+                        key_presses |= events_of_key;
+                    }
+                }
+                else if (event.type == SDL_KEYUP)
+                {
                     auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
-                    state |= events_of_key;
-                    key_presses |= events_of_key;
+                    state &= ~events_of_key;
                 }
             }
-            else if (event.type == SDL_KEYUP) {
-                auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
-                state &= ~events_of_key;
-            }
+            return {false, state | key_presses};
         }
-        return {false, state | key_presses};
-    }
-};
+    };
+
+}
 
 FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     : cfg(cfg)
@@ -59,29 +65,7 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     SDL_RenderSetScale(getRenderer(), cfg.scale_x, cfg.scale_y);
 }
 
-FredApp::GameStatus FredApp::playGame()
-{
-    Game game(cfg, random_engine, tmgr, smgr);
-
-    while (true)
-    {
-        auto status = playLevel(game);
-        if (status == GameStatus::NEXT_LEVEL)
-        {
-            showLevelSummary(game);
-            game.nextLevel(random_engine);
-        }
-        else if (status == GameStatus::GAME_OVER)
-        {
-            SDL_Delay(5000);
-            return status;
-        }
-        else if (status == GameStatus::QUIT)
-            return status;
-    }
-}
-
-FredApp::GameStatus FredApp::playLevel(Game &game)
+FredApp::LevelStatus FredApp::playLevel(Game &game)
 {
     initializeSprites(game);
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
@@ -95,7 +79,7 @@ FredApp::GameStatus FredApp::playLevel(Game &game)
         Uint32 const start_ticks = SDL_GetTicks();
         auto [quit, events] = key_state.updateKeyState();
         if (quit)
-            return GameStatus::QUIT;
+            return LevelStatus::QUIT;
         updateSprites(game);
 
         if ((events & Game::EVENT_SHIFT) != 0 && cfg.debug_keys)
@@ -105,7 +89,7 @@ FredApp::GameStatus FredApp::playLevel(Game &game)
             if (fred->exiting())
             {
                 endOfLevelSequence(game);
-                return GameStatus::NEXT_LEVEL;
+                return LevelStatus::NEXT_LEVEL;
             }
         }
 
@@ -114,7 +98,7 @@ FredApp::GameStatus FredApp::playLevel(Game &game)
         if (fred->gameOver())
         {
             gameOverSequence(game);
-            return GameStatus::GAME_OVER;
+            return LevelStatus::GAME_OVER;
         }
         fred->checkCollisionWithObject(game);
 
@@ -523,60 +507,99 @@ void FredApp::debugMode(Game &game, unsigned events)
 
 void FredApp::mainLoop()
 {
-    if (splashScreen() == GameStatus::QUIT)
-        return;
+    splashScreen();
     while (true)
     {
-        auto menu_status = menu();
-        if (menu_status == GameStatus::QUIT)
+        if (state == State::QUIT)
             break;
-        if (menu_status == GameStatus::START_GAME)
-        {
-            if (playGame() == GameStatus::QUIT)
-                break;
-            SDL_Event event;
+
+        auto ticks = SDL_GetTicks();
+        SDL_Event event;
+        if (timer > 0) {
+            // Empty the event queue
             while (SDL_PollEvent(&event) != 0)
-                ;
+            {
+                if (event.type == SDL_QUIT)
+                    return;
+            }
+            if (SDL_WaitEventTimeout(&event, timer))
+            {
+                timer -= SDL_GetTicks() - ticks;
+                if (event.type == SDL_QUIT)
+                    return;
+                if (event.type == SDL_KEYDOWN)
+                {
+                    if (event.key.keysym.sym == SDLK_q &&
+                        (event.key.keysym.mod & KMOD_CTRL) != 0)
+                        return;
+                    if (event.key.keysym.sym > 0x7f)
+                        continue;
+                }
+                else
+                    continue;
+            }
+            else
+                timer = 0;
         }
-        if (todaysGreatest() == GameStatus::QUIT)
+
+        switch (state)
+        {
+        case State::SPLASH_SCREEN:
+            menu();
             break;
+        case State::MENU:
+            if (timer > 0)
+            {
+                playGame();
+                if (state == State::QUIT)
+                    return;
+            }
+            todaysGreatest();
+            break;
+        case State::HIGH_SCORES:
+            if (timer <= 0)
+                menu();
+            break;
+        case State::QUIT:
+            return;
+        }
     }
 }
 
-FredApp::GameStatus FredApp::splashScreen()
+void FredApp::playGame()
 {
-    auto timeout = SDL_GetTicks() + 5000;
+    Game game(cfg, random_engine, tmgr, smgr);
+
+    while (true)
+    {
+        auto status = playLevel(game);
+        if (status == LevelStatus::NEXT_LEVEL)
+        {
+            showLevelSummary(game);
+            game.nextLevel(random_engine);
+        }
+        else if (status == LevelStatus::GAME_OVER)
+        {
+            SDL_Delay(5000);
+            return;
+        }
+        else if (status == LevelStatus::QUIT)
+        {
+            state = State::QUIT;
+            return;
+        }
+    }
+}
+
+void FredApp::splashScreen()
+{
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::SPLASH_SCREEN), nullptr, nullptr);
     SDL_RenderPresent(getRenderer());
-    while (true)
-    {
-        auto ticks = SDL_GetTicks();
-        if (ticks > timeout)
-            break;
-        SDL_Event event;
-        if (SDL_WaitEventTimeout(&event, timeout - ticks))
-        {
-            if (event.type == SDL_QUIT)
-                return GameStatus::QUIT;
-            if (event.type == SDL_KEYDOWN)
-            {
-                if (event.key.keysym.sym == SDLK_q &&
-                    (event.key.keysym.mod & KMOD_CTRL) != 0)
-                    return GameStatus::QUIT;
-                if (event.key.keysym.mod == 0)
-                    break;
-            }
-        }
-    }
-
-    SDL_Event event;
-    while (SDL_PollEvent(&event) != 0)
-        ;
-
-    return GameStatus::MENU;
+    timer = 5000;
+    state = State::SPLASH_SCREEN;
 }
 
-FredApp::GameStatus FredApp::menu()
+void FredApp::menu()
 {
     SDL_RenderClear(getRenderer());
     SDL_Rect logo = {88, 8, 76, 20};
@@ -595,65 +618,17 @@ FredApp::GameStatus FredApp::menu()
     tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 206, 206, 206);
     SDL_RenderPresent(getRenderer());
 
-    auto timeout = SDL_GetTicks() + 5000;
-    while (true)
-    {
-        auto ticks = SDL_GetTicks();
-        if (ticks > timeout)
-            return GameStatus::TODAYS_GREATEST;
-        SDL_Event event;
-        if (SDL_WaitEventTimeout(&event, timeout - ticks))
-        {
-            if (event.type == SDL_QUIT)
-                return GameStatus::QUIT;
-            if (event.type == SDL_KEYDOWN)
-            {
-                if (event.key.keysym.sym == SDLK_q &&
-                    (event.key.keysym.mod & KMOD_CTRL) != 0)
-                    return GameStatus::QUIT;
-                if (event.key.keysym.mod == 0)
-                    break;
-            }
-        }
-    }
-
-    SDL_Event event;
-    while (SDL_PollEvent(&event) != 0)
-        ;
-
-    return GameStatus::START_GAME;
+    timer = 5000;
+    state = State::MENU;
 }
 
-FredApp::GameStatus FredApp::todaysGreatest()
+void FredApp::todaysGreatest()
 {
     SDL_RenderClear(getRenderer());
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::TODAYS_GREATEST), nullptr, nullptr);
     SDL_RenderPresent(getRenderer());
 
-    auto timeout = SDL_GetTicks() + 8000;
+    timer = 8000;
+    state = State::HIGH_SCORES;
     smgr.play(SoundID::FUNERAL_MARCH);
-    while (true)
-    {
-        auto ticks = SDL_GetTicks();
-        if (ticks > timeout)
-            break;
-        SDL_Event event;
-        if (SDL_WaitEventTimeout(&event, timeout - ticks))
-        {
-            if (event.type == SDL_QUIT)
-                return GameStatus::QUIT;
-            if (event.type == SDL_KEYDOWN)
-            {
-                if (event.key.keysym.sym == SDLK_q &&
-                    (event.key.keysym.mod & KMOD_CTRL) != 0)
-                    return GameStatus::QUIT;
-            }
-        }
-    }
-
-    SDL_Event event;
-    while (SDL_PollEvent(&event) != 0)
-        ;
-
-    return GameStatus::MENU;
 }
