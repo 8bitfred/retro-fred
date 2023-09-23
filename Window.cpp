@@ -289,10 +289,10 @@ void Window::renderFrame(Game &game, SDL_Renderer *renderer,
                     dst_scoreboard.x + 3 * 8, dst_scoreboard.y + 2*8,
                     0, 0, 0);
     tmgr.renderScore(renderer, game.getScore(),
-                     dst_scoreboard.x + 2, dst_scoreboard.y + 17 * 8,
+                     dst_scoreboard.x + 3, dst_scoreboard.y + 17 * 8 + 2,
                      206, 206, 206);
-    tmgr.renderScore(renderer, 0,
-                     dst_scoreboard.x + 2, dst_scoreboard.y + 20 * 8,
+    tmgr.renderScore(renderer, game.getHighScore(),
+                     dst_scoreboard.x + 3, dst_scoreboard.y + 20 * 8 + 2,
                      206, 206, 206);
 
     SDL_Texture *power_texture = tmgr.get(TextureID::POWER);

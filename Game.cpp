@@ -39,11 +39,12 @@ unsigned Game::getEventOfKey(SDL_Keycode keycode)
 }
 
 Game::Game(Config const &cfg, std::minstd_rand &random_engine,
-    TextureManager const &tmgr, SoundManager &smgr)
+    TextureManager const &tmgr, SoundManager &smgr, unsigned high_score)
     : cfg(cfg), tmgr(tmgr), smgr(smgr)
     , window(cfg), game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
     , sprite_count(getSpriteCountOfLevel(cfg, level))
+    , high_score(high_score)
 {
 }
 

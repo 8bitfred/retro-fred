@@ -52,7 +52,8 @@ public:
     static unsigned getEventOfKey(SDL_Keycode keycode);
 
     Game(Config const &cfg, std::minstd_rand &random_engine,
-         TextureManager const &tmgr, SoundManager &smgr);
+         TextureManager const &tmgr, SoundManager &smgr,
+         unsigned high_score);
     void nextLevel(std::minstd_rand &random_engine);
     SpriteCount const &getSpriteCount() const { return sprite_count; }
     Window &getFrame() { return window; }
@@ -71,7 +72,8 @@ public:
     // the internals of the Fred class
     MapPos const &getFredPos() const;
     int getBulletCount() const { return bullet_count; }
-    int getScore() const { return score; }
+    unsigned getScore() const { return score; }
+    unsigned getHighScore() const { return high_score; }
     int getTreasureCount() const { return treasure_count; }
     int getLevel() const { return level; }
     int getPower() const { return power; }
@@ -107,7 +109,7 @@ private:
     unsigned bullet_count = MAX_BULLETS;
     unsigned level = 1;
     SpriteCount sprite_count;
-    unsigned score = 0;
+    unsigned score = 0, high_score = 0;
     unsigned treasure_count = 0;
     unsigned power = MAX_POWER;
     std::optional<CellPos> minimap_pos;
