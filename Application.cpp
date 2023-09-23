@@ -504,6 +504,8 @@ void FredApp::debugMode(Game &game, unsigned events)
     }
     else if ((events & Game::EVENT_MOVE_TO_HATCH) != 0)
         fred->dbgMoveToHatch(game);
+    else if ((events & Game::EVENT_DIE) != 0)
+        fred->dbgDie();
 }
 
 void FredApp::mainLoop()

@@ -18,6 +18,7 @@ public:
 
     void dbgResetPosition(Game& game);
     void dbgMoveToHatch(Game &game);
+    void dbgDie();
 
 protected:
     BoxParams const &getBoxParams() const override;
