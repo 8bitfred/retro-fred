@@ -59,29 +59,29 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     SDL_RenderSetScale(getRenderer(), cfg.scale_x, cfg.scale_y);
 }
 
-void FredApp::playGame()
+FredApp::GameStatus FredApp::playGame()
 {
     Game game(cfg, random_engine, tmgr, smgr);
 
     while (true)
     {
         auto status = playLevel(game);
-        if (status == LevelStatus::NEXT_LEVEL)
+        if (status == GameStatus::NEXT_LEVEL)
         {
             showLevelSummary(game);
             game.nextLevel(random_engine);
         }
-        else if (status == LevelStatus::GAME_OVER)
+        else if (status == GameStatus::GAME_OVER)
         {
             SDL_Delay(5000);
-            break;
+            return status;
         }
-        else
-            break;
+        else if (status == GameStatus::QUIT)
+            return status;
     }
 }
 
-FredApp::LevelStatus FredApp::playLevel(Game &game)
+FredApp::GameStatus FredApp::playLevel(Game &game)
 {
     initializeSprites(game);
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
@@ -95,7 +95,7 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
         Uint32 const start_ticks = SDL_GetTicks();
         auto [quit, events] = key_state.updateKeyState();
         if (quit)
-            return LevelStatus::QUIT;
+            return GameStatus::QUIT;
         updateSprites(game);
 
         if ((events & Game::EVENT_SHIFT) != 0 && cfg.debug_keys)
@@ -105,7 +105,7 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
             if (fred->exiting())
             {
                 endOfLevelSequence(game);
-                return LevelStatus::NEXT_LEVEL;
+                return GameStatus::NEXT_LEVEL;
             }
         }
 
@@ -114,7 +114,7 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
         if (fred->gameOver())
         {
             gameOverSequence(game);
-            return LevelStatus::GAME_OVER;
+            return GameStatus::GAME_OVER;
         }
         fred->checkCollisionWithObject(game);
 
@@ -519,4 +519,141 @@ void FredApp::debugMode(Game &game, unsigned events)
     }
     else if ((events & Game::EVENT_MOVE_TO_HATCH) != 0)
         fred->dbgMoveToHatch(game);
+}
+
+void FredApp::mainLoop()
+{
+    if (splashScreen() == GameStatus::QUIT)
+        return;
+    while (true)
+    {
+        auto menu_status = menu();
+        if (menu_status == GameStatus::QUIT)
+            break;
+        if (menu_status == GameStatus::START_GAME)
+        {
+            if (playGame() == GameStatus::QUIT)
+                break;
+            SDL_Event event;
+            while (SDL_PollEvent(&event) != 0)
+                ;
+        }
+        if (todaysGreatest() == GameStatus::QUIT)
+            break;
+    }
+}
+
+FredApp::GameStatus FredApp::splashScreen()
+{
+    auto timeout = SDL_GetTicks() + 5000;
+    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::SPLASH_SCREEN), nullptr, nullptr);
+    SDL_RenderPresent(getRenderer());
+    while (true)
+    {
+        auto ticks = SDL_GetTicks();
+        if (ticks > timeout)
+            break;
+        SDL_Event event;
+        if (SDL_WaitEventTimeout(&event, timeout - ticks))
+        {
+            if (event.type == SDL_QUIT)
+                return GameStatus::QUIT;
+            if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_q &&
+                    (event.key.keysym.mod & KMOD_CTRL) != 0)
+                    return GameStatus::QUIT;
+                if (event.key.keysym.mod == 0)
+                    break;
+            }
+        }
+    }
+
+    SDL_Event event;
+    while (SDL_PollEvent(&event) != 0)
+        ;
+
+    return GameStatus::MENU;
+}
+
+FredApp::GameStatus FredApp::menu()
+{
+    SDL_RenderClear(getRenderer());
+    SDL_Rect logo = {88, 8, 76, 20};
+    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
+    tmgr.renderText(getRenderer(), "PRESS ANY KEY TO START", 40, 56, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "WRITTEN BY FERNANDO RADA,", 0, 104, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "PACO MENENDEZ & CARLOS GRANADOS.", 0, 112, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "       \x7f INDESCOMP SPAIN", 0, 120, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "PRESENTED BY QUICKSILVA", 0, 128, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "PRESENTATION SCREEN DESIGN:", 0, 136, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "JUAN DELCAN, KIKI & MA", 0, 144, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "CHARACTER DESIGN: GAELIC", 0, 152, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "PET: SENATOR & DRULY'S DUCK", 0, 160, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "MISTAKES: MARTA & PALOMA", 0, 168, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 206, 206, 206);
+    SDL_RenderPresent(getRenderer());
+
+    auto timeout = SDL_GetTicks() + 5000;
+    while (true)
+    {
+        auto ticks = SDL_GetTicks();
+        if (ticks > timeout)
+            return GameStatus::TODAYS_GREATEST;
+        SDL_Event event;
+        if (SDL_WaitEventTimeout(&event, timeout - ticks))
+        {
+            if (event.type == SDL_QUIT)
+                return GameStatus::QUIT;
+            if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_q &&
+                    (event.key.keysym.mod & KMOD_CTRL) != 0)
+                    return GameStatus::QUIT;
+                if (event.key.keysym.mod == 0)
+                    break;
+            }
+        }
+    }
+
+    SDL_Event event;
+    while (SDL_PollEvent(&event) != 0)
+        ;
+
+    return GameStatus::START_GAME;
+}
+
+FredApp::GameStatus FredApp::todaysGreatest()
+{
+    SDL_RenderClear(getRenderer());
+    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::TODAYS_GREATEST), nullptr, nullptr);
+    SDL_RenderPresent(getRenderer());
+
+    auto timeout = SDL_GetTicks() + 8000;
+    smgr.play(SoundID::FUNERAL_MARCH);
+    while (true)
+    {
+        auto ticks = SDL_GetTicks();
+        if (ticks > timeout)
+            break;
+        SDL_Event event;
+        if (SDL_WaitEventTimeout(&event, timeout - ticks))
+        {
+            if (event.type == SDL_QUIT)
+                return GameStatus::QUIT;
+            if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_q &&
+                    (event.key.keysym.mod & KMOD_CTRL) != 0)
+                    return GameStatus::QUIT;
+            }
+        }
+    }
+
+    SDL_Event event;
+    while (SDL_PollEvent(&event) != 0)
+        ;
+
+    return GameStatus::MENU;
 }

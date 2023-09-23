@@ -13,6 +13,7 @@ std::vector<sdl::WAVData> SoundManager::loadWAVs(Config const &cfg)
         "sounds/walk.wav",
         "sounds/exit_maze.wav",
         "sounds/game_over.wav",
+        "sounds/funeral_march.wav",
     };
     static_assert(std::size(wav_files) == static_cast<size_t>(SoundID::COUNT));
     std::vector<sdl::WAVData> wav_list;
