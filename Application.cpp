@@ -506,6 +506,8 @@ void FredApp::debugMode(Game &game, unsigned events)
         fred->dbgMoveToHatch(game);
     else if ((events & Game::EVENT_DIE) != 0)
         fred->dbgDie();
+    else if ((events & Game::EVENT_MAP) != 0)
+        game.setMinimapPos(game.getFredPos().cellPos());
 }
 
 void FredApp::mainLoop()

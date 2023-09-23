@@ -35,6 +35,8 @@ unsigned Game::getEventOfKey(SDL_Keycode keycode)
         return EVENT_RCTRL;
     case SDLK_k:
         return EVENT_DIE;
+    case SDLK_m:
+        return EVENT_MAP;
     default:
         return 0;
     }
