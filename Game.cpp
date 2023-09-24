@@ -110,10 +110,17 @@ void Game::playPendingSounds()
     pending_sounds = 0;
 }
 
-MapPos const &Game::getFredPos() const
+MapPos Game::getFredCellPos() const
 {
-    auto const &fred = dynamic_cast<Fred const &>(*sprite_lists[static_cast<int>(SpriteClass::FRED)][0]);
-    return fred.getPos();
+    auto pos = fred_pos;
+    pos.yadd(-fred_vposition);
+    return pos;
+}
+
+void Game::updateFredPos(MapPos fred_pos, int vposition)
+{
+    this->fred_pos = fred_pos;
+    this->fred_vposition = vposition;
 }
 
 void Game::dbgResetMapBlocks()

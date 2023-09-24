@@ -68,6 +68,7 @@ private:
     void stateExitMaze(Game &game);
     void stateGameOver(Game &game);
 
+    int vposition = 1;
     int direction = -1;
     Frame frame = Frame::STANDING;
     Color color = Color::YELLOW;

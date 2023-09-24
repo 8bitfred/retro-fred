@@ -72,7 +72,9 @@ public:
     void playPendingSounds();
     // TODO: we should refactor this so that the Game object does not need to know about
     // the internals of the Fred class
-    MapPos const &getFredPos() const;
+    MapPos const &getFredPos() const { return fred_pos; }
+    MapPos getFredCellPos() const;
+    void updateFredPos(MapPos fred_pos, int vposition);
     Config const &getConfig() const { return cfg; }
     int getBulletCount() const { return bullet_count; }
     unsigned getScore() const { return score; }
@@ -107,6 +109,8 @@ private:
     SoundManager &smgr;    
     Window window;
     GameMap game_map;
+    MapPos fred_pos;
+    int fred_vposition = 0;
     std::vector<SpriteList> sprite_lists;
     std::uint32_t pending_sounds = 0;
     unsigned bullet_count = MAX_BULLETS;
