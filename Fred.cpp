@@ -303,8 +303,8 @@ void Fred::checkCollisionWithObject(Game &game)
         if (checkCollision(*object_p))
         {
             game.addSound(SoundID::PICK_OBJECT);
-            sprite_list.erase(p);
             object_p->apply(game);
+            sprite_list.erase(p);
             break;
         }
     }
