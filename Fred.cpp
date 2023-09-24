@@ -89,6 +89,7 @@ void Fred::updateFred(Game& game, unsigned events)
         --collision_timer;
     else
         color = Color::YELLOW;
+    game.updateFredPos(sprite_pos, vposition);
 }
 
 void Fred::checkFire(Game &game, bool input_fire)
@@ -135,6 +136,7 @@ void Fred::walkOneStep(Game &game)
         else if (game.getGameMap().getBlock(sprite_pos.cellPos(), direction, 1) == GameMap::Cell::ROPE_MAIN)
         {
             sprite_pos.yadd(-1);
+            vposition = 0;
             startSideJump(game);
             return;
         }
@@ -171,6 +173,7 @@ void Fred::startVerticalJump(Game& game)
     state = State::VERTICAL_JUMP;
     jump_stage = 3;
     sprite_pos.yadd(-1);
+    vposition = 0;
     game.addSound(SoundID::JUMP);
 }
 
@@ -191,6 +194,7 @@ void Fred::stateVerticalJump(Game& game, int, int)
     else if (jump_stage == 0)
     {
         sprite_pos.yadd(1);
+        vposition = 1;
         frame = Frame::STANDING;
         game.addSound(SoundID::WALK);
         state = State::WALK;
@@ -207,6 +211,7 @@ void Fred::stateSideJump(Game& game, int, int)
         if (game.getGameMap().isStone(sprite_pos.cellPos(), 0, 1))
         {
             sprite_pos.yadd(1);
+            vposition = 1;
             frame = Frame::STANDING;
             game.addSound(SoundID::WALK);
             state = State::WALK;
