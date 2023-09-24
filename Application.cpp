@@ -12,6 +12,7 @@
 #include "Bullet.hpp"
 #include "Smoke.hpp"
 #include "Object.hpp"
+#include "Tomb.hpp"
 #include <iostream>
 #include <cstdio>
 
@@ -446,13 +447,11 @@ void FredApp::gameOverSequence(Game &game)
         SDL_Delay(500);
         fred->updateFred(game, 0);
     }
+    auto pos = game.getFredCellPos();
+    pos.xadd(-2);
     game.getSpriteList(SpriteClass::FRED).pop_back();
-    auto spos = game.getFrame().getCenterCell();
-    SDL_Rect game_over_pos{spos.x - 16, spos.y, 72, 40};
-    SDL_Rect game_over_rect{ 1, 1, 72, 41 };
-    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::GAME_OVER),
-                   &game_over_rect, &game_over_pos);
-    SDL_RenderPresent(getRenderer());
+    game.getSpriteList(SpriteClass::TOMB).emplace_back(std::make_unique<Tomb>(pos));
+    game.render(getRenderer());
 }
 
 void FredApp::showLevelSummary(Game &game)

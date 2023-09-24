@@ -24,7 +24,7 @@ TextureManager::TextureManager(Config const &cfg, SDL_Renderer *renderer)
         "sprites/ghost.png",
         "sprites/smoke.png",
         "sprites/fred.png",
-        "sprites/game_over.png",
+        "sprites/tomb.png",
         "sprites/window.png",
         "sprites/zx_font.png",
         "sprites/small_digits.png",

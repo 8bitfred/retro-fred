@@ -18,7 +18,7 @@ enum class TextureID : std::uint8_t
     GHOST,
     SMOKE,
     FRED,
-    GAME_OVER,
+    TOMB,
     FRAME_BASE,
     ZX_FONT,
     SMALL_DIGITS,
