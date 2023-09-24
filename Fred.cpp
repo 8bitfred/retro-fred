@@ -181,15 +181,11 @@ void Fred::stateVerticalJump(Game& game, int, int)
 {
     --jump_stage;
     if (jump_stage == 1 &&
-        sprite_pos.cx() == 0)
+        sprite_pos.cx() == 0 &&
+        game.getGameMap().getBlock(sprite_pos.cellPos()) == GameMap::Cell::ROPE_END)
     {
-        if (game.getGameMap().getBlock(sprite_pos.cellPos(0, -1)) == GameMap::Cell::TRAPDOOR)
-            state = State::EXIT_MAZE;
-        else if (game.getGameMap().getBlock(sprite_pos.cellPos()) == GameMap::Cell::ROPE_END)
-        {
-            frame = Frame::CLIMBING1;
-            state = State::CLIMB;
-        }
+        frame = Frame::CLIMBING1;
+        state = State::CLIMB;
     }
     else if (jump_stage == 0)
     {
@@ -226,6 +222,11 @@ void Fred::stateSideJump(Game& game, int, int)
 
 void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
 {
+    if (game.getGameMap().getBlock(sprite_pos.cellPos(0, -1)) == GameMap::Cell::TRAPDOOR)
+    {
+        state = State::EXIT_MAZE;
+        return;
+    }
     if (input_x == direction)
     {
         direction = -direction;
