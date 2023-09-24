@@ -79,6 +79,7 @@ enum class SpriteClass
     GHOST,
     SMOKE,
     FRED,
+    TOMB,
     COUNT
 };
 

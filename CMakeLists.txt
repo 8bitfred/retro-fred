@@ -33,7 +33,8 @@ add_executable(fred main.cpp sdl.hpp
     Skeleton.cpp Skeleton.hpp
     Bullet.cpp Bullet.hpp
     Smoke.cpp Smoke.hpp
-    Object.cpp Object.hpp)
+    Object.cpp Object.hpp
+    Tomb.cpp Tomb.hpp)
 target_link_libraries(fred ${SDL2_LIBRARIES})
 if (NOT MSVC)
     target_link_libraries(fred -lSDL2_image)
