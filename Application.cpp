@@ -445,8 +445,9 @@ void FredApp::gameOverSequence(Game &game)
     game.getSpriteList(SpriteClass::FRED).pop_back();
     auto spos = game.getFrame().getCenterCell();
     SDL_Rect game_over_pos{spos.x - 16, spos.y, 72, 40};
+    SDL_Rect game_over_rect{ 1, 1, 72, 40 };
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::GAME_OVER),
-                   nullptr, &game_over_pos);
+                   &game_over_rect, &game_over_pos);
     SDL_RenderPresent(getRenderer());
 }
 
