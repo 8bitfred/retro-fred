@@ -8,7 +8,7 @@
 
 TextureManager::TextureManager(Config const &cfg, SDL_Renderer *renderer)
 {
-    char const *sprite_list[] = {
+    static char const *sprite_list[] = {
         "sprites/splash_screen.png",
         "sprites/fred_logo.png",
         "sprites/todays_greatest.png",
@@ -36,6 +36,14 @@ TextureManager::TextureManager(Config const &cfg, SDL_Renderer *renderer)
         auto path = cfg.resource_path / p;
         texture_list.emplace_back(IMG_LoadTexture(renderer, path.string().c_str()));
     }
+
+    auto fred_path = cfg.resource_path / sprite_list[static_cast<int>(TextureID::FRED)];
+    auto fred_surface = IMG_Load(fred_path.string().c_str());
+    fred_icon = sdl::SurfacePtr(SDL_CreateRGBSurfaceWithFormat(0, 32, 32, 32,
+                                                               fred_surface->format->format));
+    SDL_Rect fred_rect = {9, 9, 32, 32};
+    SDL_SetSurfaceColorMod(fred_surface, 255, 255, 0);
+    SDL_BlitSurface(fred_surface, &fred_rect, fred_icon, nullptr);
 }
 
 void TextureManager::renderText(SDL_Renderer *renderer, std::string_view text,
