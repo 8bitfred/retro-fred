@@ -3,7 +3,7 @@
 
 std::vector<sdl::WAVData> SoundManager::loadWAVs(Config const &cfg)
 {
-    char const *wav_files[] = {
+    static char const *wav_files[] = {
         "sounds/pick_object.wav",
         "sounds/collision.wav",
         "sounds/fire.wav",
