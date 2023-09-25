@@ -6,9 +6,10 @@
 namespace {
     const char *usage =
         "usage: fred [--help]\n"
-        "            [--debug] [--fullmap] [--minimap-exit]\n"
+        "            [--debug-map] [--debug-keys]\n"
+        "            [--fullmap] [--minimap-exit]\n"
         "            [--infinite-ammo] [--infinite-power]\n"
-        "            [--scale SCALE] [--fps FPS]\n"
+        "            [--boxes] [--scale SCALE] [--fps FPS]\n"
         "\n"
         "    --help    Show this message\n"
         "    --debug-map\n"
