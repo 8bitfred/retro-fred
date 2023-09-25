@@ -67,7 +67,6 @@ private:
 
 enum class SpriteClass
 {
-    BLOCK,
     BULLET,
     ACID_DROP,
     SKELETON,

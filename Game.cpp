@@ -66,7 +66,13 @@ void Game::nextLevel(std::minstd_rand &random_engine)
 void Game::render(SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
-    for (auto const &sprites: sprite_lists) {
+    auto fpos = window.getScreenPosOf(window.gFrame());
+    SDL_Rect map_dst = {fpos.x, fpos.y,
+                        window.getBottomRight().x - fpos.x,
+                        window.getBottomRight().y - fpos.y};
+    game_map.render(renderer, tmgr, window.gFrame().px(), window.gFrame().py(), &map_dst);
+    for (auto const &sprites : sprite_lists)
+    {
         for (auto const &s: sprites)
             s->render(cfg, window, tmgr, renderer);
     }
@@ -78,14 +84,6 @@ void Game::moveFrame(int deltax, int deltay)
 {
 
     window.moveFrame(deltax, deltay);
-    if (deltax > 0)
-        game_map.updateMapBlocksRight(window, getSpriteList(SpriteClass::BLOCK));
-    else if (deltax < 0)
-        game_map.updateMapBlocksLeft(window, getSpriteList(SpriteClass::BLOCK));
-    if (deltay > 0)
-        game_map.updateMapBlocksDown(window, getSpriteList(SpriteClass::BLOCK));
-    else if (deltay < 0)
-        game_map.updateMapBlocksUp(window, getSpriteList(SpriteClass::BLOCK));
 }
 
 void Game::playSound(SoundID sound_id)
@@ -121,13 +119,6 @@ void Game::updateFredPos(MapPos fred_pos, int vposition)
 {
     this->fred_pos = fred_pos;
     this->fred_vposition = vposition;
-}
-
-void Game::dbgResetMapBlocks()
-{
-    auto &block_list = getSpriteList(SpriteClass::BLOCK);
-    block_list.clear();
-    game_map.initializeMapBlocks(window, block_list);
 }
 
 bool Game::canShoot() const

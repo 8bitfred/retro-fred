@@ -73,8 +73,6 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
 {
     initializeSprites(game);
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
-    game.getGameMap().initializeMapBlocks(game.getFrame(),
-                                          game.getSpriteList(SpriteClass::BLOCK));
 
     std::uint32_t frame_count = 0;
     KeyState key_state;
@@ -489,25 +487,19 @@ void FredApp::debugMode(Game &game, unsigned events)
 {
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
     if ((events & Game::EVENT_LEFT) != 0)
-        game.moveFrame(-1, 0);
+        game.moveFrame(-MapPos::CELL_WIDTH, 0);
     else if ((events & Game::EVENT_RIGHT) != 0)
-        game.moveFrame(1, 0);
+        game.moveFrame(MapPos::CELL_WIDTH, 0);
     else if ((events & Game::EVENT_UP) != 0)
-        game.moveFrame(0, -1);
+        game.moveFrame(0, -MapPos::CELL_HEIGHT);
     else if ((events & Game::EVENT_DOWN) != 0)
-        game.moveFrame(0, 1);
+        game.moveFrame(0, MapPos::CELL_HEIGHT);
     else if ((events & Game::EVENT_RESET_FRED) != 0)
         fred->dbgResetPosition(game);
     else if ((events & Game::EVENT_HATCH_LEFT) != 0)
-    {
-        if (game.getGameMap().dbgMoveHatch(-1))
-            game.dbgResetMapBlocks();
-    }
+        game.getGameMap().dbgMoveHatch(-1);
     else if ((events & Game::EVENT_HATCH_RIGHT) != 0)
-    {
-        if (game.getGameMap().dbgMoveHatch(1))
-            game.dbgResetMapBlocks();
-    }
+        game.getGameMap().dbgMoveHatch(1);
     else if ((events & Game::EVENT_MOVE_TO_HATCH) != 0)
         fred->dbgMoveToHatch(game);
     else if ((events & Game::EVENT_DIE) != 0)

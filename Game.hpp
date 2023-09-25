@@ -97,7 +97,6 @@ public:
     void rechargeBullets() { bullet_count = MAX_BULLETS; }
     std::optional<CellPos> getMinimapPos() const { return minimap_pos; }
     void setMinimapPos(CellPos const &pos) { minimap_pos = pos; }
-    void dbgResetMapBlocks();
 
     bool canShoot() const;
     void fireGun(MapPos initial_position, int direction);
