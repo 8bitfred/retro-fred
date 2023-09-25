@@ -660,6 +660,9 @@ void FredApp::enterHighScore(unsigned score)
 {
     std::string initials = "A";
     KeyState key_state;
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+        ;
     while (true)
     {
         SDL_RenderClear(getRenderer());
