@@ -1,7 +1,6 @@
 #include "GameMap.hpp"
 #include "TextureManager.hpp"
 #include "Window.hpp"
-#include "Block.hpp"
 #include "Config.hpp"
 
 std::uint8_t GameMap::debug_map[] = {
@@ -214,136 +213,60 @@ void GameMap::setCell(CellPos const &pos, Cell c)
     cell_list[pos.y * width_minus_one + pos.x] = c;
 }
 
-// void GameMap::render(int x, int y, TextureManager const &tmgr,
-//                      SDL_Renderer *renderer, SDL_Rect const *dest)
-// {
-//     CellPos corner_cell = {x / MapPixelPos::CELL_WIDTH_PIXELS,
-//                            y / MapPixelPos::CELL_HEIGHT_PIXELS};
-//     if (x < 0)
-//         --corner_cell.x;
-//     if (y < 0)
-//         --corner_cell.y;
-
-//     // Round x and y down to the closest corner of a cell, then compute those coordinates
-//     // with respect to the corner of the screen
-//     int round_x = corner_cell.x * MapPixelPos::CELL_WIDTH_PIXELS - x;
-//     int round_y = corner_cell.y * MapPixelPos::CELL_HEIGHT_PIXELS - y;
-
-//     CellPos cell_pos = corner_cell;
-//     SDL_Rect cell_rect;
-//     cell_rect.w = MapPixelPos::CELL_WIDTH_PIXELS;
-//     cell_rect.h = MapPixelPos::CELL_HEIGHT_PIXELS;
-
-//     for (cell_rect.y = round_y; cell_rect.y < dest->h; cell_rect.y += cell_rect.h) {
-//         cell_pos.x = corner_cell.x;
-//         for (cell_rect.x = round_x; cell_rect.x < dest->w; cell_rect.x += cell_rect.w)
-//         {
-//             SDL_Rect cell_dst;
-//             cell_dst.x = dest->x + cell_rect.x;
-//             cell_dst.y = dest->y + cell_rect.y;
-//             cell_dst.h = cell_rect.h;
-//             cell_dst.w = cell_rect.w;
-//             if (getBlock(cell_pos) != Cell::EMPTY)
-//             {
-//                 auto texture_id = getTextureIDOf(cell_pos);
-//                 auto texture = tmgr.get(texture_id);
-//                 SDL_RenderCopy(renderer, texture,
-//                                nullptr, &cell_dst);
-//             }
-//             ++cell_pos.x;
-//         }
-//         ++cell_pos.y;
-//     }
-// }
-
-void GameMap::initializeMapBlocks(Window const &window, SpriteList &block_list) const
+void GameMap::renderCell(SDL_Renderer *renderer, TextureManager const &tmgr,
+                         int x, int y, Cell cell)
 {
-    int offset_x = 0, offset_y = 0;
-    while (true) {
-        if (!addMapBlock(window, block_list, offset_x, offset_y))
-            break;
-        while (true) {
-            ++offset_x;
-            if (!addMapBlock(window, block_list, offset_x, offset_y))
-                break;
-        }
-        offset_x = 0;
-        ++offset_y;
-    }
+    static SDL_Rect cell_rects[] = {
+        {      1,      1, 32, 40},
+        {   42+1,      1, 32, 40},
+        { 2*42+1,      1, 32, 40},
+        {      1,   50+1, 32, 40},
+        {   42+1,   50+1, 32, 40},
+        { 2*42+1,   50+1, 32, 40},
+        {      1, 2*50+1, 32, 40},
+        {   42+1, 2*50+1, 32, 40},
+        { 2*42+1, 2*50+1, 32, 40},
+    };
+    static_assert(std::size(cell_rects) == static_cast<int>(GameMap::Cell::TRAPDOOR));
+    if (cell == Cell::EMPTY)
+        return;
+    assert(static_cast<unsigned>(cell) <= static_cast<int>(GameMap::Cell::TRAPDOOR));
+    SDL_Rect dst = {x, y, 32, 40};
+    sdl::ColorGuard guard(renderer, 255, 255, 255, 0);
+    if (SDL_RenderCopy(renderer, tmgr.get(TextureID::BLOCK),
+                       &cell_rects[static_cast<unsigned>(cell) - 1], &dst) < 0)
+        throw sdl::Error();
 }
 
-bool GameMap::addMapBlock(Window const &window, SpriteList &block_list,
-                          int offset_x, int offset_y) const
-{
-    MapPos sprite_pos = {window.gFrame().x() + offset_x, window.gFrame().y() + offset_y, 0, 0};
-    auto screen_pos = window.getScreenPosOf(sprite_pos);
-    if (screen_pos.y >= window.getBottomRight().y)
-        return false;
-    if (screen_pos.x >= window.getBottomRight().x)
-        return false;
-    if (auto cell = getBlock(sprite_pos.cellPos()); cell != Cell::EMPTY)
-        block_list.emplace_back(std::make_unique<Block>(sprite_pos, cell));
-    return true;
-}
 
-void GameMap::removeNonVisibleBlocks(Window const &window, SpriteList &block_list) const
+void GameMap::render(SDL_Renderer *renderer, TextureManager const &tmgr,
+                     int x, int y, SDL_Rect const *dest)
 {
-    for (size_t i = 0; i < block_list.size(); ++i) {
-        if (!block_list[i]->isVisible(window))
+    CellPos corner_cell = {x / MapPixelPos::CELL_WIDTH_PIXELS,
+                           y / MapPixelPos::CELL_HEIGHT_PIXELS};
+    if (x < 0)
+        --corner_cell.x;
+    if (y < 0)
+        --corner_cell.y;
+
+    // Round x and y down to the closest corner of a cell, then compute those coordinates
+    // with respect to the corner of the screen
+    int round_x = corner_cell.x * MapPixelPos::CELL_WIDTH_PIXELS - x;
+    int round_y = corner_cell.y * MapPixelPos::CELL_HEIGHT_PIXELS - y;
+
+    CellPos cell_pos = corner_cell;
+    for (int cell_y = dest->y + round_y; 
+         cell_y < (dest->y + dest->h);
+         cell_y += MapPixelPos::CELL_HEIGHT_PIXELS) {
+        cell_pos.x = corner_cell.x;
+        for (int cell_x = dest->x + round_x; 
+             cell_x < (dest->x + dest->w); 
+             cell_x += MapPixelPos::CELL_WIDTH_PIXELS)
         {
-            std::swap(block_list[i], block_list.back());
-            block_list.pop_back();
+            renderCell(renderer, tmgr, cell_x, cell_y, getBlock(cell_pos));
+            ++cell_pos.x;
         }
-    }
-}
-
-void GameMap::updateMapBlocksLeft(Window const &window, SpriteList &block_list) const
-{
-    removeNonVisibleBlocks(window, block_list);
-    if (window.needsNewLeftCol())
-    {
-        for (int offset_y = 0;
-             addMapBlock(window, block_list, 0, offset_y);
-             ++offset_y)
-            ;
-    }
-}
-
-void GameMap::updateMapBlocksRight(Window const &window, SpriteList &block_list) const
-{
-    removeNonVisibleBlocks(window, block_list);
-    if (window.needsNewRightCol())
-    {
-        for (int offset_y = 0;
-             addMapBlock(window, block_list, window.newRightColOffset(), offset_y);
-             ++offset_y)
-            ;
-    }
-}
-
-
-void GameMap::updateMapBlocksUp(Window const &window, SpriteList &block_list) const
-{
-    removeNonVisibleBlocks(window, block_list);
-    if (window.needsNewTopRow())
-    {
-        for (int offset_x = 0;
-             addMapBlock(window, block_list, offset_x, 0);
-             ++offset_x)
-            ;
-    }
-}
-
-
-void GameMap::updateMapBlocksDown(Window const &window, SpriteList &block_list) const
-{
-    removeNonVisibleBlocks(window, block_list);
-    if (window.needsNewBottomRow())
-    {
-        for (int offset_x = 0;
-             addMapBlock(window, block_list, offset_x, window.newBottomRowOffset());
-             ++offset_x)
-            ;
+        ++cell_pos.y;
     }
 }
 

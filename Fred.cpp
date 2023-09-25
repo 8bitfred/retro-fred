@@ -347,7 +347,6 @@ void Fred::dbgResetPosition(Game &game)
     }
 
     game.getFrame().adjustFramePos(sprite_pos);
-    game.dbgResetMapBlocks();
 }
 
 void Fred::dbgMoveToHatch(Game &game)
@@ -357,7 +356,6 @@ void Fred::dbgMoveToHatch(Game &game)
     auto hatch_pos = game.getGameMap().dbgGetHatchPos();
     sprite_pos = {hatch_pos.x, hatch_pos.y + 1, 0, 1};
     game.getFrame().adjustFramePos(sprite_pos);
-    game.dbgResetMapBlocks();
 }
 
 void Fred::dbgDie()

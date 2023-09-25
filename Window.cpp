@@ -63,80 +63,6 @@
 // The S point above is the top left corner of the screen. Member variable screen_pos
 // contains the position of F with respect to S.
 //
-// Moving to the left:
-//
-//         START                STEP 1                STEP 2                STEP 3        
-//   |   0   |   1   |     |   0   |   1   |     |   0   |   1   |     |   0   |   1   |  
-//   |0|1|2|3|0|1|2|3|     |0|1|2|3|0|1|2|3|     |0|1|2|3|0|1|2|3|     |0|1|2|3|0|1|2|3|  
-// --+-------+-------+   --+-------+-------+   --+-------+-------+   --+-------+-------+  
-// 0 |       |F      |   0 |      F|       |   0 |    F  |       |   0 |  F    |       |  
-// 1 |       |  S X X|   1 |       |S X X X|   1 |      S|X X X X|   1 |    S X|X X X X|  
-// 2 |       |  X    |   2 |       |X      |   2 |      X|       |   2 |    X  |       |  
-// 3 |       |  X    |   3 |       |X      |   3 |      X|       |   3 |    X  |       |
-//     F.x=1 F.cx=0          F.x=0 F.cx=3          F.x=0 F.cx=2          F.x=0 F.cx=1
-//
-// When moving to the left a new column of blocks becomes visible on the left side when
-// the cx coordinate of the left-most visible character in the window is 3, in step 3, when
-// F.cx is 1. When this happens we need to draw a new column of blocks at F.x. The value
-// of F.cx when a new column becomes visible on the left side when moving left depends on
-// the width of the game window. We store it in new_left_col_cx.
-//
-// When the game starts we draw on the screen all the map blocks that have any portion of
-// them visible on the game window. When the character moves we update the position of
-// those blocks as necessary. As the character moves we may need to draw new blocks when
-// new columns or rows become visible on the edges of the screen.
-//
-// Moving to the right:
-//
-//         START                STEP 1                STEP 2                STEP 3        
-//   |   6   |   7   |     |   6   |   7   |     |   6   |   7   |     |   6   |   7   |   
-//   |0|1|2|3|0|1|2|3|     |0|1|2|3|0|1|2|3|     |0|1|2|3|0|1|2|3|     |0|1|2|3|0|1|2|3|   
-// --+-------+-------+   --+-------+-------+   --+-------+-------+   --+-------+-------+   
-// 0 |       |       |   0 |       |       |   0 |       |       |   0 |       |       |   
-// 1 |X X X X|X X X X|   1 |X X X X|X X X X|   1 |X X X X|X X X X|   1 |X X X X|X X X X|   
-// 2 |    X  |       |   2 |      X|       |   2 |       |X      |   2 |       |  X    |   
-// 3 |    X  |       |   3 |      X|       |   3 |       |X      |   3 |       |  X    |   
-//     F.x=0 F.cx=0          F.x=0 F.cx=1          F.x=0 F.cx=2          F.x=0 F.cx=3
-//
-// When moving to the right a new column of blocks becomes visible on the right side when
-// the cx coordinate of the right-most visible character in the window is 0, in step 3,
-// when F.cx is 3. When this happens we need to draw a new column of blocks at F.x+7.
-// Similarly to new_left_col_cx, the value of F.cx when a new column becomes visible on the
-// right side when moving to the right is stored in new_right_col_cx. The offset, in number
-// of cells, from F.x to the column that is added to the right is stored in
-// new_right_col_offset.
-//
-// The diagrams below show examples of different values of new_left_col_cx, new_right_col_cx
-// and new_right_col_offset depending on the width of the game window. Note that there is a
-// window of 8 pixels around the game window, so the game window starts 8 pixels to the
-// right of the edge of the screen. For each example we show the width of the game window,
-// the position of the Fred character with respect to the left edge of the screen, and the
-// values of new_left_col_cx, new_right_col_cx and new_right_col_offset.
-//
-//  |   0   |   1 ... 5   |   6   |  width of game window: 208 pixels (26 characters)
-//  |0|1|2|3|0|1| ... |2|3|0|1|2|3|  screen position of Fred: 96 pixels
-//  |F X X X|X X  ...  X X|X X X X|  new_left_col_cx=2 new_right_col_cx=2
-//  |X      |     ...     |      X|  new_right_col_offset=7
-//
-//  |   0   |   1 ... 5   |   6   |  width of game window: 192 pixels (24 characters)
-//  |0|1|2|3|0|1| ... |2|3|0|1|2|3|  screen position of Fred: 88 pixels
-//  |F X X X|X X  ...  X X|X X X X|  new_left_col_cx=1 new_right_col_cx=3
-//  |  X    |     ...     |    X  |  new_right_col_offset=7
-//
-//  |   0   |   1 ... 5   |   6   |  width of game window: 176 pixels (22 characters)
-//  |0|1|2|3|0|1| ... |2|3|0|1|2|3|  screen position of Fred: 80 pixels
-//  |F   X X|X X  ...  X X|X X X X|  new_left_col_cx=0 new_right_col_cx=0
-//  |    X  |     ...     |  X    |  new_right_col_offset=6
-//
-//  |   0   |   1 ... 5   |   6   |  width of game window: 160 pixels (20 characters)
-//  |0|1|2|3|0|1| ... |2|3|0|1|2|3|  screen position of Fred: 72
-//  |      X|F X  ...  X X|X X X X|  new_left_col_cx=3 new_right_col_cx=1
-//  |      X|     ...     |X      |  new_right_col_offset=5
-//
-// The same mechanism applies when the character moves up or down. Variables
-// new_top_row_cy, new_bottom_row_cy and new_bottom_row_offset are used to draw new rows at
-// top or the bottom of the screen when they become visible in the game window.
-//
 Window::Window(Config const &cfg)
 {
     window_width = cfg.window_width;
@@ -166,53 +92,6 @@ Window::Window(Config const &cfg)
     screen_pos.x = center_cell.x - fred_offset_x * MapPixelPos::CELL_WIDTH_PIXELS;
     screen_pos.y = center_cell.y - fred_offset_y * MapPixelPos::CELL_HEIGHT_PIXELS;
     // Note that screen_pos.x and screen_pos.y are always less than or equal to 0.
-
-    // Value of map_pos.cx that triggers drawing a column of blocks on the left of the
-    // screen, at map_pos.x. We first get the position of the first visible character on
-    // the left side of the screen with respect to F. Then we figure out the value of
-    // map_pos.cx when that falls on the last character of a block. (in the example:
-    // first_left=2 new_left_col_cx)
-    auto first_left = (top_left.x - screen_pos.x) / MapPixelPos::PIXELS_PER_CHAR;
-    new_left_col_cx = MapPos::CELL_WIDTH - 1 - first_left;
-    // Same for map_pos.cy() and new rows on the top
-    auto first_top = (top_left.y - screen_pos.y) / MapPixelPos::PIXELS_PER_CHAR;
-    new_top_row_cy = MapPos::CELL_HEIGHT - 1 - first_top;
-    // Similarly, for the right side we calculate the position of the last visible
-    // character with respect to F. Note that bottom_right.x is the position of the first
-    // non-visible pixel, so we need to subtract one pixel.
-    //   (in the example: last_right=25 gRightVT = 3)
-    auto last_right = (bottom_right.x - 1 - screen_pos.x) / MapPixelPos::PIXELS_PER_CHAR;
-    new_right_col_cx = (MapPos::CELL_WIDTH - (last_right % MapPos::CELL_WIDTH)) % MapPos::CELL_WIDTH;
-    new_right_col_offset = ceil_of_div(last_right, MapPos::CELL_WIDTH);
-    // Same for map_pos.cy() and new rows on the bottom
-    auto last_bottom = (bottom_right.y - 1 - screen_pos.y) / MapPixelPos::PIXELS_PER_CHAR;
-    new_bottom_row_cy = (MapPos::CELL_HEIGHT - (last_bottom % MapPos::CELL_HEIGHT)) % MapPos::CELL_HEIGHT;
-    new_bottom_row_offset = ceil_of_div(last_bottom, MapPos::CELL_HEIGHT);
-
-    // std::cout << "Frame info:"
-    //           << std::endl
-    //           << " top_left.x (x2)=" << top_left.x
-    //           << " top_left.y (y1)=" << top_left.y
-    //           << " bottom_right.x (x1)=" << bottom_right.x
-    //           << " bottom_right.y (y2)=" << bottom_right.y
-    //           << std::endl
-    //           << " center_cell.x=" << center_cell.x
-    //           << " center_cell.y=" << center_cell.y
-    //           << std::endl
-    //           << " fred_offset_x=" << fred_offset_x
-    //           << " fred_offset_y=" << fred_offset_y
-    //           << std::endl
-    //           << " screen_pos.x=" << screen_pos.x
-    //           << " screen_pos.y=" << screen_pos.y
-    //           << std::endl
-    //           << " new_left_col_cx=" << new_left_col_cx
-    //           << " new_right_col_cx=" << new_right_col_cx
-    //           << " new_right_col_offset=" << new_right_col_offset
-    //           << std::endl
-    //           << " new_top_row_cy=" << new_top_row_cy
-    //           << " new_bottom_row_cy=" << new_bottom_row_cy
-    //           << " new_bottom_row_offset=" << new_bottom_row_offset
-    //           << std::endl;
 }
 
 ScreenPos Window::getScreenPosOf(MapPos const &sprite_pos) const

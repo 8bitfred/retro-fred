@@ -20,7 +20,6 @@ add_executable(fred main.cpp sdl.hpp
     Window.cpp Window.hpp
     Coord.hpp
     Sprite.cpp Sprite.hpp
-    Block.cpp Block.hpp
     AcidDrop.hpp AcidDrop.cpp
     Fred.cpp Fred.hpp
     SoundID.hpp SoundManager.cpp SoundManager.hpp
