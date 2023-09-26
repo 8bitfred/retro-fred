@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Coord.hpp"
+#include "sdl.hpp"
 
 struct Config;
 struct SDL_Renderer;
@@ -9,43 +10,33 @@ class Game;
 
 class Window
 {
+    // Total width of the system window (game window and window frame)
+    int total_width, total_height;
+    // Position and size of the game window in the screen
+    SDL_Rect window_rect;
+    // Offset, in pixels, to the center cell (position of Fred) relative to the top left
+    // corner of the window.
+    int center_offset_x = 0, center_offset_y = 0;
+    // User offset
+    int user_offset_x = 0, user_offset_y = 0;
+    // Position of the top left corner of the screen in the map
+    MapPixelPos window_pos;
+
+    void drawMinimap(Game &game, SDL_Renderer *renderer, int x, int y);
+
 public:
     static constexpr int SCOREBOARD_WIDTH = 7;
     explicit Window(Config const &cfg);
 
-    ScreenPos const& getTopLeft() const { return top_left; }
-    ScreenPos const& getBottomRight() const { return bottom_right; }
-    ScreenPos const &getCenterCell() const { return center_cell; }
+    void addUserOffset(int delta_x, int delta_y);
+    void resetUserOffset();
+    void setWindowPos(MapPos const &ref_pos);
+    SDL_Rect const &rect() const { return window_rect; }
+    MapPixelPos const &getWindowPos() const { return window_pos; }
     ScreenPos getScreenPosOf(MapPos const &sprite_pos) const;
-
-    MapPos const &gFrame() const { return map_pos; }
-    void moveFrame(int deltax, int deltay)
-    {
-        map_pos.xadd(deltax);
-        map_pos.yadd(deltay);
-    }
-    void adjustFramePos(MapPos fred_pos);
-
-    int getFredOffsetX() const { return fred_offset_x; }
-    int getFredOffsetY() const { return fred_offset_y; }
+    CellPos getCenter() const;
 
     // TODO: Game should be const
     void renderFrame(Game& game, SDL_Renderer *renderer,
                      TextureManager const &tmgr);
-
-private:
-    void drawMinimap(Game &game, SDL_Renderer *renderer, int x, int y);
-
-    int window_width, window_height;
-
-    // Position of F, in map coordinates
-    MapPos map_pos;
-    // Position of the game window
-    ScreenPos top_left;      // (x2, y1), top left corner of the game window
-    ScreenPos bottom_right;  // (x1, y2), bottom right corner of the game window
-    ScreenPos center_cell;
-    // Offset of the Fred character with respect to F, in cells
-    int fred_offset_x, fred_offset_y;
-    // Position of the F point in screen coordinates
-    ScreenPos screen_pos;
 };

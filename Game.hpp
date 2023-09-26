@@ -24,7 +24,7 @@ public:
     static constexpr unsigned EVENT_DOWN = 0x08;
     static constexpr unsigned EVENT_FIRE = 0x10;
     static constexpr unsigned EVENT_SHIFT = 0x20;
-    static constexpr unsigned EVENT_RESET_FRED = 0x40;
+    static constexpr unsigned EVENT_MOVE_FRED = 0x40;
     static constexpr unsigned EVENT_HATCH_LEFT = 0x80;
     static constexpr unsigned EVENT_HATCH_RIGHT = 0x100;
     static constexpr unsigned EVENT_MOVE_TO_HATCH = 0x200;
@@ -32,6 +32,7 @@ public:
     static constexpr unsigned EVENT_RCTRL = 0x800;
     static constexpr unsigned EVENT_DIE = 0x1000;
     static constexpr unsigned EVENT_MAP = 0x2000;
+    static constexpr unsigned EVENT_RESET_USER_OFFSET = 0x4000;
 
     static constexpr unsigned MAX_POWER = 15;
     static constexpr unsigned MAX_BULLETS = 6;
@@ -66,7 +67,6 @@ public:
     }
     // TODO: this function should be const
     void render(SDL_Renderer *renderer);
-    void moveFrame(int deltax, int deltay);
     void playSound(SoundID sound_id);
     void addSound(SoundID sound_id);
     void playPendingSounds();

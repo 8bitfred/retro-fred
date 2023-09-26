@@ -154,7 +154,6 @@ void Fred::walkOneStep(Game &game)
         game.addSound(SoundID::WALK);
     }
     sprite_pos.xadd(direction);
-    game.moveFrame(direction, 0);
 }
 
 void Fred::startSideJump(Game& game)
@@ -163,7 +162,6 @@ void Fred::startSideJump(Game& game)
     state = State::SIDE_JUMP;
     jump_stage = 3;
     sprite_pos.xadd(direction);
-    game.moveFrame(direction, 0);
     game.addSound(SoundID::JUMP);
 }
 
@@ -201,7 +199,6 @@ void Fred::stateSideJump(Game& game, int, int)
 {
     --jump_stage;
     sprite_pos.xadd(direction);
-    game.moveFrame(direction, 0);
     if (jump_stage == 0)
     {
         if (game.getGameMap().isStone(sprite_pos.cellPos(), 0, 1))
@@ -258,7 +255,6 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
         game.addSound(climbing_sound);
         climbing_sound = climbing_sound == SoundID::CLIMB1 ? SoundID::CLIMB2 : SoundID::CLIMB1;
         sprite_pos.yadd(input_y);
-        game.moveFrame(0, input_y);
         return;
     }
     else
@@ -267,10 +263,9 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
     }
 }
 
-void Fred::stateExitMaze(Game &game)
+void Fred::stateExitMaze(Game &)
 {
     sprite_pos.yadd(-1);
-    game.moveFrame(0, -1);
     frame = frame == Frame::CLIMBING1 ? Frame::CLIMBING2 : Frame::CLIMBING1;
 }
 
@@ -318,44 +313,52 @@ void Fred::checkCollisionWithObject(Game &game)
 
 void Fred::dbgResetPosition(Game &game)
 {
-    if (state != State::WALK)
+    if (state != State::WALK && state != State::CLIMB)
         return;
-    auto candidate = game.getFrame().gFrame().cellPos(game.getFrame().getFredOffsetX(),
-                                                      game.getFrame().getFredOffsetY());
-    auto max_x = game.getGameMap().getWidth() - 2;
-    auto max_y = game.getGameMap().getHeight() - 2;
-    candidate.x = std::max(1, std::min(max_x, candidate.x));
-    candidate.y = std::max(1, std::min(max_y, candidate.y));
-    candidate.y += (candidate.y % 2) - 1;
-
-    for (int deltax = 0; true; ++deltax)
+    for (int dist = 0; dist < 20; ++dist)
     {
-        if (CellPos cell_pos{candidate.x + deltax, candidate.y};
-            cell_pos.x <= max_x && 
-            game.getGameMap().getBlock(cell_pos) == GameMap::Cell::EMPTY)
+        for (int deltay = -dist; deltay <= (dist + 1); ++deltay)
         {
-            sprite_pos = MapPos(cell_pos.x, cell_pos.y, 0, 1);
-            break;
-        }
-        if (CellPos cell_pos{candidate.x - deltax, candidate.y};
-            deltax > 0 && cell_pos.x >= 1 && 
-            game.getGameMap().getBlock(cell_pos) == GameMap::Cell::EMPTY)
-        {
-            sprite_pos = MapPos(cell_pos.x, cell_pos.y, 0, 1);
-            break;
+            int stepx = 1;
+            if (deltay > -dist && deltay <= dist)
+                stepx = 2 * dist + 1;
+            for (int deltax = -dist; deltax <= (dist + 1); deltax += stepx)
+            {
+                auto cell_pos = game.getFrame().getCenter();
+                auto block = game.getGameMap().getBlock(cell_pos, deltax, deltay);
+                if (block == GameMap::Cell::EMPTY ||
+                    block == GameMap::Cell::ROPE_END)
+                {
+                    sprite_pos = MapPos(cell_pos.x + deltax, cell_pos.y + deltay, 0, 1);
+                    game.updateFredPos(sprite_pos, 1);
+                    game.getFrame().resetUserOffset();
+                    vposition = 1;
+                    if (state != State::WALK)
+                    {
+                        state = State::WALK;
+                        frame = Frame::STANDING;
+                    }
+                    return;
+                }
+            }
         }
     }
-
-    game.getFrame().adjustFramePos(sprite_pos);
 }
 
 void Fred::dbgMoveToHatch(Game &game)
 {
-    if (state != State::WALK)
+    if (state != State::WALK && state != State::CLIMB)
         return;
     auto hatch_pos = game.getGameMap().dbgGetHatchPos();
     sprite_pos = {hatch_pos.x, hatch_pos.y + 1, 0, 1};
-    game.getFrame().adjustFramePos(sprite_pos);
+    game.updateFredPos(sprite_pos, 1);
+    game.getFrame().resetUserOffset();
+    vposition = 1;
+    if (state != State::WALK)
+    {
+        state = State::WALK;
+        frame = Frame::STANDING;
+    }
 }
 
 void Fred::dbgDie()

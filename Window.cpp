@@ -19,9 +19,9 @@
 //       |   0   |   1   |   2   |   3   |   4   |   5   |   6   |   7   |   8   |
 //       |0|1|2|3|0|1|2|3|0|1|2|3|0|1|2|3|0|1|2|3|0|1|2|3|0|1|2|3|0|1|2|3|0|1|2|3|
 //     --+-------+-------+-------+-------+-------+-------+-------+-------+-------+--
-//     0 |F      |       |       |       |       |       |       |       |       |
-//     1 |  S X X|X X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X      |
-//   0 2 |  X    |       |       |       |       |       |    X  |       |X      |
+//     0 |       |       |       |       |       |       |       |       |       |
+//     1 |  X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X      |
+//   0 2 |  X S  |       |       |       |       |       |    X  |       |X      |
 //     3 |  X    |       |       |       |       |       |    X  |       |X      |
 //     4 |  X    |       |       |       |       |       |    X  |       |X      |
 //     --+-------+-------+-------+-------+-------+-------+-------+-------+-------+--
@@ -50,67 +50,66 @@
 //     4 |  X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X X X X|X      |
 //     --+-------+-------+-------+-------+-------+-------+-------+-------+-------+--
 //
-// Our main character, Fred, is always placed on the center of the screen. Local variable
-// fred_pos contains the screen coordinates of Fred.
-//
-// We use the F point to determine which part of the map should be shown in the scren. We
-// define the F point to be an integer number of cells to the left and to the top of Fred,
-// such that the cell of the F point is always visible in the game window. Member variable
-// map_pos stores the position of F in map coordinates (x, y, cx, cy). To move Fred around
-// the map we just update the coordinates of F. Since Fred is always a given number of
-// cells from F, Fred moves as F moves.
-//
-// The S point above is the top left corner of the screen. Member variable screen_pos
-// contains the position of F with respect to S.
-//
+// Our main character, Fred, is always placed on the center of the screen.
 Window::Window(Config const &cfg)
+    : total_width(cfg.window_width)
+    , total_height(cfg.window_height)
+    , window_rect{MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR,
+                  total_width - (SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
+                  total_height - 2 * MapPos::PIXELS_PER_CHAR}
 {
-    window_width = cfg.window_width;
-    window_height = cfg.window_height;
+    // Position of the center cell (for Fred): in the center of the screen, rounded down
+    // to a character (in the example: center_offset_x = 80, center_offset_y = 64)
+    center_offset_x = round_down((window_rect.w - MapPos::CELL_WIDTH_PIXELS) / 2,
+                                 MapPos::PIXELS_PER_CHAR);
+    center_offset_y = round_down((window_rect.h - MapPos::CELL_HEIGHT_PIXELS) / 2,
+                                 MapPos::PIXELS_PER_CHAR);
 
-    // Screen coordinates of the game window
-    //   (in the example: top_left={8,8} bottom right={200,184})
-    top_left.x = MapPixelPos::PIXELS_PER_CHAR;  // x2
-    top_left.y = MapPixelPos::PIXELS_PER_CHAR;  // y1
-    bottom_right.x = cfg.window_width - SCOREBOARD_WIDTH * MapPixelPos::PIXELS_PER_CHAR; // x1
-    bottom_right.y = cfg.window_height - MapPixelPos::PIXELS_PER_CHAR;              // y2
+    if (cfg.debug_map)
+    {
+        std::cout << "total_width=" << total_width
+                  << " total_height=" << total_height
+                  << std::endl
+                  << "window_rect=(" << window_rect.x
+                  << ", " << window_rect.y
+                  << ", " << window_rect.w
+                  << ", " << window_rect.h << ")"
+                  << std::endl
+                  << "center_offset_x=" << center_offset_x
+                  << " center_offset_y=" << center_offset_y
+                  << std::endl;
+    }
+}
 
-    // Position of Fred: in the center of the screen, rounded down to a character
-    //   (in the example: fred_pos.x = 88, fred_pos.y = 72)
-    auto center_x = (top_left.x + bottom_right.x - MapPixelPos::CELL_WIDTH_PIXELS) / 2;
-    center_cell.x = round_down(center_x, MapPixelPos::PIXELS_PER_CHAR);
-    auto center_y = (top_left.y + bottom_right.y - MapPixelPos::CELL_HEIGHT_PIXELS) / 2;
-    center_cell.y = round_down(center_y, MapPixelPos::PIXELS_PER_CHAR);
-    // We want F to be an integer number of cells fom the left and top of the Fred sprite,
-    // so we calculate how many cells Fred is from F
-    //   (in the example fred_offset_x = 3, fred_offset_y = 2)
-    fred_offset_x = ceil_of_div(center_cell.x - top_left.x, MapPixelPos::CELL_WIDTH_PIXELS);
-    fred_offset_y = ceil_of_div(center_cell.y - top_left.y, MapPixelPos::CELL_HEIGHT_PIXELS);
-    // Coordinates of F, with reference to the screen (S), based on the position of Fred
-    // in the Screen
-    //   (in the example: screen_pos.x = -8, screen_pos.y = -8)
-    screen_pos.x = center_cell.x - fred_offset_x * MapPixelPos::CELL_WIDTH_PIXELS;
-    screen_pos.y = center_cell.y - fred_offset_y * MapPixelPos::CELL_HEIGHT_PIXELS;
-    // Note that screen_pos.x and screen_pos.y are always less than or equal to 0.
+void Window::addUserOffset(int delta_x, int delta_y)
+{
+    user_offset_x += delta_x;
+    user_offset_y += delta_y;
+}
+
+void Window::resetUserOffset()
+{
+    user_offset_x = user_offset_y = 0;
+}
+
+void Window::setWindowPos(MapPos const &ref_pos)
+{
+    window_pos.x = ref_pos.px() - center_offset_x + user_offset_x;
+    window_pos.y = ref_pos.py() - center_offset_y + user_offset_y;
 }
 
 ScreenPos Window::getScreenPosOf(MapPos const &sprite_pos) const
 {
     ScreenPos spos;
-    spos.x = screen_pos.x +
-             (sprite_pos.getCharX() - map_pos.getCharX()) * MapPixelPos::PIXELS_PER_CHAR;
-    spos.y = screen_pos.y +
-             (sprite_pos.getCharY() - map_pos.getCharY()) * MapPixelPos::PIXELS_PER_CHAR;
+    spos.x = window_rect.x + sprite_pos.px() - window_pos.x;
+    spos.y = window_rect.y + sprite_pos.py() - window_pos.y;
     return spos;
 }
 
-void Window::adjustFramePos(MapPos fred_pos)
+CellPos Window::getCenter() const
 {
-    map_pos = MapPos{fred_pos.x() - fred_offset_x,
-                     fred_pos.y() - fred_offset_y,
-                     fred_pos.cx(),
-                     fred_pos.cy()};
-    map_pos.yadd(-1);
+    return CellPos{(window_pos.x + center_offset_x) / MapPos::CELL_WIDTH_PIXELS,
+                   (window_pos.y + center_offset_y) / MapPos::CELL_HEIGHT_PIXELS};
 }
 
 void Window::renderFrame(Game &game, SDL_Renderer *renderer,
@@ -120,26 +119,27 @@ void Window::renderFrame(Game &game, SDL_Renderer *renderer,
     Uint32 texture_format;
     SDL_QueryTexture(base_window, &texture_format, nullptr, nullptr, nullptr);
 
-    SDL_Rect const window_char = {0, 0, 8, 8};
-    for (int x = 0; x < window_width; x += 8)
+    SDL_Rect const window_char = {0, 0, MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR};
+    for (int x = 0; x < total_width; x += MapPos::PIXELS_PER_CHAR)
     {
-        SDL_Rect dst_rect = {x, 0, 8, 8};
+        SDL_Rect dst_rect = {x, 0, MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR};
         auto status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
-        dst_rect.y = window_height - 8;
+        dst_rect.y = total_height - MapPos::PIXELS_PER_CHAR;
         status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
     }
 
-    for (int y = 0; y < window_height; y += 8)
+    for (int y = 0; y < total_height; y += MapPos::PIXELS_PER_CHAR)
     {
-        SDL_Rect dst_rect = {0, y, 8, 8};
+        SDL_Rect dst_rect = {0, y, MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR};
         auto status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
-        for (int x = window_width - 56; x < window_width; x += 8)
+        for (int x = total_width - SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR; 
+            x < total_width; x += MapPos::PIXELS_PER_CHAR)
         {
             dst_rect.x = x;
             status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
@@ -149,7 +149,8 @@ void Window::renderFrame(Game &game, SDL_Renderer *renderer,
     }
 
     SDL_Rect src_scoreboard{8, 8, 40, 176};
-    SDL_Rect dst_scoreboard{window_width - 48, 8, 40, 176};
+    SDL_Rect dst_scoreboard{total_width - (SCOREBOARD_WIDTH - 1) * MapPos::PIXELS_PER_CHAR, 
+                            MapPos::PIXELS_PER_CHAR, 40, 176};
     auto status = SDL_RenderCopy(renderer, base_window, &src_scoreboard, &dst_scoreboard);
     if (status < 0)
         throw sdl::Error();
