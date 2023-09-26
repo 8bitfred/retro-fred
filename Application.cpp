@@ -85,15 +85,15 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
         updateSprites(game);
 
         if ((events & Game::EVENT_SHIFT) != 0 && cfg.debug_keys)
-            debugMode(game, events);
-        else
         {
-            fred->updateFred(game, events);
-            if (fred->exiting())
-            {
-                endOfLevelSequence(game);
-                return LevelStatus::NEXT_LEVEL;
-            }
+            debugMode(game, events);
+            events = 0;
+        }
+        fred->updateFred(game, events);
+        if (fred->exiting())
+        {
+            endOfLevelSequence(game);
+            return LevelStatus::NEXT_LEVEL;
         }
 
         checkBulletCollisions(game);
@@ -146,7 +146,7 @@ void FredApp::initializeFred(Game &game)
         fred_initial_position = {fred_cell_position.x, fred_cell_position.y, 0, 1};
     }
     auto fred_unique_ptr = std::make_unique<Fred>(fred_initial_position);
-    game.getFrame().adjustFramePos(fred_initial_position);
+    game.updateFredPos(fred_initial_position, 1);
     game.getSpriteList(SpriteClass::FRED).emplace_back(std::move(fred_unique_ptr));
 }
 
@@ -487,15 +487,17 @@ void FredApp::debugMode(Game &game, unsigned events)
 {
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
     if ((events & Game::EVENT_LEFT) != 0)
-        game.moveFrame(-MapPos::CELL_WIDTH, 0);
+        game.getFrame().addUserOffset(-MapPos::CELL_WIDTH_PIXELS, 0);
     else if ((events & Game::EVENT_RIGHT) != 0)
-        game.moveFrame(MapPos::CELL_WIDTH, 0);
+        game.getFrame().addUserOffset(MapPos::CELL_WIDTH_PIXELS, 0);
     else if ((events & Game::EVENT_UP) != 0)
-        game.moveFrame(0, -MapPos::CELL_HEIGHT);
+        game.getFrame().addUserOffset(0, -MapPos::CELL_HEIGHT_PIXELS);
     else if ((events & Game::EVENT_DOWN) != 0)
-        game.moveFrame(0, MapPos::CELL_HEIGHT);
-    else if ((events & Game::EVENT_RESET_FRED) != 0)
+        game.getFrame().addUserOffset(0, MapPos::CELL_HEIGHT_PIXELS);
+    else if ((events & Game::EVENT_MOVE_FRED) != 0)
         fred->dbgResetPosition(game);
+    else if ((events & Game::EVENT_RESET_USER_OFFSET) != 0)
+        game.getFrame().resetUserOffset();
     else if ((events & Game::EVENT_HATCH_LEFT) != 0)
         game.getGameMap().dbgMoveHatch(-1);
     else if ((events & Game::EVENT_HATCH_RIGHT) != 0)

@@ -7,15 +7,11 @@
 bool Sprite::isVisible(Window const &window) const
 {
     auto const &box_params = getBoxParams();
-    // TODO: screen_rect should be a constant in the window class
-    SDL_Rect screen_rect = {window.getTopLeft().x, window.getTopLeft().y,
-                            window.getBottomRight().x - window.getTopLeft().x,
-                            window.getBottomRight().y - window.getTopLeft().y};
     auto spos = window.getScreenPosOf(sprite_pos);
     SDL_Rect dst_rect = {spos.x + box_params.bounding_box.x,
                          spos.y + box_params.bounding_box.y,
                          box_params.bounding_box.w, box_params.bounding_box.h};
-    return SDL_HasIntersection(&screen_rect, &dst_rect);
+    return SDL_HasIntersection(&window.rect(), &dst_rect);
 }
 
 void Sprite::render(Config const &cfg,
@@ -23,15 +19,11 @@ void Sprite::render(Config const &cfg,
                     SDL_Renderer *renderer) const
 {
     auto const &box_params = getBoxParams();
-    // TODO: screen_rect should be a constant in the window class
-    SDL_Rect screen_rect = {window.getTopLeft().x, window.getTopLeft().y,
-                            window.getBottomRight().x - window.getTopLeft().x,
-                            window.getBottomRight().y - window.getTopLeft().y};
     auto spos = window.getScreenPosOf(sprite_pos);
     SDL_Rect dst_rect = {spos.x + box_params.bounding_box.x,
                          spos.y + box_params.bounding_box.y,
                          box_params.bounding_box.w, box_params.bounding_box.h};
-    if (!SDL_HasIntersection(&screen_rect, &dst_rect))
+    if (!SDL_HasIntersection(&window.rect(), &dst_rect))
         return;
     auto render_params = getRenderParams();
     SDL_Rect src_rect = {box_params.pos_x + box_params.bounding_box.x,

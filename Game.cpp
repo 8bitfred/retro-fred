@@ -22,7 +22,9 @@ unsigned Game::getEventOfKey(SDL_Keycode keycode)
     case SDLK_LSHIFT:
         return EVENT_SHIFT;
     case SDLK_f:
-        return EVENT_RESET_FRED;
+        return EVENT_MOVE_FRED;
+    case SDLK_r:
+        return EVENT_RESET_USER_OFFSET;
     case SDLK_o:
         return EVENT_HATCH_LEFT;
     case SDLK_p:
@@ -66,11 +68,9 @@ void Game::nextLevel(std::minstd_rand &random_engine)
 void Game::render(SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
-    auto fpos = window.getScreenPosOf(window.gFrame());
-    SDL_Rect map_dst = {fpos.x, fpos.y,
-                        window.getBottomRight().x - fpos.x,
-                        window.getBottomRight().y - fpos.y};
-    game_map.render(renderer, tmgr, window.gFrame().px(), window.gFrame().py(), &map_dst);
+    game_map.render(renderer, tmgr,
+                    window.getWindowPos().x, window.getWindowPos().y,
+                    &window.rect());
     for (auto const &sprites : sprite_lists)
     {
         for (auto const &s: sprites)
@@ -78,12 +78,6 @@ void Game::render(SDL_Renderer *renderer)
     }
     window.renderFrame(*this, renderer, tmgr);
     SDL_RenderPresent(renderer);
-}
-
-void Game::moveFrame(int deltax, int deltay)
-{
-
-    window.moveFrame(deltax, deltay);
 }
 
 void Game::playSound(SoundID sound_id)
@@ -119,6 +113,9 @@ void Game::updateFredPos(MapPos fred_pos, int vposition)
 {
     this->fred_pos = fred_pos;
     this->fred_vposition = vposition;
+    auto ref_pos = fred_pos;
+    ref_pos.yadd(-vposition);
+    window.setWindowPos(ref_pos);
 }
 
 bool Game::canShoot() const

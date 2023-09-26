@@ -19,9 +19,11 @@ class MapPos
     static constexpr int mod(int a, int b) { return a % b + (a < 0 ? b : 0); }
 
 public:
+    static constexpr int PIXELS_PER_CHAR = 8;
     static constexpr int CELL_WIDTH = 4;
     static constexpr int CELL_HEIGHT = 5;
-    static constexpr int PIXELS_PER_CHAR = 8;
+    static constexpr int CELL_WIDTH_PIXELS = CELL_WIDTH * PIXELS_PER_CHAR;
+    static constexpr int CELL_HEIGHT_PIXELS = CELL_HEIGHT * PIXELS_PER_CHAR;
     constexpr MapPos() = default;
     constexpr MapPos(int x, int y, int cx, int cy)
         : char_x(x * CELL_WIDTH + cx), char_y(y * CELL_HEIGHT + cy) {}
