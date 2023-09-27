@@ -109,10 +109,10 @@ MapPos Game::getFredCellPos() const
     return pos;
 }
 
-void Game::updateFredPos(MapPos fred_pos, int vposition)
+void Game::updateFredPos(MapPos new_fred_pos, int vposition)
 {
-    this->fred_pos = fred_pos;
-    this->fred_vposition = vposition;
+    fred_pos = new_fred_pos;
+    fred_vposition = vposition;
     auto ref_pos = fred_pos;
     ref_pos.yadd(-vposition);
     window.setWindowPos(ref_pos);
