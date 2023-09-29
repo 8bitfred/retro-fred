@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project("fred2023")
 
 find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 if (MSVC)
@@ -34,17 +35,11 @@ add_executable(fred main.cpp sdl.hpp
     Smoke.cpp Smoke.hpp
     Object.cpp Object.hpp
     Tomb.cpp Tomb.hpp)
-target_link_libraries(fred ${SDL2_LIBRARIES})
-if (NOT MSVC)
-    target_link_libraries(fred -lSDL2_image)
-endif()
+target_link_libraries(fred ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)
 set_property(TARGET fred PROPERTY CXX_STANDARD_REQUIRED True)
 
 add_executable(sandbox sandbox.cpp sdl.hpp)
-target_link_libraries(sandbox ${SDL2_LIBRARIES})
-if (NOT MSVC)
-    target_link_libraries(sandbox -lSDL2_image)
-endif()
+target_link_libraries(sandbox ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 set_property(TARGET sandbox PROPERTY CXX_STANDARD 20)
 set_property(TARGET sandbox PROPERTY CXX_STANDARD_REQUIRED True)
