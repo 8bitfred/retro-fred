@@ -90,11 +90,6 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
             events = 0;
         }
         fred->updateFred(game, events);
-        if (fred->exiting())
-        {
-            endOfLevelSequence(game);
-            return LevelStatus::NEXT_LEVEL;
-        }
 
         checkBulletCollisions(game);
         checkCollisionsWithEnemies(game);
@@ -102,6 +97,11 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
         {
             gameOverSequence(game);
             return LevelStatus::GAME_OVER;
+        }
+        else if (fred->exiting())
+        {
+            endOfLevelSequence(game);
+            return LevelStatus::NEXT_LEVEL;
         }
         fred->checkCollisionWithObject(game);
 
@@ -424,11 +424,11 @@ void FredApp::checkBulletCollisions(Game &game)
 void FredApp::endOfLevelSequence(Game &game)
 {
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
+    game.render(getRenderer());
+    SDL_Delay(cfg.ticks_per_frame);
     for (int i = static_cast<int>(SpriteClass::RAT);
          i <= static_cast<int>(SpriteClass::SMOKE); ++i)
         game.getSpriteList(static_cast<SpriteClass>(i)).clear();
-    game.render(getRenderer());
-    SDL_Delay(cfg.ticks_per_frame);
     for (int i = 0; i < 4; ++i)
     {
         fred->updateFred(game, 0);
