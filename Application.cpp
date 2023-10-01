@@ -117,15 +117,15 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
 
 void FredApp::initializeSprites(Game &game)
 {
-    initializeFred(game);
-    initializeAcidDrops(game);
     initializeRats(game);
+    initializeAcidDrops(game);
     initializeGhosts(game);
-    initializeChameleons(game);
     initializeMummies(game);
     initializeVampires(game);
+    initializeChameleons(game);
     initializeSkeletons(game);
     initializeObjects(game);
+    initializeFred(game);
 }
 
 void FredApp::initializeFred(Game &game)
@@ -424,8 +424,8 @@ void FredApp::checkBulletCollisions(Game &game)
 void FredApp::endOfLevelSequence(Game &game)
 {
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
-    for (int i = static_cast<int>(SpriteClass::ACID_DROP);
-         i <= static_cast<int>(SpriteClass::GHOST); ++i)
+    for (int i = static_cast<int>(SpriteClass::RAT);
+         i <= static_cast<int>(SpriteClass::SMOKE); ++i)
         game.getSpriteList(static_cast<SpriteClass>(i)).clear();
     game.render(getRenderer());
     SDL_Delay(cfg.ticks_per_frame);
