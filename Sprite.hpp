@@ -68,16 +68,16 @@ private:
 enum class SpriteClass
 {
     BULLET,
+    RAT,
     ACID_DROP,
-    SKELETON,
+    GHOST,
     MUMMY,
     VAMPIRE,
-    RAT,
     CHAMELEON,
-    OBJECT,
-    GHOST,
+    SKELETON,
     SMOKE,
     FRED,
+    OBJECT,
     TOMB,
     COUNT
 };
