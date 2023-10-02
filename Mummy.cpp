@@ -1,28 +1,29 @@
 #include "Mummy.hpp"
-#include "Game.hpp"
+#include "GameMap.hpp"
 
 int Mummy::mummy_timer = 0;
 
-Mummy::Mummy(Game& game, std::minstd_rand &random_engine)
-    : Sprite::Sprite(getRandomLocation(random_engine, game.getGameMap()))
+Mummy::Mummy(GameMap const &game_map, std::minstd_rand &random_engine)
+    : Sprite::Sprite(getRandomLocation(random_engine, game_map))
+    , game_map(game_map)
     , random_engine(random_engine)
     , direction(getRandomDirection(random_engine))
 {
 }
 
-void Mummy::update(Game &game, unsigned)
+void Mummy::update(unsigned)
 {
     if (state == State::WALK)
-        stateWalk(game);
+        stateWalk();
     else if (state == State::FALL)
-        stateFall(game);
+        stateFall();
     else if (state == State::BOUNCE)
-        stateBounce(game);
+        stateBounce();
     else if (state == State::DISAPPEAR)
-        stateDisappear(game);
+        stateDisappear();
 }
 
-void Mummy::stateWalk(Game &game)
+void Mummy::stateWalk()
 {
     // 0 if direction < 0, 1 if direction > 0
     int stone_limit = (direction + 1) / 2;
@@ -32,7 +33,7 @@ void Mummy::stateWalk(Game &game)
     int x_below = stone_limit;
     if (sprite_pos.cx() == stone_limit)
     {
-        if (game.getGameMap().isStone(sprite_pos.cellPos(), direction))
+        if (game_map.isStone(sprite_pos.cellPos(), direction))
         {
             if (flip)
             {
@@ -50,7 +51,7 @@ void Mummy::stateWalk(Game &game)
     }
     else if (sprite_pos.cx() == rope_limit)
     {
-        if (!game.getGameMap().isStone(sprite_pos.cellPos(), x_below, 1))
+        if (!game_map.isStone(sprite_pos.cellPos(), x_below, 1))
         {
             frame = Frame::FALL;
             state = State::FALL;
@@ -66,10 +67,10 @@ void Mummy::stateWalk(Game &game)
     }
 }
 
-void Mummy::stateFall(Game &game)
+void Mummy::stateFall()
 {
     if (sprite_pos.cy() == 1 &&
-        game.getGameMap().isStone(sprite_pos.cellPos(), 0, 1))
+        game_map.isStone(sprite_pos.cellPos(), 0, 1))
     {
         state = State::BOUNCE;
         return;
@@ -77,7 +78,7 @@ void Mummy::stateFall(Game &game)
     sprite_pos.yadd(2);
 }
 
-void Mummy::stateBounce(Game &)
+void Mummy::stateBounce()
 {
     if (sprite_pos.cy() == 1)
         sprite_pos.yadd(-1);
@@ -90,9 +91,9 @@ void Mummy::stateBounce(Game &)
     }
 }
 
-void Mummy::stateDisappear(Game &game)
+void Mummy::stateDisappear()
 {
-    sprite_pos = getRandomLocation(random_engine, game.getGameMap());
+    sprite_pos = getRandomLocation(random_engine, game_map);
     direction = getRandomDirection(random_engine);
     state = State::WALK;
     frame = Frame::STANDING;

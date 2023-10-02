@@ -1,6 +1,6 @@
 #include "AcidDrop.hpp"
 
-void AcidDrop::update(Game &, unsigned)
+void AcidDrop::update(unsigned)
 {
     // State 5-Check Position
     if (sprite_pos.cy() == 0)

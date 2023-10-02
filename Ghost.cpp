@@ -1,5 +1,5 @@
 #include "Ghost.hpp"
-#include "Game.hpp"
+#include "GameMap.hpp"
 
 void Ghost::setRandomDirection()
 {
@@ -19,13 +19,13 @@ void Ghost::setRandomDirection()
     }
 }
 
-Ghost::Ghost(MapPos const &pos, std::minstd_rand &random_engine)
-    : Sprite::Sprite(pos), random_engine(random_engine)
+Ghost::Ghost(GameMap const &game_map, MapPos const &pos, std::minstd_rand &random_engine)
+    : Sprite::Sprite(pos), game_map(game_map), random_engine(random_engine)
 {
     setRandomDirection();
 }
 
-void Ghost::update(Game &game, unsigned)
+void Ghost::update(unsigned)
 {
     alternate_frame ^= 1;
     bool char_limit = false;
@@ -34,26 +34,26 @@ void Ghost::update(Game &game, unsigned)
     if (direction.x > 0)
     {
         char_limit = sprite_pos.cx() == 1;
-        map_limit = sprite_pos.x() == (game.getGameMap().getWidth() - 2);
-        is_stone = game.getGameMap().isStone(sprite_pos.cellPos(), 1);
+        map_limit = sprite_pos.x() == (game_map.getWidth() - 2);
+        is_stone = game_map.isStone(sprite_pos.cellPos(), 1);
     }
     else if (direction.x < 0)
     {
         char_limit = sprite_pos.cx() == 0;
         map_limit = sprite_pos.x() == 1;
-        is_stone = game.getGameMap().isStone(sprite_pos.cellPos(), -1);
+        is_stone = game_map.isStone(sprite_pos.cellPos(), -1);
     }
     else if (direction.y > 0)
     {
         char_limit = sprite_pos.cy() == 1;
-        map_limit = sprite_pos.y() == (game.getGameMap().getHeight() - 2);
-        is_stone = game.getGameMap().isStone(sprite_pos.cellPos(), 0, 1);
+        map_limit = sprite_pos.y() == (game_map.getHeight() - 2);
+        is_stone = game_map.isStone(sprite_pos.cellPos(), 0, 1);
     }
     else
     {
         char_limit = sprite_pos.cy() == 1;
         map_limit = sprite_pos.y() == 1;
-        is_stone = game.getGameMap().isStone(sprite_pos.cellPos(), 0, -1);
+        is_stone = game_map.isStone(sprite_pos.cellPos(), 0, -1);
     }
 
     if (char_limit)

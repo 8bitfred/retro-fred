@@ -1,7 +1,7 @@
 #include "Bullet.hpp"
 #include "Game.hpp"
 
-bool Bullet::isAlive(Game &game)
+bool Bullet::isAlive()
 {
     auto const &fred_pos = game.getFredPos();
     MapPos center_pos = sprite_pos;

@@ -3,7 +3,7 @@
 
 int Skeleton::climbing_frame = 0;
 
-void Skeleton::update(Game &game, unsigned)
+void Skeleton::update(unsigned)
 {
     if (sprite_pos.cx() == 0 && sprite_pos.cy() == 1)
     {

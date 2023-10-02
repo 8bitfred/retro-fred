@@ -9,7 +9,6 @@
 
 class Window;
 class TextureManager;
-class Game;
 struct Config;
 
 class Sprite
@@ -38,7 +37,7 @@ public:
                 Window const &window, TextureManager const &tmgr,
                 SDL_Renderer *renderer) const;
     // TODO: update() could be made =0
-    virtual void update(Game &, unsigned) {}
+    virtual void update(unsigned) {}
     //TODO: this may not need to be exposed
     MapPos const &getPos() const { return sprite_pos; }
     bool checkCollision(Sprite const &other);
