@@ -7,15 +7,6 @@ class GameMap;
 
 class Mummy : public Sprite
 {
-    static MapPos getRandomLocation(std::minstd_rand &random_engine, 
-                                    GameMap const &game_map);
-    static int getRandomDirection(std::minstd_rand &random_engine);
-
-    void stateWalk(Game &game);
-    void stateFall(Game &game);
-    void stateBounce(Game &game);
-    void stateDisappear(Game &game);
-
     enum class Frame
     {
         STEP,
@@ -32,20 +23,28 @@ class Mummy : public Sprite
         DISAPPEAR,
     };
     static int mummy_timer;
-    State state = State::WALK;
+    GameMap const &game_map;
     std::minstd_rand &random_engine;
+    State state = State::WALK;
     int direction;
     Frame frame = Frame::STANDING;
     bool flip = false;
 
-public:
-    Mummy(Game& game, std::minstd_rand &random_engine);
+    static MapPos getRandomLocation(std::minstd_rand &random_engine, 
+                                    GameMap const &game_map);
+    static int getRandomDirection(std::minstd_rand &random_engine);
 
-    void update(Game &game, unsigned events) override;
-    BulletEffect bulletHit() override { return BulletEffect::DIE; }
-    static void toggleMummyTimer() { mummy_timer ^= 1; }
-
-protected:
+    void stateWalk();
+    void stateFall();
+    void stateBounce();
+    void stateDisappear();
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+
+public:
+    Mummy(GameMap const& game_map, std::minstd_rand &random_engine);
+
+    void update(unsigned events) override;
+    BulletEffect bulletHit() override { return BulletEffect::DIE; }
+    static void toggleMummyTimer() { mummy_timer ^= 1; }
 };

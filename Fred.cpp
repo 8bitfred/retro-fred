@@ -1,6 +1,5 @@
 #include "Fred.hpp"
 #include "Game.hpp"
-#include "GameMap.hpp"
 #include "Object.hpp" // TODO: this should not be exposed here
 #include <functional>
 
@@ -46,7 +45,7 @@ Sprite::RenderParams Fred::getRenderParams() const
     return {TextureID::FRED, direction == 1, color_mods[static_cast<size_t>(color)]};
 }
 
-void Fred::updateFred(Game& game, unsigned events)
+void Fred::updateFred(unsigned events)
 {
     int input_x = 0, input_y = 0;
     bool input_fire = false;
@@ -64,27 +63,27 @@ void Fred::updateFred(Game& game, unsigned events)
     switch (state)
     {
     case State::WALK:
-        stateWalk(game, input_x, input_y);
+        stateWalk(input_x, input_y);
         break;
     case State::VERTICAL_JUMP:
-        stateVerticalJump(game, input_x, input_y);
+        stateVerticalJump(input_x, input_y);
         break;
     case State::SIDE_JUMP:
-        stateSideJump(game, input_x, input_y);
+        stateSideJump(input_x, input_y);
         break;
     case State::CLIMB:
-        stateRopeClimb(game, input_x, input_y);
+        stateRopeClimb(input_x, input_y);
         break;
     case State::EXIT_MAZE:
-        stateExitMaze(game);
+        stateExitMaze();
         break;
     case State::GAME_OVER:
-        stateGameOver(game);
+        stateGameOver();
         break;
     default:
         break;
     }
-    checkFire(game, input_fire);
+    checkFire(input_fire);
     if (collision_timer > 0)
         --collision_timer;
     else
@@ -92,7 +91,7 @@ void Fred::updateFred(Game& game, unsigned events)
     game.updateFredPos(sprite_pos, vposition);
 }
 
-void Fred::checkFire(Game &game, bool input_fire)
+void Fred::checkFire(bool input_fire)
 {
     if (input_fire && game.canShoot() && state != State::CLIMB)
     {
@@ -109,7 +108,7 @@ void Fred::checkFire(Game &game, bool input_fire)
         shooting = false;
 }
 
-void Fred::stateWalk(Game& game, int input_x, int input_y)
+void Fred::stateWalk(int input_x, int input_y)
 {
     if (input_x == (-direction)) 
     {
@@ -117,14 +116,14 @@ void Fred::stateWalk(Game& game, int input_x, int input_y)
         frame = Frame::STANDING;
     }
     else if (input_x == direction)
-        walkOneStep(game);
+        walkOneStep();
     else if (input_y < 0)
-        startVerticalJump(game);
+        startVerticalJump();
     else 
         frame = Frame::STANDING;
 }
 
-void Fred::walkOneStep(Game &game)
+void Fred::walkOneStep()
 {
     if (sprite_pos.cx() == 0)
     {
@@ -137,7 +136,7 @@ void Fred::walkOneStep(Game &game)
         {
             sprite_pos.yadd(-1);
             vposition = 0;
-            startSideJump(game);
+            startSideJump();
             return;
         }
     }
@@ -156,7 +155,7 @@ void Fred::walkOneStep(Game &game)
     sprite_pos.xadd(direction);
 }
 
-void Fred::startSideJump(Game& game)
+void Fred::startSideJump()
 {
     frame = Frame::BIG_STEP;
     state = State::SIDE_JUMP;
@@ -165,7 +164,7 @@ void Fred::startSideJump(Game& game)
     game.addSound(SoundID::JUMP);
 }
 
-void Fred::startVerticalJump(Game& game)
+void Fred::startVerticalJump()
 {
     frame = Frame::BIG_STEP;
     state = State::VERTICAL_JUMP;
@@ -175,7 +174,7 @@ void Fred::startVerticalJump(Game& game)
     game.addSound(SoundID::JUMP);
 }
 
-void Fred::stateVerticalJump(Game& game, int, int)
+void Fred::stateVerticalJump(int, int)
 {
     --jump_stage;
     if (jump_stage == 1 &&
@@ -202,7 +201,7 @@ void Fred::stateVerticalJump(Game& game, int, int)
     }
 }
 
-void Fred::stateSideJump(Game& game, int, int)
+void Fred::stateSideJump(int, int)
 {
     --jump_stage;
     sprite_pos.xadd(direction);
@@ -224,7 +223,7 @@ void Fred::stateSideJump(Game& game, int, int)
     }
 }
 
-void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
+void Fred::stateRopeClimb(int input_x, int input_y)
 {
     if (input_x == direction)
     {
@@ -237,7 +236,7 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
              !game.getGameMap().isStone(sprite_pos.cellPos(), input_x))
     {
         direction = input_x;
-        startSideJump(game);
+        startSideJump();
         return;
     }
     else if (input_y != 0)
@@ -265,19 +264,19 @@ void Fred::stateRopeClimb(Game& game, int input_x, int input_y)
     }
 }
 
-void Fred::stateExitMaze(Game &)
+void Fred::stateExitMaze()
 {
     collision_timer = 0;
     sprite_pos.yadd(-1);
     frame = frame == Frame::CLIMBING1 ? Frame::CLIMBING2 : Frame::CLIMBING1;
 }
 
-void Fred::stateGameOver(Game &)
+void Fred::stateGameOver()
 {
     color = static_cast<Color>(static_cast<int>(color) + 1);
 }
 
-void Fred::checkCollisionWithEnemy(Game &game, Sprite const &other)
+void Fred::checkCollisionWithEnemy(Sprite const &other)
 {
     // TODO: this function assumes that collisionInProgress has been checked before
     // calling it
@@ -298,7 +297,7 @@ void Fred::checkCollisionWithEnemy(Game &game, Sprite const &other)
     }
 }
 
-void Fred::checkCollisionWithObject(Game &game)
+void Fred::checkCollisionWithObject()
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::OBJECT);
     for (auto p = sprite_list.begin(), end = sprite_list.end(); p != end; ++p)
@@ -314,7 +313,7 @@ void Fred::checkCollisionWithObject(Game &game)
     }
 }
 
-void Fred::dbgResetPosition(Game &game)
+void Fred::dbgResetPosition()
 {
     if (state != State::WALK && state != State::CLIMB)
         return;
@@ -348,7 +347,7 @@ void Fred::dbgResetPosition(Game &game)
     }
 }
 
-void Fred::dbgMoveToHatch(Game &game)
+void Fred::dbgMoveToHatch()
 {
     if (state != State::WALK && state != State::CLIMB)
         return;

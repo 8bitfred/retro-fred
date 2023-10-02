@@ -1,7 +1,7 @@
 #include "Chameleon.hpp"
-#include "Game.hpp"
+#include "GameMap.hpp"
 
-void Chameleon::update(Game &game, unsigned)
+void Chameleon::update(unsigned)
 {
     // State 2-Check X Position
     if (sprite_pos.cx() == 0 || sprite_pos.cx() == 3)
@@ -14,7 +14,7 @@ void Chameleon::update(Game &game, unsigned)
         }
         else if (int limit = direction.y < 0 ? 0 : 3;
                  sprite_pos.cy() == limit &&
-                 !isValidCell(game.getGameMap(), sprite_pos.cellPos(0, direction.y)))
+                 !isValidCell(game_map, sprite_pos.cellPos(0, direction.y)))
             direction.y = -direction.y;     // State 12-Toggle Vertical Direction
         else
             sprite_pos.yadd(direction.y);   // State 8-Update Vert Coordinates

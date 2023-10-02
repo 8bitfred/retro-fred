@@ -126,7 +126,7 @@ bool Game::canShoot() const
 void Game::fireGun(MapPos initial_position, int direction)
 {
     auto &sprite_list = getSpriteList(SpriteClass::BULLET);
-    sprite_list.emplace_back(std::make_unique<Bullet>(initial_position, direction));
+    sprite_list.emplace_back(std::make_unique<Bullet>(*this, initial_position, direction));
     addSound(SoundID::FIRE);
     --bullet_count;
     if (bullet_count == 0 && cfg.infinite_ammo)

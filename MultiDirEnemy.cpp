@@ -1,5 +1,5 @@
 #include "MultiDirEnemy.hpp"
-#include "Game.hpp"
+#include "GameMap.hpp"
 
 std::pair<int, int> MultiDirEnemy::getDirDelta() const
 {

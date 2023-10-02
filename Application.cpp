@@ -89,7 +89,7 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
             debugMode(game, events);
             events = 0;
         }
-        fred->updateFred(game, events);
+        fred->updateFred(events);
 
         checkBulletCollisions(game);
         checkCollisionsWithEnemies(game);
@@ -103,7 +103,7 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
             endOfLevelSequence(game);
             return LevelStatus::NEXT_LEVEL;
         }
-        fred->checkCollisionWithObject(game);
+        fred->checkCollisionWithObject();
 
         game.render(getRenderer());
         game.playPendingSounds();
@@ -145,7 +145,7 @@ void FredApp::initializeFred(Game &game)
         }
         fred_initial_position = {fred_cell_position.x, fred_cell_position.y, 0, 1};
     }
-    auto fred_unique_ptr = std::make_unique<Fred>(fred_initial_position);
+    auto fred_unique_ptr = std::make_unique<Fred>(game, fred_initial_position);
     game.updateFredPos(fred_initial_position, 1);
     game.getSpriteList(SpriteClass::FRED).emplace_back(std::move(fred_unique_ptr));
 }
@@ -206,7 +206,7 @@ void FredApp::initializeRats(Game &game)
                 continue;
             if (!game.getGameMap().isStone(pos.cellPos(), 1, 1))
                 continue;
-            sprite_list.emplace_back(std::make_unique<Rat>(pos));
+            sprite_list.emplace_back(std::make_unique<Rat>(game.getGameMap(), pos));
             break;
         }
     }
@@ -223,7 +223,8 @@ void FredApp::initializeGhosts(Game &game)
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 1};
             if (game.getGameMap().isStone(pos.cellPos()))
                 continue;
-            sprite_list.emplace_back(std::make_unique<Ghost>(pos, random_engine));
+            sprite_list.emplace_back(std::make_unique<Ghost>(game.getGameMap(),
+                                                             pos, random_engine));
             break;
         }
     }
@@ -240,7 +241,8 @@ void FredApp::initializeChameleons(Game &game)
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
             if (!Chameleon::isValidCell(game.getGameMap(), pos.cellPos()))
                 continue;
-            sprite_list.emplace_back(std::make_unique<Chameleon>(pos, random_engine));
+            sprite_list.emplace_back(std::make_unique<Chameleon>(game.getGameMap(),
+                                                                 pos, random_engine));
             break;
         }
     }
@@ -250,7 +252,7 @@ void FredApp::initializeMummies(Game &game)
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::MUMMY);
     for (int i = 0; i < game.getSpriteCount().mummies; ++i) {
-        sprite_list.emplace_back(std::make_unique<Mummy>(game, random_engine));
+        sprite_list.emplace_back(std::make_unique<Mummy>(game.getGameMap(), random_engine));
     }
 }
 
@@ -265,7 +267,8 @@ void FredApp::initializeVampires(Game &game)
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
             if (game.getGameMap().getBlock(pos.cellPos()) != GameMap::Cell::EMPTY)
                 continue;
-            sprite_list.emplace_back(std::make_unique<Vampire>(pos, random_engine));
+            sprite_list.emplace_back(std::make_unique<Vampire>(game.getGameMap(),
+                                                               pos, random_engine));
             break;
         }
     }
@@ -282,7 +285,7 @@ void FredApp::initializeSkeletons(Game &game)
             MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 1};
             if (game.getGameMap().getBlock(pos.cellPos()) != GameMap::Cell::EMPTY)
                 continue;
-            sprite_list.emplace_back(std::make_unique<Skeleton>(pos, random_engine));
+            sprite_list.emplace_back(std::make_unique<Skeleton>(game, pos, random_engine));
             break;
         }
     }
@@ -323,26 +326,26 @@ void FredApp::initializeObjects(Game &game)
 void FredApp::updateSprites(Game &game)
 {
     for (auto const &sprite : game.getSpriteList(SpriteClass::BULLET))
-        sprite->update(game, 0);
+        sprite->update(0);
     for (auto const &sprite : game.getSpriteList(SpriteClass::ACID_DROP))
-        sprite->update(game, 0);
+        sprite->update(0);
     for (auto const &sprite : game.getSpriteList(SpriteClass::RAT))
-        sprite->update(game, 0);
+        sprite->update(0);
     for (auto const &sprite : game.getSpriteList(SpriteClass::GHOST))
-        sprite->update(game, 0);
+        sprite->update(0);
     for (auto const &sprite : game.getSpriteList(SpriteClass::CHAMELEON))
-        sprite->update(game, 0);
+        sprite->update(0);
     for (auto const &sprite : game.getSpriteList(SpriteClass::MUMMY))
-        sprite->update(game, 0);
+        sprite->update(0);
     for (auto const &sprite : game.getSpriteList(SpriteClass::VAMPIRE))
-        sprite->update(game, 0);
+        sprite->update(0);
     for (auto const &sprite : game.getSpriteList(SpriteClass::SKELETON))
-        sprite->update(game, 0);
+        sprite->update(0);
     auto &smoke_list = game.getSpriteList(SpriteClass::SMOKE);
     for (size_t i = 0; i < smoke_list.size();)
     {
         auto &smoke = dynamic_cast<Smoke &>(*game.getSpriteList(SpriteClass::SMOKE)[i]);
-        smoke.update(game, 0);
+        smoke.update(0);
         if (!smoke.isAlive())
             smoke_list.erase(smoke_list.begin() + i);
         else
@@ -370,7 +373,7 @@ void FredApp::checkCollisionsWithEnemies(Game &game)
         {
             if (fred->collisionInProgress())
                 return;
-            fred->checkCollisionWithEnemy(game, *sprite);
+            fred->checkCollisionWithEnemy(*sprite);
         }
     }
 }
@@ -388,7 +391,7 @@ void FredApp::checkBulletCollisions(Game &game)
     if (bullet_list.empty())
         return;
     auto &bullet = dynamic_cast<Bullet &>(*bullet_list.back());
-    if (!bullet.isAlive(game))
+    if (!bullet.isAlive())
     {
         bullet_list.pop_back();
         return;
@@ -431,7 +434,7 @@ void FredApp::endOfLevelSequence(Game &game)
         game.getSpriteList(static_cast<SpriteClass>(i)).clear();
     for (int i = 0; i < 4; ++i)
     {
-        fred->updateFred(game, 0);
+        fred->updateFred(0);
         game.render(getRenderer());
         SDL_Delay(cfg.ticks_per_frame);
     }
@@ -445,7 +448,7 @@ void FredApp::gameOverSequence(Game &game)
     {
         game.render(getRenderer());
         SDL_Delay(500);
-        fred->updateFred(game, 0);
+        fred->updateFred(0);
     }
     auto pos = game.getFredCellPos();
     pos.xadd(-2);
@@ -495,7 +498,7 @@ void FredApp::debugMode(Game &game, unsigned events)
     else if ((events & Game::EVENT_DOWN) != 0)
         game.getFrame().addUserOffset(0, MapPos::CELL_HEIGHT_PIXELS);
     else if ((events & Game::EVENT_MOVE_FRED) != 0)
-        fred->dbgResetPosition(game);
+        fred->dbgResetPosition();
     else if ((events & Game::EVENT_RESET_USER_OFFSET) != 0)
         game.getFrame().resetUserOffset();
     else if ((events & Game::EVENT_HATCH_LEFT) != 0)
@@ -503,7 +506,7 @@ void FredApp::debugMode(Game &game, unsigned events)
     else if ((events & Game::EVENT_HATCH_RIGHT) != 0)
         game.getGameMap().dbgMoveHatch(1);
     else if ((events & Game::EVENT_MOVE_TO_HATCH) != 0)
-        fred->dbgMoveToHatch(game);
+        fred->dbgMoveToHatch();
     else if ((events & Game::EVENT_DIE) != 0)
         fred->dbgDie();
     else if ((events & Game::EVENT_MAP) != 0)

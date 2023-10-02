@@ -14,20 +14,19 @@ class Vampire : public MultiDirEnemy
         FAST,
     };
 
-    void moveSlow(Game &game);
-    void moveStatic(Game &game);
-    void moveFast(Game &game);
-
+    GameMap const &game_map;
     int alternate_frame = 0;
     Mode mode = Mode::SLOW;
 
-public:
-    Vampire(MapPos const &pos, std::minstd_rand &random_engine);
-
-    BulletEffect bulletHit() override { return BulletEffect::DIE; }
-    void update(Game &game, unsigned events) override;
-
-protected:
+    void moveSlow();
+    void moveStatic();
+    void moveFast();
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+
+public:
+    Vampire(GameMap const &game_map, MapPos const &pos, std::minstd_rand &random_engine);
+
+    BulletEffect bulletHit() override { return BulletEffect::DIE; }
+    void update(unsigned events) override;
 };

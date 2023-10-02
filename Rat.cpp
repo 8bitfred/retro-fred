@@ -1,13 +1,12 @@
 #include "Rat.hpp"
-#include "Game.hpp"
+#include "GameMap.hpp"
 
-void Rat::update(Game &game, unsigned)
+void Rat::update(unsigned)
 {
     // cx_limit is 0 if we are moving left, or 2 if we are moving right
     int cx_limit = direction + 1;
     if (sprite_pos.cx() == cx_limit)
     {
-        auto const &game_map = game.getGameMap();
         if (auto cell_pos = sprite_pos.cellPos();
             game_map.isStone(cell_pos, direction) || !game_map.isStone(cell_pos, direction, 1))
             direction = -direction;

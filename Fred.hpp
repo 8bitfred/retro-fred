@@ -7,24 +7,6 @@ class Game;
 
 class Fred : public Sprite
 {
-public:
-    explicit Fred(MapPos pos): Sprite(pos) {}
-    void updateFred(Game& game, unsigned events);
-    bool collisionInProgress() const { return collision_timer != 0; }
-    void checkCollisionWithEnemy(Game &game, Sprite const &other);
-    void checkCollisionWithObject(Game &game);
-    bool exiting() const { return state == State::EXIT_MAZE; }
-    bool gameOver() const { return state == State::GAME_OVER; }
-
-    void dbgResetPosition(Game& game);
-    void dbgMoveToHatch(Game &game);
-    void dbgDie();
-
-protected:
-    BoxParams const &getBoxParams() const override;
-    RenderParams getRenderParams() const override;
-
-private:
     enum class State : uint8_t
     {
         WALK,
@@ -57,17 +39,20 @@ private:
         BLACK,
         COUNT
     };
-    void checkFire(Game &game, bool fire);
-    void stateWalk(Game &game, int input_x, int input_y);
-    void walkOneStep(Game &game);
-    void startSideJump(Game &game);
-    void startVerticalJump(Game &game);
-    void stateVerticalJump(Game &game, int input_x, int input_y);
-    void stateSideJump(Game& game, int input_x, int input_y);
-    void stateRopeClimb(Game& game, int input_x, int input_y);
-    void stateExitMaze(Game &game);
-    void stateGameOver(Game &game);
+    BoxParams const &getBoxParams() const override;
+    RenderParams getRenderParams() const override;
+    void checkFire(bool fire);
+    void stateWalk(int input_x, int input_y);
+    void walkOneStep();
+    void startSideJump();
+    void startVerticalJump();
+    void stateVerticalJump(int input_x, int input_y);
+    void stateSideJump(int input_x, int input_y);
+    void stateRopeClimb(int input_x, int input_y);
+    void stateExitMaze();
+    void stateGameOver();
 
+    Game &game;
     int vposition = 1;
     int direction = -1;
     Frame frame = Frame::STANDING;
@@ -77,4 +62,17 @@ private:
     State state = State::WALK;
     SoundID climbing_sound = SoundID::CLIMB1;
     int collision_timer = 0;
+
+public:
+    Fred(Game &game, MapPos pos): Sprite(pos), game(game) {}
+    void updateFred(unsigned events);
+    bool collisionInProgress() const { return collision_timer != 0; }
+    void checkCollisionWithEnemy(Sprite const &other);
+    void checkCollisionWithObject();
+    bool exiting() const { return state == State::EXIT_MAZE; }
+    bool gameOver() const { return state == State::GAME_OVER; }
+
+    void dbgResetPosition();
+    void dbgMoveToHatch();
+    void dbgDie();
 };
