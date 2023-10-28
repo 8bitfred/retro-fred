@@ -1,5 +1,6 @@
 #include "Mummy.hpp"
 #include "GameMap.hpp"
+#include "Game.hpp"
 
 int Mummy::mummy_timer = 0;
 
@@ -9,6 +10,14 @@ Mummy::Mummy(GameMap const &game_map, std::minstd_rand &random_engine)
     , random_engine(random_engine)
     , direction(getRandomDirection(random_engine))
 {
+}
+
+void Mummy::initialize(std::minstd_rand &random_engine, Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::MUMMY);
+    for (int i = 0; i < game.getSpriteCount().mummies; ++i) {
+        sprite_list.emplace_back(std::make_unique<Mummy>(game.getGameMap(), random_engine));
+    }
 }
 
 void Mummy::update(unsigned)

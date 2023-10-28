@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Sprite.hpp"
+#include <random>
 
 class Game;
 
@@ -24,6 +25,7 @@ public:
     };
     Object(MapPos const &pos, Type type)
         : Sprite::Sprite(pos), type(type) {}
+    static void initialize(std::minstd_rand &random_engine, Game &game);
     void apply(Game &game) const;
 
 private:

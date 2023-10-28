@@ -12,6 +12,24 @@ Vampire::Vampire(GameMap const &game_map, MapPos const &pos,
     alternate_frame = distrib_frame(random_engine);
 }
 
+void Vampire::initialize(std::minstd_rand& random_engine, Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::VAMPIRE);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    for (int i = 0; i < game.getSpriteCount().vampires; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
+            if (game.getGameMap().getBlock(pos.cellPos()) != GameMap::Cell::EMPTY)
+                continue;
+            sprite_list.emplace_back(std::make_unique<Vampire>(game.getGameMap(),
+                                                               pos, random_engine));
+            break;
+        }
+    }
+}
+
 void Vampire::update(unsigned)
 {
     if (sprite_pos.cx() == 0 && sprite_pos.cy() == 0)

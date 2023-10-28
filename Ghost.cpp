@@ -1,5 +1,6 @@
 #include "Ghost.hpp"
 #include "GameMap.hpp"
+#include "Game.hpp"
 
 void Ghost::setRandomDirection()
 {
@@ -23,6 +24,24 @@ Ghost::Ghost(GameMap const &game_map, MapPos const &pos, std::minstd_rand &rando
     : Sprite::Sprite(pos), game_map(game_map), random_engine(random_engine)
 {
     setRandomDirection();
+}
+
+void Ghost::initialize(std::minstd_rand &random_engine, Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::GHOST);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    for (int i = 0; i < game.getSpriteCount().ghosts; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 1};
+            if (game.getGameMap().isStone(pos.cellPos()))
+                continue;
+            sprite_list.emplace_back(std::make_unique<Ghost>(game.getGameMap(),
+                                                             pos, random_engine));
+            break;
+        }
+    }
 }
 
 void Ghost::update(unsigned)

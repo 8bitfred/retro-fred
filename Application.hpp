@@ -38,14 +38,6 @@ private:
     LevelStatus playLevel(Game &game);
     void initializeSprites(Game &game);
     void initializeFred(Game &game);
-    void initializeAcidDrops(Game &game);
-    void initializeRats(Game &game);
-    void initializeGhosts(Game &game);
-    void initializeChameleons(Game &game);
-    void initializeMummies(Game &game);
-    void initializeVampires(Game &game);
-    void initializeSkeletons(Game &game);
-    void initializeObjects(Game &game);
     void updateSprites(Game &game);
     void checkCollisionsWithEnemies(Game &game);
     void checkBulletCollisions(Game &game);

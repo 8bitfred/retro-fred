@@ -1,5 +1,24 @@
 #include "Chameleon.hpp"
 #include "GameMap.hpp"
+#include "Game.hpp"
+
+void Chameleon::initialize(std::minstd_rand &random_engine, Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::CHAMELEON);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    for (int i = 0; i < game.getSpriteCount().chameleons; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 0};
+            if (!Chameleon::isValidCell(game.getGameMap(), pos.cellPos()))
+                continue;
+            sprite_list.emplace_back(std::make_unique<Chameleon>(game.getGameMap(),
+                                                                 pos, random_engine));
+            break;
+        }
+    }
+}
 
 void Chameleon::update(unsigned)
 {

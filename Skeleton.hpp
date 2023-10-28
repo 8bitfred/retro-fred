@@ -25,7 +25,7 @@ class Skeleton : public MultiDirEnemy
 public:
     Skeleton(Game &game, MapPos const &pos, std::minstd_rand &random_engine)
     : MultiDirEnemy(pos, random_engine), game(game) {}
-
+    static void initialize(std::minstd_rand &random_engine, Game &game);
     void update(unsigned events) override;
     BulletEffect bulletHit() override { return BulletEffect::DIE; }
     static void toggleClimbingFrame() { climbing_frame ^= 1; }
