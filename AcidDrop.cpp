@@ -1,4 +1,39 @@
 #include "AcidDrop.hpp"
+#include "Game.hpp"
+
+void AcidDrop::initialize(std::minstd_rand &random_engine, Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::ACID_DROP);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    std::uniform_int_distribution<> distrib_frame(0, 3);
+    for (int i = 0; i < game.getSpriteCount().acid_drops; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 1, 0};
+            if (!game.getGameMap().isStone(pos.cellPos(), 0, -1) &&
+                game.getGameMap().getBlock(pos.cellPos(), 0, -1) != GameMap::Cell::TRAPDOOR)
+                continue;
+            if (game.getGameMap().isStone(pos.cellPos()))
+                continue;
+            if (!game.getGameMap().isStone(pos.cellPos(), 0, 1))
+                continue;
+            if (auto cell = game.getGameMap().getBlock(pos.cellPos(), -1);
+                cell == GameMap::Cell::ROPE_END ||
+                cell == GameMap::Cell::ROPE_MAIN ||
+                cell == GameMap::Cell::ROPE_START)
+                continue;
+            if (auto cell = game.getGameMap().getBlock(pos.cellPos(), 1);
+                cell == GameMap::Cell::ROPE_END ||
+                cell == GameMap::Cell::ROPE_MAIN ||
+                cell == GameMap::Cell::ROPE_START)
+                continue;
+            auto initial_state = distrib_frame(random_engine);
+            sprite_list.emplace_back(std::make_unique<AcidDrop>(pos, initial_state));
+            break;
+        }
+    }
+}
 
 void AcidDrop::update(unsigned)
 {

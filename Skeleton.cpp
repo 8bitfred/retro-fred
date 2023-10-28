@@ -3,6 +3,23 @@
 
 int Skeleton::climbing_frame = 0;
 
+void Skeleton::initialize(std::minstd_rand &random_engine, Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::SKELETON);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    for (int i = 0; i < game.getSpriteCount().skeletons; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 1};
+            if (game.getGameMap().getBlock(pos.cellPos()) != GameMap::Cell::EMPTY)
+                continue;
+            sprite_list.emplace_back(std::make_unique<Skeleton>(game, pos, random_engine));
+            break;
+        }
+    }
+}
+
 void Skeleton::update(unsigned)
 {
     if (sprite_pos.cx() == 0 && sprite_pos.cy() == 1)

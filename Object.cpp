@@ -1,6 +1,37 @@
 #include "Object.hpp"
 #include "Game.hpp"
 
+void Object::initialize(std::minstd_rand &random_engine, Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::OBJECT);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    std::uniform_int_distribution<> distrib_t(0, static_cast<int>(Object::Type::COUNT));
+    // TODO: the number of objects depends on the game level. Also not all objects are
+    // allowed in all levels.
+    for (int counter = 0; counter < game.getSpriteCount().objects;)
+    {
+        MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 1, 3};
+        if (game.getGameMap().getBlock(pos.cellPos()) != GameMap::Cell::EMPTY)
+            continue;
+        Object::Type object_type = {};
+        if (counter >= 16)
+            object_type = Object::Type::BULLETS;
+        else if (counter < static_cast<int>(Object::Type::COUNT))
+            object_type = static_cast<Object::Type>(counter);
+        else
+            object_type = static_cast<Object::Type>(distrib_t(random_engine));
+        while ((!game.getSpriteCount().has_busts && object_type == Object::Type::BUST) ||
+               (!game.getSpriteCount().has_stones && object_type == Object::Type::STONE) ||
+               (!game.getSpriteCount().has_masks && object_type == Object::Type::MASK))
+        {
+            object_type = static_cast<Object::Type>(distrib_t(random_engine));
+        }
+        sprite_list.emplace_back(std::make_unique<Object>(pos, object_type));
+        ++counter;
+    }
+}
+
 void Object::apply(Game &game) const
 {
     switch (type)

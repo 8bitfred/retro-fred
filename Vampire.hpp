@@ -4,6 +4,7 @@
 #include <random>
 
 class GameMap;
+class Game;
 
 class Vampire : public MultiDirEnemy
 {
@@ -26,7 +27,7 @@ class Vampire : public MultiDirEnemy
 
 public:
     Vampire(GameMap const &game_map, MapPos const &pos, std::minstd_rand &random_engine);
-
+    static void initialize(std::minstd_rand &random_engine, Game &game);
     BulletEffect bulletHit() override { return BulletEffect::DIE; }
     void update(unsigned events) override;
 };

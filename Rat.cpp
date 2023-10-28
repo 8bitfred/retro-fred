@@ -1,5 +1,33 @@
 #include "Rat.hpp"
 #include "GameMap.hpp"
+#include "Game.hpp"
+
+void Rat::initialize(std::minstd_rand &random_engine, Game &game)
+{
+    auto &sprite_list = game.getSpriteList(SpriteClass::RAT);
+    std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
+    std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
+    for (int i = 0; i < game.getSpriteCount().rats; ++i) {
+        while (true)
+        {
+            MapPos pos = {distrib_x(random_engine), distrib_y(random_engine), 0, 4};
+            if (game.getGameMap().isStone(pos.cellPos()))
+                continue;
+            if (game.getGameMap().isStone(pos.cellPos(), -1))
+                continue;
+            if (game.getGameMap().isStone(pos.cellPos(), 1))
+                continue;
+            if (!game.getGameMap().isStone(pos.cellPos(), 0, 1))
+                continue;
+            if (!game.getGameMap().isStone(pos.cellPos(), -1, 1))
+                continue;
+            if (!game.getGameMap().isStone(pos.cellPos(), 1, 1))
+                continue;
+            sprite_list.emplace_back(std::make_unique<Rat>(game.getGameMap(), pos));
+            break;
+        }
+    }
+}
 
 void Rat::update(unsigned)
 {
