@@ -60,7 +60,8 @@ public:
     void nextLevel(std::minstd_rand &random_engine);
     SpriteCount const &getSpriteCount() const { return sprite_count; }
     Window &getFrame() { return window; }
-    GameMap &getGameMap() { return game_map; }
+    GameMap const &getGameMap() const { return game_map; }
+    GameMap &dbgModifyGameMap() { return game_map; }
     SpriteList &getSpriteList(SpriteClass sprite_class)
     {
         return sprite_lists[static_cast<int>(sprite_class)];
