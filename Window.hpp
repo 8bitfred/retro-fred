@@ -22,7 +22,7 @@ class Window
     // Position of the top left corner of the screen in the map
     MapPixelPos window_pos;
 
-    void drawMinimap(Game &game, SDL_Renderer *renderer, int x, int y);
+    void drawMinimap(Game const &game, SDL_Renderer *renderer, int x, int y);
 
 public:
     static constexpr int SCOREBOARD_WIDTH = 7;
@@ -36,7 +36,6 @@ public:
     ScreenPos getScreenPosOf(MapPos const &sprite_pos) const;
     CellPos getCenter() const;
 
-    // TODO: Game should be const
-    void renderFrame(Game& game, SDL_Renderer *renderer,
+    void renderFrame(Game const &game, SDL_Renderer *renderer,
                      TextureManager const &tmgr);
 };

@@ -329,9 +329,9 @@ void FredApp::debugMode(Game &game, unsigned events)
     else if ((events & Game::EVENT_RESET_USER_OFFSET) != 0)
         game.getFrame().resetUserOffset();
     else if ((events & Game::EVENT_HATCH_LEFT) != 0)
-        game.getGameMap().dbgMoveHatch(-1);
+        game.dbgModifyGameMap().dbgMoveHatch(-1);
     else if ((events & Game::EVENT_HATCH_RIGHT) != 0)
-        game.getGameMap().dbgMoveHatch(1);
+        game.dbgModifyGameMap().dbgMoveHatch(1);
     else if ((events & Game::EVENT_MOVE_TO_HATCH) != 0)
         fred->dbgMoveToHatch();
     else if ((events & Game::EVENT_DIE) != 0)

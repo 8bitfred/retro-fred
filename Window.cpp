@@ -112,7 +112,7 @@ CellPos Window::getCenter() const
                    (window_pos.y + center_offset_y) / MapPos::CELL_HEIGHT_PIXELS};
 }
 
-void Window::renderFrame(Game &game, SDL_Renderer *renderer,
+void Window::renderFrame(Game const &game, SDL_Renderer *renderer,
                          TextureManager const &tmgr)
 {
     SDL_Texture *base_window = tmgr.get(TextureID::FRAME_BASE);
@@ -187,7 +187,7 @@ void Window::renderFrame(Game &game, SDL_Renderer *renderer,
     drawMinimap(game, renderer, dst_scoreboard.x, dst_scoreboard.y + 5 * 8);
 }
 
-void Window::drawMinimap(Game &game, SDL_Renderer *renderer, int x, int y)
+void Window::drawMinimap(Game const &game, SDL_Renderer *renderer, int x, int y)
 {
     auto minimap_pos = game.getMinimapPos();
     if (!minimap_pos)
