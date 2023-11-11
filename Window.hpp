@@ -21,6 +21,8 @@ class Window
     int user_offset_x = 0, user_offset_y = 0;
     // Position of the top left corner of the screen in the map
     MapPixelPos window_pos;
+    // Minimum and maximum values for window_pos
+    MapPixelPos min_window_pos, max_window_pos;
 
     void drawMinimap(Game const &game, SDL_Renderer *renderer, int x, int y);
 

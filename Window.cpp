@@ -57,6 +57,11 @@ Window::Window(Config const &cfg)
     , window_rect{MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR,
                   total_width - (SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
                   total_height - 2 * MapPos::PIXELS_PER_CHAR}
+    , min_window_pos(-6 * MapPos::PIXELS_PER_CHAR, -3 * MapPos::PIXELS_PER_CHAR)
+    , max_window_pos(cfg.map_width * MapPos::CELL_WIDTH_PIXELS + 
+                     6 * MapPos::PIXELS_PER_CHAR - window_rect.w,
+                     cfg.map_height * MapPos::CELL_HEIGHT_PIXELS + 
+                     4 * MapPos::PIXELS_PER_CHAR - window_rect.h)
 {
     // Position of the center cell (for Fred): in the center of the screen, rounded down
     // to a character (in the example: center_offset_x = 80, center_offset_y = 64)
@@ -94,8 +99,10 @@ void Window::resetUserOffset()
 
 void Window::setWindowPos(MapPos const &ref_pos)
 {
-    window_pos.x = ref_pos.px() - center_offset_x + user_offset_x;
-    window_pos.y = ref_pos.py() - center_offset_y + user_offset_y;
+    auto raw_x = ref_pos.px() - center_offset_x + user_offset_x;
+    auto raw_y = ref_pos.py() - center_offset_y + user_offset_y;
+    window_pos.x = std::min(std::max(raw_x, min_window_pos.x), max_window_pos.x);
+    window_pos.y = std::min(std::max(raw_y, min_window_pos.y), max_window_pos.y);
 }
 
 ScreenPos Window::getScreenPosOf(MapPos const &sprite_pos) const
