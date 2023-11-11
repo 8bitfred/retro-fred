@@ -67,8 +67,8 @@ Config::Config(int argc, char *argv[])
             debug_keys = true;
         else if (svarg == "--fullmap")
         {
-            window_width = (map_width + 2) * CELL_WIDTH * PIXELS_PER_CHAR;
-            window_height = (map_height + 2) * CELL_HEIGHT * PIXELS_PER_CHAR;
+            window_width = (map_width * CELL_WIDTH + 20) * PIXELS_PER_CHAR;
+            window_height = (map_height * CELL_HEIGHT + 10) * PIXELS_PER_CHAR;
             scale_x = scale_y = 1;
         }
         else if (svarg == "--minimap-exit")
