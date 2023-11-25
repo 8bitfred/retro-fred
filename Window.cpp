@@ -57,7 +57,7 @@ Window::Window(Config const &cfg)
     , window_rect{MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR,
                   total_width - (SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
                   total_height - 2 * MapPos::PIXELS_PER_CHAR}
-    , min_window_pos(-6 * MapPos::PIXELS_PER_CHAR, -3 * MapPos::PIXELS_PER_CHAR)
+    , min_window_pos(-6 * MapPos::PIXELS_PER_CHAR, -8 * MapPos::PIXELS_PER_CHAR)
     , max_window_pos(cfg.map_width * MapPos::CELL_WIDTH_PIXELS + 
                      6 * MapPos::PIXELS_PER_CHAR - window_rect.w,
                      cfg.map_height * MapPos::CELL_HEIGHT_PIXELS + 
