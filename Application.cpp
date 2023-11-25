@@ -31,7 +31,7 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     SDL_RenderSetScale(getRenderer(), cfg.scale_x, cfg.scale_y);
 }
 
-FredApp::LevelStatus FredApp::playLevel(Game &game)
+void FredApp::playLevel(Game &game)
 {
     initializeSprites(game);
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
@@ -46,7 +46,10 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
 
         auto event_mask = event_manager.collectEvents();
         if (event_mask.check(GameEvent::QUIT))
-            return LevelStatus::QUIT;
+        {
+            game.setLevelStatus(Game::LevelStatus::QUIT);
+            return;
+        }
         updateSprites(game);
 
         if (cfg.debug_keys)
@@ -55,16 +58,13 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
 
         checkBulletCollisions(game);
         checkCollisionsWithEnemies(game);
-        if (fred->gameOver())
+        if (game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
         {
             gameOverSequence(game);
-            return LevelStatus::GAME_OVER;
+            return;
         }
-        else if (fred->exiting())
-        {
-            endOfLevelSequence(game);
-            return LevelStatus::NEXT_LEVEL;
-        }
+        else if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
+            return;
         fred->checkCollisionWithObject();
     }
 }
@@ -205,30 +205,25 @@ void FredApp::checkBulletCollisions(Game &game)
     }
 }
 
-void FredApp::endOfLevelSequence(Game &game)
-{
-    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
-    game.render(getRenderer());
-    SDL_Delay(cfg.ticks_per_frame);
-    for (int i = static_cast<int>(SpriteClass::RAT);
-         i <= static_cast<int>(SpriteClass::SMOKE); ++i)
-        game.getSpriteList(static_cast<SpriteClass>(i)).clear();
-    for (int i = 0; i < 4; ++i)
-    {
-        fred->updateFred(EventMask());
-        game.render(getRenderer());
-        SDL_Delay(cfg.ticks_per_frame);
-    }
-}
-
 void FredApp::gameOverSequence(Game &game)
 {
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
+    EventManager event_manager(cfg.ticks_per_frame);
     game.playSound(SoundID::GAME_OVER);
     for (int i = 0; i < 6; ++i)
     {
+        event_manager.setTimer(500);
         game.render(getRenderer());
-        SDL_Delay(500);
+        while (true) {
+            auto event_mask = event_manager.collectEvents();
+            if (event_mask.check(GameEvent::QUIT))
+            {
+                game.setLevelStatus(Game::LevelStatus::QUIT);
+                return;
+            }
+            if (event_mask.check(GameEvent::TIMER))
+                break;
+        }
         fred->updateFred(EventMask());
     }
     auto pos = game.getFredCellPos();
@@ -238,7 +233,7 @@ void FredApp::gameOverSequence(Game &game)
     game.render(getRenderer());
 }
 
-void FredApp::showLevelSummary(Game &game)
+void FredApp::transitionToNextLevel(Game &game)
 {
     SDL_RenderClear(getRenderer());
     tmgr.renderText(getRenderer(), "AT LAST YOU GOT OUT!", 24, 24,
@@ -263,8 +258,20 @@ void FredApp::showLevelSummary(Game &game)
     game.getFrame().renderFrame(game, getRenderer(), tmgr);
     SDL_RenderPresent(getRenderer());
     game.playSound(SoundID::EXIT_MAZE);
-    SDL_Delay(7000);
+    EventManager event_manager(cfg.ticks_per_frame);
+    event_manager.setTimer(7000);
+    while (true) {
+        auto event_mask = event_manager.collectEvents();
+        if (event_mask.check(GameEvent::QUIT))
+        {
+            state = State::QUIT;
+            return;
+        }
+        if (event_mask.check(GameEvent::TIMER))
+            break;
+    }
     game.addScore(5000 + game.getTreasureCount() * 1000);
+    game.nextLevel(random_engine);
 }
 
 void FredApp::debugMode(Game &game, EventMask event_mask)
@@ -296,58 +303,47 @@ void FredApp::debugMode(Game &game, EventMask event_mask)
 
 void FredApp::mainLoop()
 {
-    splashScreen();
+    EventManager event_manager(cfg.ticks_per_frame);
+    splashScreen(event_manager);
+    int menu_counter = 0;
     while (true)
     {
         if (state == State::QUIT)
             break;
 
-        auto ticks = SDL_GetTicks();
-        SDL_Event event;
-        if (timer > 0) {
-            // Empty the event queue
-            while (SDL_PollEvent(&event) != 0)
-            {
-                if (event.type == SDL_QUIT)
-                    return;
-            }
-            if (SDL_WaitEventTimeout(&event, timer))
-            {
-                timer -= SDL_GetTicks() - ticks;
-                if (event.type == SDL_QUIT)
-                    return;
-                if (event.type == SDL_KEYDOWN)
-                {
-                    if (event.key.keysym.sym == SDLK_q &&
-                        (event.key.keysym.mod & KMOD_CTRL) != 0)
-                        return;
-                    if (event.key.keysym.sym > 0x7f)
-                        continue;
-                }
-                else
-                    continue;
-            }
-            else
-                timer = 0;
-        }
-
+        auto event_mask = event_manager.collectEvents();
+        if (event_mask.check(GameEvent::QUIT))
+            break;
         switch (state)
         {
         case State::SPLASH_SCREEN:
-            menu();
+            if (event_mask.check(GameEvent::TIMER) || 
+                event_mask.check(GameEvent::ANY_KEY))
+                menu(event_manager, true);
             break;
         case State::MENU:
-            if (timer > 0)
+            if (event_mask.check(GameEvent::ANY_KEY))
             {
                 playGame();
                 if (state == State::QUIT)
                     return;
+                todaysGreatest(event_manager);
             }
-            todaysGreatest();
+            else if (event_mask.check(GameEvent::TIMER))
+            {
+                ++menu_counter;
+                if (menu_counter == 10)
+                {
+                    menu_counter = 0;
+                    todaysGreatest(event_manager);
+                }
+                else
+                    menu(event_manager, (menu_counter % 2) == 0);
+            }
             break;
         case State::HIGH_SCORES:
-            if (timer <= 0)
-                menu();
+            if (event_mask.check(GameEvent::TIMER))
+                menu(event_manager, true);
             break;
         case State::QUIT:
             return;
@@ -361,20 +357,30 @@ void FredApp::playGame()
 
     while (true)
     {
-        auto status = playLevel(game);
-        if (status == LevelStatus::NEXT_LEVEL)
+        playLevel(game);
+        if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
+            transitionToNextLevel(game);
+        else if (game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
         {
-            showLevelSummary(game);
-            game.nextLevel(random_engine);
-        }
-        else if (status == LevelStatus::GAME_OVER)
-        {
-            SDL_Delay(5000);
+            EventManager event_manager(cfg.ticks_per_frame);
+            event_manager.setTimer(5000);
+            while (true)
+            {
+                auto event_mask = event_manager.collectEvents();
+                if (event_mask.check(GameEvent::QUIT))
+                {
+                    state = State::QUIT;
+                    return;
+                }
+                if (event_mask.check(GameEvent::TIMER) ||
+                    event_mask.check(GameEvent::ANY_KEY))
+                    break;
+            }
             if (game.getScore() > high_scores.back().first)
                 enterHighScore(game.getScore());
             return;
         }
-        else if (status == LevelStatus::QUIT)
+        if (game.getLevelStatus() == Game::LevelStatus::QUIT)
         {
             state = State::QUIT;
             return;
@@ -382,22 +388,23 @@ void FredApp::playGame()
     }
 }
 
-void FredApp::splashScreen()
+void FredApp::splashScreen(EventManager &event_manager)
 {
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::SPLASH_SCREEN), nullptr, nullptr);
     tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 0, 0, 0);
     tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 0, 0, 0);
     SDL_RenderPresent(getRenderer());
-    timer = 5000;
+    event_manager.setTimer(5000);
     state = State::SPLASH_SCREEN;
 }
 
-void FredApp::menu()
+void FredApp::menu(EventManager &event_manager, bool flash)
 {
     SDL_RenderClear(getRenderer());
     SDL_Rect logo = {88, 8, 76, 20};
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
-    tmgr.renderText(getRenderer(), "PRESS ANY KEY TO START", 40, 56, 206, 206, 206);
+    if (flash)
+        tmgr.renderText(getRenderer(), "PRESS ANY KEY TO START", 40, 56, 206, 206, 206);
     tmgr.renderText(getRenderer(), "WRITTEN BY FERNANDO RADA,", 0, 104, 206, 206, 206);
     tmgr.renderText(getRenderer(), "PACO MENENDEZ & CARLOS GRANADOS.", 0, 112, 206, 206, 206);
     tmgr.renderText(getRenderer(), "       \x7f INDESCOMP SPAIN", 0, 120, 206, 206, 206);
@@ -411,11 +418,11 @@ void FredApp::menu()
     tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 206, 206, 206);
     SDL_RenderPresent(getRenderer());
 
-    timer = 5000;
+    event_manager.setTimer(500);
     state = State::MENU;
 }
 
-void FredApp::todaysGreatest()
+void FredApp::todaysGreatest(EventManager &event_manager)
 {
     SDL_RenderClear(getRenderer());
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::TODAYS_GREATEST), nullptr, nullptr);
@@ -437,7 +444,7 @@ void FredApp::todaysGreatest()
     }
     SDL_RenderPresent(getRenderer());
 
-    timer = 8000;
+    event_manager.setTimer(8000);
     state = State::HIGH_SCORES;
     smgr.play(SoundID::FUNERAL_MARCH);
 }

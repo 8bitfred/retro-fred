@@ -266,9 +266,17 @@ void Fred::stateRopeClimb(int input_x, int input_y)
 
 void Fred::stateExitMaze()
 {
+    if (sprite_pos.cy() == 0)
+    {
+        for (int i = static_cast<int>(SpriteClass::RAT);
+             i <= static_cast<int>(SpriteClass::SMOKE); ++i)
+            game.getSpriteList(static_cast<SpriteClass>(i)).clear();
+    }
     collision_timer = 0;
     sprite_pos.yadd(-1);
     frame = frame == Frame::CLIMBING1 ? Frame::CLIMBING2 : Frame::CLIMBING1;
+    if (sprite_pos.cy() == 0)
+        game.setLevelStatus(Game::LevelStatus::NEXT_LEVEL);
 }
 
 void Fred::stateGameOver()
@@ -290,6 +298,7 @@ void Fred::checkCollisionWithEnemy(Sprite const &other)
         }
         else
         {
+            game.setLevelStatus(Game::LevelStatus::GAME_OVER);
             state = State::GAME_OVER;
             color = Color::CYAN;
             collision_timer = 6;
@@ -365,6 +374,7 @@ void Fred::dbgMoveToHatch()
 
 void Fred::dbgDie()
 {
+    game.setLevelStatus(Game::LevelStatus::GAME_OVER);
     state = State::GAME_OVER;
     color = Color::CYAN;
     collision_timer = 6;
