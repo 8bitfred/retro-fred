@@ -70,8 +70,6 @@ public:
     bool collisionInProgress() const { return collision_timer != 0; }
     void checkCollisionWithEnemy(Sprite const &other);
     void checkCollisionWithObject();
-    bool exiting() const { return state == State::EXIT_MAZE; }
-    bool gameOver() const { return state == State::GAME_OVER; }
 
     void dbgResetPosition();
     void dbgMoveToHatch();

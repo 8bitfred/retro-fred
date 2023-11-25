@@ -18,6 +18,7 @@ Game::Game(Config const &cfg, std::minstd_rand &random_engine,
 void Game::nextLevel(std::minstd_rand &random_engine)
 {
     ++level;
+    level_status = LevelStatus::PLAYING;
     game_map = GameMap(cfg, random_engine);
     for (auto &list : sprite_lists)
         list.clear();

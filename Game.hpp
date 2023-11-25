@@ -18,6 +18,14 @@ public:
     static constexpr unsigned MAX_POWER = 15;
     static constexpr unsigned MAX_BULLETS = 6;
 
+    enum class LevelStatus
+    {
+        PLAYING,
+        QUIT,
+        NEXT_LEVEL,
+        GAME_OVER,
+    };
+
     struct SpriteCount
     {
         int acid_drops = 0;
@@ -50,6 +58,11 @@ public:
     void playSound(SoundID sound_id);
     void addSound(SoundID sound_id);
     void playPendingSounds();
+    void setLevelStatus(LevelStatus level_status)
+    {
+        this->level_status = level_status;
+    }
+    LevelStatus getLevelStatus() const { return level_status; }
     // TODO: we should refactor this so that the Game object does not need to know about
     // the internals of the Fred class
     MapPos const &getFredPos() const { return fred_pos; }
@@ -92,6 +105,7 @@ private:
     int fred_vposition = 0;
     std::vector<SpriteList> sprite_lists;
     std::uint32_t pending_sounds = 0;
+    LevelStatus level_status = LevelStatus::PLAYING;
     unsigned bullet_count = MAX_BULLETS;
     unsigned level = 1;
     SpriteCount sprite_count;

@@ -29,28 +29,21 @@ private:
         MENU,
         HIGH_SCORES,
     };
-    enum class LevelStatus
-    {
-        QUIT,
-        NEXT_LEVEL,
-        GAME_OVER,
-    };
 
-    LevelStatus playLevel(Game &game);
+    void playLevel(Game &game);
     void initializeSprites(Game &game);
     void initializeFred(Game &game);
     void updateSprites(Game &game);
     void checkCollisionsWithEnemies(Game &game);
     void checkBulletCollisions(Game &game);
     void debugMode(Game &game, EventMask event_mask);
-    void endOfLevelSequence(Game &game);
     void gameOverSequence(Game &game);
-    void showLevelSummary(Game &game);
+    void transitionToNextLevel(Game &game);
 
     void playGame();
-    void splashScreen();
-    void menu();
-    void todaysGreatest();
+    void splashScreen(EventManager &event_manager);
+    void menu(EventManager &event_manager, bool flash);
+    void todaysGreatest(EventManager &event_manager);
     void enterHighScore(unsigned score);
 
     Config const &cfg;
@@ -60,6 +53,5 @@ private:
     SoundManager smgr;
 
     State state;
-    int timer = 0;
     std::vector<std::pair<unsigned, std::string>> high_scores;
 };
