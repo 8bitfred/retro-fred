@@ -15,25 +15,6 @@ class Fred;
 class Game
 {
 public:
-    // TODO: processing of keys and events is very messy: this does not belong in the Game
-    // class. Also EVENT_HATCH_LEFT and EVENT_HATCH_RIGHT should only be on if the SHIFT
-    // key is pressed.
-    static constexpr unsigned EVENT_LEFT = 0x01;
-    static constexpr unsigned EVENT_RIGHT = 0x02;
-    static constexpr unsigned EVENT_UP = 0x04;
-    static constexpr unsigned EVENT_DOWN = 0x08;
-    static constexpr unsigned EVENT_FIRE = 0x10;
-    static constexpr unsigned EVENT_SHIFT = 0x20;
-    static constexpr unsigned EVENT_MOVE_FRED = 0x40;
-    static constexpr unsigned EVENT_HATCH_LEFT = 0x80;
-    static constexpr unsigned EVENT_HATCH_RIGHT = 0x100;
-    static constexpr unsigned EVENT_MOVE_TO_HATCH = 0x200;
-    static constexpr unsigned EVENT_LCTRL = 0x400;
-    static constexpr unsigned EVENT_RCTRL = 0x800;
-    static constexpr unsigned EVENT_DIE = 0x1000;
-    static constexpr unsigned EVENT_MAP = 0x2000;
-    static constexpr unsigned EVENT_RESET_USER_OFFSET = 0x4000;
-
     static constexpr unsigned MAX_POWER = 15;
     static constexpr unsigned MAX_BULLETS = 6;
 
@@ -51,8 +32,6 @@ public:
         bool has_stones = false;
         bool has_masks = false;
     };
-
-    static unsigned getEventOfKey(SDL_Keycode keycode);
 
     Game(Config const &cfg, std::minstd_rand &random_engine,
          TextureManager const &tmgr, SoundManager &smgr,

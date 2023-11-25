@@ -3,6 +3,7 @@
 #include "sdl.hpp"
 #include "TextureManager.hpp"
 #include "SoundManager.hpp"
+#include "GameEvent.hpp"
 #include "Sprite.hpp"  // TODO: this is only necessary for checkBullet()
 #include <random>
 
@@ -41,7 +42,7 @@ private:
     void updateSprites(Game &game);
     void checkCollisionsWithEnemies(Game &game);
     void checkBulletCollisions(Game &game);
-    void debugMode(Game &game, unsigned events);
+    void debugMode(Game &game, EventMask event_mask);
     void endOfLevelSequence(Game &game);
     void gameOverSequence(Game &game);
     void showLevelSummary(Game &game);
