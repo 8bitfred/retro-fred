@@ -74,7 +74,7 @@ class Signal {
             : signal(signal), fn(std::move(fn)) {}
         void disconnect() override { signal.disconnect(this); }
     };
-    friend class Slot;
+    friend struct Slot;
     void disconnect(impl::SlotBase *slot_ptr)
     {
         auto pos = std::find_if(connection_list.read().begin(),
