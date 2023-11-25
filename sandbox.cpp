@@ -1,7 +1,12 @@
 #include "sdl.hpp"
 #include "Signal.hpp"
+#include "GameEvent.hpp"
 #include <iostream>
 
+
+// SDL_GetKeyboardState
+// SDL_SCANCODE_...
+// https://wiki.libsdl.org/SDL2/SDL_GetModState
 
 void test_signals()
 {
@@ -59,9 +64,47 @@ int test_events()
     return 1;
 }
 
+void test_event_manager()
+{
+    using namespace std::string_view_literals;
+    auto event_codes = "QALRUDFlrudcxhopkmT"sv;
+
+    sdl::App test_app;
+    auto [window, renderer] = sdl::createWindowAndRenderer(1000, 1000);
+    EventManager event_manager(1000);
+    event_manager.setTimer(5200);
+    auto ticks = SDL_GetTicks();
+    while (true)
+    {
+        auto event_mask = event_manager.collectEvents();
+        auto new_ticks = SDL_GetTicks();
+        std::string event_str;
+        bool any_event = false;
+        for (size_t i = 0; i < event_codes.size(); ++i)
+        {
+            if (i > 0 && (i % 4) == 0)
+                event_str += " ";
+            if (event_mask.check(static_cast<GameEvent>(i)))
+            {
+                event_str += event_codes[i];
+                any_event = true;
+            }
+            else
+                event_str += '_';
+        }
+        if (any_event)
+        {
+            std::cout << "delta_ticks=" << new_ticks - ticks << std::endl;
+            std::cout << "  event=" << event_str << std::endl;
+        }
+        if (event_mask.check(GameEvent::QUIT))
+            break;
+    }
+}
+
 int main()
 {
-    test_signals();
+    test_event_manager();
 
     return 0;
 }
