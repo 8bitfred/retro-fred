@@ -13,6 +13,7 @@ else()
 endif()
 
 add_executable(fred main.cpp sdl.hpp
+    GameEvent.hpp GameEvent.cpp
     Config.cpp Config.hpp
     Application.cpp Application.hpp
     GameMap.cpp GameMap.hpp 
@@ -39,7 +40,7 @@ target_link_libraries(fred ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)
 set_property(TARGET fred PROPERTY CXX_STANDARD_REQUIRED True)
 
-add_executable(sandbox sandbox.cpp sdl.hpp Signal.hpp)
+add_executable(sandbox sandbox.cpp sdl.hpp Signal.hpp GameEvent.hpp GameEvent.cpp)
 target_link_libraries(sandbox ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 set_property(TARGET sandbox PROPERTY CXX_STANDARD 20)
 set_property(TARGET sandbox PROPERTY CXX_STANDARD_REQUIRED True)
