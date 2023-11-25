@@ -5,45 +5,6 @@
 #include "Bullet.hpp"
 #include <algorithm>
 
-unsigned Game::getEventOfKey(SDL_Keycode keycode)
-{
-    switch (keycode)
-    {
-    case SDLK_UP:
-        return EVENT_UP;
-    case SDLK_DOWN:
-        return EVENT_DOWN;
-    case SDLK_LEFT:
-        return EVENT_LEFT;
-    case SDLK_RIGHT:
-        return EVENT_RIGHT;
-    case SDLK_SPACE:
-        return EVENT_FIRE;
-    case SDLK_LSHIFT:
-        return EVENT_SHIFT;
-    case SDLK_f:
-        return EVENT_MOVE_FRED;
-    case SDLK_r:
-        return EVENT_RESET_USER_OFFSET;
-    case SDLK_o:
-        return EVENT_HATCH_LEFT;
-    case SDLK_p:
-        return EVENT_HATCH_RIGHT;
-    case SDLK_h:
-        return EVENT_MOVE_TO_HATCH;
-    case SDLK_LCTRL:
-        return EVENT_LCTRL;
-    case SDLK_RCTRL:
-        return EVENT_RCTRL;
-    case SDLK_k:
-        return EVENT_DIE;
-    case SDLK_m:
-        return EVENT_MAP;
-    default:
-        return 0;
-    }
-}
-
 Game::Game(Config const &cfg, std::minstd_rand &random_engine,
     TextureManager const &tmgr, SoundManager &smgr, unsigned high_score)
     : cfg(cfg), tmgr(tmgr), smgr(smgr)

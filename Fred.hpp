@@ -2,6 +2,7 @@
 
 #include "Sprite.hpp"
 #include "SoundID.hpp"
+#include "GameEvent.hpp"
 
 class Game;
 
@@ -65,7 +66,7 @@ class Fred : public Sprite
 
 public:
     Fred(Game &game, MapPos pos): Sprite(pos), game(game) {}
-    void updateFred(unsigned events);
+    void updateFred(EventMask event_mask);
     bool collisionInProgress() const { return collision_timer != 0; }
     void checkCollisionWithEnemy(Sprite const &other);
     void checkCollisionWithObject();

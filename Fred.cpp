@@ -45,19 +45,19 @@ Sprite::RenderParams Fred::getRenderParams() const
     return {TextureID::FRED, direction == 1, color_mods[static_cast<size_t>(color)]};
 }
 
-void Fred::updateFred(unsigned events)
+void Fred::updateFred(EventMask event_mask)
 {
     int input_x = 0, input_y = 0;
     bool input_fire = false;
-    if ((events & Game::EVENT_UP) != 0)
+    if (event_mask.check(GameEvent::UP))
         input_y = -1;
-    else if ((events & Game::EVENT_DOWN) != 0)
+    else if (event_mask.check(GameEvent::DOWN))
         input_y = 1;
-    else if ((events & Game::EVENT_LEFT) != 0)
+    else if (event_mask.check(GameEvent::LEFT))
         input_x = -1;
-    else if ((events & Game::EVENT_RIGHT) != 0)
+    else if (event_mask.check(GameEvent::RIGHT))
         input_x = 1;
-    if ((events & Game::EVENT_FIRE) != 0)
+    if (event_mask.check(GameEvent::FIRE))
         input_fire = true;
 
     switch (state)

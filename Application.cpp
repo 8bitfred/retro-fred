@@ -1,4 +1,5 @@
 #include "Application.hpp"
+#include "GameEvent.hpp"
 #include "Config.hpp"
 #include "Game.hpp"
 #include "Fred.hpp"
@@ -15,45 +16,6 @@
 #include "Tomb.hpp"
 #include <iostream>
 #include <cstdio>
-
-namespace
-{
-    class KeyState
-    {
-        unsigned state = 0;
-
-    public:
-        std::pair<bool, unsigned> updateKeyState()
-        {
-            SDL_Event event;
-            unsigned key_presses = 0;
-            while (SDL_PollEvent(&event) != 0)
-            {
-                if (event.type == SDL_QUIT)
-                    return {true, 0};
-                else if (event.type == SDL_KEYDOWN)
-                {
-                    if (event.key.repeat == 0)
-                    {
-                        if ((state & (Game::EVENT_RCTRL | Game::EVENT_LCTRL)) != 0 &&
-                            event.key.keysym.sym == SDLK_q)
-                            return {true, 0};
-                        auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
-                        state |= events_of_key;
-                        key_presses |= events_of_key;
-                    }
-                }
-                else if (event.type == SDL_KEYUP)
-                {
-                    auto events_of_key = Game::getEventOfKey(event.key.keysym.sym);
-                    state &= ~events_of_key;
-                }
-            }
-            return {false, state | key_presses};
-        }
-    };
-
-}
 
 FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     : cfg(cfg)
@@ -75,21 +37,21 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
 
     std::uint32_t frame_count = 0;
-    KeyState key_state;
+    EventManager event_manager(cfg.ticks_per_frame);
     while (true)
     {
-        Uint32 const start_ticks = SDL_GetTicks();
-        auto [quit, events] = key_state.updateKeyState();
-        if (quit)
+        game.render(getRenderer());
+        game.playPendingSounds();
+        ++frame_count;
+
+        auto event_mask = event_manager.collectEvents();
+        if (event_mask.check(GameEvent::QUIT))
             return LevelStatus::QUIT;
         updateSprites(game);
 
-        if ((events & Game::EVENT_SHIFT) != 0 && cfg.debug_keys)
-        {
-            debugMode(game, events);
-            events = 0;
-        }
-        fred->updateFred(events);
+        if (cfg.debug_keys)
+            debugMode(game, event_mask);
+        fred->updateFred(event_mask);
 
         checkBulletCollisions(game);
         checkCollisionsWithEnemies(game);
@@ -104,14 +66,6 @@ FredApp::LevelStatus FredApp::playLevel(Game &game)
             return LevelStatus::NEXT_LEVEL;
         }
         fred->checkCollisionWithObject();
-
-        game.render(getRenderer());
-        game.playPendingSounds();
-
-        ++frame_count;
-        Uint32 const ticks = SDL_GetTicks() - start_ticks;
-        if (ticks < cfg.ticks_per_frame)
-            SDL_Delay(cfg.ticks_per_frame - ticks);
     }
 }
 
@@ -261,7 +215,7 @@ void FredApp::endOfLevelSequence(Game &game)
         game.getSpriteList(static_cast<SpriteClass>(i)).clear();
     for (int i = 0; i < 4; ++i)
     {
-        fred->updateFred(0);
+        fred->updateFred(EventMask());
         game.render(getRenderer());
         SDL_Delay(cfg.ticks_per_frame);
     }
@@ -275,7 +229,7 @@ void FredApp::gameOverSequence(Game &game)
     {
         game.render(getRenderer());
         SDL_Delay(500);
-        fred->updateFred(0);
+        fred->updateFred(EventMask());
     }
     auto pos = game.getFredCellPos();
     pos.xadd(-2);
@@ -313,30 +267,30 @@ void FredApp::showLevelSummary(Game &game)
     game.addScore(5000 + game.getTreasureCount() * 1000);
 }
 
-void FredApp::debugMode(Game &game, unsigned events)
+void FredApp::debugMode(Game &game, EventMask event_mask)
 {
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
-    if ((events & Game::EVENT_LEFT) != 0)
+    if (event_mask.check(GameEvent::DBG_LEFT))
         game.getFrame().addUserOffset(-MapPos::CELL_WIDTH_PIXELS, 0);
-    else if ((events & Game::EVENT_RIGHT) != 0)
+    else if (event_mask.check(GameEvent::DBG_RIGHT))
         game.getFrame().addUserOffset(MapPos::CELL_WIDTH_PIXELS, 0);
-    else if ((events & Game::EVENT_UP) != 0)
+    else if (event_mask.check(GameEvent::DBG_UP))
         game.getFrame().addUserOffset(0, -MapPos::CELL_HEIGHT_PIXELS);
-    else if ((events & Game::EVENT_DOWN) != 0)
+    else if (event_mask.check(GameEvent::DBG_DOWN))
         game.getFrame().addUserOffset(0, MapPos::CELL_HEIGHT_PIXELS);
-    else if ((events & Game::EVENT_MOVE_FRED) != 0)
+    else if (event_mask.check(GameEvent::DBG_CENTER_FRED))
         fred->dbgResetPosition();
-    else if ((events & Game::EVENT_RESET_USER_OFFSET) != 0)
+    else if (event_mask.check(GameEvent::DBG_CENTER_WINDOW))
         game.getFrame().resetUserOffset();
-    else if ((events & Game::EVENT_HATCH_LEFT) != 0)
+    else if (event_mask.check(GameEvent::DBG_EXIT_LEFT))
         game.dbgModifyGameMap().dbgMoveHatch(-1);
-    else if ((events & Game::EVENT_HATCH_RIGHT) != 0)
+    else if (event_mask.check(GameEvent::DBG_EXIT_RIGHT))
         game.dbgModifyGameMap().dbgMoveHatch(1);
-    else if ((events & Game::EVENT_MOVE_TO_HATCH) != 0)
+    else if (event_mask.check(GameEvent::DBG_MOVE_TO_EXIT))
         fred->dbgMoveToHatch();
-    else if ((events & Game::EVENT_DIE) != 0)
+    else if (event_mask.check(GameEvent::DBG_DIE))
         fred->dbgDie();
-    else if ((events & Game::EVENT_MAP) != 0)
+    else if (event_mask.check(GameEvent::DBG_MAP))
         game.setMinimapPos(game.getFredPos().cellPos());
 }
 
@@ -491,10 +445,7 @@ void FredApp::todaysGreatest()
 void FredApp::enterHighScore(unsigned score)
 {
     std::string initials = "A";
-    KeyState key_state;
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
-        ;
+    EventManager event_manager(cfg.ticks_per_frame);
     while (true)
     {
         SDL_RenderClear(getRenderer());
@@ -511,28 +462,27 @@ void FredApp::enterHighScore(unsigned score)
         tmgr.renderText(getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
         SDL_RenderPresent(getRenderer());
 
-        SDL_Delay(cfg.ticks_per_frame);
-
-        auto [quit, events] = key_state.updateKeyState();
-        if (quit) {
+        auto event_mask = event_manager.collectEvents();
+        if (event_mask.check(GameEvent::QUIT))
+        {
             state = State::QUIT;
             return;
         }
-        if (events & Game::EVENT_LEFT)
+        if (event_mask.check(GameEvent::LEFT))
         {
             if (initials.back() == 'A')
                 initials.back() = 'Z';
             else
                 --initials.back();
         }
-        else if (events & Game::EVENT_RIGHT)
+        else if (event_mask.check(GameEvent::RIGHT))
         {
             if (initials.back() == 'Z')
                 initials.back() = 'A';
             else
                 ++initials.back();
         }
-        else if (events & Game::EVENT_FIRE)
+        else if (event_mask.check(GameEvent::FIRE))
         {
             if (initials.size() == 3)
             {
