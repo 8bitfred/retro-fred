@@ -102,7 +102,7 @@ void test_event_manager()
     }
 }
 
-int main()
+int main(int, char *[])
 {
     test_event_manager();
 

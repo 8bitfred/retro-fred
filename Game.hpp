@@ -58,9 +58,9 @@ public:
     void playSound(SoundID sound_id);
     void addSound(SoundID sound_id);
     void playPendingSounds();
-    void setLevelStatus(LevelStatus level_status)
+    void setLevelStatus(LevelStatus new_level_status)
     {
-        this->level_status = level_status;
+        level_status = new_level_status;
     }
     LevelStatus getLevelStatus() const { return level_status; }
     // TODO: we should refactor this so that the Game object does not need to know about

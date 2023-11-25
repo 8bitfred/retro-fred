@@ -3,7 +3,7 @@
 namespace {
     struct KeyBinding
     {
-        SDL_Keymod keymod;
+        Uint16 keymod;
         SDL_Scancode scancode;
         GameEvent game_event;
     };
@@ -31,7 +31,7 @@ namespace {
 
 EventMask EventManager::collectEvents() 
 {
-    static constexpr int STDMODS = KMOD_SHIFT | KMOD_ALT | KMOD_CTRL | KMOD_GUI;
+    static constexpr Uint16 STDMODS = KMOD_SHIFT | KMOD_ALT | KMOD_CTRL | KMOD_GUI;
     EventMask event_mask;
     while (true)
     {
@@ -61,7 +61,7 @@ EventMask EventManager::collectEvents()
         }
         else if (event.type == SDL_KEYDOWN)
         {
-            auto keymods = event.key.keysym.mod & STDMODS;
+            Uint16 keymods = event.key.keysym.mod & STDMODS;
             if (keymods == 0)
                 event_mask.set(GameEvent::ANY_KEY);
             for (auto const &binding: game_bindings)
@@ -78,7 +78,7 @@ EventMask EventManager::collectEvents()
         }
     }
     auto keystate = SDL_GetKeyboardState(nullptr);
-    auto keymods = SDL_GetModState() & STDMODS;
+    Uint16 keymods = SDL_GetModState() & STDMODS;
     for (auto const &binding : game_bindings)
     {
         if (checkKeymod(keymods, binding.keymod) &&
