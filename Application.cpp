@@ -380,11 +380,10 @@ void FredApp::playGame()
                 enterHighScore(game.getScore());
             return;
         }
-        if (game.getLevelStatus() == Game::LevelStatus::QUIT)
-        {
+        else if (game.getLevelStatus() == Game::LevelStatus::QUIT)
             state = State::QUIT;
+        if (state == State::QUIT)
             return;
-        }
     }
 }
 
