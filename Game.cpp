@@ -111,11 +111,11 @@ bool Game::decPower()
 Game::SpriteCount Game::getSpriteCountOfLevel(Config const &cfg, int level)
 {
     static SpriteCount level_config[] = {
-    //    A   R   G   C   M   V   S   O
+    //    A   R   G   C   M   V   S   O  busts stones  masks
         {20, 40, 10,  0,  0,  0,  0, 16, false, false, false},
         {25, 25, 10, 10,  5,  0,  0, 17, false, false, false},
         {30, 30, 10, 15, 10,  5,  0, 18,  true, false, false},
-        {35, 35, 15, 20, 15, 15, 10, 21,  true,  true,  true},
+        {35, 35, 15, 20, 15, 15, 10, 21,  true,  true, false},
         {30, 30, 15, 20, 15, 10,  5, 19,  true,  true,  true},
         { 1,  1,  1,  0,  0, 30, 20, 25,  true,  true,  true},
     };
