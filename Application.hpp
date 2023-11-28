@@ -24,27 +24,32 @@ public:
 private:
     enum class State
     {
-        QUIT,
         SPLASH_SCREEN,
         MENU,
         HIGH_SCORES,
+        PLAY_GAME,
+        NEXT_LEVEL,
+        GAME_OVER_SEQUENCE,
+        GAME_OVER,
+        ENTER_HIGH_SCORE,
     };
 
-    void playLevel(Game &game);
+    void updateGame(Game &game, EventManager &event_manager, EventMask event_mask);
     void initializeSprites(Game &game);
     void initializeFred(Game &game);
     void updateSprites(Game &game);
     void checkCollisionsWithEnemies(Game &game);
     void checkBulletCollisions(Game &game);
     void debugMode(Game &game, EventMask event_mask);
-    void gameOverSequence(Game &game);
-    void transitionToNextLevel(Game &game);
+    void updateGameOverSequence(Game &game, EventManager &event_manager);
+    void transitionToNextLevel(Game &game, EventManager &event_manager);
 
-    void playGame();
-    void splashScreen(EventManager &event_manager);
-    void menu(EventManager &event_manager, bool flash);
-    void todaysGreatest(EventManager &event_manager);
-    void enterHighScore(unsigned score);
+    void splashScreen();
+    void menu();
+    void todaysGreatest();
+    void renderHighScoreScreen(std::string const &initials);
+    void updateHighScore(std::string &initials, unsigned score,
+                         EventManager &event_manager, EventMask event_mask);
 
     Config const &cfg;
     std::minstd_rand &random_engine;
@@ -52,6 +57,7 @@ private:
     TextureManager tmgr;
     SoundManager smgr;
 
-    State state;
     std::vector<std::pair<unsigned, std::string>> high_scores;
+    State state = State::SPLASH_SCREEN;
+    int state_timer = 0;
 };
