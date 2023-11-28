@@ -31,42 +31,36 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     SDL_RenderSetScale(getRenderer(), cfg.scale_x, cfg.scale_y);
 }
 
-void FredApp::playLevel(Game &game)
+void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask event_mask)
 {
-    initializeSprites(game);
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
 
-    std::uint32_t frame_count = 0;
-    EventManager event_manager(cfg.ticks_per_frame);
-    while (true)
+    updateSprites(game);
+
+    if (cfg.debug_keys)
+        debugMode(game, event_mask);
+    fred->updateFred(event_mask);
+
+    checkBulletCollisions(game);
+    checkCollisionsWithEnemies(game);
+    if (game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
     {
+        game.playSound(SoundID::GAME_OVER);
+        event_manager.setTimer(500);
         game.render(getRenderer());
-        game.playPendingSounds();
-        ++frame_count;
-
-        auto event_mask = event_manager.collectEvents();
-        if (event_mask.check(GameEvent::QUIT))
-        {
-            game.setLevelStatus(Game::LevelStatus::QUIT);
-            return;
-        }
-        updateSprites(game);
-
-        if (cfg.debug_keys)
-            debugMode(game, event_mask);
-        fred->updateFred(event_mask);
-
-        checkBulletCollisions(game);
-        checkCollisionsWithEnemies(game);
-        if (game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
-        {
-            gameOverSequence(game);
-            return;
-        }
-        else if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
-            return;
-        fred->checkCollisionWithObject();
+        state = State::GAME_OVER_SEQUENCE;
+        state_timer = 0;
+        return;
     }
+    else if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
+    {
+        transitionToNextLevel(game, event_manager);
+        state = State::NEXT_LEVEL;
+        return;
+    }
+    fred->checkCollisionWithObject();
+    game.render(getRenderer());
+    game.playPendingSounds();
 }
 
 void FredApp::initializeSprites(Game &game)
@@ -205,35 +199,27 @@ void FredApp::checkBulletCollisions(Game &game)
     }
 }
 
-void FredApp::gameOverSequence(Game &game)
+void FredApp::updateGameOverSequence(Game &game, EventManager &event_manager)
 {
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
-    EventManager event_manager(cfg.ticks_per_frame);
-    game.playSound(SoundID::GAME_OVER);
-    for (int i = 0; i < 6; ++i)
+    ++state_timer;
+    if (state_timer < 6)
     {
-        event_manager.setTimer(500);
-        game.render(getRenderer());
-        while (true) {
-            auto event_mask = event_manager.collectEvents();
-            if (event_mask.check(GameEvent::QUIT))
-            {
-                game.setLevelStatus(Game::LevelStatus::QUIT);
-                return;
-            }
-            if (event_mask.check(GameEvent::TIMER))
-                break;
-        }
         fred->updateFred(EventMask());
+        event_manager.setTimer(500);
     }
-    auto pos = game.getFredCellPos();
-    pos.xadd(-2);
-    game.getSpriteList(SpriteClass::FRED).pop_back();
-    game.getSpriteList(SpriteClass::TOMB).emplace_back(std::make_unique<Tomb>(pos));
+    else {
+        auto pos = game.getFredCellPos();
+        pos.xadd(-2);
+        game.getSpriteList(SpriteClass::FRED).pop_back();
+        game.getSpriteList(SpriteClass::TOMB).emplace_back(std::make_unique<Tomb>(pos));
+        event_manager.setTimer(5000);
+        state = State::GAME_OVER;
+    }
     game.render(getRenderer());
 }
 
-void FredApp::transitionToNextLevel(Game &game)
+void FredApp::transitionToNextLevel(Game &game, EventManager &event_manager)
 {
     SDL_RenderClear(getRenderer());
     tmgr.renderText(getRenderer(), "AT LAST YOU GOT OUT!", 24, 24,
@@ -258,20 +244,8 @@ void FredApp::transitionToNextLevel(Game &game)
     game.getFrame().renderFrame(game, getRenderer(), tmgr);
     SDL_RenderPresent(getRenderer());
     game.playSound(SoundID::EXIT_MAZE);
-    EventManager event_manager(cfg.ticks_per_frame);
     event_manager.setTimer(7000);
-    while (true) {
-        auto event_mask = event_manager.collectEvents();
-        if (event_mask.check(GameEvent::QUIT))
-        {
-            state = State::QUIT;
-            return;
-        }
-        if (event_mask.check(GameEvent::TIMER))
-            break;
-    }
-    game.addScore(5000 + game.getTreasureCount() * 1000);
-    game.nextLevel(random_engine);
+    state = State::NEXT_LEVEL;
 }
 
 void FredApp::debugMode(Game &game, EventMask event_mask)
@@ -304,13 +278,14 @@ void FredApp::debugMode(Game &game, EventMask event_mask)
 void FredApp::mainLoop()
 {
     EventManager event_manager(cfg.ticks_per_frame);
-    splashScreen(event_manager);
-    int menu_counter = 0;
+    std::optional<Game> game;
+    std::string initials;
+
+    splashScreen();
+    event_manager.setTimer(5000);
+    state = State::SPLASH_SCREEN;
     while (true)
     {
-        if (state == State::QUIT)
-            break;
-
         auto event_mask = event_manager.collectEvents();
         if (event_mask.check(GameEvent::QUIT))
             break;
@@ -319,90 +294,100 @@ void FredApp::mainLoop()
         case State::SPLASH_SCREEN:
             if (event_mask.check(GameEvent::TIMER) || 
                 event_mask.check(GameEvent::ANY_KEY))
-                menu(event_manager, true);
+            {
+                state_timer = 0;
+                state = State::MENU;
+                menu();
+                event_manager.setTimer(500);
+            }
             break;
         case State::MENU:
             if (event_mask.check(GameEvent::ANY_KEY))
             {
-                playGame();
-                if (state == State::QUIT)
-                    return;
-                todaysGreatest(event_manager);
+                game.emplace(cfg, random_engine, tmgr, smgr, high_scores.front().first);
+                initializeSprites(*game);
+                game->render(getRenderer());
+                state = State::PLAY_GAME;
             }
             else if (event_mask.check(GameEvent::TIMER))
             {
-                ++menu_counter;
-                if (menu_counter == 10)
+                ++state_timer;
+                if (state_timer == 10)
                 {
-                    menu_counter = 0;
-                    todaysGreatest(event_manager);
+                    todaysGreatest();
+                    event_manager.setTimer(8000);
+                    state = State::HIGH_SCORES;
                 }
                 else
-                    menu(event_manager, (menu_counter % 2) == 0);
+                {
+                    menu();
+                    event_manager.setTimer(500);
+                }
             }
             break;
         case State::HIGH_SCORES:
             if (event_mask.check(GameEvent::TIMER))
-                menu(event_manager, true);
-            break;
-        case State::QUIT:
-            return;
-        }
-    }
-}
-
-void FredApp::playGame()
-{
-    Game game(cfg, random_engine, tmgr, smgr, high_scores.front().first);
-
-    while (true)
-    {
-        playLevel(game);
-        if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
-            transitionToNextLevel(game);
-        else if (game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
-        {
-            EventManager event_manager(cfg.ticks_per_frame);
-            event_manager.setTimer(5000);
-            while (true)
             {
-                auto event_mask = event_manager.collectEvents();
-                if (event_mask.check(GameEvent::QUIT))
-                {
-                    state = State::QUIT;
-                    return;
-                }
-                if (event_mask.check(GameEvent::TIMER) ||
-                    event_mask.check(GameEvent::ANY_KEY))
-                    break;
+                state_timer = 0;
+                state = State::MENU;
+                menu();
+                event_manager.setTimer(500);
             }
-            if (game.getScore() > high_scores.back().first)
-                enterHighScore(game.getScore());
-            return;
+            break;
+        case State::PLAY_GAME:
+            updateGame(*game, event_manager, event_mask);
+            break;
+        case State::NEXT_LEVEL:
+            if (event_mask.check(GameEvent::TIMER)) {
+                game->addScore(5000 + game->getTreasureCount() * 1000);
+                game->nextLevel(random_engine);
+                initializeSprites(*game);
+                game->render(getRenderer());
+                state = State::PLAY_GAME;
+            }
+            break;
+        case State::GAME_OVER_SEQUENCE:
+            if (event_mask.check(GameEvent::TIMER))
+                updateGameOverSequence(*game, event_manager);
+            break;
+        case State::GAME_OVER:
+            if (event_mask.check(GameEvent::TIMER))
+            {
+                if (game->getScore() > high_scores.back().first)
+                {
+                    initials = "A";
+                    renderHighScoreScreen(initials);
+                    state = State::ENTER_HIGH_SCORE;
+                }
+                else
+                {
+                    todaysGreatest();
+                    event_manager.setTimer(8000);
+                    state = State::HIGH_SCORES;
+                }
+            }
+            break;
+        case State::ENTER_HIGH_SCORE:
+            updateHighScore(initials, game->getScore(), event_manager, event_mask);
+            break;
         }
-        else if (game.getLevelStatus() == Game::LevelStatus::QUIT)
-            state = State::QUIT;
-        if (state == State::QUIT)
-            return;
     }
 }
 
-void FredApp::splashScreen(EventManager &event_manager)
+void FredApp::splashScreen()
 {
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::SPLASH_SCREEN), nullptr, nullptr);
     tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 0, 0, 0);
     tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 0, 0, 0);
     SDL_RenderPresent(getRenderer());
-    event_manager.setTimer(5000);
-    state = State::SPLASH_SCREEN;
 }
 
-void FredApp::menu(EventManager &event_manager, bool flash)
+void FredApp::menu()
 {
     SDL_RenderClear(getRenderer());
     SDL_Rect logo = {88, 8, 76, 20};
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
-    if (flash)
+    if ((state_timer % 2) == 0)
         tmgr.renderText(getRenderer(), "PRESS ANY KEY TO START", 40, 56, 206, 206, 206);
     tmgr.renderText(getRenderer(), "WRITTEN BY FERNANDO RADA,", 0, 104, 206, 206, 206);
     tmgr.renderText(getRenderer(), "PACO MENENDEZ & CARLOS GRANADOS.", 0, 112, 206, 206, 206);
@@ -416,12 +401,9 @@ void FredApp::menu(EventManager &event_manager, bool flash)
     tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 206, 206, 206);
     tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 206, 206, 206);
     SDL_RenderPresent(getRenderer());
-
-    event_manager.setTimer(500);
-    state = State::MENU;
 }
 
-void FredApp::todaysGreatest(EventManager &event_manager)
+void FredApp::todaysGreatest()
 {
     SDL_RenderClear(getRenderer());
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::TODAYS_GREATEST), nullptr, nullptr);
@@ -442,66 +424,60 @@ void FredApp::todaysGreatest(EventManager &event_manager)
         rect_score.x += 64;
     }
     SDL_RenderPresent(getRenderer());
-
-    event_manager.setTimer(8000);
-    state = State::HIGH_SCORES;
     smgr.play(SoundID::FUNERAL_MARCH);
 }
 
-void FredApp::enterHighScore(unsigned score)
+void FredApp::renderHighScoreScreen(std::string const &initials)
 {
-    std::string initials = "A";
-    EventManager event_manager(cfg.ticks_per_frame);
-    while (true)
-    {
-        SDL_RenderClear(getRenderer());
-        sdl::ColorGuard color_guard(getRenderer(), 0, 206, 0, 255);
-        if (SDL_RenderFillRect(getRenderer(), nullptr) < 0)
-            throw sdl::Error();
-        tmgr.renderText(getRenderer(), "CONGRATULATIONS", 8 * 8, 0, 0, 0, 0);
-        tmgr.renderText(getRenderer(), "YOU HAVE ONE OF TODAY'S GREATEST",
-                        0, 8, 0, 0, 0);
-        tmgr.renderText(getRenderer(), "ENTER YOUR INITIALS WITH LEFT,",
-                        0, 16, 0, 0, 0);
-        tmgr.renderText(getRenderer(), "RIGHT & SPACE",
-                        0, 24, 0, 0, 0);
-        tmgr.renderText(getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
-        SDL_RenderPresent(getRenderer());
+    SDL_RenderClear(getRenderer());
+    sdl::ColorGuard color_guard(getRenderer(), 0, 206, 0, 255);
+    if (SDL_RenderFillRect(getRenderer(), nullptr) < 0)
+        throw sdl::Error();
+    tmgr.renderText(getRenderer(), "CONGRATULATIONS", 8 * 8, 0, 0, 0, 0);
+    tmgr.renderText(getRenderer(), "YOU HAVE ONE OF TODAY'S GREATEST",
+                    0, 8, 0, 0, 0);
+    tmgr.renderText(getRenderer(), "ENTER YOUR INITIALS WITH LEFT,",
+                    0, 16, 0, 0, 0);
+    tmgr.renderText(getRenderer(), "RIGHT & SPACE",
+                    0, 24, 0, 0, 0);
+    tmgr.renderText(getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
+    SDL_RenderPresent(getRenderer());
+}
 
-        auto event_mask = event_manager.collectEvents();
-        if (event_mask.check(GameEvent::QUIT))
+void FredApp::updateHighScore(std::string &initials, unsigned score,
+                              EventManager &event_manager, EventMask event_mask)
+{
+    if (event_mask.check(GameEvent::LEFT))
+    {
+        if (initials.back() == 'A')
+            initials.back() = 'Z';
+        else
+            --initials.back();
+    }
+    else if (event_mask.check(GameEvent::RIGHT))
+    {
+        if (initials.back() == 'Z')
+            initials.back() = 'A';
+        else
+            ++initials.back();
+    }
+    else if (event_mask.check(GameEvent::FIRE))
+    {
+        if (initials.size() == 3)
         {
-            state = State::QUIT;
+            auto pos = std::upper_bound(high_scores.begin(), high_scores.end(),
+                                        score, [](unsigned x, auto const &y)
+                                        { return x > y.first; });
+            high_scores.emplace(pos, score, std::move(initials));
+            if (high_scores.size() > 4)
+                high_scores.resize(4);
+            todaysGreatest();
+            event_manager.setTimer(8000);
+            state = State::HIGH_SCORES;
             return;
         }
-        if (event_mask.check(GameEvent::LEFT))
-        {
-            if (initials.back() == 'A')
-                initials.back() = 'Z';
-            else
-                --initials.back();
-        }
-        else if (event_mask.check(GameEvent::RIGHT))
-        {
-            if (initials.back() == 'Z')
-                initials.back() = 'A';
-            else
-                ++initials.back();
-        }
-        else if (event_mask.check(GameEvent::FIRE))
-        {
-            if (initials.size() == 3)
-            {
-                auto pos = std::upper_bound(high_scores.begin(), high_scores.end(),
-                                            score, [](unsigned x, auto const &y)
-                                            { return x > y.first; });
-                high_scores.emplace(pos, score, std::move(initials));
-                if (high_scores.size() > 4)
-                    high_scores.resize(4);
-                break;
-            }
-            else
-                initials += "A";
-        }
-   }
+        else
+            initials += "A";
+    }
+    renderHighScoreScreen(initials);
 }
