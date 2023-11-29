@@ -31,49 +31,57 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     SDL_RenderSetScale(getRenderer(), cfg.scale_x, cfg.scale_y);
 }
 
-void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask event_mask)
+void FredApp::splashScreen()
 {
-    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
-
-    updateSprites(game);
-
-    if (cfg.debug_keys)
-        debugMode(game, event_mask);
-    fred->updateFred(event_mask);
-
-    checkBulletCollisions(game);
-    checkCollisionsWithEnemies(game);
-    if (game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
-    {
-        game.playSound(SoundID::GAME_OVER);
-        event_manager.setTimer(500);
-        game.render(getRenderer());
-        state = State::GAME_OVER_SEQUENCE;
-        state_timer = 0;
-        return;
-    }
-    else if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
-    {
-        transitionToNextLevel(game, event_manager);
-        state = State::NEXT_LEVEL;
-        return;
-    }
-    fred->checkCollisionWithObject();
-    game.render(getRenderer());
-    game.playPendingSounds();
+    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::SPLASH_SCREEN), nullptr, nullptr);
+    tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 0, 0, 0);
+    tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 0, 0, 0);
+    SDL_RenderPresent(getRenderer());
 }
 
-void FredApp::initializeSprites(Game &game)
+void FredApp::menu()
 {
-    Rat::initialize(random_engine, game);
-    AcidDrop::initialize(random_engine, game);
-    Ghost::initialize(random_engine, game);
-    Mummy::initialize(random_engine, game);
-    Vampire::initialize(random_engine, game);
-    Chameleon::initialize(random_engine, game);
-    Skeleton::initialize(random_engine, game);
-    Object::initialize(random_engine, game);
-    initializeFred(game);
+    SDL_RenderClear(getRenderer());
+    SDL_Rect logo = {88, 8, 76, 20};
+    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
+    if ((state_timer % 2) == 0)
+        tmgr.renderText(getRenderer(), "PRESS ANY KEY TO START", 40, 56, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "WRITTEN BY FERNANDO RADA,", 0, 104, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "PACO MENENDEZ & CARLOS GRANADOS.", 0, 112, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "       \x7f INDESCOMP SPAIN", 0, 120, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "PRESENTED BY QUICKSILVA", 0, 128, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "PRESENTATION SCREEN DESIGN:", 0, 136, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "JUAN DELCAN, KIKI & MA", 0, 144, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "CHARACTER DESIGN: GAELIC", 0, 152, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "PET: SENATOR & DRULY'S DUCK", 0, 160, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "MISTAKES: MARTA & PALOMA", 0, 168, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 206, 206, 206);
+    SDL_RenderPresent(getRenderer());
+}
+
+void FredApp::todaysGreatest()
+{
+    SDL_RenderClear(getRenderer());
+    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::TODAYS_GREATEST), nullptr, nullptr);
+    sdl::ColorGuard color_guard(getRenderer(), 255, 255, 255, 255);
+    SDL_Rect rect_initials = {24, 80, 24, 8}; // 88
+    SDL_Rect rect_score = {19, 130, 35, 5};
+    for (auto const &[score, name] : high_scores)
+    {
+        if (score == 0)
+            continue;
+        if (SDL_RenderFillRect(getRenderer(), &rect_initials) < 0)
+            throw sdl::Error();
+        if (SDL_RenderFillRect(getRenderer(), &rect_score) < 0)
+            throw sdl::Error();
+        tmgr.renderText(getRenderer(), name, rect_initials.x, rect_initials.y, 0, 0, 0);
+        tmgr.renderScore(getRenderer(), score, rect_score.x, rect_score.y, 0, 0, 0);
+        rect_initials.x += 64;
+        rect_score.x += 64;
+    }
+    SDL_RenderPresent(getRenderer());
+    smgr.play(SoundID::FUNERAL_MARCH);
 }
 
 void FredApp::initializeFred(Game &game)
@@ -96,6 +104,19 @@ void FredApp::initializeFred(Game &game)
     auto fred_unique_ptr = std::make_unique<Fred>(game, fred_initial_position);
     game.updateFredPos(fred_initial_position, 1);
     game.getSpriteList(SpriteClass::FRED).emplace_back(std::move(fred_unique_ptr));
+}
+
+void FredApp::initializeSprites(Game &game)
+{
+    Rat::initialize(random_engine, game);
+    AcidDrop::initialize(random_engine, game);
+    Ghost::initialize(random_engine, game);
+    Mummy::initialize(random_engine, game);
+    Vampire::initialize(random_engine, game);
+    Chameleon::initialize(random_engine, game);
+    Skeleton::initialize(random_engine, game);
+    Object::initialize(random_engine, game);
+    initializeFred(game);
 }
 
 void FredApp::updateSprites(Game &game)
@@ -130,27 +151,6 @@ void FredApp::updateSprites(Game &game)
     // some signal or callback
     Skeleton::toggleClimbingFrame();
     Mummy::toggleMummyTimer();
-}
-
-void FredApp::checkCollisionsWithEnemies(Game &game)
-{
-    static SpriteClass enemies[] = { SpriteClass::ACID_DROP,
-                                     SpriteClass::RAT,
-                                     SpriteClass::GHOST,
-                                     SpriteClass::CHAMELEON,
-                                     SpriteClass::MUMMY,
-                                     SpriteClass::VAMPIRE,
-                                     SpriteClass::SKELETON };
-    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
-    for (auto enemy_class : enemies)
-    {
-        for (auto const &sprite : game.getSpriteList(enemy_class))
-        {
-            if (fred->collisionInProgress())
-                return;
-            fred->checkCollisionWithEnemy(*sprite);
-        }
-    }
 }
 
 void FredApp::checkBulletCollisions(Game &game)
@@ -199,24 +199,25 @@ void FredApp::checkBulletCollisions(Game &game)
     }
 }
 
-void FredApp::updateGameOverSequence(Game &game, EventManager &event_manager)
+void FredApp::checkCollisionsWithEnemies(Game &game)
 {
+    static SpriteClass enemies[] = { SpriteClass::ACID_DROP,
+                                     SpriteClass::RAT,
+                                     SpriteClass::GHOST,
+                                     SpriteClass::CHAMELEON,
+                                     SpriteClass::MUMMY,
+                                     SpriteClass::VAMPIRE,
+                                     SpriteClass::SKELETON };
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
-    ++state_timer;
-    if (state_timer < 6)
+    for (auto enemy_class : enemies)
     {
-        fred->updateFred(EventMask());
-        event_manager.setTimer(500);
+        for (auto const &sprite : game.getSpriteList(enemy_class))
+        {
+            if (fred->collisionInProgress())
+                return;
+            fred->checkCollisionWithEnemy(*sprite);
+        }
     }
-    else {
-        auto pos = game.getFredCellPos();
-        pos.xadd(-2);
-        game.getSpriteList(SpriteClass::FRED).pop_back();
-        game.getSpriteList(SpriteClass::TOMB).emplace_back(std::make_unique<Tomb>(pos));
-        event_manager.setTimer(5000);
-        state = State::GAME_OVER;
-    }
-    game.render(getRenderer());
 }
 
 void FredApp::transitionToNextLevel(Game &game, EventManager &event_manager)
@@ -273,6 +274,113 @@ void FredApp::debugMode(Game &game, EventMask event_mask)
         fred->dbgDie();
     else if (event_mask.check(GameEvent::DBG_MAP))
         game.setMinimapPos(game.getFredPos().cellPos());
+}
+
+void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask event_mask)
+{
+    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
+
+    updateSprites(game);
+
+    if (cfg.debug_keys)
+        debugMode(game, event_mask);
+    fred->updateFred(event_mask);
+
+    checkBulletCollisions(game);
+    checkCollisionsWithEnemies(game);
+    if (game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
+    {
+        game.playSound(SoundID::GAME_OVER);
+        event_manager.setTimer(500);
+        game.render(getRenderer());
+        state = State::GAME_OVER_SEQUENCE;
+        state_timer = 0;
+        return;
+    }
+    else if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
+    {
+        transitionToNextLevel(game, event_manager);
+        state = State::NEXT_LEVEL;
+        return;
+    }
+    fred->checkCollisionWithObject();
+    game.render(getRenderer());
+    game.playPendingSounds();
+}
+
+void FredApp::updateGameOverSequence(Game &game, EventManager &event_manager)
+{
+    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
+    ++state_timer;
+    if (state_timer < 6)
+    {
+        fred->updateFred(EventMask());
+        event_manager.setTimer(500);
+    }
+    else {
+        auto pos = game.getFredCellPos();
+        pos.xadd(-2);
+        game.getSpriteList(SpriteClass::FRED).pop_back();
+        game.getSpriteList(SpriteClass::TOMB).emplace_back(std::make_unique<Tomb>(pos));
+        event_manager.setTimer(5000);
+        state = State::GAME_OVER;
+    }
+    game.render(getRenderer());
+}
+
+void FredApp::renderHighScoreScreen(std::string const &initials)
+{
+    SDL_RenderClear(getRenderer());
+    sdl::ColorGuard color_guard(getRenderer(), 0, 206, 0, 255);
+    if (SDL_RenderFillRect(getRenderer(), nullptr) < 0)
+        throw sdl::Error();
+    tmgr.renderText(getRenderer(), "CONGRATULATIONS", 8 * 8, 0, 0, 0, 0);
+    tmgr.renderText(getRenderer(), "YOU HAVE ONE OF TODAY'S GREATEST",
+                    0, 8, 0, 0, 0);
+    tmgr.renderText(getRenderer(), "ENTER YOUR INITIALS WITH LEFT,",
+                    0, 16, 0, 0, 0);
+    tmgr.renderText(getRenderer(), "RIGHT & SPACE",
+                    0, 24, 0, 0, 0);
+    tmgr.renderText(getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
+    SDL_RenderPresent(getRenderer());
+}
+
+void FredApp::updateHighScore(std::string &initials, unsigned score,
+                              EventManager &event_manager, EventMask event_mask)
+{
+    if (event_mask.check(GameEvent::LEFT))
+    {
+        if (initials.back() == 'A')
+            initials.back() = 'Z';
+        else
+            --initials.back();
+    }
+    else if (event_mask.check(GameEvent::RIGHT))
+    {
+        if (initials.back() == 'Z')
+            initials.back() = 'A';
+        else
+            ++initials.back();
+    }
+    else if (event_mask.check(GameEvent::FIRE))
+    {
+        if (initials.size() == 3)
+        {
+            auto pos = std::upper_bound(high_scores.begin(), high_scores.end(),
+                                        score, [](unsigned x, auto const &y)
+                                        { return x > y.first; });
+            high_scores.emplace(pos, score, std::move(initials));
+            if (high_scores.size() > 4)
+                high_scores.resize(4);
+            todaysGreatest();
+            event_manager.setTimer(8000);
+            state = State::HIGH_SCORES;
+            return;
+        }
+        else
+            initials += "A";
+    }
+    renderHighScoreScreen(initials);
 }
 
 void FredApp::mainLoop()
@@ -372,112 +480,4 @@ void FredApp::mainLoop()
             break;
         }
     }
-}
-
-void FredApp::splashScreen()
-{
-    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::SPLASH_SCREEN), nullptr, nullptr);
-    tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 0, 0, 0);
-    tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 0, 0, 0);
-    SDL_RenderPresent(getRenderer());
-}
-
-void FredApp::menu()
-{
-    SDL_RenderClear(getRenderer());
-    SDL_Rect logo = {88, 8, 76, 20};
-    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
-    if ((state_timer % 2) == 0)
-        tmgr.renderText(getRenderer(), "PRESS ANY KEY TO START", 40, 56, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "WRITTEN BY FERNANDO RADA,", 0, 104, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "PACO MENENDEZ & CARLOS GRANADOS.", 0, 112, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "       \x7f INDESCOMP SPAIN", 0, 120, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "PRESENTED BY QUICKSILVA", 0, 128, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "PRESENTATION SCREEN DESIGN:", 0, 136, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "JUAN DELCAN, KIKI & MA", 0, 144, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "CHARACTER DESIGN: GAELIC", 0, 152, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "PET: SENATOR & DRULY'S DUCK", 0, 160, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "MISTAKES: MARTA & PALOMA", 0, 168, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 206, 206, 206);
-    SDL_RenderPresent(getRenderer());
-}
-
-void FredApp::todaysGreatest()
-{
-    SDL_RenderClear(getRenderer());
-    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::TODAYS_GREATEST), nullptr, nullptr);
-    sdl::ColorGuard color_guard(getRenderer(), 255, 255, 255, 255);
-    SDL_Rect rect_initials = {24, 80, 24, 8}; // 88
-    SDL_Rect rect_score = {19, 130, 35, 5};
-    for (auto const &[score, name] : high_scores)
-    {
-        if (score == 0)
-            continue;
-        if (SDL_RenderFillRect(getRenderer(), &rect_initials) < 0)
-            throw sdl::Error();
-        if (SDL_RenderFillRect(getRenderer(), &rect_score) < 0)
-            throw sdl::Error();
-        tmgr.renderText(getRenderer(), name, rect_initials.x, rect_initials.y, 0, 0, 0);
-        tmgr.renderScore(getRenderer(), score, rect_score.x, rect_score.y, 0, 0, 0);
-        rect_initials.x += 64;
-        rect_score.x += 64;
-    }
-    SDL_RenderPresent(getRenderer());
-    smgr.play(SoundID::FUNERAL_MARCH);
-}
-
-void FredApp::renderHighScoreScreen(std::string const &initials)
-{
-    SDL_RenderClear(getRenderer());
-    sdl::ColorGuard color_guard(getRenderer(), 0, 206, 0, 255);
-    if (SDL_RenderFillRect(getRenderer(), nullptr) < 0)
-        throw sdl::Error();
-    tmgr.renderText(getRenderer(), "CONGRATULATIONS", 8 * 8, 0, 0, 0, 0);
-    tmgr.renderText(getRenderer(), "YOU HAVE ONE OF TODAY'S GREATEST",
-                    0, 8, 0, 0, 0);
-    tmgr.renderText(getRenderer(), "ENTER YOUR INITIALS WITH LEFT,",
-                    0, 16, 0, 0, 0);
-    tmgr.renderText(getRenderer(), "RIGHT & SPACE",
-                    0, 24, 0, 0, 0);
-    tmgr.renderText(getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
-    SDL_RenderPresent(getRenderer());
-}
-
-void FredApp::updateHighScore(std::string &initials, unsigned score,
-                              EventManager &event_manager, EventMask event_mask)
-{
-    if (event_mask.check(GameEvent::LEFT))
-    {
-        if (initials.back() == 'A')
-            initials.back() = 'Z';
-        else
-            --initials.back();
-    }
-    else if (event_mask.check(GameEvent::RIGHT))
-    {
-        if (initials.back() == 'Z')
-            initials.back() = 'A';
-        else
-            ++initials.back();
-    }
-    else if (event_mask.check(GameEvent::FIRE))
-    {
-        if (initials.size() == 3)
-        {
-            auto pos = std::upper_bound(high_scores.begin(), high_scores.end(),
-                                        score, [](unsigned x, auto const &y)
-                                        { return x > y.first; });
-            high_scores.emplace(pos, score, std::move(initials));
-            if (high_scores.size() > 4)
-                high_scores.resize(4);
-            todaysGreatest();
-            event_manager.setTimer(8000);
-            state = State::HIGH_SCORES;
-            return;
-        }
-        else
-            initials += "A";
-    }
-    renderHighScoreScreen(initials);
 }
