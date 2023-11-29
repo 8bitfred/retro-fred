@@ -34,19 +34,18 @@ private:
         ENTER_HIGH_SCORE,
     };
 
-    void updateGame(Game &game, EventManager &event_manager, EventMask event_mask);
-    void initializeSprites(Game &game);
-    void initializeFred(Game &game);
-    void updateSprites(Game &game);
-    void checkCollisionsWithEnemies(Game &game);
-    void checkBulletCollisions(Game &game);
-    void debugMode(Game &game, EventMask event_mask);
-    void updateGameOverSequence(Game &game, EventManager &event_manager);
-    void transitionToNextLevel(Game &game, EventManager &event_manager);
-
     void splashScreen();
     void menu();
     void todaysGreatest();
+    void initializeFred(Game &game);
+    void initializeSprites(Game &game);
+    void updateSprites(Game &game);
+    void checkBulletCollisions(Game &game);
+    void checkCollisionsWithEnemies(Game &game);
+    void transitionToNextLevel(Game &game, EventManager &event_manager);
+    void debugMode(Game &game, EventMask event_mask);
+    void updateGame(Game &game, EventManager &event_manager, EventMask event_mask);
+    void updateGameOverSequence(Game &game, EventManager &event_manager);
     void renderHighScoreScreen(std::string const &initials);
     void updateHighScore(std::string &initials, unsigned score,
                          EventManager &event_manager, EventMask event_mask);
