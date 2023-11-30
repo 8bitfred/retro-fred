@@ -20,8 +20,7 @@ public:
 
     enum class LevelStatus
     {
-        PLAYING,
-        QUIT,
+        PLAY,
         NEXT_LEVEL,
         GAME_OVER,
     };
@@ -105,7 +104,7 @@ private:
     int fred_vposition = 0;
     std::vector<SpriteList> sprite_lists;
     std::uint32_t pending_sounds = 0;
-    LevelStatus level_status = LevelStatus::PLAYING;
+    LevelStatus level_status = LevelStatus::PLAY;
     unsigned bullet_count = MAX_BULLETS;
     unsigned level = 1;
     SpriteCount sprite_count;

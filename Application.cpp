@@ -246,7 +246,6 @@ void FredApp::transitionToNextLevel(Game &game, EventManager &event_manager)
     SDL_RenderPresent(getRenderer());
     game.playSound(SoundID::EXIT_MAZE);
     event_manager.setTimer(7000);
-    state = State::NEXT_LEVEL;
 }
 
 void FredApp::debugMode(Game &game, EventMask event_mask)
@@ -293,14 +292,12 @@ void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask even
         game.playSound(SoundID::GAME_OVER);
         event_manager.setTimer(500);
         game.render(getRenderer());
-        state = State::GAME_OVER_SEQUENCE;
         state_timer = 0;
         return;
     }
     else if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
     {
         transitionToNextLevel(game, event_manager);
-        state = State::NEXT_LEVEL;
         return;
     }
     fred->checkCollisionWithObject();
@@ -443,20 +440,24 @@ void FredApp::mainLoop()
             }
             break;
         case State::PLAY_GAME:
-            updateGame(*game, event_manager, event_mask);
-            break;
-        case State::NEXT_LEVEL:
-            if (event_mask.check(GameEvent::TIMER)) {
-                game->addScore(5000 + game->getTreasureCount() * 1000);
-                game->nextLevel(random_engine);
-                initializeSprites(*game);
-                game->render(getRenderer());
-                state = State::PLAY_GAME;
+            if (game->getLevelStatus() == Game::LevelStatus::PLAY)
+                updateGame(*game, event_manager, event_mask);
+            else if (game->getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
+            {
+                if (event_mask.check(GameEvent::TIMER))
+                {
+                    game->addScore(5000 + game->getTreasureCount() * 1000);
+                    game->nextLevel(random_engine);
+                    initializeSprites(*game);
+                    game->render(getRenderer());
+                    state = State::PLAY_GAME;
+                }
             }
-            break;
-        case State::GAME_OVER_SEQUENCE:
-            if (event_mask.check(GameEvent::TIMER))
-                updateGameOverSequence(*game, event_manager);
+            else if (game->getLevelStatus() == Game::LevelStatus::GAME_OVER)
+            {
+                if (event_mask.check(GameEvent::TIMER))
+                    updateGameOverSequence(*game, event_manager);
+            }
             break;
         case State::GAME_OVER:
             if (event_mask.check(GameEvent::TIMER))

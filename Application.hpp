@@ -28,8 +28,6 @@ private:
         MENU,
         HIGH_SCORES,
         PLAY_GAME,
-        NEXT_LEVEL,
-        GAME_OVER_SEQUENCE,
         GAME_OVER,
         ENTER_HIGH_SCORE,
     };
