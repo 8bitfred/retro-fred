@@ -39,12 +39,12 @@ void FredApp::splashScreen()
     SDL_RenderPresent(getRenderer());
 }
 
-void FredApp::menu()
+void FredApp::menu(StateMenu &state_data)
 {
     SDL_RenderClear(getRenderer());
     SDL_Rect logo = {88, 8, 76, 20};
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
-    if ((state_timer % 2) == 0)
+    if ((state_data.counter % 2) == 0)
         tmgr.renderText(getRenderer(), "PRESS ANY KEY TO START", 40, 56, 206, 206, 206);
     tmgr.renderText(getRenderer(), "WRITTEN BY FERNANDO RADA,", 0, 104, 206, 206, 206);
     tmgr.renderText(getRenderer(), "PACO MENENDEZ & CARLOS GRANADOS.", 0, 112, 206, 206, 206);
@@ -292,7 +292,6 @@ void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask even
         game.playSound(SoundID::GAME_OVER);
         event_manager.setTimer(500);
         game.render(getRenderer());
-        state_timer = 0;
         return;
     }
     else if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
@@ -305,24 +304,25 @@ void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask even
     game.playPendingSounds();
 }
 
-void FredApp::updateGameOverSequence(Game &game, EventManager &event_manager)
+void FredApp::updateGameOverSequence(StatePlay &state_data, EventManager &event_manager)
 {
-    auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
-    ++state_timer;
-    if (state_timer < 6)
+    auto fred = dynamic_cast<Fred *>(state_data.game.getSpriteList(SpriteClass::FRED).front().get());
+    ++state_data.counter;
+    if (state_data.counter < 6)
     {
         fred->updateFred(EventMask());
         event_manager.setTimer(500);
+        state_data.game.render(getRenderer());
     }
     else {
-        auto pos = game.getFredCellPos();
+        auto pos = state_data.game.getFredCellPos();
         pos.xadd(-2);
-        game.getSpriteList(SpriteClass::FRED).pop_back();
-        game.getSpriteList(SpriteClass::TOMB).emplace_back(std::make_unique<Tomb>(pos));
+        state_data.game.getSpriteList(SpriteClass::FRED).pop_back();
+        state_data.game.getSpriteList(SpriteClass::TOMB).emplace_back(std::make_unique<Tomb>(pos));
+        state_data.game.render(getRenderer());
         event_manager.setTimer(5000);
-        state = State::GAME_OVER;
+        state.emplace<StateGameOver>(state_data.game.getScore());
     }
-    game.render(getRenderer());
 }
 
 void FredApp::renderHighScoreScreen(std::string const &initials)
@@ -371,7 +371,7 @@ void FredApp::updateHighScore(std::string &initials, unsigned score,
                 high_scores.resize(4);
             todaysGreatest();
             event_manager.setTimer(8000);
-            state = State::HIGH_SCORES;
+            state.emplace<StateTodaysGreatest>();
             return;
         }
         else
@@ -383,102 +383,101 @@ void FredApp::updateHighScore(std::string &initials, unsigned score,
 void FredApp::mainLoop()
 {
     EventManager event_manager(cfg.ticks_per_frame);
-    std::optional<Game> game;
-    std::string initials;
 
     splashScreen();
     event_manager.setTimer(5000);
-    state = State::SPLASH_SCREEN;
+    state.emplace<StateSplashScreen>();
     while (true)
     {
         auto event_mask = event_manager.collectEvents();
         if (event_mask.check(GameEvent::QUIT))
             break;
-        switch (state)
+        if (auto data = std::get_if<StateSplashScreen>(&state); data)
         {
-        case State::SPLASH_SCREEN:
-            if (event_mask.check(GameEvent::TIMER) || 
+            if (event_mask.check(GameEvent::TIMER) ||
                 event_mask.check(GameEvent::ANY_KEY))
             {
-                state_timer = 0;
-                state = State::MENU;
-                menu();
+                auto &menu_data = state.emplace<StateMenu>();
+                menu(menu_data);
                 event_manager.setTimer(500);
             }
-            break;
-        case State::MENU:
+        }
+        else if (auto data = std::get_if<StateMenu>(&state); data)
+        {
             if (event_mask.check(GameEvent::ANY_KEY))
             {
-                game.emplace(cfg, random_engine, tmgr, smgr, high_scores.front().first);
-                initializeSprites(*game);
-                game->render(getRenderer());
-                state = State::PLAY_GAME;
+                auto &play_data = state.emplace<StatePlay>(cfg, random_engine,
+                                                           tmgr, smgr,
+                                                           high_scores.front().first);
+                initializeSprites(play_data.game);
+                play_data.game.render(getRenderer());
             }
             else if (event_mask.check(GameEvent::TIMER))
             {
-                ++state_timer;
-                if (state_timer == 10)
+                ++data->counter;
+                if (data->counter == 10)
                 {
                     todaysGreatest();
                     event_manager.setTimer(8000);
-                    state = State::HIGH_SCORES;
+                    state.emplace<StateTodaysGreatest>();
                 }
                 else
                 {
-                    menu();
+                    menu(*data);
                     event_manager.setTimer(500);
                 }
             }
-            break;
-        case State::HIGH_SCORES:
+        }
+        else if (auto data = std::get_if<StateTodaysGreatest>(&state); data)
+        {
             if (event_mask.check(GameEvent::TIMER))
             {
-                state_timer = 0;
-                state = State::MENU;
-                menu();
+                auto &menu_data = state.emplace<StateMenu>();
+                menu(menu_data);
                 event_manager.setTimer(500);
             }
-            break;
-        case State::PLAY_GAME:
-            if (game->getLevelStatus() == Game::LevelStatus::PLAY)
-                updateGame(*game, event_manager, event_mask);
-            else if (game->getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
+
+        }
+        else if (auto data = std::get_if<StatePlay>(&state); data)
+        {
+            if (data->game.getLevelStatus() == Game::LevelStatus::PLAY)
+                updateGame(data->game, event_manager, event_mask);
+            else if (data->game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
             {
                 if (event_mask.check(GameEvent::TIMER))
                 {
-                    game->addScore(5000 + game->getTreasureCount() * 1000);
-                    game->nextLevel(random_engine);
-                    initializeSprites(*game);
-                    game->render(getRenderer());
-                    state = State::PLAY_GAME;
+                    data->game.addScore(5000 + data->game.getTreasureCount() * 1000);
+                    data->game.nextLevel(random_engine);
+                    initializeSprites(data->game);
+                    data->game.render(getRenderer());
                 }
             }
-            else if (game->getLevelStatus() == Game::LevelStatus::GAME_OVER)
+            else if (data->game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
             {
                 if (event_mask.check(GameEvent::TIMER))
-                    updateGameOverSequence(*game, event_manager);
+                    updateGameOverSequence(*data, event_manager);
             }
-            break;
-        case State::GAME_OVER:
+        }
+        else if (auto data = std::get_if<StateGameOver>(&state); data)
+        {
             if (event_mask.check(GameEvent::TIMER))
             {
-                if (game->getScore() > high_scores.back().first)
+                if (data->score > high_scores.back().first)
                 {
-                    initials = "A";
-                    renderHighScoreScreen(initials);
-                    state = State::ENTER_HIGH_SCORE;
+                    auto &new_state = state.emplace<StateEnterHighScore>(data->score);
+                    renderHighScoreScreen(new_state.initials);
                 }
                 else
                 {
                     todaysGreatest();
                     event_manager.setTimer(8000);
-                    state = State::HIGH_SCORES;
+                    state.emplace<StateTodaysGreatest>();
                 }
             }
-            break;
-        case State::ENTER_HIGH_SCORE:
-            updateHighScore(initials, game->getScore(), event_manager, event_mask);
-            break;
+        }
+        else if (auto data = std::get_if<StateEnterHighScore>(&state); data)
+        {
+            updateHighScore(data->initials, data->score, event_manager, event_mask);
         }
     }
 }
