@@ -254,7 +254,7 @@ void Fred::stateRopeClimb(int input_x, int input_y)
         else
             frame = Frame::CLIMBING1;
         game.addSound(climbing_sound);
-        climbing_sound = climbing_sound == SoundID::CLIMB1 ? SoundID::CLIMB2 : SoundID::CLIMB1;
+        climbing_sound = climbing_sound == SoundID::CLIMBKOK ? SoundID::CLIMBTAK : SoundID::CLIMBKOK;
         sprite_pos.yadd(input_y);
         return;
     }

@@ -61,7 +61,7 @@ class Fred : public Sprite
     bool shooting = false;
     int jump_stage = 0;
     State state = State::WALK;
-    SoundID climbing_sound = SoundID::CLIMB1;
+    SoundID climbing_sound = SoundID::CLIMBTAK;
     int collision_timer = 0;
 
 public:
