@@ -392,7 +392,7 @@ void FredApp::mainLoop()
         auto event_mask = event_manager.collectEvents();
         if (event_mask.check(GameEvent::QUIT))
             break;
-        if (auto data = std::get_if<StateSplashScreen>(&state); data)
+        if (auto splash_screen = std::get_if<StateSplashScreen>(&state); splash_screen)
         {
             if (event_mask.check(GameEvent::TIMER) ||
                 event_mask.check(GameEvent::ANY_KEY))
@@ -402,7 +402,7 @@ void FredApp::mainLoop()
                 event_manager.setTimer(500);
             }
         }
-        else if (auto data = std::get_if<StateMenu>(&state); data)
+        else if (auto menu_state = std::get_if<StateMenu>(&state); menu_state)
         {
             if (event_mask.check(GameEvent::ANY_KEY))
             {
@@ -414,8 +414,8 @@ void FredApp::mainLoop()
             }
             else if (event_mask.check(GameEvent::TIMER))
             {
-                ++data->counter;
-                if (data->counter == 10)
+                ++menu_state->counter;
+                if (menu_state->counter == 10)
                 {
                     todaysGreatest();
                     event_manager.setTimer(8000);
@@ -423,12 +423,12 @@ void FredApp::mainLoop()
                 }
                 else
                 {
-                    menu(*data);
+                    menu(*menu_state);
                     event_manager.setTimer(500);
                 }
             }
         }
-        else if (auto data = std::get_if<StateTodaysGreatest>(&state); data)
+        else if (auto todays_greatest = std::get_if<StateTodaysGreatest>(&state); todays_greatest)
         {
             if (event_mask.check(GameEvent::TIMER))
             {
@@ -438,33 +438,33 @@ void FredApp::mainLoop()
             }
 
         }
-        else if (auto data = std::get_if<StatePlay>(&state); data)
+        else if (auto play_state = std::get_if<StatePlay>(&state); play_state)
         {
-            if (data->game.getLevelStatus() == Game::LevelStatus::PLAY)
-                updateGame(data->game, event_manager, event_mask);
-            else if (data->game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
+            if (play_state->game.getLevelStatus() == Game::LevelStatus::PLAY)
+                updateGame(play_state->game, event_manager, event_mask);
+            else if (play_state->game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
             {
                 if (event_mask.check(GameEvent::TIMER))
                 {
-                    data->game.addScore(5000 + data->game.getTreasureCount() * 1000);
-                    data->game.nextLevel(random_engine);
-                    initializeSprites(data->game);
-                    data->game.render(getRenderer());
+                    play_state->game.addScore(5000 + play_state->game.getTreasureCount() * 1000);
+                    play_state->game.nextLevel(random_engine);
+                    initializeSprites(play_state->game);
+                    play_state->game.render(getRenderer());
                 }
             }
-            else if (data->game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
+            else if (play_state->game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
             {
                 if (event_mask.check(GameEvent::TIMER))
-                    updateGameOverSequence(*data, event_manager);
+                    updateGameOverSequence(*play_state, event_manager);
             }
         }
-        else if (auto data = std::get_if<StateGameOver>(&state); data)
+        else if (auto game_over = std::get_if<StateGameOver>(&state); game_over)
         {
             if (event_mask.check(GameEvent::TIMER))
             {
-                if (data->score > high_scores.back().first)
+                if (game_over->score > high_scores.back().first)
                 {
-                    auto &new_state = state.emplace<StateEnterHighScore>(data->score);
+                    auto &new_state = state.emplace<StateEnterHighScore>(game_over->score);
                     renderHighScoreScreen(new_state.initials);
                 }
                 else
@@ -475,9 +475,9 @@ void FredApp::mainLoop()
                 }
             }
         }
-        else if (auto data = std::get_if<StateEnterHighScore>(&state); data)
+        else if (auto enter_high_score = std::get_if<StateEnterHighScore>(&state); enter_high_score)
         {
-            updateHighScore(data->initials, data->score, event_manager, event_mask);
+            updateHighScore(enter_high_score->initials, enter_high_score->score, event_manager, event_mask);
         }
     }
 }
