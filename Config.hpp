@@ -20,4 +20,8 @@ struct Config {
     bool boxes = false;
     bool minimap_exit = false;
     std::filesystem::path resource_path;
+    bool set_power_with_level = false;
+    bool set_bullets_with_level = false;
+    bool replenish_power = false;
+    bool replenish_bullets = false;
 };

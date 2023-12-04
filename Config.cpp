@@ -32,6 +32,16 @@ namespace {
         "    --fps FPS\n"
         "              Set frames per second to FPS.\n"
         "              Defaults to 6.\n"
+        "    --power-with-level\n"
+        "              Change the amount that the power object\n"
+        "              increases the power with the level.\n"
+        "    --bullets-with-level\n"
+        "              Change the max number of bullets with the\n"
+        "              level.\n"
+        "    --replenish-power\n"
+        "              Refill the power when a level is completed.\n"
+        "    --replenish-bullets\n"
+        "              Refill the bullets when a level is completed.\n"
         "\n"
         "\n"
         "keybindings during gameplay:\n"
@@ -100,6 +110,14 @@ Config::Config(int argc, char *argv[])
             auto fps = std::atoi(argv[i]);
             ticks_per_frame = 1000 / fps;
         }
+        else if (svarg == "--power-with-level")
+            set_power_with_level = true;
+        else if (svarg == "--bullets-with-level")
+            set_bullets_with_level = true;
+        else if (svarg == "--replenish-power")
+            replenish_power = true;
+        else if (svarg == "--replenish-bullets")
+            replenish_bullets = true;
         else
         {
             std::cerr << "unknown option: " << svarg << std::endl;
