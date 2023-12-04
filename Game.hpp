@@ -38,6 +38,8 @@ public:
         bool has_busts = false;
         bool has_stones = false;
         bool has_masks = false;
+        int charge_power = 2;
+        int charge_bullets = 6;
     };
 
     Game(Config const &cfg, std::minstd_rand &random_engine,
@@ -75,18 +77,14 @@ public:
     int getLevel() const { return level; }
     int getPower() const { return power; }
     bool decPower();
-    void incPower()
-    {
-        power += 2;
-        power = std::min(power, MAX_POWER);
-    }
+    void incPower();
     void addTreasure(int points)
     {
         score += points;
         ++treasure_count;
     }
     void addScore(int points) { score += points; }
-    void rechargeBullets() { bullet_count = MAX_BULLETS; }
+    void rechargeBullets() { bullet_count = sprite_count.charge_bullets; }
     std::optional<CellPos> getMinimapPos() const { return minimap_pos; }
     void setMinimapPos(CellPos const &pos) { minimap_pos = pos; }
 
@@ -105,11 +103,11 @@ private:
     std::vector<SpriteList> sprite_lists;
     std::uint32_t pending_sounds = 0;
     LevelStatus level_status = LevelStatus::PLAY;
-    unsigned bullet_count = MAX_BULLETS;
     unsigned level = 1;
     SpriteCount sprite_count;
     unsigned score = 0, high_score = 0;
     unsigned treasure_count = 0;
     unsigned power = MAX_POWER;
+    unsigned bullet_count = MAX_BULLETS;
     std::optional<CellPos> minimap_pos;
 };

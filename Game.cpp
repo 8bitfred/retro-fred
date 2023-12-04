@@ -12,6 +12,7 @@ Game::Game(Config const &cfg, std::minstd_rand &random_engine,
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
     , sprite_count(getSpriteCountOfLevel(cfg, level))
     , high_score(high_score)
+    , bullet_count(sprite_count.charge_bullets)
 {
 }
 
@@ -25,6 +26,10 @@ void Game::nextLevel(std::minstd_rand &random_engine)
     treasure_count = 0;
     sprite_count = getSpriteCountOfLevel(cfg, level);
     minimap_pos.reset();
+    if (cfg.replenish_power)
+        power = MAX_POWER;
+    if (cfg.replenish_bullets)
+        bullet_count = sprite_count.charge_bullets;
 }
 
 void Game::render(SDL_Renderer *renderer)
@@ -108,20 +113,33 @@ bool Game::decPower()
     return false;
 }
 
+void Game::incPower()
+{
+    power += sprite_count.charge_power;
+    power = std::min(power, MAX_POWER);
+}
+
 Game::SpriteCount Game::getSpriteCountOfLevel(Config const &cfg, int level)
 {
     static SpriteCount level_config[] = {
     //    A   R   G   C   M   V   S   O  busts stones  masks
-        {20, 40, 10,  0,  0,  0,  0, 16, false, false, false},
-        {25, 25, 10, 10,  5,  0,  0, 17, false, false, false},
-        {30, 30, 10, 15, 10,  5,  0, 18,  true, false, false},
-        {35, 35, 15, 20, 15, 15, 10, 21,  true,  true, false},
-        {30, 30, 15, 20, 15, 10,  5, 19,  true,  true,  true},
-        { 1,  1,  1,  0,  0, 30, 20, 25,  true,  true,  true},
+        {20, 40, 10,  0,  0,  0,  0, 16, false, false, false, 2, 6},
+        {25, 25, 10, 10,  5,  0,  0, 17, false, false, false, 2, 6},
+        {30, 30, 10, 15, 10,  5,  0, 18,  true, false, false, 3, 9},
+        {35, 35, 15, 20, 15, 15, 10, 21,  true,  true, false, 3, 10},
+        {30, 30, 15, 20, 15, 10,  5, 19,  true,  true,  true, 4, 11},
+        { 1,  1,  1,  0,  0, 30, 20, 25,  true,  true,  true, 4, 12},
     };
 
     if (cfg.debug_map)
-        return {15, 15, 7, 15, 7, 7, 7, 25, true, true, true};
-    else
-        return level_config[std::min(static_cast<size_t>(level - 1), std::size(level_config) - 1)];
+        return {15, 15, 7, 15, 7, 7, 7, 25, true, true, true, 2, 6};
+    else {
+        auto lvl = std::min(static_cast<size_t>(level), std::size(level_config)) - 1;
+        auto sprite_count = level_config[lvl];
+        if (!cfg.set_power_with_level)
+            sprite_count.charge_power = 2;
+        if (!cfg.set_bullets_with_level)
+            sprite_count.charge_bullets = 6;
+        return sprite_count;
+    }
 }
