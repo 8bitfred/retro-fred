@@ -1,0 +1,12 @@
+You need to add the following symbolic links in the android-project
+subdirectory for building for Android:
+
+  cd android-project/app/src/main
+  ln -s ../../../../assets .
+  cd ../../jni
+  ln -s ../../../cpp .
+
+As well as the links to SDL and SDL_image (in android-project/app/jni):
+
+  ln -s /usr/local/src/miguel-src/sdl2/SDL2-2.28.5 SDL
+  ln -s /usr/local/src/miguel-src/sdl2_image/SDL2_image-2.8.2 SDL_image
