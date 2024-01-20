@@ -20,15 +20,48 @@
 FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     : cfg(cfg)
     , random_engine(random_engine)
-    , w_and_r(sdl::createWindowAndRenderer(static_cast<int>(cfg.scale_x * cfg.window_width),
-                                           static_cast<int>(cfg.scale_y * cfg.window_height)))
+    , w_and_r(initDisplay(cfg))
+    , display_cfg(cfg, w_and_r.first, w_and_r.second)
     , tmgr(cfg, getRenderer())
     , smgr(cfg)
     , high_scores(4, {0, ""})
 {
     SDL_SetWindowTitle(getWindow(), "Fred2023");
     SDL_SetWindowIcon(getWindow(), tmgr.getFredIcon());
-    SDL_RenderSetScale(getRenderer(), cfg.scale_x, cfg.scale_y);
+}
+
+std::pair<sdl::WindowPtr, sdl::RendererPtr> FredApp::initDisplay(Config const &cfg)
+{
+    SDL_DisplayMode display_mode;
+    SDL_GetCurrentDisplayMode(0, &display_mode);
+    Uint32 window_flags = 0;
+    int width = display_mode.w, height = display_mode.h;
+    if (cfg.full_screen)
+        window_flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
+    else if (cfg.max_resolution)
+    {
+        auto max_w = (cfg.map_width * MapPos::CELL_WIDTH + 20) * MapPos::PIXELS_PER_CHAR;
+        auto max_h = (cfg.map_height * MapPos::CELL_HEIGHT + 15) * MapPos::PIXELS_PER_CHAR;
+        width = std::min(max_w, display_mode.w * 19 / 20);
+        height = std::min(max_h, display_mode.h * 19 / 20);
+        window_flags = SDL_WINDOW_RESIZABLE;
+    }
+    else
+    {
+        if (auto scaled_height = display_mode.w * cfg.logical_height / cfg.logical_width;
+            scaled_height < display_mode.h)
+        {
+            width = 4 * display_mode.w / 5;
+            height = width * cfg.logical_height / cfg.logical_width;
+        }
+        else
+        {
+            height = 4 * display_mode.h / 5;
+            width = height * cfg.logical_width / cfg.logical_height;
+        }
+        window_flags = SDL_WINDOW_RESIZABLE;
+    }
+    return sdl::createWindowAndRenderer(width, height, window_flags);
 }
 
 void FredApp::splashScreen()
@@ -401,12 +434,15 @@ void FredApp::mainLoop()
                 menu(menu_data);
                 event_manager.setTimer(500);
             }
+            else
+                splashScreen();
         }
         else if (auto menu_state = std::get_if<StateMenu>(&state); menu_state)
         {
             if (event_mask.check(GameEvent::ANY_KEY))
             {
-                auto &play_data = state.emplace<StatePlay>(cfg, random_engine,
+                auto &play_data = state.emplace<StatePlay>(cfg, display_cfg,
+                                                           random_engine,
                                                            tmgr, smgr,
                                                            high_scores.front().first);
                 initializeSprites(play_data.game);

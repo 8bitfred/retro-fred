@@ -42,7 +42,8 @@ public:
         int charge_bullets = 6;
     };
 
-    Game(Config const &cfg, std::minstd_rand &random_engine,
+    Game(Config const &cfg, DisplayConfig const &display_cfg,
+         std::minstd_rand &random_engine,
          TextureManager const &tmgr, SoundManager &smgr,
          unsigned high_score);
     void nextLevel(std::minstd_rand &random_engine);

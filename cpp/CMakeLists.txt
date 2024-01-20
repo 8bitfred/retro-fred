@@ -11,6 +11,7 @@ endif()
 add_executable(fred main.cpp sdl.hpp
     GameEvent.hpp GameEvent.cpp
     Config.cpp Config.hpp
+    DisplayConfig.cpp DisplayConfig.hpp
     Application.cpp Application.hpp
     GameMap.cpp GameMap.hpp 
     TextureID.hpp TextureManager.cpp TextureManager.hpp

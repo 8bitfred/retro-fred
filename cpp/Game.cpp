@@ -5,10 +5,11 @@
 #include "Bullet.hpp"
 #include <algorithm>
 
-Game::Game(Config const &cfg, std::minstd_rand &random_engine,
-    TextureManager const &tmgr, SoundManager &smgr, unsigned high_score)
+Game::Game(Config const &cfg, DisplayConfig const &display_cfg,
+           std::minstd_rand &random_engine,
+           TextureManager const &tmgr, SoundManager &smgr, unsigned high_score)
     : cfg(cfg), tmgr(tmgr), smgr(smgr)
-    , window(cfg), game_map(cfg, random_engine)
+    , window(cfg, display_cfg), game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
     , sprite_count(getSpriteCountOfLevel(cfg, level))
     , high_score(high_score)

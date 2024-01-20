@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sdl.hpp"
+#include "DisplayConfig.hpp"
 #include "TextureManager.hpp"
 #include "SoundManager.hpp"
 #include "GameEvent.hpp"
@@ -13,26 +14,19 @@ class Game;
 class Fred;
 class Bullet;
 
-class FredApp : sdl::App
+class FredApp
 {
-public:
-    explicit FredApp(Config const &cfg, std::minstd_rand &random_engine);
-    SDL_Window *getWindow() const { return w_and_r.first; }
-    SDL_Renderer *getRenderer() const { return w_and_r.second; }
-    TextureManager const &getTextureManager() const { return tmgr; }
-    void mainLoop();
-
-private:
     struct StateSplashScreen {};
     struct StateMenu { int counter = 0; };
     struct StateTodaysGreatest {};
     struct StatePlay {
         Game game;
         int counter = 0;
-        StatePlay(Config const &cfg, std::minstd_rand &random_engine,
+        StatePlay(Config const &cfg, DisplayConfig const &display_cfg,
+                  std::minstd_rand &random_engine,
                   TextureManager const &tmgr, SoundManager &smgr,
                   unsigned high_score)
-            : game(cfg, random_engine, tmgr, smgr, high_score) {}
+            : game(cfg, display_cfg, random_engine, tmgr, smgr, high_score) {}
     };
     struct StateGameOver {
         unsigned score;
@@ -50,6 +44,17 @@ private:
                                StateGameOver,
                                StateEnterHighScore>;
 
+    sdl::App app;
+    Config const &cfg;
+    std::minstd_rand &random_engine;
+    std::pair<sdl::WindowPtr, sdl::RendererPtr> w_and_r;
+    DisplayConfig display_cfg;
+    TextureManager tmgr;
+    SoundManager smgr;
+    std::vector<std::pair<unsigned, std::string>> high_scores;
+    State state = StateSplashScreen();
+
+    static std::pair<sdl::WindowPtr, sdl::RendererPtr> initDisplay(Config const &cfg);
     void splashScreen();
     void menu(StateMenu &state_data);
     void todaysGreatest();
@@ -66,12 +71,10 @@ private:
     void updateHighScore(std::string &initials, unsigned score,
                          EventManager &event_manager, EventMask event_mask);
 
-    Config const &cfg;
-    std::minstd_rand &random_engine;
-    std::pair<sdl::WindowPtr, sdl::RendererPtr> w_and_r;
-    TextureManager tmgr;
-    SoundManager smgr;
-
-    std::vector<std::pair<unsigned, std::string>> high_scores;
-    State state = StateSplashScreen();
+public:
+    explicit FredApp(Config const &cfg, std::minstd_rand &random_engine);
+    SDL_Window *getWindow() const { return w_and_r.first; }
+    SDL_Renderer *getRenderer() const { return w_and_r.second; }
+    TextureManager const &getTextureManager() const { return tmgr; }
+    void mainLoop();
 };

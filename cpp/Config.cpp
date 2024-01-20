@@ -7,9 +7,9 @@ namespace {
     const char *usage =
         "usage: fred [--help]\n"
         "            [--debug-map] [--debug-keys]\n"
-        "            [--fullmap] [--minimap-exit]\n"
+        "            [--full-screen] [--full-map] [--minimap-exit]\n"
         "            [--infinite-ammo] [--infinite-power]\n"
-        "            [--boxes] [--scale SCALE] [--fps FPS]\n"
+        "            [--boxes] [--fps FPS]\n"
         "\n"
         "    --help    Show this message\n"
         "    --debug-map\n"
@@ -17,7 +17,9 @@ namespace {
         "              creatures and objects\n"
         "    --debug-keys\n"
         "              Enable debug keys.\n"
-        "    --fullmap\n"
+        "    --full-screen\n"
+        "              Enable full screen mode\n"
+        "    --full-map\n"
         "              Create a window with the whole map\n"
         "    --minimap-exit\n"
         "              Show map exit in minimap\n"
@@ -26,9 +28,6 @@ namespace {
         "    --infinite-power\n"
         "              Unlimited power\n"
         "    --boxes   Show sprite bound and hit boxes\n"
-        "    --scale SCALE\n"
-        "              Set the scale of the SDL renderer.\n"
-        "              Defaults to 5. SCALE can be a float.\n"
         "    --fps FPS\n"
         "              Set frames per second to FPS.\n"
         "              Defaults to 6.\n"
@@ -75,12 +74,10 @@ Config::Config(int argc, char *argv[])
             debug_map = true;
         else if (svarg == "--debug-keys")
             debug_keys = true;
-        else if (svarg == "--fullmap")
-        {
-            window_width = (map_width * CELL_WIDTH + 20) * PIXELS_PER_CHAR;
-            window_height = (map_height * CELL_HEIGHT + 15) * PIXELS_PER_CHAR;
-            scale_x = scale_y = 1;
-        }
+        else if (svarg == "--full-screen")
+            full_screen = true;
+        else if (svarg == "--full-map")
+            max_resolution = true;
         else if (svarg == "--minimap-exit")
             minimap_exit = true;
         else if (svarg == "--infinite-ammo")
@@ -89,16 +86,6 @@ Config::Config(int argc, char *argv[])
             infinite_power = true;
         else if (svarg == "--boxes")
             boxes = true;
-        else if (svarg == "--scale")
-        {
-            ++i;
-            if (i >= argc)
-            {
-                std::cerr << "missing argument for option --scale" << std::endl;
-                std::exit(2);
-            }
-            scale_x = scale_y = static_cast<float>(std::atof(argv[i]));
-        }
         else if (svarg == "--fps")
         {
             ++i;
