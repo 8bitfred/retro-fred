@@ -10,8 +10,9 @@ struct Config {
     static constexpr int CELL_HEIGHT = 5;
 
     std::uint32_t ticks_per_frame = 1000 / 6;
-    int window_width = 256, window_height = 192;
-    float scale_x = 5, scale_y = 5;
+    int logical_width = 256, logical_height = 192;
+    bool full_screen = false;
+    bool max_resolution = false;
     int map_width = 33, map_height = 33;
     bool debug_map = false;
     bool debug_keys = false;
