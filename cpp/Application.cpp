@@ -66,6 +66,8 @@ std::pair<sdl::WindowPtr, sdl::RendererPtr> FredApp::initDisplay(Config const &c
 
 void FredApp::splashScreen()
 {
+    display_cfg.setIntroViewport();
+    SDL_RenderClear(getRenderer());
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::SPLASH_SCREEN), nullptr, nullptr);
     tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 0, 0, 0);
     tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 0, 0, 0);
@@ -74,6 +76,7 @@ void FredApp::splashScreen()
 
 void FredApp::menu(StateMenu &state_data)
 {
+    display_cfg.setIntroViewport();
     SDL_RenderClear(getRenderer());
     SDL_Rect logo = {88, 8, 76, 20};
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
@@ -95,6 +98,7 @@ void FredApp::menu(StateMenu &state_data)
 
 void FredApp::todaysGreatest()
 {
+    display_cfg.setIntroViewport();
     SDL_RenderClear(getRenderer());
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::TODAYS_GREATEST), nullptr, nullptr);
     sdl::ColorGuard color_guard(getRenderer(), 255, 255, 255, 255);
@@ -255,6 +259,7 @@ void FredApp::checkCollisionsWithEnemies(Game &game)
 
 void FredApp::transitionToNextLevel(Game &game, EventManager &event_manager)
 {
+    display_cfg.setIntroViewport();
     SDL_RenderClear(getRenderer());
     tmgr.renderText(getRenderer(), "AT LAST YOU GOT OUT!", 24, 24,
                     206, 206, 206);
@@ -275,6 +280,7 @@ void FredApp::transitionToNextLevel(Game &game, EventManager &event_manager)
     SDL_Rect fred_puffing{88, 128, 32, 40};
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_PUFFING),
                    nullptr, &fred_puffing);
+    display_cfg.setGameViewport();
     game.getFrame().renderFrame(game, getRenderer(), tmgr);
     SDL_RenderPresent(getRenderer());
     game.playSound(SoundID::EXIT_MAZE);
@@ -360,6 +366,7 @@ void FredApp::updateGameOverSequence(StatePlay &state_data, EventManager &event_
 
 void FredApp::renderHighScoreScreen(std::string const &initials)
 {
+    display_cfg.setIntroViewport();
     SDL_RenderClear(getRenderer());
     sdl::ColorGuard color_guard(getRenderer(), 0, 206, 0, 255);
     if (SDL_RenderFillRect(getRenderer(), nullptr) < 0)
