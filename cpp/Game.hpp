@@ -95,6 +95,7 @@ public:
 private:
     static SpriteCount getSpriteCountOfLevel(Config const &cfg, int level);
     Config const &cfg;
+    DisplayConfig const &display_cfg;
     TextureManager const &tmgr;
     SoundManager &smgr;    
     Window window;

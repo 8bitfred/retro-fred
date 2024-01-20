@@ -4,7 +4,7 @@
 #include "sdl.hpp"
 
 struct Config;
-struct DisplayConfig;
+class DisplayConfig;
 struct SDL_Renderer;
 class TextureManager;
 class Game;

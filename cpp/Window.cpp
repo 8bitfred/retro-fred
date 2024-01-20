@@ -53,8 +53,8 @@
 //
 // Our main character, Fred, is always placed on the center of the screen.
 Window::Window(Config const &cfg, DisplayConfig const &display_cfg)
-    : total_width(display_cfg.w)
-    , total_height(display_cfg.h)
+    : total_width(display_cfg.getGameWindowWidth())
+    , total_height(display_cfg.getGameWindowHeight())
     , window_rect{MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR,
                   total_width - (SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
                   total_height - 2 * MapPos::PIXELS_PER_CHAR}

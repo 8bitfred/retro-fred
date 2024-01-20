@@ -3,12 +3,13 @@
 #include "Fred.hpp"
 #include "SoundManager.hpp"
 #include "Bullet.hpp"
+#include "DisplayConfig.hpp"
 #include <algorithm>
 
 Game::Game(Config const &cfg, DisplayConfig const &display_cfg,
            std::minstd_rand &random_engine,
            TextureManager const &tmgr, SoundManager &smgr, unsigned high_score)
-    : cfg(cfg), tmgr(tmgr), smgr(smgr)
+    : cfg(cfg), display_cfg(display_cfg), tmgr(tmgr), smgr(smgr)
     , window(cfg, display_cfg), game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
     , sprite_count(getSpriteCountOfLevel(cfg, level))
@@ -35,6 +36,7 @@ void Game::nextLevel(std::minstd_rand &random_engine)
 
 void Game::render(SDL_Renderer *renderer)
 {
+    display_cfg.setGameViewport();
     SDL_RenderClear(renderer);
     game_map.render(renderer, tmgr,
                     window.getWindowPos().x, window.getWindowPos().y,
