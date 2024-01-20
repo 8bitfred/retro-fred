@@ -48,17 +48,11 @@ std::pair<sdl::WindowPtr, sdl::RendererPtr> FredApp::initDisplay(Config const &c
     }
     else
     {
-        if (auto scaled_height = display_mode.w * cfg.logical_height / cfg.logical_width;
-            scaled_height < display_mode.h)
-        {
-            width = 4 * display_mode.w / 5;
-            height = width * cfg.logical_height / cfg.logical_width;
-        }
-        else
-        {
-            height = 4 * display_mode.h / 5;
-            width = height * cfg.logical_width / cfg.logical_height;
-        }
+        auto scale_w = static_cast<int>(static_cast<double>(display_mode.w * .8 / cfg.logical_width));
+        auto scale_h = static_cast<int>(static_cast<double>(display_mode.h * .8 / cfg.logical_height));
+        auto scale = std::max(std::min(scale_w, scale_h), 1);
+        width = cfg.logical_width * scale;
+        height = cfg.logical_height * scale;
         window_flags = SDL_WINDOW_RESIZABLE;
     }
     return sdl::createWindowAndRenderer(width, height, window_flags);
