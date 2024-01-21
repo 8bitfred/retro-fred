@@ -54,8 +54,8 @@ void TextureManager::renderText(SDL_Renderer *renderer, std::string_view text,
     auto texture = get(TextureID::ZX_FONT);
     if (SDL_SetTextureColorMod(texture, red, green, blue) < 0)
         throw sdl::Error();
-    SDL_Rect src(0, 0, 8, 8);
-    SDL_Rect dst(x, y, 8, 8);
+    SDL_Rect src = {0, 0, 8, 8};
+    SDL_Rect dst = {x, y, 8, 8};
     for (auto ch : text)
     {
         auto c = static_cast<unsigned>(ch);
@@ -77,8 +77,8 @@ void TextureManager::renderScore(SDL_Renderer *renderer, unsigned score,
     if (SDL_SetTextureColorMod(texture, red, green, blue) < 0)
         throw sdl::Error();
     score = std::min(score, 999999u);
-    SDL_Rect src(0, 0, 5, 5);
-    SDL_Rect dst(x + 5 * 6, y, 5, 5);
+    SDL_Rect src{0, 0, 5, 5};
+    SDL_Rect dst{x + 5 * 6, y, 5, 5};
     for (int i = 0; i < 6; ++i)
     {
         int digit = score % 10;

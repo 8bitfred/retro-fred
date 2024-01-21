@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string_view>
 #include "sdl.hpp"
 #include "TextureID.hpp"
 
