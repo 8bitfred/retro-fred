@@ -82,33 +82,32 @@ EventMask EventManager::collectEvents()
                     static_cast<int>(event.tfinger.touchId),
                     static_cast<int>(event.tfinger.fingerId),
                     event.tfinger.x, event.tfinger.y);
-            if (event.tfinger.fingerId < finger_state.size())
+            GameEvent game_event = GameEvent::COUNT;
+            if (event.tfinger.x < .04)
             {
-                GameEvent game_event = GameEvent::COUNT;
-                if (event.tfinger.x < .04)
-                {
-                    if (event.tfinger.y > .33 && event.tfinger.y < .66)
-                        game_event = GameEvent::LEFT;
-                }
-                else if (event.tfinger.x < .08)
-                {
-                    if (event.tfinger.y < .33)
-                        game_event = GameEvent::UP;
-                    else if (event.tfinger.y > .66)
-                        game_event = GameEvent::DOWN;
-                }
-                else if (event.tfinger.x < .12)
-                {
-                    if (event.tfinger.y > .33 && event.tfinger.y < .66)
-                        game_event = GameEvent::RIGHT;
-                }
-                else if (event.tfinger.x > .87)
-                {
-                    game_event = GameEvent::FIRE;
-                }
-                finger_state[event.tfinger.fingerId].down = true;
-                finger_state[event.tfinger.fingerId].game_event = game_event;
+                if (event.tfinger.y > .33 && event.tfinger.y < .66)
+                    game_event = GameEvent::LEFT;
             }
+            else if (event.tfinger.x < .08)
+            {
+                if (event.tfinger.y < .33)
+                    game_event = GameEvent::UP;
+                else if (event.tfinger.y > .66)
+                    game_event = GameEvent::DOWN;
+            }
+            else if (event.tfinger.x < .12)
+            {
+                if (event.tfinger.y > .33 && event.tfinger.y < .66)
+                    game_event = GameEvent::RIGHT;
+            }
+            else if (event.tfinger.x > .87)
+            {
+                game_event = GameEvent::FIRE;
+            }
+            finger_state[event.tfinger.fingerId] = FingerState{true, game_event};
+            event_mask.set(GameEvent::ANY_KEY);
+            if (game_event != GameEvent::COUNT)
+                event_mask.set(game_event);
         }
         else if (event.type == SDL_FINGERUP)
         {
@@ -116,10 +115,7 @@ EventMask EventManager::collectEvents()
                     static_cast<int>(event.tfinger.touchId),
                     static_cast<int>(event.tfinger.fingerId),
                     event.tfinger.x, event.tfinger.y);
-            if (event.tfinger.fingerId < finger_state.size())
-            {
-                finger_state[event.tfinger.fingerId].down = false;
-            }
+            finger_state.erase(event.tfinger.fingerId);
         }
     }
     auto keystate = SDL_GetKeyboardState(nullptr);
@@ -132,7 +128,7 @@ EventMask EventManager::collectEvents()
             event_mask.set(binding.game_event);
         }
     }
-    for (auto const &fs : finger_state)
+    for (auto const &[id, fs] : finger_state)
     {
         if (fs.down && fs.game_event != GameEvent::COUNT)
             event_mask.set(fs.game_event);
