@@ -2,6 +2,7 @@
 
 #include "sdl.hpp"
 #include <optional>
+#include <array>
 
 enum class GameEvent
 {
@@ -53,6 +54,13 @@ class EventManager {
     {
         return (keymod & ~mask) == 0 && (mask == 0 || (keymod & mask) != 0);
     }
+
+    struct FingerState
+    {
+        bool down = false;
+        GameEvent game_event = GameEvent::COUNT;
+    };
+    std::array<FingerState, 4> finger_state;
 
 public:
     explicit EventManager(std::uint32_t ticks_per_frame)
