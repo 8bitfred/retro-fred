@@ -55,19 +55,16 @@ class EventManager {
         return (keymod & ~mask) == 0 && (mask == 0 || (keymod & mask) != 0);
     }
 
-    struct FingerState
-    {
-        bool down = false;
-        GameEvent game_event = GameEvent::COUNT;
-    };
-    std::map<SDL_FingerID, FingerState> finger_state;
+    std::map<SDL_FingerID, GameEvent> finger_state;
+    std::optional<GameEvent> getTouchEvent(SDL_Window *window,
+                                           SDL_TouchFingerEvent const &tfinger);
 
 public:
     explicit EventManager(std::uint32_t ticks_per_frame)
     : ticks_per_frame(ticks_per_frame)
     , next_frame(SDL_GetTicks() + ticks_per_frame)
     {}
-    EventMask collectEvents();
+    EventMask collectEvents(SDL_Window *window);
     void setTimer(std::uint32_t ticks)
     {
         timer_expiration = SDL_GetTicks() + ticks;

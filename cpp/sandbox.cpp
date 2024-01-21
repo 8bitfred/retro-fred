@@ -76,7 +76,7 @@ void test_event_manager()
     auto ticks = SDL_GetTicks();
     while (true)
     {
-        auto event_mask = event_manager.collectEvents();
+        auto event_mask = event_manager.collectEvents(window);
         auto new_ticks = SDL_GetTicks();
         std::string event_str;
         bool any_event = false;

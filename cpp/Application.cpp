@@ -423,7 +423,7 @@ void FredApp::mainLoop()
     state.emplace<StateSplashScreen>();
     while (true)
     {
-        auto event_mask = event_manager.collectEvents();
+        auto event_mask = event_manager.collectEvents(getWindow());
         if (event_mask.check(GameEvent::QUIT))
             break;
         if (auto splash_screen = std::get_if<StateSplashScreen>(&state); splash_screen)

@@ -38,7 +38,12 @@ target_link_libraries(fred ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)
 set_property(TARGET fred PROPERTY CXX_STANDARD_REQUIRED True)
 
-add_executable(sandbox sandbox.cpp sdl.hpp Signal.hpp GameEvent.hpp GameEvent.cpp)
+add_executable(sandbox
+               sandbox.cpp
+               sdl.hpp
+               Signal.hpp
+               GameEvent.hpp GameEvent.cpp
+               Controller.hpp Controller.cpp)
 target_link_libraries(sandbox ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 set_property(TARGET sandbox PROPERTY CXX_STANDARD 20)
 set_property(TARGET sandbox PROPERTY CXX_STANDARD_REQUIRED True)
