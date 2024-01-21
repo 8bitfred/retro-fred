@@ -1,4 +1,5 @@
 #include "GameEvent.hpp"
+#include "Controller.hpp"
 
 namespace {
     struct KeyBinding
@@ -29,7 +30,47 @@ namespace {
     };
 }
 
-EventMask EventManager::collectEvents() 
+std::optional<GameEvent> EventManager::getTouchEvent(SDL_Window *window, 
+                                                     SDL_TouchFingerEvent const &tfinger)
+{
+    int window_w, window_h;
+    SDL_GetWindowSize(window, &window_w, &window_h);
+    auto px = static_cast<int>(window_w * tfinger.x);
+    auto py = static_cast<int>(window_h * tfinger.y);
+    auto [arrows_rect, fire_rect] = Controller::getRects(window);
+
+    auto arrows_x = px - arrows_rect.x;
+    auto arrows_y = py - arrows_rect.y;
+    if (arrows_x >= 0 && arrows_x < arrows_rect.w &&
+        arrows_y >= 0 && arrows_y < arrows_rect.h)
+    {
+        auto x = arrows_x - (arrows_rect.w / 2);
+        auto y = arrows_y - (arrows_rect.h / 2);
+        if (std::abs(x) > std::abs(y))
+        {
+            if (x > 0)
+                return GameEvent::RIGHT;
+            else
+                return GameEvent::LEFT;
+        }
+        else
+        {
+            if (y > 0)
+                return GameEvent::DOWN;
+            else
+                return GameEvent::UP;
+        }
+    }
+
+    auto fire_x = px - fire_rect.x;
+    auto fire_y = py - fire_rect.y;
+    if (fire_x >= 0 && fire_x < fire_rect.w &&
+        fire_y >= 0 && fire_y < fire_rect.h)
+        return GameEvent::FIRE;
+    return {};
+}
+
+EventMask EventManager::collectEvents(SDL_Window *window) 
 {
     static constexpr Uint16 STDMODS = KMOD_SHIFT | KMOD_ALT | KMOD_CTRL | KMOD_GUI;
     EventMask event_mask;
@@ -78,44 +119,24 @@ EventMask EventManager::collectEvents()
         }
         else if (event.type == SDL_FINGERDOWN)
         {
-            SDL_Log("finger DOWN touchId=%d fingerId=%d x=%f y=%f",
-                    static_cast<int>(event.tfinger.touchId),
-                    static_cast<int>(event.tfinger.fingerId),
-                    event.tfinger.x, event.tfinger.y);
-            GameEvent game_event = GameEvent::COUNT;
-            if (event.tfinger.x < .04)
-            {
-                if (event.tfinger.y > .33 && event.tfinger.y < .66)
-                    game_event = GameEvent::LEFT;
-            }
-            else if (event.tfinger.x < .08)
-            {
-                if (event.tfinger.y < .33)
-                    game_event = GameEvent::UP;
-                else if (event.tfinger.y > .66)
-                    game_event = GameEvent::DOWN;
-            }
-            else if (event.tfinger.x < .12)
-            {
-                if (event.tfinger.y > .33 && event.tfinger.y < .66)
-                    game_event = GameEvent::RIGHT;
-            }
-            else if (event.tfinger.x > .87)
-            {
-                game_event = GameEvent::FIRE;
-            }
-            finger_state[event.tfinger.fingerId] = FingerState{true, game_event};
+            auto game_event = getTouchEvent(window, event.tfinger);
             event_mask.set(GameEvent::ANY_KEY);
-            if (game_event != GameEvent::COUNT)
-                event_mask.set(game_event);
+            if (game_event)
+            {
+                event_mask.set(*game_event);
+                finger_state[event.tfinger.fingerId] = *game_event;
+            }
         }
         else if (event.type == SDL_FINGERUP)
         {
-            SDL_Log("finger UP   touchId=%d fingerId=%d x=%f y=%f",
-                    static_cast<int>(event.tfinger.touchId),
-                    static_cast<int>(event.tfinger.fingerId),
-                    event.tfinger.x, event.tfinger.y);
             finger_state.erase(event.tfinger.fingerId);
+        }
+        else if (event.type == SDL_FINGERMOTION)
+        {
+            auto game_event = getTouchEvent(window, event.tfinger);
+            auto state = finger_state.find(event.tfinger.fingerId);
+            if (state != finger_state.end() && game_event)
+                state->second = *game_event;
         }
     }
     auto keystate = SDL_GetKeyboardState(nullptr);
@@ -128,10 +149,9 @@ EventMask EventManager::collectEvents()
             event_mask.set(binding.game_event);
         }
     }
-    for (auto const &[id, fs] : finger_state)
+    for (auto const &[id, game_event] : finger_state)
     {
-        if (fs.down && fs.game_event != GameEvent::COUNT)
-            event_mask.set(fs.game_event);
+        event_mask.set(game_event);
     }
 
     return event_mask;
