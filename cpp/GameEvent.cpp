@@ -91,7 +91,7 @@ EventMask EventManager::collectEvents(SDL_Window *window)
             auto timeout = static_cast<std::int32_t>(next_frame - SDL_GetTicks());
             if (timeout <= 0 || SDL_WaitEventTimeout(&event, timeout) == 0)
             {
-                next_frame += ticks_per_frame;
+                next_frame = SDL_GetTicks() + ticks_per_frame;
                 break;
             }
         }
