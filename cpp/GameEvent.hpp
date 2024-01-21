@@ -2,7 +2,7 @@
 
 #include "sdl.hpp"
 #include <optional>
-#include <array>
+#include <map>
 
 enum class GameEvent
 {
@@ -60,7 +60,7 @@ class EventManager {
         bool down = false;
         GameEvent game_event = GameEvent::COUNT;
     };
-    std::array<FingerState, 4> finger_state;
+    std::map<SDL_FingerID, FingerState> finger_state;
 
 public:
     explicit EventManager(std::uint32_t ticks_per_frame)
