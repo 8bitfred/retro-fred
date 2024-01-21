@@ -324,7 +324,7 @@ void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask even
     {
         game.playSound(SoundID::GAME_OVER);
         event_manager.setTimer(500);
-        game.render(getRenderer());
+        game.render(getWindow(), getRenderer());
         return;
     }
     else if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
@@ -333,7 +333,7 @@ void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask even
         return;
     }
     fred->checkCollisionWithObject();
-    game.render(getRenderer());
+    game.render(getWindow(), getRenderer());
     game.playPendingSounds();
 }
 
@@ -345,14 +345,14 @@ void FredApp::updateGameOverSequence(StatePlay &state_data, EventManager &event_
     {
         fred->updateFred(EventMask());
         event_manager.setTimer(500);
-        state_data.game.render(getRenderer());
+        state_data.game.render(getWindow(), getRenderer());
     }
     else {
         auto pos = state_data.game.getFredCellPos();
         pos.xadd(-2);
         state_data.game.getSpriteList(SpriteClass::FRED).pop_back();
         state_data.game.getSpriteList(SpriteClass::TOMB).emplace_back(std::make_unique<Tomb>(pos));
-        state_data.game.render(getRenderer());
+        state_data.game.render(getWindow(), getRenderer());
         event_manager.setTimer(5000);
         state.emplace<StateGameOver>(state_data.game.getScore());
     }
@@ -447,7 +447,7 @@ void FredApp::mainLoop()
                                                            tmgr, smgr,
                                                            high_scores.front().first);
                 initializeSprites(play_data.game);
-                play_data.game.render(getRenderer());
+                play_data.game.render(getWindow(), getRenderer());
             }
             else if (event_mask.check(GameEvent::TIMER))
             {
@@ -486,7 +486,7 @@ void FredApp::mainLoop()
                     play_state->game.addScore(5000 + play_state->game.getTreasureCount() * 1000);
                     play_state->game.nextLevel(random_engine);
                     initializeSprites(play_state->game);
-                    play_state->game.render(getRenderer());
+                    play_state->game.render(getWindow(), getRenderer());
                 }
             }
             else if (play_state->game.getLevelStatus() == Game::LevelStatus::GAME_OVER)

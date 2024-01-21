@@ -4,6 +4,7 @@
 #include "SoundManager.hpp"
 #include "Bullet.hpp"
 #include "DisplayConfig.hpp"
+#include "Controller.hpp"
 #include <algorithm>
 
 Game::Game(Config const &cfg, DisplayConfig const &display_cfg,
@@ -34,7 +35,7 @@ void Game::nextLevel(std::minstd_rand &random_engine)
         bullet_count = sprite_count.charge_bullets;
 }
 
-void Game::render(SDL_Renderer *renderer)
+void Game::render(SDL_Window *sdl_window, SDL_Renderer *renderer)
 {
     display_cfg.setGameViewport();
     SDL_RenderClear(renderer);
@@ -47,6 +48,7 @@ void Game::render(SDL_Renderer *renderer)
             s->render(cfg, window, tmgr, renderer);
     }
     window.renderFrame(*this, renderer, tmgr);
+    Controller::render(sdl_window, renderer, tmgr);
     SDL_RenderPresent(renderer);
 }
 
