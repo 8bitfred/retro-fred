@@ -47,6 +47,7 @@ public:
 
 class EventManager {
     std::uint32_t ticks_per_frame;
+    bool virtual_controller;
     Uint32 next_frame;
     std::optional<Uint32> timer_expiration;
 
@@ -60,8 +61,9 @@ class EventManager {
                                            SDL_TouchFingerEvent const &tfinger);
 
 public:
-    explicit EventManager(std::uint32_t ticks_per_frame)
+    explicit EventManager(std::uint32_t ticks_per_frame, bool virtual_controller = false)
     : ticks_per_frame(ticks_per_frame)
+    , virtual_controller(virtual_controller)
     , next_frame(SDL_GetTicks() + ticks_per_frame)
     {}
     EventMask collectEvents(SDL_Window *window);

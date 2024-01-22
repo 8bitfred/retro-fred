@@ -374,7 +374,8 @@ void FredApp::renderHighScoreScreen(std::string const &initials)
     tmgr.renderText(getRenderer(), "RIGHT & FIRE",
                     0, 24, 0, 0, 0);
     tmgr.renderText(getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
-    Controller::render(getWindow(), getRenderer(), tmgr);
+    if (cfg.virtual_controller)
+        Controller::render(getWindow(), getRenderer(), tmgr);
     SDL_RenderPresent(getRenderer());
 }
 
@@ -418,7 +419,7 @@ void FredApp::updateHighScore(std::string &initials, unsigned score,
 
 void FredApp::mainLoop()
 {
-    EventManager event_manager(cfg.ticks_per_frame);
+    EventManager event_manager(cfg.ticks_per_frame, cfg.virtual_controller);
 
     splashScreen();
     event_manager.setTimer(5000);

@@ -10,6 +10,7 @@ struct Config {
     static constexpr int CELL_HEIGHT = 5;
 
     std::uint32_t ticks_per_frame = 1000 / 6;
+    bool virtual_controller = false;
     int logical_width = 256, logical_height = 192;
     bool full_screen = false;
     bool max_resolution = false;

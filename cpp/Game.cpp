@@ -48,7 +48,8 @@ void Game::render(SDL_Window *sdl_window, SDL_Renderer *renderer)
             s->render(cfg, window, tmgr, renderer);
     }
     window.renderFrame(*this, renderer, tmgr);
-    Controller::render(sdl_window, renderer, tmgr);
+    if (cfg.virtual_controller)
+        Controller::render(sdl_window, renderer, tmgr);
     SDL_RenderPresent(renderer);
 }
 

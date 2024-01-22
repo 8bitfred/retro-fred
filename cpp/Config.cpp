@@ -9,7 +9,9 @@ namespace {
         "            [--debug-map] [--debug-keys]\n"
         "            [--full-screen] [--full-map] [--minimap-exit]\n"
         "            [--infinite-ammo] [--infinite-power]\n"
-        "            [--boxes] [--fps FPS]\n"
+        "            [--boxes] [--fps FPS] [--virtual-controller]\n"
+        "            [--power-with-level] [--bullets-with-level]\n"
+        "            [--replenish-power] [--replenish-bullets]\n"
         "\n"
         "    --help    Show this message\n"
         "    --debug-map\n"
@@ -31,6 +33,8 @@ namespace {
         "    --fps FPS\n"
         "              Set frames per second to FPS.\n"
         "              Defaults to 6.\n"
+        "    --virtual-controller\n"
+        "              Enable virtual controller.\n"
         "    --power-with-level\n"
         "              Change the amount that the power object\n"
         "              increases the power with the level.\n"
@@ -62,6 +66,9 @@ namespace {
 
 Config::Config(int argc, char *argv[])
 {
+#ifdef __ANDROID__
+    virtual_controller = true;
+#endif
     for (int i = 1; i < argc; ++i)
     {
         std::string_view svarg(argv[i]);
@@ -97,6 +104,8 @@ Config::Config(int argc, char *argv[])
             auto fps = std::atoi(argv[i]);
             ticks_per_frame = 1000 / fps;
         }
+        else if (svarg == "--virtual-controller")
+            virtual_controller = true;
         else if (svarg == "--power-with-level")
             set_power_with_level = true;
         else if (svarg == "--bullets-with-level")
