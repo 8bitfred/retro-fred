@@ -117,26 +117,29 @@ EventMask EventManager::collectEvents(SDL_Window *window)
                 }
             }
         }
-        else if (event.type == SDL_FINGERDOWN)
+        else if (virtual_controller)
         {
-            auto game_event = getTouchEvent(window, event.tfinger);
-            event_mask.set(GameEvent::ANY_KEY);
-            if (game_event)
+            if (event.type == SDL_FINGERDOWN)
             {
-                event_mask.set(*game_event);
-                finger_state[event.tfinger.fingerId] = *game_event;
+                auto game_event = getTouchEvent(window, event.tfinger);
+                event_mask.set(GameEvent::ANY_KEY);
+                if (game_event)
+                {
+                    event_mask.set(*game_event);
+                    finger_state[event.tfinger.fingerId] = *game_event;
+                }
             }
-        }
-        else if (event.type == SDL_FINGERUP)
-        {
-            finger_state.erase(event.tfinger.fingerId);
-        }
-        else if (event.type == SDL_FINGERMOTION)
-        {
-            auto game_event = getTouchEvent(window, event.tfinger);
-            auto state = finger_state.find(event.tfinger.fingerId);
-            if (state != finger_state.end() && game_event)
-                state->second = *game_event;
+            else if (event.type == SDL_FINGERUP)
+            {
+                finger_state.erase(event.tfinger.fingerId);
+            }
+            else if (event.type == SDL_FINGERMOTION)
+            {
+                auto game_event = getTouchEvent(window, event.tfinger);
+                auto state = finger_state.find(event.tfinger.fingerId);
+                if (state != finger_state.end() && game_event)
+                    state->second = *game_event;
+            }
         }
     }
     auto keystate = SDL_GetKeyboardState(nullptr);
