@@ -14,6 +14,7 @@
 #include "Smoke.hpp"
 #include "Object.hpp"
 #include "Tomb.hpp"
+#include "Controller.hpp"
 #include <iostream>
 #include <cstdio>
 
@@ -370,9 +371,10 @@ void FredApp::renderHighScoreScreen(std::string const &initials)
                     0, 8, 0, 0, 0);
     tmgr.renderText(getRenderer(), "ENTER YOUR INITIALS WITH LEFT,",
                     0, 16, 0, 0, 0);
-    tmgr.renderText(getRenderer(), "RIGHT & SPACE",
+    tmgr.renderText(getRenderer(), "RIGHT & FIRE",
                     0, 24, 0, 0, 0);
     tmgr.renderText(getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
+    Controller::render(getWindow(), getRenderer(), tmgr);
     SDL_RenderPresent(getRenderer());
 }
 
