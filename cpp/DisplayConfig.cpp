@@ -31,11 +31,11 @@ void DisplayConfig::setIntroViewport() const
     int window_w, window_h;
     SDL_GetWindowSize(window, &window_w, &window_h);
 
-    auto gw_scale_w = static_cast<double>(window_w) / game_window_w;
-    auto gw_scale_h = static_cast<double>(window_h) / game_window_h;
+    auto gw_scale_w = static_cast<float>(window_w) / game_window_w;
+    auto gw_scale_h = static_cast<float>(window_h) / game_window_h;
     auto gw_scale = std::min(gw_scale_w, gw_scale_h);
-    auto iw_scale_w = static_cast<double>(game_window_w) / intro_window_w;
-    auto iw_scale_h = static_cast<double>(game_window_h) / intro_window_h;
+    auto iw_scale_w = static_cast<float>(game_window_w) / intro_window_w;
+    auto iw_scale_h = static_cast<float>(game_window_h) / intro_window_h;
     auto iw_scale = std::min(iw_scale_w, iw_scale_h);
     auto scale = gw_scale * iw_scale;
 
@@ -51,8 +51,8 @@ void DisplayConfig::setGameViewport() const
     int window_w, window_h;
     SDL_GetWindowSize(window, &window_w, &window_h);
 
-    auto scale_w = static_cast<double>(window_w) / game_window_w;
-    auto scale_h = static_cast<double>(window_h) / game_window_h;
+    auto scale_w = static_cast<float>(window_w) / game_window_w;
+    auto scale_h = static_cast<float>(window_h) / game_window_h;
     auto scale = std::min(scale_w, scale_h);
 
     SDL_Rect rect{(static_cast<int>(window_w / scale) - game_window_w) / 2,
