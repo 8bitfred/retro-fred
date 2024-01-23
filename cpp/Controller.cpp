@@ -5,10 +5,13 @@ std::pair<SDL_Rect, SDL_Rect> Controller::getRects(SDL_Window *window)
 {
     int window_w, window_h;
     SDL_GetWindowSize(window, &window_w, &window_h);
-    auto size = window_w / 5;
-    auto center_pos = (window_h - size) / 2;
-    return {SDL_Rect{0, center_pos, size, size},
-            SDL_Rect{window_w - size, center_pos, size, size}};
+    int size = 0;
+    if (window_w > window_h) // landscape orientation
+        size = window_w / 5;
+    else // portrait orientation
+        size = std::min(window_w / 2, window_h / 5);
+    return {SDL_Rect{0, window_h - size, size, size},
+            SDL_Rect{window_w - size, window_h - size, size, size}};
 }
 
 void Controller::render(SDL_Window *window, SDL_Renderer *renderer,
