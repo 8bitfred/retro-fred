@@ -76,7 +76,14 @@ void FredApp::menu(StateMenu &state_data)
     SDL_Rect logo = {88, 8, 76, 20};
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
     if ((state_data.counter % 2) == 0)
+    // TODO: this is not a very sustainable way to customize messages depending on the
+    // device type => this should be moved to some xml/json file with all messages, that
+    // can support multiple languages, and can be customized depending on device type
+#ifdef __ANDROID__
+        tmgr.renderText(getRenderer(), "TAP ON THE SCREEN TO START", 24, 56, 206, 206, 206);
+#else
         tmgr.renderText(getRenderer(), "PRESS ANY KEY TO START", 40, 56, 206, 206, 206);
+#endif
     tmgr.renderText(getRenderer(), "WRITTEN BY FERNANDO RADA,", 0, 104, 206, 206, 206);
     tmgr.renderText(getRenderer(), "PACO MENENDEZ & CARLOS GRANADOS.", 0, 112, 206, 206, 206);
     tmgr.renderText(getRenderer(), "       \x7f INDESCOMP SPAIN", 0, 120, 206, 206, 206);
