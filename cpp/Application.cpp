@@ -113,7 +113,6 @@ void FredApp::todaysGreatest()
         rect_score.x += 64;
     }
     SDL_RenderPresent(getRenderer());
-    smgr.play(SoundID::FUNERAL_MARCH);
 }
 
 void FredApp::initializeFred(Game &game)
@@ -407,6 +406,7 @@ void FredApp::updateHighScore(std::string &initials, unsigned score,
             if (high_scores.size() > 4)
                 high_scores.resize(4);
             todaysGreatest();
+            smgr.play(SoundID::FUNERAL_MARCH);
             event_manager.setTimer(8000);
             state.emplace<StateTodaysGreatest>();
             return;
@@ -458,6 +458,7 @@ void FredApp::mainLoop()
                 if (menu_state->counter == 10)
                 {
                     todaysGreatest();
+                    smgr.play(SoundID::FUNERAL_MARCH);
                     event_manager.setTimer(8000);
                     state.emplace<StateTodaysGreatest>();
                 }
@@ -467,6 +468,8 @@ void FredApp::mainLoop()
                     event_manager.setTimer(500);
                 }
             }
+            else
+                menu(*menu_state);
         }
         else if (auto todays_greatest = std::get_if<StateTodaysGreatest>(&state); todays_greatest)
         {
@@ -476,7 +479,8 @@ void FredApp::mainLoop()
                 menu(menu_data);
                 event_manager.setTimer(500);
             }
-
+            else
+                todaysGreatest();
         }
         else if (auto play_state = std::get_if<StatePlay>(&state); play_state)
         {
@@ -510,6 +514,7 @@ void FredApp::mainLoop()
                 else
                 {
                     todaysGreatest();
+                    smgr.play(SoundID::FUNERAL_MARCH);
                     event_manager.setTimer(8000);
                     state.emplace<StateTodaysGreatest>();
                 }
