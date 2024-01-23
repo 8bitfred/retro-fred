@@ -25,5 +25,6 @@ enum class TextureID : std::uint8_t
     POWER,
     FRED_PUFFING,
     CONTROLLER,
+    FRED_ICON,
     COUNT
 };
