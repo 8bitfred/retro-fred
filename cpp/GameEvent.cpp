@@ -11,6 +11,8 @@ namespace {
 
     KeyBinding game_bindings[] = {
         { KMOD_CTRL,  SDL_SCANCODE_Q,      GameEvent::QUIT },
+        { KMOD_CTRL,  SDL_SCANCODE_W,      GameEvent::BACK },
+        { KMOD_NONE,  SDL_SCANCODE_AC_BACK,GameEvent::BACK },
         { KMOD_NONE,  SDL_SCANCODE_LEFT,   GameEvent::LEFT },
         { KMOD_NONE,  SDL_SCANCODE_RIGHT,  GameEvent::RIGHT },
         { KMOD_NONE,  SDL_SCANCODE_UP,     GameEvent::UP },
@@ -122,7 +124,11 @@ EventMask EventManager::collectEvents(SDL_Window *window)
             if (event.type == SDL_FINGERDOWN)
             {
                 auto game_event = getTouchEvent(window, event.tfinger);
-                event_mask.set(GameEvent::ANY_KEY);
+                // Trigger the ANY_KEY event only if the event is for the center of the
+                // screen (20%-80% of the x coordinates). This avoids triggering the
+                // ANY_KEY event when the user is trying to make the BACK gesture.
+                if (event.tfinger.x > .2 && event.tfinger.x < .8)
+                    event_mask.set(GameEvent::ANY_KEY);
                 if (game_event)
                 {
                     event_mask.set(*game_event);
