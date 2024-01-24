@@ -445,12 +445,16 @@ void FredApp::mainLoop()
                 menu(menu_data);
                 event_manager.setTimer(500);
             }
+            else if (event_mask.check(GameEvent::BACK))
+                break;
             else
                 splashScreen();
         }
         else if (auto menu_state = std::get_if<StateMenu>(&state); menu_state)
         {
-            if (event_mask.check(GameEvent::ANY_KEY))
+            if (event_mask.check(GameEvent::BACK))
+                break;
+            else if (event_mask.check(GameEvent::ANY_KEY))
             {
                 auto &play_data = state.emplace<StatePlay>(cfg, display_cfg,
                                                            random_engine,
@@ -486,12 +490,20 @@ void FredApp::mainLoop()
                 menu(menu_data);
                 event_manager.setTimer(500);
             }
+            else if (event_mask.check(GameEvent::BACK))
+                break;
             else
                 todaysGreatest();
         }
         else if (auto play_state = std::get_if<StatePlay>(&state); play_state)
         {
-            if (play_state->game.getLevelStatus() == Game::LevelStatus::PLAY)
+            if (event_mask.check(GameEvent::BACK))
+            {
+                auto &menu_data = state.emplace<StateMenu>();
+                menu(menu_data);
+                event_manager.setTimer(500);
+            }
+            else if (play_state->game.getLevelStatus() == Game::LevelStatus::PLAY)
                 updateGame(play_state->game, event_manager, event_mask);
             else if (play_state->game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
             {
