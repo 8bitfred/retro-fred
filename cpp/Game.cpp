@@ -66,6 +66,7 @@ void Game::addSound(SoundID sound_id)
 
 void Game::playPendingSounds()
 {
+    smgr.clearQueuedAudio();
     std::uint32_t mask = 1;
     for (int i = 0; i < static_cast<int>(SoundID::COUNT); ++i, mask <<= 1)
     {
