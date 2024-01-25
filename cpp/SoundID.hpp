@@ -13,5 +13,9 @@ enum class SoundID : std::uint8_t
     EXIT_MAZE,
     GAME_OVER,
     FUNERAL_MARCH,
+    LOADING1,
+    LOADING2,
+    LOADING3,
+    LOADING4,
     COUNT
 };

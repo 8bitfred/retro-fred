@@ -59,13 +59,14 @@ std::pair<sdl::WindowPtr, sdl::RendererPtr> FredApp::initDisplay(Config const &c
     return sdl::createWindowAndRenderer(width, height, window_flags);
 }
 
-void FredApp::splashScreen()
+void FredApp::spashScreen(StateSplashScreen const &state_data)
 {
     display_cfg.setIntroViewport();
     SDL_RenderClear(getRenderer());
-    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::SPLASH_SCREEN), nullptr, nullptr);
-    tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 0, 0, 0);
-    tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 0, 0, 0);
+    auto texture_id = static_cast<TextureID>(static_cast<int>(TextureID::LOADING1) + state_data.seq);
+    SDL_RenderCopy(getRenderer(), tmgr.get(texture_id), nullptr, nullptr);
+    SDL_Rect splash_rect{32, 24, 256 - 64, 192 - 48};
+    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::SPLASH_SCREEN), nullptr, &splash_rect);
     SDL_RenderPresent(getRenderer());
 }
 
@@ -93,8 +94,8 @@ void FredApp::menu(StateMenu &state_data)
     tmgr.renderText(getRenderer(), "CHARACTER DESIGN: GAELIC", 0, 152, 206, 206, 206);
     tmgr.renderText(getRenderer(), "PET: SENATOR & DRULY'S DUCK", 0, 160, 206, 206, 206);
     tmgr.renderText(getRenderer(), "MISTAKES: MARTA & PALOMA", 0, 168, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "2023 REMAKE:  MIGUEL CATALINA &", 0, 176, 206, 206, 206);
-    tmgr.renderText(getRenderer(), "              ALFREDO CATALINA", 0, 184, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "2023 PORT:  MIGUEL CATALINA &", 0, 176, 206, 206, 206);
+    tmgr.renderText(getRenderer(), "            ALFREDO CATALINA", 0, 184, 206, 206, 206);
     SDL_RenderPresent(getRenderer());
 }
 
@@ -428,27 +429,51 @@ void FredApp::mainLoop()
 {
     EventManager event_manager(cfg.ticks_per_frame, cfg.virtual_controller);
 
-    splashScreen();
-    event_manager.setTimer(5000);
-    state.emplace<StateSplashScreen>();
+    {
+        auto &splash_data = state.emplace<StateSplashScreen>();
+        spashScreen(splash_data);
+        auto const &wav_data = smgr.get(SoundID::LOADING1);
+        splash_data.sound_timer = SDL_GetTicks() + wav_data.getLenTicks();
+        smgr.play(SoundID::LOADING1);
+    }
+    event_manager.setTimer(StateSplashScreen::LOADING_FRAME_TICKS);
     while (true)
     {
         auto event_mask = event_manager.collectEvents(getWindow());
         if (event_mask.check(GameEvent::QUIT))
             break;
-        if (auto splash_screen = std::get_if<StateSplashScreen>(&state); splash_screen)
+        if (auto splash_data = std::get_if<StateSplashScreen>(&state); splash_data)
         {
-            if (event_mask.check(GameEvent::TIMER) ||
-                event_mask.check(GameEvent::ANY_KEY))
+            if (event_mask.check(GameEvent::ANY_KEY) ||
+                (event_mask.check(GameEvent::TIMER) && splash_data->counter <= 0))
             {
+                smgr.clearQueuedAudio();
                 auto &menu_data = state.emplace<StateMenu>();
                 menu(menu_data);
                 event_manager.setTimer(500);
             }
+            else if (event_mask.check(GameEvent::TIMER))
+            {
+                --splash_data->counter;
+                std::uniform_int_distribution<> distrib(0, 8 * 4 - 1);
+                if (auto pick = distrib(random_engine); pick > 6*4)
+                    splash_data->seq = pick % 4;
+                else
+                    splash_data->seq = (splash_data->seq + 1) % 4;
+                spashScreen(*splash_data);
+                if ((splash_data->sound_timer - SDL_GetTicks()) < 100)
+                {
+                    auto sound_id = static_cast<SoundID>(static_cast<int>(SoundID::LOADING1) + splash_data->seq);
+                    auto const &wav_data = smgr.get(sound_id);
+                    splash_data->sound_timer += wav_data.getLenTicks();
+                    smgr.play(sound_id);
+                }
+                event_manager.setTimer(StateSplashScreen::LOADING_FRAME_TICKS);
+            }
             else if (event_mask.check(GameEvent::BACK))
                 break;
             else
-                splashScreen();
+                spashScreen(*splash_data);
         }
         else if (auto menu_state = std::get_if<StateMenu>(&state); menu_state)
         {

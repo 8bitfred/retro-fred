@@ -18,4 +18,6 @@ class SoundManager
 public:
     explicit SoundManager(Config const &cfg);
     void play(SoundID sound_id);
+    sdl::WAVData const &get(SoundID sound_id) const;
+    void clearQueuedAudio() { audio_device.clearQueuedAudio(); }
 };

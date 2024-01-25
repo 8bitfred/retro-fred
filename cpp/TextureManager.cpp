@@ -31,7 +31,11 @@ TextureManager::TextureManager(Config const &cfg, SDL_Renderer *renderer)
         "sprites/power.png",
         "sprites/fred_puffing.png",
         "sprites/controller.png",
-        "sprites/fred_icon.png"
+        "sprites/fred_icon.png",
+        "sprites/loading1.png",
+        "sprites/loading2.png",
+        "sprites/loading3.png",
+        "sprites/loading4.png",
     };
     static_assert(std::size(sprite_list) == static_cast<size_t>(TextureID::COUNT));
     for (auto p : sprite_list) {
