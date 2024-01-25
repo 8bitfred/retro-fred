@@ -158,6 +158,11 @@ namespace sdl
         SDL_AudioSpec const* getSpec() const noexcept { return &spec; }
         Uint8 const* getBuf() const noexcept { return audio_buf; }
         Uint32 getLen() const noexcept { return audio_len; }
+        Uint32 getLenTicks() const noexcept {
+            auto sample_size = SDL_AUDIO_BITSIZE(spec.format) / 8;
+            auto sample_count = audio_len / (sample_size * spec.channels);
+            return 1000 * sample_count / spec.freq;
+        }
     };
 
     class AudioDevice
@@ -195,6 +200,7 @@ namespace sdl
                 throw Error();
         }
         void pause(bool pause_on) noexcept { SDL_PauseAudioDevice(device_id, pause_on); }
+        void clearQueuedAudio() noexcept { SDL_ClearQueuedAudio(device_id); }
     };
 
 } // namespace sdl

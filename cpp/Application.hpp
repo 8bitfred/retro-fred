@@ -16,8 +16,18 @@ class Bullet;
 
 class FredApp
 {
-    struct StateSplashScreen {};
-    struct StateMenu { int counter = 0; };
+    struct StateSplashScreen {
+        static constexpr int LOADING_FRAME_TICKS = 25;
+        int seq = 0;
+        int counter = 5000 / LOADING_FRAME_TICKS;
+        Uint32 sound_timer = 0;
+        StateSplashScreen() = default;
+    };
+    struct StateMenu
+    {
+        int counter = 0;
+        StateMenu() = default;
+    };
     struct StateTodaysGreatest {};
     struct StatePlay {
         Game game;
@@ -37,9 +47,9 @@ class FredApp
         std::string initials = "A";
         explicit StateEnterHighScore(unsigned score): score(score) {}
     };
-    using State = std::variant<StateSplashScreen,
+    using State = std::variant<StateTodaysGreatest,
+                               StateSplashScreen,
                                StateMenu,
-                               StateTodaysGreatest,
                                StatePlay,
                                StateGameOver,
                                StateEnterHighScore>;
@@ -55,7 +65,7 @@ class FredApp
     State state = StateSplashScreen();
 
     static std::pair<sdl::WindowPtr, sdl::RendererPtr> initDisplay(Config const &cfg);
-    void splashScreen();
+    void spashScreen(StateSplashScreen const &state_data);
     void menu(StateMenu &state_data);
     void todaysGreatest();
     void initializeFred(Game &game);

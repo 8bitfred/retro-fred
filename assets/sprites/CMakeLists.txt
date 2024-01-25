@@ -4,4 +4,5 @@ file(COPY
      power.png rat.png skeleton.png small_digits.png smoke.png
      splash_screen.png todays_greatest.png tomb.png
      vampire.png window.png zx_font.png fred_icon.png
+     loading1.png loading2.png loading3.png loading4.png
      DESTINATION .)

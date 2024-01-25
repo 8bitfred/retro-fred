@@ -14,6 +14,10 @@ std::vector<sdl::WAVData> SoundManager::loadWAVs(Config const &cfg)
         "sounds/exit_maze.wav",
         "sounds/game_over.wav",
         "sounds/funeral_march.wav",
+        "sounds/loading1.wav",
+        "sounds/loading2.wav",
+        "sounds/loading3.wav",
+        "sounds/loading4.wav",
     };
     static_assert(std::size(wav_files) == static_cast<size_t>(SoundID::COUNT));
     std::vector<sdl::WAVData> wav_list;
@@ -41,4 +45,9 @@ SoundManager::SoundManager(Config const &cfg)
 void SoundManager::play(SoundID sound_id)
 {
     audio_device.queueAudio(wav_list[static_cast<size_t>(sound_id)]);
+}
+
+sdl::WAVData const &SoundManager::get(SoundID sound_id) const
+{
+    return wav_list[static_cast<size_t>(sound_id)];
 }
