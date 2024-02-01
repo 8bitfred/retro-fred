@@ -1,0 +1,31 @@
+diff -Naur a/src/audio/aaudio/SDL_aaudio.c b/src/audio/aaudio/SDL_aaudio.c
+--- a/src/audio/aaudio/SDL_aaudio.c	2024-01-28 01:51:37.000000000 -0500
++++ b/src/audio/aaudio/SDL_aaudio.c	2024-01-31 23:36:22.164434054 -0500
+@@ -128,6 +128,7 @@
+         return SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+     }
+ 
++    ctx.AAudioStream_setBufferSizeInFrames(private->stream, this->spec.samples);
+     this->spec.freq = ctx.AAudioStream_getSampleRate(private->stream);
+     this->spec.channels = ctx.AAudioStream_getChannelCount(private->stream);
+     {
+@@ -250,6 +251,7 @@
+         LOGI("SDL Failed AAudioStreamBuilder_openStream %d", res);
+         return SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+     }
++    ctx.AAudioStream_setBufferSizeInFrames(hidden->stream, device->spec.samples);
+ 
+     {
+         const aaudio_format_t fmt = ctx.AAudioStream_getFormat(hidden->stream);
+diff -Naur a/src/audio/aaudio/SDL_aaudiofuncs.h b/src/audio/aaudio/SDL_aaudiofuncs.h
+--- a/src/audio/aaudio/SDL_aaudiofuncs.h	2024-01-28 01:51:37.000000000 -0500
++++ b/src/audio/aaudio/SDL_aaudiofuncs.h	2024-01-31 23:32:55.766345696 -0500
+@@ -54,7 +54,7 @@
+ SDL_PROC_UNUSED(aaudio_result_t, AAudioStream_waitForStateChange, (AAudioStream * stream, aaudio_stream_state_t inputState, aaudio_stream_state_t *nextState, int64_t timeoutNanoseconds))
+ SDL_PROC(aaudio_result_t, AAudioStream_read, (AAudioStream * stream, void *buffer, int32_t numFrames, int64_t timeoutNanoseconds))
+ SDL_PROC(aaudio_result_t, AAudioStream_write, (AAudioStream * stream, const void *buffer, int32_t numFrames, int64_t timeoutNanoseconds))
+-SDL_PROC_UNUSED(aaudio_result_t, AAudioStream_setBufferSizeInFrames, (AAudioStream * stream, int32_t numFrames))
++SDL_PROC(aaudio_result_t, AAudioStream_setBufferSizeInFrames, (AAudioStream * stream, int32_t numFrames))
+ SDL_PROC_UNUSED(int32_t, AAudioStream_getBufferSizeInFrames, (AAudioStream * stream))
+ SDL_PROC_UNUSED(int32_t, AAudioStream_getFramesPerBurst, (AAudioStream * stream))
+ SDL_PROC_UNUSED(int32_t, AAudioStream_getBufferCapacityInFrames, (AAudioStream * stream))
