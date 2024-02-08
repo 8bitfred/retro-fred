@@ -41,6 +41,8 @@ public:
     }
     constexpr void xadd(int delta) { char_x += delta; }
     constexpr void yadd(int delta) { char_y += delta; }
+
+    bool operator==(MapPos const &) const = default;
 };
 
 // Coordinates in pixels, referenced to the map

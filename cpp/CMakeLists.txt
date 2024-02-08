@@ -8,12 +8,12 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-add_executable(fred main.cpp sdl.hpp
+set(FRED_SOURCES
+    sdl.hpp
     GameEvent.hpp GameEvent.cpp
     Config.cpp Config.hpp
     DisplayConfig.cpp DisplayConfig.hpp
     Controller.cpp Controller.hpp
-    Application.cpp Application.hpp
     GameMap.cpp GameMap.hpp 
     TextureID.hpp TextureManager.cpp TextureManager.hpp
     Game.cpp Game.hpp
@@ -34,9 +34,19 @@ add_executable(fred main.cpp sdl.hpp
     Smoke.cpp Smoke.hpp
     Object.cpp Object.hpp
     Tomb.cpp Tomb.hpp)
+
+add_executable(fred main.cpp
+    Application.cpp Application.hpp
+    ${FRED_SOURCES})
 target_link_libraries(fred ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)
 set_property(TARGET fred PROPERTY CXX_STANDARD_REQUIRED True)
+
+add_executable(autofred autofred.cpp
+    ${FRED_SOURCES})
+target_link_libraries(autofred ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
+set_property(TARGET autofred PROPERTY CXX_STANDARD 20)
+set_property(TARGET autofred PROPERTY CXX_STANDARD_REQUIRED True)
 
 add_executable(sandbox
                sandbox.cpp
