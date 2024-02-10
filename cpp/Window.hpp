@@ -25,7 +25,7 @@ class Window
     // Minimum and maximum values for window_pos
     MapPixelPos min_window_pos, max_window_pos;
 
-    void drawMinimap(Game const &game, SDL_Renderer *renderer, int x, int y);
+    void drawMinimap(Game const &game, SDL_Renderer *renderer, int x, int y) const;
 
 public:
     static constexpr int SCOREBOARD_WIDTH = 7;
@@ -40,5 +40,5 @@ public:
     CellPos getCenter() const;
 
     void renderFrame(Game const &game, SDL_Renderer *renderer,
-                     TextureManager const &tmgr);
+                     TextureManager const &tmgr) const;
 };

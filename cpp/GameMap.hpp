@@ -41,7 +41,7 @@ public:
     static void renderCell(SDL_Renderer *renderer, TextureManager const &tmgr,
                            int x, int y, Cell cell);
     void render(SDL_Renderer *renderer, TextureManager const &tmgr,
-                int x, int y, SDL_Rect const *dest);
+                int x, int y, SDL_Rect const *dest) const;
 
     CellPos dbgGetHatchPos() const { return CellPos{hatch_x, 0}; }
     bool dbgMoveHatch(int deltax);
