@@ -10,7 +10,6 @@
 
 class TextureManager;
 class SoundManager;
-class Fred;
 
 class Game
 {
