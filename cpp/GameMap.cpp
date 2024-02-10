@@ -240,7 +240,7 @@ void GameMap::renderCell(SDL_Renderer *renderer, TextureManager const &tmgr,
 
 
 void GameMap::render(SDL_Renderer *renderer, TextureManager const &tmgr,
-                     int x, int y, SDL_Rect const *dest)
+                     int x, int y, SDL_Rect const *dest) const
 {
     CellPos corner_cell = {x / MapPixelPos::CELL_WIDTH_PIXELS,
                            y / MapPixelPos::CELL_HEIGHT_PIXELS};
