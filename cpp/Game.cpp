@@ -52,6 +52,15 @@ void Game::render(SDL_Window *sdl_window, SDL_Renderer *renderer) const
     SDL_RenderPresent(renderer);
 }
 
+void Game::setLabels(LabelTable &label_table) const
+{
+    for (auto const &sprites : sprite_lists)
+    {
+        for (auto const &s: sprites)
+            s->setLabel(window, label_table);
+    }
+}
+
 void Game::playSound(SoundID sound_id)
 {
     smgr.play(sound_id);

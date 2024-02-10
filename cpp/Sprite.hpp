@@ -3,6 +3,7 @@
 #include "Coord.hpp"
 #include "TextureID.hpp"
 #include "Label.hpp"
+#include "LabelTable.hpp"
 #include <vector>
 #include <SDL.h>
 #include <memory>
@@ -37,6 +38,7 @@ public:
     void render(Config const &cfg,
                 Window const &window, TextureManager const &tmgr,
                 SDL_Renderer *renderer) const;
+    void setLabel(Window const &window, LabelTable &label_table) const;
     // TODO: update() could be made =0
     virtual void update(unsigned) {}
     //TODO: this may not need to be exposed

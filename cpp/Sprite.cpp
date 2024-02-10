@@ -64,6 +64,18 @@ void Sprite::render(Config const &cfg,
     }
 }
 
+void Sprite::setLabel(Window const &window, LabelTable &label_table) const
+{
+    auto const &box_params = getBoxParams();
+    auto spos = window.getScreenPosOf(sprite_pos);
+    SDL_Rect dst_rect = {spos.x + box_params.bounding_box.x,
+                         spos.y + box_params.bounding_box.y,
+                         box_params.bounding_box.w, box_params.bounding_box.h};
+    if (!SDL_HasIntersection(&window.rect(), &dst_rect))
+        return;
+    label_table.set(dst_rect, getLabel());
+}
+
 SDL_Rect Sprite::getHitboxPos(int px, int py,
                               SDL_Rect const &bounding_box,
                               SDL_Rect const &hitbox, bool hflip)
