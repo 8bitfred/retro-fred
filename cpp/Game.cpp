@@ -34,7 +34,7 @@ void Game::nextLevel(std::minstd_rand &random_engine)
         bullet_count = sprite_count.charge_bullets;
 }
 
-void Game::render(SDL_Window *sdl_window, SDL_Renderer *renderer)
+void Game::render(SDL_Window *sdl_window, SDL_Renderer *renderer) const
 {
     display_cfg.setGameViewport();
     SDL_RenderClear(renderer);
