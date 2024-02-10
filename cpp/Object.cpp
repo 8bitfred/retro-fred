@@ -39,7 +39,7 @@ void Object::apply(Game &game) const
         case Type::MAP:
             game.setMinimapPos(game.getFredPos().cellPos());
             break;
-        case Type::LIFE:
+        case Type::POWER:
             game.incPower();
             break;
         case Type::BUST:
@@ -83,4 +83,10 @@ Sprite::BoxParams const &Object::getBoxParams() const
 Sprite::RenderParams Object::getRenderParams() const
 {
     return {TextureID::OBJECT, false, {}};
+}
+
+Label Object::getLabel() const
+{
+    return labelOf(static_cast<LabelID>(static_cast<int>(LabelID::OBJECT_MAP) +
+                                        static_cast<int>(type)));
 }

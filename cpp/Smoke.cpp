@@ -16,3 +16,8 @@ Sprite::RenderParams Smoke::getRenderParams() const
 {
     return {TextureID::SMOKE, false, {}};
 }
+
+Label Smoke::getLabel() const
+{
+    return labelOf(static_cast<LabelID>(static_cast<int>(LabelID::SMOKE1) + state));
+}

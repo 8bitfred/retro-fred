@@ -41,6 +41,7 @@ class Mummy : public Sprite
     void stateDisappear();
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+    Label getLabel() const override;
 
 public:
     Mummy(GameMap const& game_map, std::minstd_rand &random_engine);

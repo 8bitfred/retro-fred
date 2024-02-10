@@ -24,6 +24,7 @@ class Vampire : public MultiDirEnemy
     void moveFast();
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+    Label getLabel() const override;
 
 public:
     Vampire(GameMap const &game_map, MapPos const &pos, std::minstd_rand &random_engine);

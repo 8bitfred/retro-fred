@@ -20,6 +20,7 @@ class Ghost : public Sprite
     void setRandomDirection();
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+    Label getLabel() const override;
 
 public:
     Ghost(GameMap const &game_map, MapPos const &pos, std::minstd_rand &random_engine);

@@ -76,3 +76,14 @@ Sprite::RenderParams Skeleton::getRenderParams() const
     auto [dir_x, dir_y] = getDirDelta();
     return {TextureID::SKELETON, dir_x == 1, {}};
 }
+
+Label Skeleton::getLabel() const
+{
+    if (frame == Frame::CLIMBING1 || frame == Frame::CLIMBING2)
+        return labelOf(LabelID::SKELETON_CLIMBING);
+    else
+    {
+        auto [dir_x, dir_y] = getDirDelta();
+        return labelOf(dir_x == -1 ? LabelID::SKELETON_LEFT : LabelID::SKELETON_RIGHT);
+    }
+}

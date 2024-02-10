@@ -111,3 +111,9 @@ Sprite::RenderParams Ghost::getRenderParams() const
     bool hflip = (direction.x + direction.y) == 1;
     return {TextureID::GHOST, hflip, {}};
 }
+
+Label Ghost::getLabel() const
+{
+    bool hflip = (direction.x + direction.y) == 1;
+    return labelOf(hflip ? LabelID::GHOST_RIGHT : LabelID::GHOST_LEFT);
+}

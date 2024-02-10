@@ -85,3 +85,13 @@ Sprite::RenderParams Chameleon::getRenderParams() const
 {
     return {TextureID::CHAMELEON, false, {}};
 }
+
+Label Chameleon::getLabel() const
+{
+    // side is 0 if cx is 0 or 2, and 1 if cx is 1 or 3
+    int side = sprite_pos.cx() % 2;
+    // vdir is 0 if direction.y is -1 and 1 if direction.y is +1
+    int vdir = (direction.y + 1) >> 1;
+    auto index = static_cast<unsigned>(LabelID::CHAMELEON_LEFT_DOWN) + 2*side + vdir;
+    return labelOf(static_cast<LabelID>(index));
+}

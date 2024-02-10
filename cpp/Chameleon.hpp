@@ -19,6 +19,7 @@ class Chameleon : public Sprite
 
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+    Label getLabel() const override;
 public:
     Chameleon(GameMap const &game_map, MapPos const &pos, std::minstd_rand &random_engine)
         : Sprite::Sprite(pos), game_map(game_map), random_engine(random_engine) {}
