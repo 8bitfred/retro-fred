@@ -1,8 +1,7 @@
 #include "Game.hpp"
 #include "Config.hpp"
-#include "Fred.hpp"
 #include "SoundManager.hpp"
-#include "Bullet.hpp"
+#include "Bullet.hpp"  // TODO: remove dependency on specific sprites
 #include "DisplayConfig.hpp"
 #include "Controller.hpp"
 #include <algorithm>
