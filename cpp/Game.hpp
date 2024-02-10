@@ -4,6 +4,7 @@
 #include "GameMap.hpp"
 #include "Sprite.hpp"
 #include "SoundID.hpp"
+#include "LabelTable.hpp"
 #include <vector>
 #include <algorithm>
 #include <optional>
@@ -55,6 +56,7 @@ public:
         return sprite_lists[static_cast<int>(sprite_class)];
     }
     void render(SDL_Window *sdl_window, SDL_Renderer *renderer) const;
+    void setLabels(LabelTable &label_table) const;
     void playSound(SoundID sound_id);
     void addSound(SoundID sound_id);
     void playPendingSounds();

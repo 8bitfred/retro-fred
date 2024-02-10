@@ -20,6 +20,7 @@ set(FRED_SOURCES
     Window.cpp Window.hpp
     Coord.hpp
     Label.hpp
+    LabelTable.hpp LabelTable.cpp
     Sprite.cpp Sprite.hpp
     AcidDrop.hpp AcidDrop.cpp
     Fred.cpp Fred.hpp
