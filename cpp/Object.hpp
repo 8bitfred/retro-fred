@@ -9,12 +9,13 @@ class Object : public Sprite
 {
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+    Label getLabel() const override;
 
 public:
     enum class Type
     {
         MAP,
-        LIFE,
+        POWER,
         BUST,
         STONE,
         BULLETS,

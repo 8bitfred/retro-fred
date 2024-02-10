@@ -60,7 +60,11 @@ Sprite::RenderParams Vampire::getRenderParams() const
     return {TextureID::VAMPIRE, frame_dir == 1, {}};
 }
 
-
+Label Vampire::getLabel() const
+{
+    auto [dir_x, dir_y] = getDirDelta();
+    return labelOf(dir_x == -1 ? LabelID::VAMPIRE_LEFT : LabelID::VAMPIRE_RIGHT);
+}
 
 void Vampire::moveSlow()
 {

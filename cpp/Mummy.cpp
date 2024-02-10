@@ -126,6 +126,19 @@ Sprite::RenderParams Mummy::getRenderParams() const
     return {TextureID::MUMMY, direction == 1 && frame != Frame::POP, {}};
 }
 
+Label Mummy::getLabel() const
+{
+    unsigned index;
+    unsigned dir_index = (direction + 1) / 2;
+    if (frame == Frame::STANDING || frame == Frame::STEP)
+        index = static_cast<unsigned>(LabelID::MUMMY_LEFT) + dir_index;
+    else if (frame == Frame::FALL)
+        index = static_cast<unsigned>(LabelID::MUMMY_FALLING_LEFT) + dir_index;
+    else
+        index = static_cast<unsigned>(LabelID::MUMMY_POP);
+    return labelOf(static_cast<LabelID>(index));
+}
+
 MapPos Mummy::getRandomLocation(std::minstd_rand &random_engine,
                                 GameMap const &game_map)
 {

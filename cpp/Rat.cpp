@@ -59,3 +59,8 @@ Sprite::RenderParams Rat::getRenderParams() const
 {
     return {TextureID::RAT, direction == 1, {}};
 }
+
+Label Rat::getLabel() const
+{
+    return labelOf(direction == -1 ? LabelID::RAT_LEFT : LabelID::RAT_RIGHT);
+}

@@ -24,9 +24,6 @@ class Fred : public Sprite
         SMALL_STEP,
         CLIMBING1,
         CLIMBING2,
-        SHOOTING_STANDING,
-        SHOOTING_BIG_STEP,
-        SHOOTING_SMALL_STEP,
         COUNT
     };
     enum class Color : std::uint8_t
@@ -42,6 +39,7 @@ class Fred : public Sprite
     };
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+    Label getLabel() const override;
     void checkFire(bool fire);
     void stateWalk(int input_x, int input_y);
     void walkOneStep();

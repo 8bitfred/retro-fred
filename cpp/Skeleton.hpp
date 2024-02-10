@@ -22,6 +22,7 @@ class Skeleton : public MultiDirEnemy
 
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+    Label getLabel() const override;
 public:
     Skeleton(Game &game, MapPos const &pos, std::minstd_rand &random_engine)
     : MultiDirEnemy(pos, random_engine), game(game) {}

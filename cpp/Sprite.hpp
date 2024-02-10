@@ -2,6 +2,7 @@
 
 #include "Coord.hpp"
 #include "TextureID.hpp"
+#include "Label.hpp"
 #include <vector>
 #include <SDL.h>
 #include <memory>
@@ -54,6 +55,7 @@ protected:
     explicit Sprite(MapPos const &pos): sprite_pos(pos) { }
     virtual BoxParams const &getBoxParams() const = 0;
     virtual RenderParams getRenderParams() const = 0;
+    virtual Label getLabel() const = 0;
 
     // sSprite
     MapPos sprite_pos;

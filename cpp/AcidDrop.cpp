@@ -82,3 +82,10 @@ Sprite::RenderParams AcidDrop::getRenderParams() const
 {
     return {TextureID::ACID_DROP, false, {}};
 }
+
+Label AcidDrop::getLabel() const
+{
+    auto label_index = static_cast<unsigned>(LabelID::ACID_DROP1) + frame_id;
+    assert(label_index <= static_cast<unsigned>(LabelID::ACID_DROP7));
+    return labelOf(static_cast<LabelID>(label_index));
+}

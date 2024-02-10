@@ -16,5 +16,6 @@ public:
         : Sprite(initial_position), game(game), direction(direction) {}
 
     void update(unsigned) override { sprite_pos.xadd(2 * direction); }
+    Label getLabel() const override { return labelOf(LabelID::BULLET); }
     bool isAlive();
 };

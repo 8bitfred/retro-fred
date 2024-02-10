@@ -18,4 +18,5 @@ public:
 protected:
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+    Label getLabel() const override;
 };

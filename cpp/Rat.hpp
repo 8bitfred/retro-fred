@@ -14,6 +14,7 @@ class Rat : public Sprite
 
     BoxParams const &getBoxParams() const override;
     RenderParams getRenderParams() const override;
+    Label getLabel() const override;
 public:
     Rat(GameMap const &game_map, MapPos const &pos)
     : Sprite::Sprite(pos), game_map(game_map) {}

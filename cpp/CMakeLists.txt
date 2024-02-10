@@ -19,6 +19,7 @@ set(FRED_SOURCES
     Game.cpp Game.hpp
     Window.cpp Window.hpp
     Coord.hpp
+    Label.hpp
     Sprite.cpp Sprite.hpp
     AcidDrop.hpp AcidDrop.cpp
     Fred.cpp Fred.hpp

@@ -16,17 +16,18 @@ Sprite::BoxParams const &Fred::getBoxParams() const
             {{14, 1, 18, 23}, {10, 20,  9, 11}} },
         {      9,   58+9, {-1, -1, 34, 34},       // CLIMBING2
             {{13, 0, 19, 23}, {10, 21, 11, 11}} },
-        {   58+9,   58+9, {-8, -1, 48, 34},       // SHOOTING_STANDING
+        {   58+9,   58+9, {-8, -1, 48, 34},       // SHOOTING, STANDING
             {{ 9, 0, 14, 32}, { 0,  9, 26, 14}} },
-        { 2*58+9,   58+9, {-8, -1, 48, 34},       // SHOOTING_BIG_STEP
+        { 2*58+9,   58+9, {-8, -1, 48, 34},       // SHOOTING, BIG_STEP
             {{ 9, 1, 14, 31}, { 0, 10, 32, 22}} },
-        { 3*58+9,   58+9, {-8, -1, 48, 34},       // SHOOTING_SMALL_STEP
+        { 3*58+9,   58+9, {-8, -1, 48, 34},       // SHOOTING, SMALL_STEP
             {{ 9, 1, 14, 31}, { 0, 10, 24, 13}, { 7, 24, 19, 8}} },
     };
+    static constexpr int SHOOTING_STANDING = 5;
 
     int frame_index = static_cast<int>(frame);
     if (shooting && frame_index <= static_cast<int>(Frame::SMALL_STEP))
-        frame_index += static_cast<int>(Frame::SHOOTING_STANDING);
+        frame_index += SHOOTING_STANDING;
     return box_params[frame_index];
 }
 
@@ -43,6 +44,17 @@ Sprite::RenderParams Fred::getRenderParams() const
     };
     static_assert(std::size(color_mods) == static_cast<size_t>(Color::COUNT));
     return {TextureID::FRED, direction == 1, color_mods[static_cast<size_t>(color)]};
+}
+
+Label Fred::getLabel() const
+{
+    auto frame_index = std::max(static_cast<unsigned>(frame), 4u);
+    auto dir_index = (direction + 1) >> 1;
+    auto index = static_cast<unsigned>(LabelID::FRED_STANDING_LEFT) + 2 * frame_index + dir_index;
+    auto label = labelOf(static_cast<LabelID>(index));
+    if (shooting)
+        label |= labelOf(LabelID::FRED_SHOOTING);
+    return label;
 }
 
 void Fred::updateFred(EventMask event_mask)
