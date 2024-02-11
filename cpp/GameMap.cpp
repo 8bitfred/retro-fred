@@ -275,6 +275,55 @@ void GameMap::render(SDL_Renderer *renderer, TextureManager const &tmgr,
     }
 }
 
+
+// TODO: consolidate this loop with GameMap::render()
+void GameMap::setLabels(LabelTable &label_table, GameWindow const &game_window) const
+{
+    static Label cell_labels[] = {
+        0,                               // EMPTY
+        labelOf(LabelID::BLOCK_STONE),   // STONE1
+        labelOf(LabelID::BLOCK_STONE),   // STONE2
+        labelOf(LabelID::BLOCK_STONE),   // STONE3
+        labelOf(LabelID::BLOCK_ROPE),    // ROPE_START
+        labelOf(LabelID::BLOCK_ROPE),    // ROPE_MAIN
+        labelOf(LabelID::BLOCK_ROPE),    // ROPE_END
+        labelOf(LabelID::BLOCK_OTHER),   // SKY
+        labelOf(LabelID::BLOCK_OTHER),   // SAND
+        labelOf(LabelID::BLOCK_ROPE) | labelOf(LabelID::BLOCK_EXIT), // TRAPDOOR
+    };
+    auto x = game_window.getPos().x;
+    auto y = game_window.getPos().y;
+    CellPos corner_cell = {x / MapPixelPos::CELL_WIDTH_PIXELS,
+                           y / MapPixelPos::CELL_HEIGHT_PIXELS};
+    if (x < 0)
+        --corner_cell.x;
+    if (y < 0)
+        --corner_cell.y;
+
+    // Round x and y down to the closest corner of a cell, then compute those coordinates
+    // with respect to the corner of the screen
+    int round_x = corner_cell.x * MapPixelPos::CELL_WIDTH_PIXELS - x;
+    int round_y = corner_cell.y * MapPixelPos::CELL_HEIGHT_PIXELS - y;
+
+    CellPos cell_pos = corner_cell;
+    for (int cell_y = game_window.getWindowRect().y + round_y;
+         cell_y < (game_window.getWindowRect().y + game_window.getWindowRect().h);
+         cell_y += MapPixelPos::CELL_HEIGHT_PIXELS) {
+        cell_pos.x = corner_cell.x;
+        for (int cell_x = game_window.getWindowRect().x + round_x;
+             cell_x < (game_window.getWindowRect().x + game_window.getWindowRect().w);
+             cell_x += MapPixelPos::CELL_WIDTH_PIXELS)
+        {
+            SDL_Rect cell_rect{cell_x, cell_y, 32, 40};
+            auto label = cell_labels[static_cast<int>(getBlock(cell_pos))];
+            label_table.set(cell_rect, label);
+            ++cell_pos.x;
+        }
+        ++cell_pos.y;
+    }
+}
+
+
 bool GameMap::dbgMoveHatch(int deltax)
 {
     auto hatch_pos = dbgGetHatchPos();

@@ -42,6 +42,7 @@ public:
                            int x, int y, Cell cell);
     void render(SDL_Renderer *renderer, TextureManager const &tmgr,
                 GameWindow const &game_window) const;
+    void setLabels(LabelTable &label_table, GameWindow const &game_window) const;
 
     CellPos dbgGetHatchPos() const { return CellPos{hatch_x, 0}; }
     bool dbgMoveHatch(int deltax);
