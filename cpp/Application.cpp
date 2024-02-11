@@ -285,7 +285,7 @@ void FredApp::transitionToNextLevel(Game &game, EventManager &event_manager)
     display_cfg.setGameViewport();
     game.getFrame().renderFrame(game, getRenderer(), tmgr);
     SDL_RenderPresent(getRenderer());
-    game.playSound(SoundID::EXIT_MAZE);
+    smgr.play(SoundID::EXIT_MAZE);
     event_manager.setTimer(7000);
 }
 
@@ -330,9 +330,9 @@ void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask even
     checkCollisionsWithEnemies(game);
     if (game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
     {
-        game.playSound(SoundID::GAME_OVER);
+        smgr.play(SoundID::GAME_OVER);
         event_manager.setTimer(500);
-        game.render(getWindow(), getRenderer());
+        game.render(tmgr, getWindow(), getRenderer());
         return;
     }
     else if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
@@ -341,8 +341,8 @@ void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask even
         return;
     }
     fred->checkCollisionWithObject();
-    game.render(getWindow(), getRenderer());
-    game.playPendingSounds();
+    game.render(tmgr, getWindow(), getRenderer());
+    game.playPendingSounds(smgr);
 }
 
 void FredApp::updateGameOverSequence(StatePlay &state_data, EventManager &event_manager)
@@ -353,14 +353,14 @@ void FredApp::updateGameOverSequence(StatePlay &state_data, EventManager &event_
     {
         fred->updateFred(EventMask());
         event_manager.setTimer(500);
-        state_data.game.render(getWindow(), getRenderer());
+        state_data.game.render(tmgr, getWindow(), getRenderer());
     }
     else {
         auto pos = state_data.game.getFredCellPos();
         pos.xadd(-2);
         state_data.game.getSpriteList(SpriteClass::FRED).pop_back();
         state_data.game.getSpriteList(SpriteClass::TOMB).emplace_back(std::make_unique<Tomb>(pos));
-        state_data.game.render(getWindow(), getRenderer());
+        state_data.game.render(tmgr, getWindow(), getRenderer());
         event_manager.setTimer(5000);
         state.emplace<StateGameOver>(state_data.game.getScore());
     }
@@ -483,10 +483,9 @@ void FredApp::mainLoop()
             {
                 auto &play_data = state.emplace<StatePlay>(cfg, display_cfg,
                                                            random_engine,
-                                                           tmgr, smgr,
                                                            high_scores.front().first);
                 initializeSprites(play_data.game);
-                play_data.game.render(getWindow(), getRenderer());
+                play_data.game.render(tmgr, getWindow(), getRenderer());
             }
             else if (event_mask.check(GameEvent::TIMER))
             {
@@ -537,7 +536,7 @@ void FredApp::mainLoop()
                     play_state->game.addScore(5000 + play_state->game.getTreasureCount() * 1000);
                     play_state->game.nextLevel(random_engine);
                     initializeSprites(play_state->game);
-                    play_state->game.render(getWindow(), getRenderer());
+                    play_state->game.render(tmgr, getWindow(), getRenderer());
                 }
             }
             else if (play_state->game.getLevelStatus() == Game::LevelStatus::GAME_OVER)

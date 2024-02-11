@@ -8,8 +8,8 @@
 
 Game::Game(Config const &cfg, DisplayConfig const &display_cfg,
            std::minstd_rand &random_engine,
-           TextureManager const &tmgr, SoundManager &smgr, unsigned high_score)
-    : cfg(cfg), display_cfg(display_cfg), tmgr(tmgr), smgr(smgr)
+           unsigned high_score)
+    : cfg(cfg), display_cfg(display_cfg)
     , window(cfg, display_cfg), game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
     , sprite_count(getSpriteCountOfLevel(cfg, level))
@@ -34,7 +34,9 @@ void Game::nextLevel(std::minstd_rand &random_engine)
         bullet_count = sprite_count.charge_bullets;
 }
 
-void Game::renderGameWindow(SDL_Renderer *renderer, GameWindow const &game_window) const
+void Game::renderGameWindow(TextureManager const &tmgr,
+                            SDL_Renderer *renderer,
+                            GameWindow const &game_window) const
 {
     game_map.render(renderer, tmgr, game_window);
     for (auto const &sprites : sprite_lists)
@@ -44,11 +46,12 @@ void Game::renderGameWindow(SDL_Renderer *renderer, GameWindow const &game_windo
     }
 }
 
-void Game::render(SDL_Window *sdl_window, SDL_Renderer *renderer) const
+void Game::render(TextureManager const &tmgr,
+                  SDL_Window *sdl_window, SDL_Renderer *renderer) const
 {
     display_cfg.setGameViewport();
     SDL_RenderClear(renderer);
-    renderGameWindow(renderer, window.getGameWindow());
+    renderGameWindow(tmgr, renderer, window.getGameWindow());
     window.renderFrame(*this, renderer, tmgr);
     if (cfg.virtual_controller)
         Controller::render(sdl_window, renderer, tmgr);
@@ -64,25 +67,20 @@ void Game::setLabels(LabelTable &label_table, GameWindow const &game_window) con
     }
 }
 
-void Game::playSound(SoundID sound_id)
-{
-    smgr.play(sound_id);
-}
-
 void Game::addSound(SoundID sound_id)
 {
     static_assert(static_cast<int>(SoundID::COUNT) < sizeof(pending_sounds) * 8);
     pending_sounds |= 1 << static_cast<int>(sound_id);
 }
 
-void Game::playPendingSounds()
+void Game::playPendingSounds(SoundManager &smgr)
 {
     smgr.clearQueuedAudio();
     std::uint32_t mask = 1;
     for (int i = 0; i < static_cast<int>(SoundID::COUNT); ++i, mask <<= 1)
     {
         if ((pending_sounds & mask) != 0)
-            playSound(static_cast<SoundID>(i));
+            smgr.play(static_cast<SoundID>(i));
     }
     pending_sounds = 0;
 }
