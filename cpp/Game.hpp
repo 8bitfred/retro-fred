@@ -44,7 +44,6 @@ public:
 
     Game(Config const &cfg, DisplayConfig const &display_cfg,
          std::minstd_rand &random_engine,
-         TextureManager const &tmgr, SoundManager &smgr,
          unsigned high_score);
     void nextLevel(std::minstd_rand &random_engine);
     SpriteCount const &getSpriteCount() const { return sprite_count; }
@@ -55,12 +54,14 @@ public:
     {
         return sprite_lists[static_cast<int>(sprite_class)];
     }
-    void renderGameWindow(SDL_Renderer *renderer, GameWindow const &game_window) const;
-    void render(SDL_Window *sdl_window, SDL_Renderer *renderer) const;
+    void renderGameWindow(TextureManager const &tmgr,
+                          SDL_Renderer *renderer,
+                          GameWindow const &game_window) const;
+    void render(TextureManager const &tmgr,
+                SDL_Window *sdl_window, SDL_Renderer *renderer) const;
     void setLabels(LabelTable &label_table, GameWindow const &game_window) const;
-    void playSound(SoundID sound_id);
     void addSound(SoundID sound_id);
-    void playPendingSounds();
+    void playPendingSounds(SoundManager &smgr);
     void setLevelStatus(LevelStatus new_level_status)
     {
         level_status = new_level_status;
@@ -92,13 +93,12 @@ public:
 
     bool canShoot() const;
     void fireGun(MapPos initial_position, int direction);
+    GameWindow const &getGameWindow() const { return window.getGameWindow(); }
 
 private:
     static SpriteCount getSpriteCountOfLevel(Config const &cfg, int level);
     Config const &cfg;
     DisplayConfig const &display_cfg;
-    TextureManager const &tmgr;
-    SoundManager &smgr;    
     Window window;
     GameMap game_map;
     MapPos fred_pos;

@@ -34,9 +34,8 @@ class FredApp
         int counter = 0;
         StatePlay(Config const &cfg, DisplayConfig const &display_cfg,
                   std::minstd_rand &random_engine,
-                  TextureManager const &tmgr, SoundManager &smgr,
                   unsigned high_score)
-            : game(cfg, display_cfg, random_engine, tmgr, smgr, high_score) {}
+            : game(cfg, display_cfg, random_engine, high_score) {}
     };
     struct StateGameOver {
         unsigned score;

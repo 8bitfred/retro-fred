@@ -228,11 +228,14 @@ void GameMap::renderCell(SDL_Renderer *renderer, TextureManager const &tmgr,
         { 2*42+1, 2*50+1, 32, 40},
     };
     static_assert(std::size(cell_rects) == static_cast<int>(GameMap::Cell::TRAPDOOR));
-    if (cell == Cell::EMPTY)
-        return;
-    assert(static_cast<unsigned>(cell) <= static_cast<int>(GameMap::Cell::TRAPDOOR));
     SDL_Rect dst = {x, y, 32, 40};
-    sdl::ColorGuard guard(renderer, 255, 255, 255, 0);
+    if (cell == Cell::EMPTY)
+    {
+        sdl::ColorGuard guard(renderer, 0, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &dst);
+        return;
+    }
+    assert(static_cast<unsigned>(cell) <= static_cast<int>(GameMap::Cell::TRAPDOOR));
     if (SDL_RenderCopy(renderer, tmgr.get(TextureID::BLOCK),
                        &cell_rects[static_cast<unsigned>(cell) - 1], &dst) < 0)
         throw sdl::Error();

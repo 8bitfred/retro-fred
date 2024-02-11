@@ -23,6 +23,7 @@
 #include <random>
 #include <iostream>
 #include <algorithm>
+#include <SDL_image.h>
 
 
 class AutoFred
@@ -181,15 +182,15 @@ void AutoFred::updateGame(Game &game, EventManager &event_manager, EventMask eve
     checkCollisionsWithEnemies(game);
     if (game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
     {
-        game.playSound(SoundID::GAME_OVER);
+        smgr.play(SoundID::GAME_OVER);
         event_manager.setTimer(500);
-        game.render(getWindow(), getRenderer());
+        game.render(tmgr, getWindow(), getRenderer());
         return;
     }
     else if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
         return;
     fred->checkCollisionWithObject();
-    game.render(getWindow(), getRenderer());
+    game.render(tmgr, getWindow(), getRenderer());
     //game.playPendingSounds();
 }
 
@@ -350,12 +351,34 @@ void AutoFred::checkCollisionsWithEnemies(Game &game)
 void AutoFred::mainLoop()
 {
     EventManager event_manager(cfg.ticks_per_frame, cfg.virtual_controller);
-    Game game(cfg, display_cfg, random_engine, tmgr, smgr, 0);
+    Game game(cfg, display_cfg, random_engine, 0);
+
+    SDL_Rect capture_rect = game.getGameWindow().getWindowRect();
+    capture_rect.x = 0;
+    capture_rect.y = 0;
+    sdl::SurfacePtr soft_surface(SDL_CreateRGBSurfaceWithFormat(0, capture_rect.w, capture_rect.h,
+                                                                8, SDL_PIXELFORMAT_ARGB8888));
+    sdl::RendererPtr soft_renderer(SDL_CreateSoftwareRenderer(soft_surface));
+    TextureManager soft_tmgr(cfg, soft_renderer);
+    GameWindow soft_game_window(capture_rect);
+
     initializeSprites(game);
     Player player(game);
-    game.render(getWindow(), getRenderer());
+    game.render(tmgr, getWindow(), getRenderer());
+    static int count = 0;
+
     while (true)
     {
+        soft_game_window.setPos(game.getGameWindow().getPos());
+        SDL_RenderClear(soft_renderer);
+        game.renderGameWindow(soft_tmgr, soft_renderer, soft_game_window);
+
+        char file_name[200];
+        ++count;
+        std::snprintf(file_name, sizeof(file_name), "image_%04d.png", count);
+        IMG_SavePNG(soft_surface, file_name);
+
+
         EventMask event_mask;
         event_mask = event_manager.collectEvents(getWindow());
         if (event_mask.check(GameEvent::QUIT))
