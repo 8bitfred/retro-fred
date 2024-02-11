@@ -9,7 +9,7 @@
 #include <memory>
 
 
-class Window;
+class GameWindow;
 class TextureManager;
 struct Config;
 
@@ -34,11 +34,10 @@ public:
         ColorModulation color_mod;
     };
     virtual ~Sprite() = default;
-    bool isVisible(Window const &window) const;
     void render(Config const &cfg,
-                Window const &window, TextureManager const &tmgr,
+                GameWindow const &game_window, TextureManager const &tmgr,
                 SDL_Renderer *renderer) const;
-    void setLabel(Window const &window, LabelTable &label_table) const;
+    void setLabel(GameWindow const &game_window, LabelTable &label_table) const;
     // TODO: update() could be made =0
     virtual void update(unsigned) {}
     //TODO: this may not need to be exposed

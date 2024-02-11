@@ -55,15 +55,16 @@
 Window::Window(Config const &cfg, DisplayConfig const &display_cfg)
     : total_width(display_cfg.getGameWindowWidth())
     , total_height(display_cfg.getGameWindowHeight())
-    , window_rect{MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR,
-                  total_width - (SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
-                  total_height - 2 * MapPos::PIXELS_PER_CHAR}
+    , game_window(SDL_Rect{MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR,
+                           total_width - (SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
+                           total_height - 2 * MapPos::PIXELS_PER_CHAR})
     , min_window_pos(-6 * MapPos::PIXELS_PER_CHAR, -8 * MapPos::PIXELS_PER_CHAR)
     , max_window_pos(cfg.map_width * MapPos::CELL_WIDTH_PIXELS + 
-                     6 * MapPos::PIXELS_PER_CHAR - window_rect.w,
+                     6 * MapPos::PIXELS_PER_CHAR - game_window.getWindowRect().w,
                      cfg.map_height * MapPos::CELL_HEIGHT_PIXELS + 
-                     4 * MapPos::PIXELS_PER_CHAR - window_rect.h)
+                     4 * MapPos::PIXELS_PER_CHAR - game_window.getWindowRect().h)
 {
+    auto const &window_rect = game_window.getWindowRect();
     // Position of the center cell (for Fred): in the center of the screen, rounded down
     // to a character (in the example: center_offset_x = 80, center_offset_y = 64)
     center_offset_x = round_down((window_rect.w - MapPos::CELL_WIDTH_PIXELS) / 2,
@@ -102,22 +103,14 @@ void Window::setWindowPos(MapPos const &ref_pos)
 {
     auto raw_x = ref_pos.px() - center_offset_x + user_offset_x;
     auto raw_y = ref_pos.py() - center_offset_y + user_offset_y;
-    window_pos.x = std::min(std::max(raw_x, min_window_pos.x), max_window_pos.x);
-    window_pos.y = std::min(std::max(raw_y, min_window_pos.y), max_window_pos.y);
-}
-
-ScreenPos Window::getScreenPosOf(MapPos const &sprite_pos) const
-{
-    ScreenPos spos;
-    spos.x = window_rect.x + sprite_pos.px() - window_pos.x;
-    spos.y = window_rect.y + sprite_pos.py() - window_pos.y;
-    return spos;
+    game_window.setPos(MapPixelPos{std::min(std::max(raw_x, min_window_pos.x), max_window_pos.x),
+                                   std::min(std::max(raw_y, min_window_pos.y), max_window_pos.y)});
 }
 
 CellPos Window::getCenter() const
 {
-    return CellPos{(window_pos.x + center_offset_x) / MapPos::CELL_WIDTH_PIXELS,
-                   (window_pos.y + center_offset_y) / MapPos::CELL_HEIGHT_PIXELS};
+    return CellPos{(game_window.getPos().x + center_offset_x) / MapPos::CELL_WIDTH_PIXELS,
+                   (game_window.getPos().y + center_offset_y) / MapPos::CELL_HEIGHT_PIXELS};
 }
 
 void Window::renderFrame(Game const &game, SDL_Renderer *renderer,

@@ -34,30 +34,33 @@ void Game::nextLevel(std::minstd_rand &random_engine)
         bullet_count = sprite_count.charge_bullets;
 }
 
+void Game::renderGameWindow(SDL_Renderer *renderer, GameWindow const &game_window) const
+{
+    game_map.render(renderer, tmgr, game_window);
+    for (auto const &sprites : sprite_lists)
+    {
+        for (auto const &s: sprites)
+            s->render(cfg, game_window, tmgr, renderer);
+    }
+}
+
 void Game::render(SDL_Window *sdl_window, SDL_Renderer *renderer) const
 {
     display_cfg.setGameViewport();
     SDL_RenderClear(renderer);
-    game_map.render(renderer, tmgr,
-                    window.getWindowPos().x, window.getWindowPos().y,
-                    &window.rect());
-    for (auto const &sprites : sprite_lists)
-    {
-        for (auto const &s: sprites)
-            s->render(cfg, window, tmgr, renderer);
-    }
+    renderGameWindow(renderer, window.getGameWindow());
     window.renderFrame(*this, renderer, tmgr);
     if (cfg.virtual_controller)
         Controller::render(sdl_window, renderer, tmgr);
     SDL_RenderPresent(renderer);
 }
 
-void Game::setLabels(LabelTable &label_table) const
+void Game::setLabels(LabelTable &label_table, GameWindow const &game_window) const
 {
     for (auto const &sprites : sprite_lists)
     {
         for (auto const &s: sprites)
-            s->setLabel(window, label_table);
+            s->setLabel(game_window, label_table);
     }
 }
 

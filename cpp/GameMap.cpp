@@ -1,6 +1,6 @@
 #include "GameMap.hpp"
 #include "TextureManager.hpp"
-#include "Window.hpp"
+#include "GameWindow.hpp"
 #include "Config.hpp"
 
 std::uint8_t GameMap::debug_map[] = {
@@ -240,8 +240,10 @@ void GameMap::renderCell(SDL_Renderer *renderer, TextureManager const &tmgr,
 
 
 void GameMap::render(SDL_Renderer *renderer, TextureManager const &tmgr,
-                     int x, int y, SDL_Rect const *dest) const
+                     GameWindow const &game_window) const
 {
+    auto x = game_window.getPos().x;
+    auto y = game_window.getPos().y;
     CellPos corner_cell = {x / MapPixelPos::CELL_WIDTH_PIXELS,
                            y / MapPixelPos::CELL_HEIGHT_PIXELS};
     if (x < 0)
@@ -255,12 +257,12 @@ void GameMap::render(SDL_Renderer *renderer, TextureManager const &tmgr,
     int round_y = corner_cell.y * MapPixelPos::CELL_HEIGHT_PIXELS - y;
 
     CellPos cell_pos = corner_cell;
-    for (int cell_y = dest->y + round_y; 
-         cell_y < (dest->y + dest->h);
+    for (int cell_y = game_window.getWindowRect().y + round_y;
+         cell_y < (game_window.getWindowRect().y + game_window.getWindowRect().h);
          cell_y += MapPixelPos::CELL_HEIGHT_PIXELS) {
         cell_pos.x = corner_cell.x;
-        for (int cell_x = dest->x + round_x; 
-             cell_x < (dest->x + dest->w); 
+        for (int cell_x = game_window.getWindowRect().x + round_x;
+             cell_x < (game_window.getWindowRect().x + game_window.getWindowRect().w);
              cell_x += MapPixelPos::CELL_WIDTH_PIXELS)
         {
             renderCell(renderer, tmgr, cell_x, cell_y, getBlock(cell_pos));
