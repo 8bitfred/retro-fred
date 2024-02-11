@@ -55,8 +55,9 @@ public:
     {
         return sprite_lists[static_cast<int>(sprite_class)];
     }
+    void renderGameWindow(SDL_Renderer *renderer, GameWindow const &game_window) const;
     void render(SDL_Window *sdl_window, SDL_Renderer *renderer) const;
-    void setLabels(LabelTable &label_table) const;
+    void setLabels(LabelTable &label_table, GameWindow const &game_window) const;
     void playSound(SoundID sound_id);
     void addSound(SoundID sound_id);
     void playPendingSounds();

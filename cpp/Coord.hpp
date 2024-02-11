@@ -70,7 +70,6 @@ struct ScreenPos
     ScreenPos(int x, int y) : x(x), y(y) {}
 };
 
-
 // Convenience function to get the celing of a division
 inline constexpr int ceil_of_div(int x, int y) {
     assert(y > 1);

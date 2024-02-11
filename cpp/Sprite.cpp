@@ -1,29 +1,17 @@
 #include "Sprite.hpp"
-#include "Window.hpp"
+#include "GameWindow.hpp"
 #include "sdl.hpp"
 #include "TextureManager.hpp"
 #include "Config.hpp"
 
-bool Sprite::isVisible(Window const &window) const
-{
-    auto const &box_params = getBoxParams();
-    auto spos = window.getScreenPosOf(sprite_pos);
-    SDL_Rect dst_rect = {spos.x + box_params.bounding_box.x,
-                         spos.y + box_params.bounding_box.y,
-                         box_params.bounding_box.w, box_params.bounding_box.h};
-    return SDL_HasIntersection(&window.rect(), &dst_rect);
-}
-
 void Sprite::render(Config const &cfg,
-                    Window const &window, TextureManager const &tmgr,
+                    GameWindow const &game_window, TextureManager const &tmgr,
                     SDL_Renderer *renderer) const
 {
     auto const &box_params = getBoxParams();
-    auto spos = window.getScreenPosOf(sprite_pos);
-    SDL_Rect dst_rect = {spos.x + box_params.bounding_box.x,
-                         spos.y + box_params.bounding_box.y,
-                         box_params.bounding_box.w, box_params.bounding_box.h};
-    if (!SDL_HasIntersection(&window.rect(), &dst_rect))
+    auto spos = game_window.getScreenPosOf(sprite_pos);
+    SDL_Rect dst_rect = game_window.getScreenRect(spos, box_params.bounding_box);
+    if (!SDL_HasIntersection(&game_window.getWindowRect(), &dst_rect))
         return;
     auto render_params = getRenderParams();
     SDL_Rect src_rect = {box_params.pos_x + box_params.bounding_box.x,
@@ -64,14 +52,12 @@ void Sprite::render(Config const &cfg,
     }
 }
 
-void Sprite::setLabel(Window const &window, LabelTable &label_table) const
+void Sprite::setLabel(GameWindow const &game_window, LabelTable &label_table) const
 {
     auto const &box_params = getBoxParams();
-    auto spos = window.getScreenPosOf(sprite_pos);
-    SDL_Rect dst_rect = {spos.x + box_params.bounding_box.x,
-                         spos.y + box_params.bounding_box.y,
-                         box_params.bounding_box.w, box_params.bounding_box.h};
-    if (!SDL_HasIntersection(&window.rect(), &dst_rect))
+    auto spos = game_window.getScreenPosOf(sprite_pos);
+    SDL_Rect dst_rect = game_window.getScreenRect(spos, box_params.bounding_box);
+    if (!SDL_HasIntersection(&game_window.getWindowRect(), &dst_rect))
         return;
     label_table.set(dst_rect, getLabel());
 }

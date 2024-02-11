@@ -9,7 +9,7 @@ struct SDL_Rect;
 struct SDL_Renderer;
 struct SDL_Texture;
 struct Config;
-class Window;
+class GameWindow;
 
 class GameMap
 {
@@ -41,7 +41,7 @@ public:
     static void renderCell(SDL_Renderer *renderer, TextureManager const &tmgr,
                            int x, int y, Cell cell);
     void render(SDL_Renderer *renderer, TextureManager const &tmgr,
-                int x, int y, SDL_Rect const *dest) const;
+                GameWindow const &game_window) const;
 
     CellPos dbgGetHatchPos() const { return CellPos{hatch_x, 0}; }
     bool dbgMoveHatch(int deltax);
