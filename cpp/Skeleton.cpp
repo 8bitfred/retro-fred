@@ -52,7 +52,7 @@ void Skeleton::update(unsigned)
     }
     else
     {
-        frame = climbing_frame == 0 ? Frame::CLIMBING1 : Frame::CLIMBING2;
+        frame = climbing_frame == 0 ? Frame::CLIMBING_CLAMPING : Frame::CLIMBING_EXTENDING;
         sprite_pos.yadd(delta_y);
     }
 }
@@ -79,7 +79,7 @@ Sprite::RenderParams Skeleton::getRenderParams() const
 
 Label Skeleton::getLabel() const
 {
-    if (frame == Frame::CLIMBING1 || frame == Frame::CLIMBING2)
+    if (frame == Frame::CLIMBING_CLAMPING || frame == Frame::CLIMBING_EXTENDING)
         return labelOf(LabelID::SKELETON_CLIMBING);
     else
     {
