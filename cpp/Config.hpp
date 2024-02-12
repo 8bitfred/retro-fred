@@ -26,4 +26,5 @@ struct Config {
     bool set_bullets_with_level = false;
     bool replenish_power = false;
     bool replenish_bullets = false;
+    int level = 1;
 };
