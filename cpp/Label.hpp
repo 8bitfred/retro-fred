@@ -4,7 +4,6 @@
 
 enum class LabelID
 {
-    BLOCK_EMPTY,
     BLOCK_ROPE,
     BLOCK_STONE,
     BLOCK_OTHER,
@@ -76,10 +75,10 @@ enum class LabelID
 
     TOMB, // Only appears after Fred dies
 
-    COUNT,
+    MAX = TOMB,
 };
 
-static_assert(static_cast<int>(LabelID::COUNT) <= 64);
+static_assert(static_cast<int>(LabelID::MAX) < 64);
 
 using Label = std::uint64_t;
 
