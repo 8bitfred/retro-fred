@@ -22,6 +22,7 @@
 #include "Controller.hpp"
 #include <random>
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <SDL_image.h>
 
@@ -366,18 +367,22 @@ void AutoFred::mainLoop()
     Player player(game);
     game.render(tmgr, getWindow(), getRenderer());
     static int count = 0;
+    LabelTable label_table(game.getGameWindow().getWindowRect());
+    std::ofstream label_file("labels.txt");
 
     while (true)
     {
         soft_game_window.setPos(game.getGameWindow().getPos());
         SDL_RenderClear(soft_renderer);
         game.renderGameWindow(soft_tmgr, soft_renderer, soft_game_window);
+        game.setLabels(label_table, game.getGameWindow());
 
         char file_name[200];
         ++count;
         std::snprintf(file_name, sizeof(file_name), "image_%04d.png", count);
         IMG_SavePNG(soft_surface, file_name);
-
+        label_file << file_name << "\n"
+                   << label_table.toString() << "\n\n\n";
 
         EventMask event_mask;
         event_mask = event_manager.collectEvents(getWindow());

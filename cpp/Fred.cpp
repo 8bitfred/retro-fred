@@ -48,9 +48,16 @@ Sprite::RenderParams Fred::getRenderParams() const
 
 Label Fred::getLabel() const
 {
-    auto frame_index = std::max(static_cast<unsigned>(frame), 4u);
+    auto frame_index = std::min(static_cast<unsigned>(frame), 3u);
     auto dir_index = (direction + 1) >> 1;
     auto index = static_cast<unsigned>(LabelID::FRED_STANDING_LEFT) + 2 * frame_index + dir_index;
+    if (!(static_cast<int>(LabelID::FRED_STANDING_LEFT) <= index &&
+        index <= static_cast<int>(LabelID::FRED_CLIMBING_RIGHT)))
+    {
+        SDL_Log("frame_index=%d dir_index=%d index=%d", frame_index, dir_index, index);
+    }
+    assert(static_cast<int>(LabelID::FRED_STANDING_LEFT) <= index &&
+           index <= static_cast<int>(LabelID::FRED_CLIMBING_RIGHT));
     auto label = labelOf(static_cast<LabelID>(index));
     if (shooting)
         label |= labelOf(LabelID::FRED_SHOOTING);

@@ -61,6 +61,7 @@ void Game::render(TextureManager const &tmgr,
 
 void Game::setLabels(LabelTable &label_table, GameWindow const &game_window) const
 {
+    label_table.reset();
     game_map.setLabels(label_table, game_window);
     for (auto const &sprites : sprite_lists)
     {
