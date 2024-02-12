@@ -12,8 +12,8 @@ class Skeleton : public MultiDirEnemy
         STANDING,
         BIG_STEP,
         SMALL_STEP,
-        CLIMBING1,
-        CLIMBING2,
+        CLIMBING_CLAMPING,
+        CLIMBING_EXTENDING,
         COUNT,
     };
     static int climbing_frame;

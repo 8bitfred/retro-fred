@@ -22,8 +22,8 @@ class Fred : public Sprite
         STANDING,
         BIG_STEP,
         SMALL_STEP,
-        CLIMBING1,
-        CLIMBING2,
+        CLIMBING_CLAMPING,
+        CLIMBING_EXTENDING,
         COUNT
     };
     enum class Color : std::uint8_t

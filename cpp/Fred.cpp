@@ -12,9 +12,9 @@ Sprite::BoxParams const &Fred::getBoxParams() const
             {{ 9, 1, 14, 31}, { 0, 12, 32, 20}} },
         { 2*58+9,      9, {-1, -1, 34, 34},       // SMALL_STEP
             {{ 9, 1, 14, 31}, { 0, 15, 24,  8}, { 7, 24, 19, 8}} },
-        { 3*58+9,      9, {-1, -1, 34, 34},       // CLIMBING1
+        { 3*58+9,      9, {-1, -1, 34, 34},       // CLIMBING_CLAMPING
             {{14, 1, 18, 23}, {10, 20,  9, 11}} },
-        {      9,   58+9, {-1, -1, 34, 34},       // CLIMBING2
+        {      9,   58+9, {-1, -1, 34, 34},       // CLIMBING_EXTENDING
             {{13, 0, 19, 23}, {10, 21, 11, 11}} },
         {   58+9,   58+9, {-8, -1, 48, 34},       // SHOOTING, STANDING
             {{ 9, 0, 14, 32}, { 0,  9, 26, 14}} },
@@ -201,12 +201,12 @@ void Fred::stateVerticalJump(int, int)
     {
         if (game.getGameMap().getBlock(sprite_pos.cellPos(), 0, -1) == GameMap::Cell::TRAPDOOR)
         {
-            frame = Frame::CLIMBING1;
+            frame = Frame::CLIMBING_CLAMPING;
             state = State::EXIT_MAZE;
         }
         else if (game.getGameMap().getBlock(sprite_pos.cellPos()) == GameMap::Cell::ROPE_END)
         {
-            frame = Frame::CLIMBING1;
+            frame = Frame::CLIMBING_CLAMPING;
             state = State::CLIMB;
         }
     }
@@ -236,7 +236,7 @@ void Fred::stateSideJump(int, int)
         }
         else 
         {
-            frame = Frame::CLIMBING1;
+            frame = Frame::CLIMBING_CLAMPING;
             state = State::CLIMB;
         }
     }
@@ -247,7 +247,7 @@ void Fred::stateRopeClimb(int input_x, int input_y)
     if (input_x == direction)
     {
         direction = -direction;
-        frame = Frame::CLIMBING1;
+        frame = Frame::CLIMBING_CLAMPING;
         return;
     }
     else if (input_x == (-direction) &&
@@ -264,14 +264,14 @@ void Fred::stateRopeClimb(int input_x, int input_y)
         {
             if (game.getGameMap().isStone(sprite_pos.cellPos(0, input_y)))
             {
-                frame = Frame::CLIMBING1;
+                frame = Frame::CLIMBING_CLAMPING;
                 return;
             }
         }
-        if (frame == Frame::CLIMBING1)
-            frame = Frame::CLIMBING2;
+        if (frame == Frame::CLIMBING_CLAMPING)
+            frame = Frame::CLIMBING_EXTENDING;
         else
-            frame = Frame::CLIMBING1;
+            frame = Frame::CLIMBING_CLAMPING;
         game.addSound(climbing_sound);
         climbing_sound = climbing_sound == SoundID::CLIMBKOK ? SoundID::CLIMBTAK : SoundID::CLIMBKOK;
         sprite_pos.yadd(input_y);
@@ -279,7 +279,7 @@ void Fred::stateRopeClimb(int input_x, int input_y)
     }
     else
     {
-        frame = Frame::CLIMBING1;
+        frame = Frame::CLIMBING_CLAMPING;
     }
 }
 
@@ -293,7 +293,7 @@ void Fred::stateExitMaze()
     }
     collision_timer = 0;
     sprite_pos.yadd(-1);
-    frame = frame == Frame::CLIMBING1 ? Frame::CLIMBING2 : Frame::CLIMBING1;
+    frame = frame == Frame::CLIMBING_CLAMPING ? Frame::CLIMBING_EXTENDING : Frame::CLIMBING_CLAMPING;
     if (sprite_pos.cy() == 0)
         game.setLevelStatus(Game::LevelStatus::NEXT_LEVEL);
 }
