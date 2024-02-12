@@ -6,7 +6,7 @@
 namespace {
     const char *usage =
         "usage: fred [--help]\n"
-        "            [--debug-map] [--debug-keys]\n"
+        "            [--level LEVEL] [--debug-map] [--debug-keys]\n"
         "            [--full-screen] [--full-map] [--minimap-exit]\n"
         "            [--infinite-ammo] [--infinite-power]\n"
         "            [--boxes] [--fps FPS] [--virtual-controller]\n"
@@ -14,6 +14,8 @@ namespace {
         "            [--replenish-power] [--replenish-bullets]\n"
         "\n"
         "    --help    Show this message\n"
+        "    --level LEVEL\n"
+        "              Start at the given level.\n"
         "    --debug-map\n"
         "              Use debug map, use debug levels for\n"
         "              creatures and objects\n"
@@ -77,6 +79,16 @@ Config::Config(int argc, char *argv[])
             std::cout << usage;
             std::exit(0);
         }
+        else if (svarg == "--level")
+        {
+            ++i;
+            if (i >= argc)
+            {
+                std::cerr << "missing argument for option --level" << std::endl;
+                std::exit(2);
+            }
+            level = std::atoi(argv[i]);
+        }
         else if (svarg == "--debug-map")
             debug_map = true;
         else if (svarg == "--debug-keys")
@@ -101,8 +113,8 @@ Config::Config(int argc, char *argv[])
                 std::cerr << "missing argument for option --fps" << std::endl;
                 std::exit(2);
             }
-            auto fps = std::atoi(argv[i]);
-            ticks_per_frame = 1000 / fps;
+            auto fps = std::atof(argv[i]);
+            ticks_per_frame = static_cast<unsigned>(1000 / fps);
         }
         else if (svarg == "--virtual-controller")
             virtual_controller = true;

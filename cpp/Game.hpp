@@ -106,9 +106,9 @@ private:
     std::vector<SpriteList> sprite_lists;
     std::uint32_t pending_sounds = 0;
     LevelStatus level_status = LevelStatus::PLAY;
+    unsigned score = 0, high_score = 0;
     unsigned level = 1;
     SpriteCount sprite_count;
-    unsigned score = 0, high_score = 0;
     unsigned treasure_count = 0;
     unsigned power = MAX_POWER;
     unsigned bullet_count = MAX_BULLETS;

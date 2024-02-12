@@ -12,8 +12,9 @@ Game::Game(Config const &cfg, DisplayConfig const &display_cfg,
     : cfg(cfg), display_cfg(display_cfg)
     , window(cfg, display_cfg), game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
-    , sprite_count(getSpriteCountOfLevel(cfg, level))
     , high_score(high_score)
+    , level(cfg.level)
+    , sprite_count(getSpriteCountOfLevel(cfg, level))
     , bullet_count(sprite_count.charge_bullets)
 {
 }
