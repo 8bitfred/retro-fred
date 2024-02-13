@@ -232,6 +232,7 @@ int main(int argc, char* argv[])
     Config cfg(argc, argv);
     cfg.infinite_power = true;
     cfg.infinite_ammo = true;
+    cfg.level = 5;
 
     std::minstd_rand random_engine;
     if (cfg.debug_map)
