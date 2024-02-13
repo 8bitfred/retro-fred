@@ -59,7 +59,7 @@ std::pair<sdl::WindowPtr, sdl::RendererPtr> FredApp::initDisplay(Config const &c
     return sdl::createWindowAndRenderer(width, height, window_flags);
 }
 
-void FredApp::spashScreen(StateSplashScreen const &state_data)
+void FredApp::splashScreen(StateSplashScreen const &state_data)
 {
     display_cfg.setIntroViewport();
     SDL_RenderClear(getRenderer());
@@ -433,7 +433,7 @@ void FredApp::mainLoop()
 
     {
         auto &splash_data = state.emplace<StateSplashScreen>();
-        spashScreen(splash_data);
+        splashScreen(splash_data);
         auto const &wav_data = smgr.get(SoundID::LOADING1);
         splash_data.sound_timer = SDL_GetTicks() + wav_data.getLenTicks();
         smgr.play(SoundID::LOADING1);
@@ -462,7 +462,7 @@ void FredApp::mainLoop()
                     splash_data->seq = pick % 4;
                 else
                     splash_data->seq = (splash_data->seq + 1) % 4;
-                spashScreen(*splash_data);
+                splashScreen(*splash_data);
                 if ((splash_data->sound_timer - SDL_GetTicks()) < 100)
                 {
                     auto sound_id = static_cast<SoundID>(static_cast<int>(SoundID::LOADING1) + splash_data->seq);
@@ -475,7 +475,7 @@ void FredApp::mainLoop()
             else if (event_mask.check(GameEvent::BACK))
                 break;
             else
-                spashScreen(*splash_data);
+                splashScreen(*splash_data);
         }
         else if (auto menu_state = std::get_if<StateMenu>(&state); menu_state)
         {
