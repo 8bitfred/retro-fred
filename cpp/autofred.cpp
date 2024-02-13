@@ -51,6 +51,7 @@ public:
     void checkBulletCollisions(Game &game);
     void checkCollisionsWithEnemies(Game &game);
     void mainLoop();
+    void dataLoop();
 };
 
 
@@ -173,6 +174,7 @@ AutoFred::initDisplay(Config const &cfg)
 
 void AutoFred::updateGame(Game &game, EventManager &event_manager, EventMask event_mask)
 {
+    display_cfg.setGameViewport();
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
 
     updateSprites(game);
@@ -352,7 +354,8 @@ void AutoFred::checkCollisionsWithEnemies(Game &game)
 void AutoFred::mainLoop()
 {
     EventManager event_manager(cfg.ticks_per_frame, cfg.virtual_controller);
-    Game game(cfg, display_cfg, random_engine, 0);
+    Game game(cfg, display_cfg.getGameWindowWidth(),
+              display_cfg.getGameWindowHeight(), random_engine, 0);
 
     SDL_Rect capture_rect = game.getGameWindow().getWindowRect();
     capture_rect.x = 0;
@@ -363,6 +366,7 @@ void AutoFred::mainLoop()
     TextureManager soft_tmgr(cfg, soft_renderer);
     GameWindow soft_game_window(capture_rect);
 
+    display_cfg.setGameViewport();
     initializeSprites(game);
     Player player(game);
     game.render(tmgr, getWindow(), getRenderer());
@@ -401,6 +405,51 @@ void AutoFred::mainLoop()
 }
 
 
+void AutoFred::dataLoop()
+{
+    EventManager event_manager(cfg.ticks_per_frame, cfg.virtual_controller);
+    Game game(cfg, 320, 192, random_engine, 0);
+
+    SDL_Rect capture_rect = game.getGameWindow().getWindowRect();
+    capture_rect.x = 0;
+    capture_rect.y = 0;
+    sdl::SurfacePtr soft_surface(SDL_CreateRGBSurfaceWithFormat(0, capture_rect.w, capture_rect.h,
+                                                                8, SDL_PIXELFORMAT_ARGB8888));
+    sdl::RendererPtr soft_renderer(SDL_CreateSoftwareRenderer(soft_surface));
+    TextureManager soft_tmgr(cfg, soft_renderer);
+    GameWindow soft_game_window(capture_rect);
+
+    initializeSprites(game);
+    Player player(game);
+    static int count = 0;
+    LabelTable label_table(game.getGameWindow().getWindowRect());
+    std::ofstream label_file("labels.txt");
+
+    while (true)
+    {
+        soft_game_window.setPos(game.getGameWindow().getPos());
+        SDL_RenderClear(soft_renderer);
+        game.renderGameWindow(soft_tmgr, soft_renderer, soft_game_window);
+        game.setLabels(label_table, game.getGameWindow());
+
+        char file_name[200];
+        ++count;
+        std::snprintf(file_name, sizeof(file_name), "image_%04d.png", count);
+        IMG_SavePNG(soft_surface, file_name);
+        label_file << file_name << "\n"
+                   << label_table.toString() << "\n\n\n";
+
+        EventMask event_mask;
+        event_mask.set(player.getMove());
+        updateGame(game, event_manager, event_mask);
+        if (game.getLevelStatus() == Game::LevelStatus::NEXT_LEVEL)
+            break;
+        else if (game.getLevelStatus() == Game::LevelStatus::GAME_OVER)
+            break;
+    }
+}
+
+
 int main(int argc, char* argv[])
 {
     const Config cfg(argc, argv);
@@ -415,6 +464,6 @@ int main(int argc, char* argv[])
         random_engine.seed(distrib(random_dev));
     }
     AutoFred fred_app(cfg, random_engine);
-    fred_app.mainLoop();
+    fred_app.dataLoop();
     return 0;
 }

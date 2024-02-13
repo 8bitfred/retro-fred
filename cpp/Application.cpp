@@ -319,6 +319,7 @@ void FredApp::debugMode(Game &game, EventMask event_mask)
 void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask event_mask)
 {
     auto fred = dynamic_cast<Fred *>(game.getSpriteList(SpriteClass::FRED).front().get());
+    display_cfg.setGameViewport();
 
     updateSprites(game);
 
@@ -347,6 +348,7 @@ void FredApp::updateGame(Game &game, EventManager &event_manager, EventMask even
 
 void FredApp::updateGameOverSequence(StatePlay &state_data, EventManager &event_manager)
 {
+    display_cfg.setGameViewport();
     auto fred = dynamic_cast<Fred *>(state_data.game.getSpriteList(SpriteClass::FRED).front().get());
     ++state_data.counter;
     if (state_data.counter < 6)
@@ -485,6 +487,7 @@ void FredApp::mainLoop()
                                                            random_engine,
                                                            high_scores.front().first);
                 initializeSprites(play_data.game);
+                display_cfg.setGameViewport();
                 play_data.game.render(tmgr, getWindow(), getRenderer());
             }
             else if (event_mask.check(GameEvent::TIMER))
@@ -536,6 +539,7 @@ void FredApp::mainLoop()
                     play_state->game.addScore(5000 + play_state->game.getTreasureCount() * 1000);
                     play_state->game.nextLevel(random_engine);
                     initializeSprites(play_state->game);
+                    display_cfg.setGameViewport();
                     play_state->game.render(tmgr, getWindow(), getRenderer());
                 }
             }

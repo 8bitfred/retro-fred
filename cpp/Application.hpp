@@ -35,9 +35,12 @@ class FredApp
         StatePlay(Config const &cfg, DisplayConfig const &display_cfg,
                   std::minstd_rand &random_engine,
                   unsigned high_score)
-            : game(cfg, display_cfg, random_engine, high_score) {}
+            : game(cfg,
+                   display_cfg.getGameWindowWidth(),
+                   display_cfg.getGameWindowHeight(), random_engine, high_score) {}
     };
-    struct StateGameOver {
+    struct StateGameOver
+    {
         unsigned score;
         explicit StateGameOver(unsigned score): score(score) {}
     };

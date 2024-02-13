@@ -6,11 +6,12 @@
 #include "Controller.hpp"
 #include <algorithm>
 
-Game::Game(Config const &cfg, DisplayConfig const &display_cfg,
+Game::Game(Config const &cfg,
+           int total_width, int total_height,
            std::minstd_rand &random_engine,
            unsigned high_score)
-    : cfg(cfg), display_cfg(display_cfg)
-    , window(cfg, display_cfg), game_map(cfg, random_engine)
+    : cfg(cfg)
+    , window(cfg, total_width, total_height), game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
     , high_score(high_score)
     , level(cfg.level)
@@ -50,7 +51,6 @@ void Game::renderGameWindow(TextureManager const &tmgr,
 void Game::render(TextureManager const &tmgr,
                   SDL_Window *sdl_window, SDL_Renderer *renderer) const
 {
-    display_cfg.setGameViewport();
     SDL_RenderClear(renderer);
     renderGameWindow(tmgr, renderer, window.getGameWindow());
     window.renderFrame(*this, renderer, tmgr);
