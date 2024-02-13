@@ -10,6 +10,8 @@ class GameRunner: public GameBase
     void checkBulletCollisions();
     void checkCollisionsWithEnemies();
     void debugMode(EventMask event_mask);
+    std::unique_ptr<Sprite> makeBullet(MapPos initial_position, int direction) override;
+
 
 public:
     using GameBase::GameBase;
