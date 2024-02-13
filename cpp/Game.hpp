@@ -44,6 +44,7 @@ public:
     GameBase(Config const &cfg,
              std::minstd_rand &random_engine,
              unsigned high_score);
+    virtual ~GameBase() = default;
     void nextLevel(std::minstd_rand &random_engine);
     SpriteCount const &getSpriteCount() const { return sprite_count; }
     GameMap const &getGameMap() const { return game_map; }
@@ -86,6 +87,9 @@ public:
     void setMinimapPos(CellPos const &pos) { minimap_pos = pos; }
 
     bool canShoot() const;
+    // TODO: I think this should be solved with a more abstract solution, perhaps using
+    // signals
+    virtual std::unique_ptr<Sprite> makeBullet(MapPos initial_position, int direction) = 0;
     void fireGun(MapPos initial_position, int direction);
 
 private:

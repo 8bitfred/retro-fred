@@ -1,7 +1,6 @@
 #include "Game.hpp"
 #include "Config.hpp"
 #include "SoundManager.hpp"
-#include "Bullet.hpp"  // TODO: remove dependency on specific sprites
 #include "DisplayConfig.hpp"
 #include "Controller.hpp"
 #include <algorithm>
@@ -97,7 +96,7 @@ bool GameBase::canShoot() const
 void GameBase::fireGun(MapPos initial_position, int direction)
 {
     auto &sprite_list = getSpriteList(SpriteClass::BULLET);
-    sprite_list.emplace_back(std::make_unique<Bullet>(*this, initial_position, direction));
+    sprite_list.emplace_back(makeBullet(initial_position, direction));
     addSound(SoundID::FIRE);
     --bullet_count;
     if (bullet_count == 0 && cfg.infinite_ammo)

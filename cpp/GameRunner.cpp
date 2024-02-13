@@ -147,6 +147,11 @@ void GameRunner::debugMode(EventMask event_mask)
 }
 
 
+std::unique_ptr<Sprite> GameRunner::makeBullet(MapPos initial_position, int direction)
+{
+    return std::make_unique<Bullet>(*this, initial_position, direction);
+}
+
 void GameRunner::initializeSprites(std::minstd_rand &random_engine)
 {
     Rat::initialize(random_engine, *this);
