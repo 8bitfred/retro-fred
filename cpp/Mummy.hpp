@@ -4,7 +4,7 @@
 #include <random>
 
 class GameMap;
-class Game;
+class GameBase;
 
 class Mummy : public Sprite
 {
@@ -45,7 +45,7 @@ class Mummy : public Sprite
 
 public:
     Mummy(GameMap const& game_map, std::minstd_rand &random_engine);
-    static void initialize(std::minstd_rand &random_engine, Game &game);
+    static void initialize(std::minstd_rand &random_engine, GameBase &game);
     void update(unsigned events) override;
     BulletEffect bulletHit() override { return BulletEffect::DIE; }
     static void toggleMummyTimer() { mummy_timer ^= 1; }

@@ -6,12 +6,11 @@
 #include "Controller.hpp"
 #include <algorithm>
 
-Game::Game(Config const &cfg,
-           int total_width, int total_height,
-           std::minstd_rand &random_engine,
-           unsigned high_score)
+GameBase::GameBase(Config const &cfg,
+                   std::minstd_rand &random_engine,
+                   unsigned high_score)
     : cfg(cfg)
-    , window(cfg, total_width, total_height), game_map(cfg, random_engine)
+    , game_map(cfg, random_engine)
     , sprite_lists(static_cast<size_t>(SpriteClass::COUNT))
     , high_score(high_score)
     , level(cfg.level)
@@ -20,7 +19,7 @@ Game::Game(Config const &cfg,
 {
 }
 
-void Game::nextLevel(std::minstd_rand &random_engine)
+void GameBase::nextLevel(std::minstd_rand &random_engine)
 {
     ++level;
     level_status = LevelStatus::PLAY;
@@ -36,9 +35,9 @@ void Game::nextLevel(std::minstd_rand &random_engine)
         bullet_count = sprite_count.charge_bullets;
 }
 
-void Game::renderGameWindow(TextureManager const &tmgr,
-                            SDL_Renderer *renderer,
-                            GameWindow const &game_window) const
+void GameBase::render(TextureManager const &tmgr,
+                      SDL_Renderer *renderer,
+                      GameWindow const &game_window) const
 {
     game_map.render(renderer, tmgr, game_window);
     for (auto const &sprites : sprite_lists)
@@ -48,18 +47,7 @@ void Game::renderGameWindow(TextureManager const &tmgr,
     }
 }
 
-void Game::render(TextureManager const &tmgr,
-                  SDL_Window *sdl_window, SDL_Renderer *renderer) const
-{
-    SDL_RenderClear(renderer);
-    renderGameWindow(tmgr, renderer, window.getGameWindow());
-    window.renderFrame(*this, renderer, tmgr);
-    if (cfg.virtual_controller)
-        Controller::render(sdl_window, renderer, tmgr);
-    SDL_RenderPresent(renderer);
-}
-
-void Game::setLabels(LabelTable &label_table, GameWindow const &game_window) const
+void GameBase::setLabels(LabelTable &label_table, GameWindow const &game_window) const
 {
     label_table.reset();
     game_map.setLabels(label_table, game_window);
@@ -70,13 +58,13 @@ void Game::setLabels(LabelTable &label_table, GameWindow const &game_window) con
     }
 }
 
-void Game::addSound(SoundID sound_id)
+void GameBase::addSound(SoundID sound_id)
 {
     static_assert(static_cast<int>(SoundID::COUNT) < sizeof(pending_sounds) * 8);
     pending_sounds |= 1 << static_cast<int>(sound_id);
 }
 
-void Game::playPendingSounds(SoundManager &smgr)
+void GameBase::playPendingSounds(SoundManager &smgr)
 {
     smgr.clearQueuedAudio();
     std::uint32_t mask = 1;
@@ -88,28 +76,25 @@ void Game::playPendingSounds(SoundManager &smgr)
     pending_sounds = 0;
 }
 
-MapPos Game::getFredCellPos() const
+MapPos GameBase::getFredCellPos() const
 {
     auto pos = fred_pos;
     pos.yadd(-fred_vposition);
     return pos;
 }
 
-void Game::updateFredPos(MapPos new_fred_pos, int vposition)
+void GameBase::updateFredPos(MapPos new_fred_pos, int vposition)
 {
     fred_pos = new_fred_pos;
     fred_vposition = vposition;
-    auto ref_pos = fred_pos;
-    ref_pos.yadd(-vposition);
-    window.setWindowPos(ref_pos);
 }
 
-bool Game::canShoot() const
+bool GameBase::canShoot() const
 {
     return sprite_lists[static_cast<int>(SpriteClass::BULLET)].empty() && bullet_count > 0;
 }
 
-void Game::fireGun(MapPos initial_position, int direction)
+void GameBase::fireGun(MapPos initial_position, int direction)
 {
     auto &sprite_list = getSpriteList(SpriteClass::BULLET);
     sprite_list.emplace_back(std::make_unique<Bullet>(*this, initial_position, direction));
@@ -119,7 +104,7 @@ void Game::fireGun(MapPos initial_position, int direction)
         bullet_count = MAX_BULLETS;
 }
 
-bool Game::decPower()
+bool GameBase::decPower()
 {
     --power;
     if (power > 0)
@@ -132,13 +117,13 @@ bool Game::decPower()
     return false;
 }
 
-void Game::incPower()
+void GameBase::incPower()
 {
     power += sprite_count.charge_power;
     power = std::min(power, MAX_POWER);
 }
 
-Game::SpriteCount Game::getSpriteCountOfLevel(Config const &cfg, int level)
+GameBase::SpriteCount GameBase::getSpriteCountOfLevel(Config const &cfg, int level)
 {
     static SpriteCount level_config[] = {
     //    A   R   G   C   M   V   S   O  busts stones  masks

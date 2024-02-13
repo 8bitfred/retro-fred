@@ -26,7 +26,7 @@ Ghost::Ghost(GameMap const &game_map, MapPos const &pos, std::minstd_rand &rando
     setRandomDirection();
 }
 
-void Ghost::initialize(std::minstd_rand &random_engine, Game &game)
+void Ghost::initialize(std::minstd_rand &random_engine, GameBase &game)
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::GHOST);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);

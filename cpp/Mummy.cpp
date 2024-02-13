@@ -12,7 +12,7 @@ Mummy::Mummy(GameMap const &game_map, std::minstd_rand &random_engine)
 {
 }
 
-void Mummy::initialize(std::minstd_rand &random_engine, Game &game)
+void Mummy::initialize(std::minstd_rand &random_engine, GameBase &game)
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::MUMMY);
     for (int i = 0; i < game.getSpriteCount().mummies; ++i) {

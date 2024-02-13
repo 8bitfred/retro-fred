@@ -1,7 +1,7 @@
 #include "AcidDrop.hpp"
 #include "Game.hpp"
 
-void AcidDrop::initialize(std::minstd_rand &random_engine, Game &game)
+void AcidDrop::initialize(std::minstd_rand &random_engine, GameBase &game)
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::ACID_DROP);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);

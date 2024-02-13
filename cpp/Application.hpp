@@ -5,14 +5,14 @@
 #include "TextureManager.hpp"
 #include "SoundManager.hpp"
 #include "GameEvent.hpp"
-#include "Game.hpp"
+#include "Window.hpp"
+#include "GameRunner.hpp"
 #include <random>
 #include <variant>
 
 struct Config;
-class Game;
+class GameBase;
 class Fred;
-class Bullet;
 
 class FredApp
 {
@@ -30,14 +30,16 @@ class FredApp
     };
     struct StateTodaysGreatest {};
     struct StatePlay {
-        Game game;
+        Window play_window;
+        GameRunner game;
         int counter = 0;
         StatePlay(Config const &cfg, DisplayConfig const &display_cfg,
                   std::minstd_rand &random_engine,
                   unsigned high_score)
-            : game(cfg,
-                   display_cfg.getGameWindowWidth(),
-                   display_cfg.getGameWindowHeight(), random_engine, high_score) {}
+            : play_window(cfg,
+                          display_cfg.getGameWindowWidth(),
+                          display_cfg.getGameWindowHeight())
+            , game(cfg, random_engine, high_score) {}
     };
     struct StateGameOver
     {
@@ -70,14 +72,11 @@ class FredApp
     void splashScreen(StateSplashScreen const &state_data);
     void menu(StateMenu &state_data);
     void todaysGreatest();
-    void initializeFred(Game &game);
-    void initializeSprites(Game &game);
-    void updateSprites(Game &game);
-    void checkBulletCollisions(Game &game);
-    void checkCollisionsWithEnemies(Game &game);
-    void transitionToNextLevel(Game &game, EventManager &event_manager);
-    void debugMode(Game &game, EventMask event_mask);
-    void updateGame(Game &game, EventManager &event_manager, EventMask event_mask);
+    void renderGame(StatePlay const &state_data);
+    void debugMode(StatePlay &state_data, EventMask event_mask);
+    void updateGame(StatePlay &state_data,
+                    EventManager &event_manager, EventMask event_mask);
+    void transitionToNextLevel(StatePlay &state_data, EventManager &event_manager);
     void updateGameOverSequence(StatePlay &state_data, EventManager &event_manager);
     void renderHighScoreScreen(std::string const &initials);
     void updateHighScore(std::string &initials, unsigned score,
@@ -88,5 +87,8 @@ public:
     SDL_Window *getWindow() const { return w_and_r.first; }
     SDL_Renderer *getRenderer() const { return w_and_r.second; }
     TextureManager const &getTextureManager() const { return tmgr; }
+    SoundManager &getSoundManager() { return smgr; }
+    Config const &getConfig() const { return cfg; }
+    DisplayConfig const &getDisplayConfig() const { return display_cfg; }
     void mainLoop();
 };

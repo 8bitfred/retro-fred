@@ -295,7 +295,7 @@ void Fred::stateExitMaze()
     sprite_pos.yadd(-1);
     frame = frame == Frame::CLIMBING_CLAMPING ? Frame::CLIMBING_EXTENDING : Frame::CLIMBING_CLAMPING;
     if (sprite_pos.cy() == 0)
-        game.setLevelStatus(Game::LevelStatus::NEXT_LEVEL);
+        game.setLevelStatus(GameBase::LevelStatus::NEXT_LEVEL);
 }
 
 void Fred::stateGameOver()
@@ -317,7 +317,7 @@ void Fred::checkCollisionWithEnemy(Sprite const &other)
         }
         else
         {
-            game.setLevelStatus(Game::LevelStatus::GAME_OVER);
+            game.setLevelStatus(GameBase::LevelStatus::GAME_OVER);
             state = State::GAME_OVER;
             color = Color::CYAN;
             collision_timer = 6;
@@ -341,10 +341,10 @@ void Fred::checkCollisionWithObject()
     }
 }
 
-void Fred::dbgResetPosition()
+bool Fred::dbgResetPosition(CellPos const &cell_pos)
 {
     if (state != State::WALK && state != State::CLIMB)
-        return;
+        return false;
     for (int dist = 0; dist < 20; ++dist)
     {
         for (int deltay = -dist; deltay <= (dist + 1); ++deltay)
@@ -354,46 +354,45 @@ void Fred::dbgResetPosition()
                 stepx = 2 * dist + 1;
             for (int deltax = -dist; deltax <= (dist + 1); deltax += stepx)
             {
-                auto cell_pos = game.getFrame().getCenter();
                 auto block = game.getGameMap().getBlock(cell_pos, deltax, deltay);
                 if (block == GameMap::Cell::EMPTY ||
                     block == GameMap::Cell::ROPE_END)
                 {
                     sprite_pos = MapPos(cell_pos.x + deltax, cell_pos.y + deltay, 0, 1);
                     game.updateFredPos(sprite_pos, 1);
-                    game.getFrame().resetUserOffset();
                     vposition = 1;
                     if (state != State::WALK)
                     {
                         state = State::WALK;
                         frame = Frame::STANDING;
                     }
-                    return;
+                    return true;
                 }
             }
         }
     }
+    return false;
 }
 
-void Fred::dbgMoveToHatch()
+bool Fred::dbgMoveToHatch()
 {
     if (state != State::WALK && state != State::CLIMB)
-        return;
+        return false;
     auto hatch_pos = game.getGameMap().dbgGetHatchPos();
     sprite_pos = {hatch_pos.x, hatch_pos.y + 1, 0, 1};
     game.updateFredPos(sprite_pos, 1);
-    game.getFrame().resetUserOffset();
     vposition = 1;
     if (state != State::WALK)
     {
         state = State::WALK;
         frame = Frame::STANDING;
     }
+    return true;
 }
 
 void Fred::dbgDie()
 {
-    game.setLevelStatus(Game::LevelStatus::GAME_OVER);
+    game.setLevelStatus(GameBase::LevelStatus::GAME_OVER);
     state = State::GAME_OVER;
     color = Color::CYAN;
     collision_timer = 6;

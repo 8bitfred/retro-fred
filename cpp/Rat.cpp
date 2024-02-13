@@ -2,7 +2,7 @@
 #include "GameMap.hpp"
 #include "Game.hpp"
 
-void Rat::initialize(std::minstd_rand &random_engine, Game &game)
+void Rat::initialize(std::minstd_rand &random_engine, GameBase &game)
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::RAT);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);

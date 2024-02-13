@@ -12,7 +12,7 @@ Vampire::Vampire(GameMap const &game_map, MapPos const &pos,
     alternate_frame = distrib_frame(random_engine);
 }
 
-void Vampire::initialize(std::minstd_rand& random_engine, Game &game)
+void Vampire::initialize(std::minstd_rand& random_engine, GameBase &game)
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::VAMPIRE);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
