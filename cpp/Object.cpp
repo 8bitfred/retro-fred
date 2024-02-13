@@ -1,7 +1,7 @@
 #include "Object.hpp"
 #include "Game.hpp"
 
-void Object::initialize(std::minstd_rand &random_engine, Game &game)
+void Object::initialize(std::minstd_rand &random_engine, GameBase &game)
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::OBJECT);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
@@ -32,7 +32,7 @@ void Object::initialize(std::minstd_rand &random_engine, Game &game)
     }
 }
 
-void Object::apply(Game &game) const
+void Object::apply(GameBase &game) const
 {
     switch (type)
     {

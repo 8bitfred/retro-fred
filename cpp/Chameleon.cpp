@@ -2,7 +2,7 @@
 #include "GameMap.hpp"
 #include "Game.hpp"
 
-void Chameleon::initialize(std::minstd_rand &random_engine, Game &game)
+void Chameleon::initialize(std::minstd_rand &random_engine, GameBase &game)
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::CHAMELEON);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);

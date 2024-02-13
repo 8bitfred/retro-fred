@@ -3,7 +3,7 @@
 
 int Skeleton::climbing_frame = 0;
 
-void Skeleton::initialize(std::minstd_rand &random_engine, Game &game)
+void Skeleton::initialize(std::minstd_rand &random_engine, GameBase &game)
 {
     auto &sprite_list = game.getSpriteList(SpriteClass::SKELETON);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);

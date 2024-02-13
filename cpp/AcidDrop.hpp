@@ -3,7 +3,7 @@
 #include "Sprite.hpp"
 #include <random>
 
-class Game;
+class GameBase;
 
 class AcidDrop : public Sprite
 {
@@ -12,7 +12,7 @@ public:
     AcidDrop(MapPos const &pos, unsigned frame_id)
     : Sprite::Sprite(pos), frame_id(frame_id) {}
 
-    static void initialize(std::minstd_rand &random_engine, Game &game);
+    static void initialize(std::minstd_rand &random_engine, GameBase &game);
     void update(unsigned events) override;
 
 protected:

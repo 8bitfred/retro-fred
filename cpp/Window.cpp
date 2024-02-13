@@ -98,6 +98,20 @@ void Window::resetUserOffset()
     user_offset_x = user_offset_y = 0;
 }
 
+void Window::update(EventMask event_mask)
+{
+    if (event_mask.check(GameEvent::DBG_LEFT))
+        addUserOffset(-MapPos::CELL_WIDTH_PIXELS, 0);
+    else if (event_mask.check(GameEvent::DBG_RIGHT))
+        addUserOffset(MapPos::CELL_WIDTH_PIXELS, 0);
+    else if (event_mask.check(GameEvent::DBG_UP))
+        addUserOffset(0, -MapPos::CELL_HEIGHT_PIXELS);
+    else if (event_mask.check(GameEvent::DBG_DOWN))
+        addUserOffset(0, MapPos::CELL_HEIGHT_PIXELS);
+    else if (event_mask.check(GameEvent::DBG_CENTER_WINDOW))
+        resetUserOffset();
+}
+
 void Window::setWindowPos(MapPos const &ref_pos)
 {
     auto raw_x = ref_pos.px() - center_offset_x + user_offset_x;
@@ -112,7 +126,7 @@ CellPos Window::getCenter() const
                    (game_window.getPos().y + center_offset_y) / MapPos::CELL_HEIGHT_PIXELS};
 }
 
-void Window::renderFrame(Game const &game, SDL_Renderer *renderer,
+void Window::renderFrame(GameBase const &game, SDL_Renderer *renderer,
                          TextureManager const &tmgr) const
 {
     SDL_Texture *base_window = tmgr.get(TextureID::FRAME_BASE);
@@ -187,7 +201,7 @@ void Window::renderFrame(Game const &game, SDL_Renderer *renderer,
     drawMinimap(game, renderer, dst_scoreboard.x, dst_scoreboard.y + 5 * 8);
 }
 
-void Window::drawMinimap(Game const &game, SDL_Renderer *renderer, int x, int y) const
+void Window::drawMinimap(GameBase const &game, SDL_Renderer *renderer, int x, int y) const
 {
     auto minimap_pos = game.getMinimapPos();
     if (!minimap_pos)

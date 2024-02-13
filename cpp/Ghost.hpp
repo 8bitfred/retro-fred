@@ -3,7 +3,7 @@
 #include "Sprite.hpp"
 #include <random>
 
-class Game;
+class GameBase;
 class GameMap;
 
 class Ghost : public Sprite
@@ -24,7 +24,7 @@ class Ghost : public Sprite
 
 public:
     Ghost(GameMap const &game_map, MapPos const &pos, std::minstd_rand &random_engine);
-    static void initialize(std::minstd_rand &random_engine, Game &game);
+    static void initialize(std::minstd_rand &random_engine, GameBase &game);
     void update(unsigned events) override;
     BulletEffect bulletHit() override
     {

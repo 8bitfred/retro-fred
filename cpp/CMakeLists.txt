@@ -17,6 +17,7 @@ set(FRED_SOURCES
     GameMap.cpp GameMap.hpp 
     TextureID.hpp TextureManager.cpp TextureManager.hpp
     Game.cpp Game.hpp
+    GameRunner.cpp GameRunner.hpp
     Window.cpp Window.hpp
     Coord.hpp
     GameWindow.hpp
@@ -36,10 +37,10 @@ set(FRED_SOURCES
     Bullet.cpp Bullet.hpp
     Smoke.cpp Smoke.hpp
     Object.cpp Object.hpp
-    Tomb.cpp Tomb.hpp)
+    Tomb.cpp Tomb.hpp
+    Application.cpp Application.hpp)
 
 add_executable(fred main.cpp
-    Application.cpp Application.hpp
     ${FRED_SOURCES})
 target_link_libraries(fred ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)

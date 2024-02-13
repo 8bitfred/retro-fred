@@ -4,7 +4,7 @@
 #include "SoundID.hpp"
 #include "GameEvent.hpp"
 
-class Game;
+class GameBase;
 
 class Fred : public Sprite
 {
@@ -51,7 +51,7 @@ class Fred : public Sprite
     void stateExitMaze();
     void stateGameOver();
 
-    Game &game;
+    GameBase &game;
     int vposition = 1;
     int direction = -1;
     Frame frame = Frame::STANDING;
@@ -63,13 +63,13 @@ class Fred : public Sprite
     int collision_timer = 0;
 
 public:
-    Fred(Game &game, MapPos pos): Sprite(pos), game(game) {}
+    Fred(GameBase &game, MapPos pos): Sprite(pos), game(game) {}
     void updateFred(EventMask event_mask);
     bool collisionInProgress() const { return collision_timer != 0; }
     void checkCollisionWithEnemy(Sprite const &other);
     void checkCollisionWithObject();
 
-    void dbgResetPosition();
-    void dbgMoveToHatch();
+    bool dbgResetPosition(CellPos const &cell_pos);
+    bool dbgMoveToHatch();
     void dbgDie();
 };

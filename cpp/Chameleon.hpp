@@ -4,7 +4,7 @@
 #include <random>
 
 class GameMap;
-class Game;
+class GameBase;
 
 class Chameleon : public Sprite
 {
@@ -23,7 +23,7 @@ class Chameleon : public Sprite
 public:
     Chameleon(GameMap const &game_map, MapPos const &pos, std::minstd_rand &random_engine)
         : Sprite::Sprite(pos), game_map(game_map), random_engine(random_engine) {}
-    static void initialize(std::minstd_rand &random_engine, Game &game);
+    static void initialize(std::minstd_rand &random_engine, GameBase &game);
     void update(unsigned events) override;
 
     static bool isValidCell(GameMap const &game_map, CellPos const &pos);

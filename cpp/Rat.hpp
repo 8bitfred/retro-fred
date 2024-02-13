@@ -4,7 +4,7 @@
 #include <random>
 
 class GameMap;
-class Game;
+class GameBase;
 
 class Rat : public Sprite
 {
@@ -19,6 +19,6 @@ public:
     Rat(GameMap const &game_map, MapPos const &pos)
     : Sprite::Sprite(pos), game_map(game_map) {}
 
-    static void initialize(std::minstd_rand &random_engine, Game &game);
+    static void initialize(std::minstd_rand &random_engine, GameBase &game);
     void update(unsigned events) override;
 };

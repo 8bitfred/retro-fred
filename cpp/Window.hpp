@@ -2,12 +2,13 @@
 
 #include "Coord.hpp"
 #include "GameWindow.hpp"
+#include "GameEvent.hpp"
 #include "sdl.hpp"
 
 struct Config;
 struct SDL_Renderer;
 class TextureManager;
-class Game;
+class GameBase;
 
 class Window
 {
@@ -23,7 +24,7 @@ class Window
     // Minimum and maximum values for window_pos
     MapPixelPos min_window_pos, max_window_pos;
 
-    void drawMinimap(Game const &game, SDL_Renderer *renderer, int x, int y) const;
+    void drawMinimap(GameBase const &game, SDL_Renderer *renderer, int x, int y) const;
 
 public:
     static constexpr int SCOREBOARD_WIDTH = 7;
@@ -31,10 +32,11 @@ public:
 
     void addUserOffset(int delta_x, int delta_y);
     void resetUserOffset();
+    void update(EventMask event_mask);
     void setWindowPos(MapPos const &ref_pos);
     GameWindow const &getGameWindow() const { return game_window; }
     CellPos getCenter() const;
 
-    void renderFrame(Game const &game, SDL_Renderer *renderer,
+    void renderFrame(GameBase const &game, SDL_Renderer *renderer,
                      TextureManager const &tmgr) const;
 };

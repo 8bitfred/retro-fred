@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Window.hpp"
 #include "GameMap.hpp"
 #include "Sprite.hpp"
 #include "SoundID.hpp"
@@ -12,7 +11,7 @@
 class TextureManager;
 class SoundManager;
 
-class Game
+class GameBase
 {
 public:
     static constexpr unsigned MAX_POWER = 15;
@@ -42,23 +41,20 @@ public:
         int charge_bullets = 6;
     };
 
-    Game(Config const &cfg, int total_width, int total_height,
-         std::minstd_rand &random_engine,
-         unsigned high_score);
+    GameBase(Config const &cfg,
+             std::minstd_rand &random_engine,
+             unsigned high_score);
     void nextLevel(std::minstd_rand &random_engine);
     SpriteCount const &getSpriteCount() const { return sprite_count; }
-    Window &getFrame() { return window; }
     GameMap const &getGameMap() const { return game_map; }
     GameMap &dbgModifyGameMap() { return game_map; }
     SpriteList &getSpriteList(SpriteClass sprite_class)
     {
         return sprite_lists[static_cast<int>(sprite_class)];
     }
-    void renderGameWindow(TextureManager const &tmgr,
-                          SDL_Renderer *renderer,
-                          GameWindow const &game_window) const;
     void render(TextureManager const &tmgr,
-                SDL_Window *sdl_window, SDL_Renderer *renderer) const;
+                SDL_Renderer *renderer,
+                GameWindow const &game_window) const;
     void setLabels(LabelTable &label_table, GameWindow const &game_window) const;
     void addSound(SoundID sound_id);
     void playPendingSounds(SoundManager &smgr);
@@ -67,8 +63,6 @@ public:
         level_status = new_level_status;
     }
     LevelStatus getLevelStatus() const { return level_status; }
-    // TODO: we should refactor this so that the Game object does not need to know about
-    // the internals of the Fred class
     MapPos const &getFredPos() const { return fred_pos; }
     MapPos getFredCellPos() const;
     void updateFredPos(MapPos fred_pos, int vposition);
@@ -93,12 +87,10 @@ public:
 
     bool canShoot() const;
     void fireGun(MapPos initial_position, int direction);
-    GameWindow const &getGameWindow() const { return window.getGameWindow(); }
 
 private:
     static SpriteCount getSpriteCountOfLevel(Config const &cfg, int level);
     Config const &cfg;
-    Window window;
     GameMap game_map;
     MapPos fred_pos;
     int fred_vposition = 0;
