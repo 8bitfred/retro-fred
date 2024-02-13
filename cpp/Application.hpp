@@ -67,7 +67,7 @@ class FredApp
     State state = StateSplashScreen();
 
     static std::pair<sdl::WindowPtr, sdl::RendererPtr> initDisplay(Config const &cfg);
-    void spashScreen(StateSplashScreen const &state_data);
+    void splashScreen(StateSplashScreen const &state_data);
     void menu(StateMenu &state_data);
     void todaysGreatest();
     void initializeFred(Game &game);
