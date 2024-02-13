@@ -5,7 +5,6 @@
 #include "sdl.hpp"
 
 struct Config;
-class DisplayConfig;
 struct SDL_Renderer;
 class TextureManager;
 class Game;
@@ -28,7 +27,7 @@ class Window
 
 public:
     static constexpr int SCOREBOARD_WIDTH = 7;
-    Window(Config const &cfg, DisplayConfig const &display_cfg);
+    Window(Config const &cfg, int total_width, int total_height);
 
     void addUserOffset(int delta_x, int delta_y);
     void resetUserOffset();

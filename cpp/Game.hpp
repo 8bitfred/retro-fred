@@ -42,7 +42,7 @@ public:
         int charge_bullets = 6;
     };
 
-    Game(Config const &cfg, DisplayConfig const &display_cfg,
+    Game(Config const &cfg, int total_width, int total_height,
          std::minstd_rand &random_engine,
          unsigned high_score);
     void nextLevel(std::minstd_rand &random_engine);
@@ -98,7 +98,6 @@ public:
 private:
     static SpriteCount getSpriteCountOfLevel(Config const &cfg, int level);
     Config const &cfg;
-    DisplayConfig const &display_cfg;
     Window window;
     GameMap game_map;
     MapPos fred_pos;

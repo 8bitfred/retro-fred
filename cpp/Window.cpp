@@ -1,6 +1,5 @@
 #include "Window.hpp"
 #include "Config.hpp"
-#include "DisplayConfig.hpp"
 #include "TextureManager.hpp"
 #include "sdl.hpp"
 #include "Game.hpp"
@@ -52,9 +51,9 @@
 //     --+-------+-------+-------+-------+-------+-------+-------+-------+-------+--
 //
 // Our main character, Fred, is always placed on the center of the screen.
-Window::Window(Config const &cfg, DisplayConfig const &display_cfg)
-    : total_width(display_cfg.getGameWindowWidth())
-    , total_height(display_cfg.getGameWindowHeight())
+Window::Window(Config const &cfg, int total_width, int total_height)
+    : total_width(total_width)
+    , total_height(total_height)
     , game_window(SDL_Rect{MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR,
                            total_width - (SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
                            total_height - 2 * MapPos::PIXELS_PER_CHAR})
