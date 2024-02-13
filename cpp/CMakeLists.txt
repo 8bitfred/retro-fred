@@ -8,7 +8,7 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-set(FRED_SOURCES
+add_library(libfred STATIC
     sdl.hpp
     GameEvent.hpp GameEvent.cpp
     Config.cpp Config.hpp
@@ -39,16 +39,18 @@ set(FRED_SOURCES
     Object.cpp Object.hpp
     Tomb.cpp Tomb.hpp
     Application.cpp Application.hpp)
+set_property(TARGET libfred PROPERTY CXX_STANDARD 20)
+set_property(TARGET libfred PROPERTY CXX_STANDARD_REQUIRED True)
+target_include_directories(libfred PUBLIC ${SDL2_INCLUDE_DIRS}
+                           $<TARGET_PROPERTY:SDL2_image::SDL2_image,INTERFACE_INCLUDE_DIRECTORIES>)
 
-add_executable(fred main.cpp
-    ${FRED_SOURCES})
-target_link_libraries(fred ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
+add_executable(fred main.cpp)
+target_link_libraries(fred libfred ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 set_property(TARGET fred PROPERTY CXX_STANDARD 20)
 set_property(TARGET fred PROPERTY CXX_STANDARD_REQUIRED True)
 
-add_executable(autofred autofred.cpp
-    ${FRED_SOURCES})
-target_link_libraries(autofred ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
+add_executable(autofred autofred.cpp)
+target_link_libraries(autofred libfred ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 set_property(TARGET autofred PROPERTY CXX_STANDARD 20)
 set_property(TARGET autofred PROPERTY CXX_STANDARD_REQUIRED True)
 
