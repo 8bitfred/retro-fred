@@ -81,7 +81,7 @@ std::string LabelTable::toString() const
         for (int x = 0; x < char_rect.w; ++x)
         {
             auto bitmap = get(x, y);
-            int index = std::size(label_str) - 1;
+            int index = static_cast<int>(std::size(label_str)) - 1;
             std::string buf[4] = {"  ", "  ", "  ", "  "};
             for (auto &b: buf)
             {

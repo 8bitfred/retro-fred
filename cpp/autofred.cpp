@@ -40,13 +40,13 @@ CellPos Player::getNextCell()
     auto pos = stack.back();
     for (auto [delta_x, delta_y] : moves)
     {
-        CellPos next_pos{pos.x + delta_x, pos.y + delta_y};
-        if (game.getGameMap().isStone(next_pos))
+        CellPos next_cell{pos.x + delta_x, pos.y + delta_y};
+        if (game.getGameMap().isStone(next_cell))
             continue;
-        if (!visit(next_pos))
+        if (!visit(next_cell))
         {
-            stack.emplace_back(next_pos);
-            return next_pos;
+            stack.emplace_back(next_cell);
+            return next_cell;
         }
     }
     if (stack.size() == 1)
@@ -161,7 +161,7 @@ public:
 
 void dataLoop(Config const &cfg, std::minstd_rand &random_engine)
 {
-    sdl::App fred_app();
+    sdl::App fred_app;
     GameWrapper game_wrapper(cfg, random_engine);
     Player player(game_wrapper.getGame());
 
