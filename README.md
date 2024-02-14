@@ -1,3 +1,42 @@
+
+
+Linux
+-----
+
+Prerequisities: SDL and SDL_image libraries:
+
+    https://github.com/libsdl-org/SDL/releases/tag/release-2.30.0
+    https://github.com/libsdl-org/SDL_image/releases
+
+Build instructions:
+
+Replace <SDL2_PREFIX> and <SDL2_IMAGE_PREFIX> with the installation prefix of the SDL and
+SDL_image libraries, respectively (for example: /opt/sdl2/2.28.3 or /usr/local)
+
+```
+    git clone <repository> fred
+    cd fred
+    mkdir build
+    cd build
+    CMAKE_PREFIX_PATH=<SDL2_PREFIX>:<SDL2_IMAGE_PREFIX> cmake ..
+    cmake --build .
+```
+
+To run, from the `fred/build` directory:
+
+```
+    fred
+```
+
+Note that the executable will expect to find subdirectories sprites and sounds in the
+current working directory.
+
+Use option --help to get a list of configuration options.
+
+
+Android
+-------
+
 You need to add the following symbolic links in the android-project
 subdirectory for building for Android:
 
@@ -41,3 +80,4 @@ To build the project:
     folder
 
   * Select Build | Make Project
+
