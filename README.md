@@ -95,7 +95,20 @@ release has been unpacked)
     cd fred
     mkdir build
     cd build
-    cmake "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>" ..
+    mkdir win64
+    cd win64
+    cmake -G "Visual Studio 17 2022" -A x64 "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>" ../..
+    cmake --build . --config Release
+    cpack -G ZIP --config .\CPackConfig.cmake
+```
+
+And for the 32 bit build:
+
+```
+    cd ..\..\build
+    mkdir win32
+    cd win32
+    cmake -G "Visual Studio 17 2022" -A Win32 "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>" ../..
     cmake --build . --config Release
     cpack -G ZIP --config .\CPackConfig.cmake
 ```

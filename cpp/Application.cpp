@@ -27,7 +27,7 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     , smgr(cfg)
     , high_scores(4, {0, ""})
 {
-    SDL_SetWindowTitle(getWindow(), "Fred2023");
+    SDL_SetWindowTitle(getWindow(), "Retro-Fred");
     SDL_SetWindowIcon(getWindow(), tmgr.getFredIcon());
 }
 

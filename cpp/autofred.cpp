@@ -193,9 +193,6 @@ void gameLoop(Config const &cfg, std::minstd_rand &random_engine)
     GameWrapper game_wrapper(cfg, random_engine);
     Player player(game_wrapper.getGame());
 
-    static int count = 0;
-    std::ofstream label_file("labels.txt");
-
     EventManager event_manager(cfg.ticks_per_frame, cfg.virtual_controller);
     while (true)
     {
@@ -203,14 +200,6 @@ void gameLoop(Config const &cfg, std::minstd_rand &random_engine)
                                    fred_app.getTextureManager(),
                                    fred_app.getSoundManager(),
                                    fred_app.getRenderer());
-        game_wrapper.renderToMemory();
-
-        char file_name[200];
-        ++count;
-        std::snprintf(file_name, sizeof(file_name), "image_%04d.png", count);
-        IMG_SavePNG(game_wrapper.getCaptureSurface(), file_name);
-        label_file << file_name << "\n"
-                   << game_wrapper.getLabelTable().toString() << "\n\n\n";
 
         EventMask event_mask;
         event_mask = event_manager.collectEvents(fred_app.getWindow());
