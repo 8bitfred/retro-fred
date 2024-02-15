@@ -1,14 +1,12 @@
 
-
-Linux
------
-
-Prerequisities: SDL and SDL_image libraries:
+Prerequisities for all build: SDL and SDL_image libraries:
 
     https://github.com/libsdl-org/SDL/releases/tag/release-2.30.0
     https://github.com/libsdl-org/SDL_image/releases
 
-Build instructions:
+
+Linux
+-----
 
 Replace <SDL2_PREFIX> and <SDL2_IMAGE_PREFIX> with the installation prefix of the SDL and
 SDL_image libraries, respectively (for example: /opt/sdl2/2.28.3 or /usr/local)
@@ -81,3 +79,23 @@ To build the project:
 
   * Select Build | Make Project
 
+
+Windows - Visual Studio
+-----------------------
+
+Tested with Visual Studio 2022, and CMake 3.28.3
+(note that the cmake install is not the one that comes with Visual Studio)
+
+Replace <SDL2_PREFIX> and <SDL2_IMAGE_PREFIX> with the installation prefix of the SDL and
+SDL_image libraries, respectively (typically the directory where the .zip file of the
+release has been unpacked)
+
+```
+    git clone <repository> fred
+    cd fred
+    mkdir build
+    cd build
+    cmake "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>" ..
+    cmake --build . --config Release
+    cpack -G ZIP --config .\CPackConfig.cmake
+```
