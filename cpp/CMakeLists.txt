@@ -61,7 +61,12 @@ add_executable(sandbox
 target_link_libraries(sandbox ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 
 if (WIN32)
+    # Configure retro-fred as a win32 executable (not a console application)
     set_property(TARGET retro-fred PROPERTY WIN32_EXECUTABLE True)
+
+    # Add resources with application icon
+    target_sources(fredcore PUBLIC resources/retro-fred.rc resources/resource.h)
+    target_sources(sandbox PRIVATE resources/retro-fred.rc resources/resource.h)
 
     # Create a console version of the fred app, to allow command-line interaction
     add_executable(retro-fred-console main.cpp)
