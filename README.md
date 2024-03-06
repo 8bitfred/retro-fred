@@ -12,18 +12,18 @@ Replace <SDL2_PREFIX> and <SDL2_IMAGE_PREFIX> with the installation prefix of th
 SDL_image libraries, respectively (for example: /opt/sdl2/2.28.3 or /usr/local)
 
 ```
-    git clone <repository> fred
-    cd fred
+    git clone <repository> retro-fred
+    cd retro-fred
     mkdir build
     cd build
-    CMAKE_PREFIX_PATH=<SDL2_PREFIX>:<SDL2_IMAGE_PREFIX> cmake ..
+    cmake '-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>' ..
     cmake --build .
 ```
 
-To run, from the `fred/build` directory:
+To run, from the `retro-fred/build` directory:
 
 ```
-    fred
+    ./cpp/retro-fred
 ```
 
 Note that the executable will expect to find subdirectories sprites and sounds in the
@@ -48,6 +48,9 @@ As well as the links to SDL and SDL_image (in android-project/app/jni):
   ln -s /usr/local/src/miguel-src/sdl2/SDL2-2.29.3-aaudio-buffer-size SDL
   ln -s /usr/local/src/miguel-src/sdl2_image/SDL2_image-2.8.2 SDL_image
 
+Note that SDL2 library must be patched with
+patch-SDL2-2.29.3-aaudio-buffer-size.patch to ensure that the audio
+buffer gets set correctly.
 
 Android SDK versions (see File|Settings, Languages & Frameworks|Android SDK):
 
@@ -91,8 +94,8 @@ SDL_image libraries, respectively (typically the directory where the .zip file o
 release has been unpacked)
 
 ```
-    git clone <repository> fred
-    cd fred
+    git clone <repository> retro-fred
+    cd retro-fred
     mkdir build
     cd build
     mkdir win64
@@ -111,4 +114,56 @@ And for the 32 bit build:
     cmake -G "Visual Studio 17 2022" -A Win32 "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>" ../..
     cmake --build . --config Release
     cpack -G ZIP --config .\CPackConfig.cmake
+```
+
+Windows - mingw-w64: cross compiling from Linux
+-----------------------------------------------
+
+Replace <SDL2_PREFIX> and <SDL2_IMAGE_PREFIX> with the installation
+prefix of the SDL and SDL_image libraries for the x86_64 target. For
+example: /opt/sdl2/2.30.0/x86_64-w64-mingw32 and
+/opt/sdl2_image/2.8.2/x86_64-w64-mingw32. You can use the binary
+distributions from the SDL2 and SDL2_image release page, respectively.
+
+Replace <MINGW_TOOLCHAIN> with the path of the CMake toolchain file
+for the mingw install. For example:
+/opt/mingw/6.0.1/x86_64-w64-mingw32/lib/cmake/x86_64-w64-mingw32.cmake
+
+Example toolchain file for mingw:
+
+```
+    set(CMAKE_SYSTEM_NAME Windows)
+    set(TOOLCHAIN_PATH /opt/mingw/6.0.1)
+    set(TOOLCHAIN_PREFIX x86_64-w64-mingw32)
+    set(CMAKE_SYSTEM_VERSION 1)
+    set(CMAKE_SYSTEM_PROCESSOR x86_64)
+
+    # cross compilers to use for C and C++
+    set(CMAKE_C_COMPILER ${TOOLCHAIN_PATH}/bin/${TOOLCHAIN_PREFIX}-gcc)
+    set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PATH}/bin/${TOOLCHAIN_PREFIX}-g++)
+
+    # target environment on the build host system
+    set(CMAKE_FIND_ROOT_PATH /usr/${TOOLCHAIN_PATH}/${TOOLCHAIN_PREFIX})
+
+    # modify default behavior of FIND_XXX() commands
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+```
+
+
+```
+    git clone <repository> retro-fred
+    cd retro-fred
+    mkdir -p build/mingw-w64
+    cd build/mingw-w64
+    cmake '-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>' -DCMAKE_TOOLCHAIN_FILE=<MINGW_TOOLCHAIN> -G Ninja ../..
+    cmake --build .
+```
+
+TODO: you should be able to run cpack to create a zip file, but it
+currently fails to archive all the required .dlls:
+
+```
+    cpack -G ZIP --config ./CPackConfig.cmake
 ```
