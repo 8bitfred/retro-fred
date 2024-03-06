@@ -9,7 +9,39 @@ SDL_PATH := ../SDL
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include $(LOCAL_PATH)/../SDL_image
 
 # Add your application source files here...
-LOCAL_SRC_FILES := AcidDrop.hpp Application.hpp Bullet.hpp Chameleon.hpp Config.hpp Coord.hpp Fred.hpp GameEvent.hpp Game.hpp GameMap.hpp Ghost.hpp MultiDirEnemy.hpp Mummy.hpp Object.hpp Rat.hpp sdl.hpp Signal.hpp Skeleton.hpp Smoke.hpp SoundID.hpp SoundManager.hpp Sprite.hpp TextureID.hpp TextureManager.hpp Tomb.hpp Vampire.hpp Window.hpp AcidDrop.cpp Application.cpp Bullet.cpp Chameleon.cpp Config.cpp Fred.cpp Game.cpp GameEvent.cpp GameMap.cpp Ghost.cpp main.cpp MultiDirEnemy.cpp Mummy.cpp Object.cpp Rat.cpp Skeleton.cpp Smoke.cpp SoundManager.cpp Sprite.cpp TextureManager.cpp Tomb.cpp Vampire.cpp Window.cpp DisplayConfig.hpp DisplayConfig.cpp Controller.hpp Controller.cpp
+LOCAL_SRC_FILES := \
+    sdl.hpp \
+    Config.cpp Config.hpp \
+    TextureID.hpp TextureManager.cpp TextureManager.hpp \
+    SoundID.hpp SoundManager.cpp SoundManager.hpp \
+    Label.hpp LabelTable.hpp LabelTable.cpp \
+    DisplayConfig.cpp DisplayConfig.hpp \
+    Coord.hpp \
+    GameMap.cpp GameMap.hpp \
+    GameWindow.hpp \
+    Window.cpp Window.hpp \
+    Sprite.cpp Sprite.hpp \
+    GameEvent.hpp GameEvent.cpp \
+    Game.cpp Game.hpp \
+    \
+    Controller.cpp Controller.hpp \
+    GameRunner.cpp GameRunner.hpp \
+    AcidDrop.hpp AcidDrop.cpp \
+    Fred.cpp Fred.hpp \
+    Rat.cpp Rat.hpp \
+    Ghost.cpp Ghost.hpp \
+    Chameleon.cpp Chameleon.hpp \
+    Mummy.cpp Mummy.hpp \
+    MultiDirEnemy.cpp MultiDirEnemy.hpp \
+    Vampire.cpp Vampire.hpp \
+    Skeleton.cpp Skeleton.hpp \
+    Bullet.cpp Bullet.hpp \
+    Smoke.cpp Smoke.hpp \
+    Object.cpp Object.hpp \
+    Tomb.cpp Tomb.hpp \
+    Application.cpp Application.hpp \
+    \
+    main.cpp
 
 LOCAL_SHARED_LIBRARIES := SDL2 SDL2_image
 
