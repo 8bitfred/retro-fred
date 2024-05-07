@@ -3,14 +3,14 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: 'Install SDL packages'
         run: |
           sudo apt-get install libsdl2-dev
           sudo apt-get install libsdl2-image-dev
       - uses: actions/checkout@v4
-      - name: 'Configure and build your project'
+      - name: 'Configure and build'
         run: |
           cmake -S . -B build
           cmake --build build --verbose
