@@ -5,14 +5,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: 'Install SDL packages'
+        run: |
+          sudo apt-get install libsdl2-dev
+          sudo apt-get install libsdl2-image-dev
       - uses: actions/checkout@v4
-      - uses: libsdl-org/setup-sdl@main
-        id: sdl
-        with:
-          install-linux-dependencies: true
-          version: 2-latest
-          version-sdl-image: 2-latest
-          
       - name: 'Configure and build your project'
         run: |
           cmake -S . -B build
