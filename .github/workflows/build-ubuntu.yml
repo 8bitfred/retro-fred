@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: 'Install SDL packages'
         run: |
@@ -12,5 +12,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: 'Configure and build'
         run: |
-          cmake -S . -B build
+          cmake -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -S . -B build
           cmake --build build --verbose
