@@ -1,0 +1,19 @@
+name: "build-ubuntu"
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: libsdl-org/setup-sdl@main
+        id: sdl
+        with:
+          install-linux-dependencies: true
+          version: 2-latest
+          version-sdl-image: 2-latest
+          
+      - name: 'Configure and build your project'
+        run: |
+          cmake -S . -B build
+          cmake --build build --verbose
