@@ -8,32 +8,28 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Cache SDL Build
-      uses: actions/cache@v2
-      with:
-        path: |
-          SDL2-${{ inputs.sdl_version }}
-        key: ${{ runner.os }}-sdl2-${{ inputs.sdl_version }}-${{ hashFiles('**/configure') }}
-
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y build-essential git make pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev libaudio-dev libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev libpipewire-0.3-dev libwayland-dev libdecor-0-dev
       shell: bash
 
-    - name: Download and build SDL
+    - name: Cache SDL Build
+      id: cache-sdl
+      uses: actions/cache@v3
+      with:
+        path: SDL2-${{ inputs.sdl_version }}-build
+        key: ${{ runner.os }}-sdl2-${{ inputs.sdl_version }}
+
+    - if: ${{ steps.cache-sdl.outputs.cache-hit != 'true' }}
+      name: Download and build SDL
+      continue-on-error: true
       run: |
         wget https://www.libsdl.org/release/SDL2-${{ inputs.sdl_version }}.tar.gz
         tar xzf SDL2-${{ inputs.sdl_version }}.tar.gz
-        cd SDL2-${{ inputs.sdl_version }}
-        if [ ! -f "Makefile" ]; then
-          ./configure
-          make
-          sudo make install
-        fi
-      shell: bash
+        mkdir SDL2-${{ inputs.sdl_version }}-build
+        cd SDL2-${{ inputs.sdl_version }}-build
+        ../SDL2-${{ inputs.sdl_version }}/configure
 
-    - name: Check SDL version
-      run: sdl2-config --version
-      shell: bash
+    - name: Install SDL
+      run: |
+        cd SDL2-${{ inputs.sdl_version }}-build
+        sudo make install

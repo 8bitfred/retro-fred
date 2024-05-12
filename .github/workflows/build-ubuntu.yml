@@ -13,5 +13,5 @@ jobs:
         uses: './.github/actions/setup-sdl_image'
       - name: 'Configure and build'
         run: |
-          cmake -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -S . -B build
+          cmake -G Ninja -S . -B build
           cmake --build build --verbose
