@@ -16,7 +16,9 @@ runs:
       id: cache-sdl
       uses: actions/cache@v3
       with:
-        path: SDL2-${{ inputs.sdl_version }}-build
+        path: |
+          SDL2-${{ inputs.sdl_version }}
+          SDL2-${{ inputs.sdl_version }}-build
         key: ${{ runner.os }}-sdl2-${{ inputs.sdl_version }}-key1
 
     - if: ${{ steps.cache-sdl.outputs.cache-hit != 'true' }}
