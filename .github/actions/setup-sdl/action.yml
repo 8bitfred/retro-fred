@@ -1,0 +1,39 @@
+name: 'Build SDL'
+description: 'Downloads, caches, and builds SDL'
+inputs:
+  sdl_version:
+    description: 'SDL version to build'
+    required: true
+    default: '2.30.3'
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Cache SDL Build
+      uses: actions/cache@v2
+      with:
+        path: |
+          SDL2-${{ inputs.sdl_version }}
+        key: ${{ runner.os }}-sdl2-${{ inputs.sdl_version }}-${{ hashFiles('**/configure') }}
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y build-essential git make pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev libaudio-dev libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev libpipewire-0.3-dev libwayland-dev libdecor-0-dev
+      shell: bash
+
+    - name: Download and build SDL
+      run: |
+        wget https://www.libsdl.org/release/SDL2-${{ inputs.sdl_version }}.tar.gz
+        tar xzf SDL2-${{ inputs.sdl_version }}.tar.gz
+        cd SDL2-${{ inputs.sdl_version }}
+        if [ ! -f "Makefile" ]; then
+          ./configure
+          make
+          sudo make install
+        fi
+      shell: bash
+
+    - name: Check SDL version
+      run: sdl2-config --version
+      shell: bash

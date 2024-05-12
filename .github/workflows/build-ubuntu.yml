@@ -5,11 +5,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: 'Install SDL packages'
-        run: |
-          sudo apt-get install libsdl2-dev
-          sudo apt-get install libsdl2-image-dev
-      - uses: actions/checkout@v4
+      - name: 'Checkout source'
+        uses: actions/checkout@v4
+      - name: 'Install SDL2'
+        uses: './.github/actions/setup-sdl'
       - name: 'Configure and build'
         run: |
           cmake -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -S . -B build
