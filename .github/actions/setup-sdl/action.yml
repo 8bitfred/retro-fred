@@ -28,8 +28,10 @@ runs:
         mkdir SDL2-${{ inputs.sdl_version }}-build
         cd SDL2-${{ inputs.sdl_version }}-build
         ../SDL2-${{ inputs.sdl_version }}/configure
+      shell: bash
 
     - name: Install SDL
       run: |
         cd SDL2-${{ inputs.sdl_version }}-build
         sudo make install
+      shell: bash

@@ -8,16 +8,16 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y build-essential git make pkg-config cmake ninja-build
+      shell: bash
+
     - name: Cache SDL_image Build
       id: cache-sdl_image
       uses: actions/cache@v3
       with:
         path: SDL2_image-${{ inputs.sdl_image_version }}-build
         key: ${{ runner.os }}-sdl2_image-${{ inputs.sdl_image_version }}
-
-    - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y build-essential git make pkg-config cmake ninja-build
-      shell: bash
 
     - if: ${{ steps.cache-sdl_image.outputs.cache-hit != 'true' }}
       name: Download and build SDL_image
@@ -29,8 +29,10 @@ runs:
         cd SDL2_image-${{ inputs.sdl_image_version }}-build
         ../SDL2_image-${{ inputs.sdl_image_version }}/configure
         make
+      shell: bash
 
     - name: Install SDL_image
       run: |
         cd SDL2_image-${{ inputs.sdl_image_version }}-build
         sudo make install
+      shell: bash
