@@ -17,7 +17,7 @@ runs:
       uses: actions/cache@v3
       with:
         path: SDL2-${{ inputs.sdl_version }}-build
-        key: ${{ runner.os }}-sdl2-${{ inputs.sdl_version }}
+        key: ${{ runner.os }}-sdl2-${{ inputs.sdl_version }}-key1
 
     - if: ${{ steps.cache-sdl.outputs.cache-hit != 'true' }}
       name: Download and build SDL
@@ -28,6 +28,7 @@ runs:
         mkdir SDL2-${{ inputs.sdl_version }}-build
         cd SDL2-${{ inputs.sdl_version }}-build
         ../SDL2-${{ inputs.sdl_version }}/configure
+        make
       shell: bash
 
     - name: Install SDL
