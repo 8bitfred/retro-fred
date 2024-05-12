@@ -9,6 +9,8 @@ jobs:
         uses: actions/checkout@v4
       - name: 'Install SDL2'
         uses: './.github/actions/setup-sdl'
+      - name: 'Install SDL2_image'
+        uses: './.github/actions/setup-sdl_image'
       - name: 'Configure and build'
         run: |
           cmake -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -S . -B build

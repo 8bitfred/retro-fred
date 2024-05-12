@@ -1,0 +1,36 @@
+name: 'Build SDL_image'
+description: 'Downloads, caches, and builds SDL_image'
+inputs:
+  sdl_image_version:
+    description: 'SDL_image version to build'
+    required: true
+    default: '2.8.2'
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache SDL_image Build
+      uses: actions/cache@v2
+      with:
+        path: |
+          SDL2_image-${{ inputs.sdl_image_version }}
+        key: ${{ runner.os }}-sdl2_image-${{ inputs.sdl_image_version }}-${{ hashFiles('**/configure') }}
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y build-essential git make pkg-config cmake ninja-build
+      shell: bash
+
+    - name: Download and build SDL_image
+      run: |
+        wget https://github.com/libsdl-org/SDL_image/releases/download/release-${{ inputs.sdl_image_version }}/SDL2_image-${{ inputs.sdl_image_version }}.tar.gz
+        tar xzf SDL2_image-${{ inputs.sdl_image_version }}.tar.gz
+        cd SDL2_image-${{ inputs.sdl_image_version }}
+        if [ ! -f "Makefile" ]; then
+          ./configure
+          make
+          sudo make install
+        fi
+      shell: bash
+
+    - name: Check SDL version
+      run: sdl2-config --version
+      shell: bash
