@@ -1,0 +1,29 @@
+name: "build-ubuntu"
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: 'Checkout source'
+        uses: actions/checkout@v4
+
+      - name: Download SDL2
+        run: |
+          Invoke-WebRequest "https://www.libsdl.org/release/SDL2-devel-2.30.3-VC.zip" -OutFile "SDL2.zip"
+          Expand-Archive -Path SDL2.zip -DestinationPath "C:\SDL2"
+
+      - name: Download SDL2_image
+        run: |
+          Invoke-WebRequest "https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.2/SDL2_image-devel-2.8.2-VC.zip" -OutFile "SDL2_image.zip"
+          Expand-Archive -Path SDL2_image.zip -DestinationPath "C:\SDL2_image"
+
+      - name: 'Configure and build'
+        run: |
+          cmake -G Ninja -S . -B build
+          cmake --build build --verbose
+
+          cmake -G "Visual Studio 17 2022" -A x64 "-DCMAKE_PREFIX_PATH=C:\SDL2;C:\SDL2_image" build/win64
+          cmake --build build\win64 --config Release
+          cpack -G ZIP --config build\win64\CPackConfig.cmake
+  
