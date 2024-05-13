@@ -1,5 +1,5 @@
 name: 'Build SDL'
-description: 'Downloads, caches, and builds SDL'
+description: 'Downloads and builds SDL'
 inputs:
   sdl_version:
     description: 'SDL version to build'
@@ -17,9 +17,8 @@ runs:
       uses: actions/cache@v3
       with:
         path: |
-          SDL2-${{ inputs.sdl_version }}
-          SDL2-${{ inputs.sdl_version }}-build
-        key: ${{ runner.os }}-sdl2-${{ inputs.sdl_version }}-key1
+          SDL2-${{ inputs.sdl_version }}-install.tar.gz
+        key: ${{ runner.os }}-sdl2-${{ inputs.sdl_version }}-key2
 
     - if: ${{ steps.cache-sdl.outputs.cache-hit != 'true' }}
       name: Download and build SDL
@@ -31,10 +30,11 @@ runs:
         cd SDL2-${{ inputs.sdl_version }}-build
         ../SDL2-${{ inputs.sdl_version }}/configure
         make
+        sudo make DESTDIR=$(realpath ../install-sdl) install
+        tar cf SDL2-${{ inputs.sdl_version }}-install.tar.gz -C install .
       shell: bash
 
     - name: Install SDL
       run: |
-        cd SDL2-${{ inputs.sdl_version }}-build
-        sudo make install
+        sudo tar xf SDL2-${{ inputs.sdl_version }}-install.tar.gz -C /
       shell: bash

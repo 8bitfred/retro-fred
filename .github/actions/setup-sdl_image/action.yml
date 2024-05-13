@@ -1,5 +1,5 @@
 name: 'Build SDL_image'
-description: 'Downloads, caches, and builds SDL_image'
+description: 'Downloads and builds SDL_image'
 inputs:
   sdl_image_version:
     description: 'SDL_image version to build'
@@ -17,9 +17,8 @@ runs:
       uses: actions/cache@v3
       with:
         path: |
-          SDL2_image-${{ inputs.sdl_image_version }}
-          SDL2_image-${{ inputs.sdl_image_version }}-build
-        key: ${{ runner.os }}-sdl2_image-${{ inputs.sdl_image_version }}-key1
+          SDL2_image-${{ inputs.sdl_image_version }}-install.tar.gz
+        key: ${{ runner.os }}-sdl2_image-${{ inputs.sdl_image_version }}-key2
 
     - if: ${{ steps.cache-sdl_image.outputs.cache-hit != 'true' }}
       name: Download and build SDL_image
@@ -31,10 +30,11 @@ runs:
         cd SDL2_image-${{ inputs.sdl_image_version }}-build
         ../SDL2_image-${{ inputs.sdl_image_version }}/configure
         make
+        sudo make DESTDIR=$(realpath ../install-sdl_image) install
+        tar cf SDL2_image-${{ inputs.sdl_image_version }}-install.tar.gz -C install .
       shell: bash
 
     - name: Install SDL_image
       run: |
-        cd SDL2_image-${{ inputs.sdl_image_version }}-build
-        sudo make install
+        sudo tar xf SDL2_image-${{ inputs.sdl_image_version }}-install.tar.gz -C /
       shell: bash
