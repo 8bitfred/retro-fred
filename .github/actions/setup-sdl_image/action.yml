@@ -30,8 +30,8 @@ runs:
         cd SDL2_image-${{ inputs.sdl_image_version }}-build
         ../SDL2_image-${{ inputs.sdl_image_version }}/configure
         make
-        sudo make DESTDIR=$(realpath ../install-sdl_image) install
-        tar cf SDL2_image-${{ inputs.sdl_image_version }}-install.tar.gz -C install .
+        sudo make DESTDIR=$(realpath install) install
+        tar cf ../SDL2_image-${{ inputs.sdl_image_version }}-install.tar.gz -C install .
       shell: bash
 
     - name: Install SDL_image

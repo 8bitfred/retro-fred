@@ -30,8 +30,8 @@ runs:
         cd SDL2-${{ inputs.sdl_version }}-build
         ../SDL2-${{ inputs.sdl_version }}/configure
         make
-        sudo make DESTDIR=$(realpath ../install-sdl) install
-        tar cf SDL2-${{ inputs.sdl_version }}-install.tar.gz -C install .
+        sudo make DESTDIR=$(realpath install) install
+        tar cf ../SDL2-${{ inputs.sdl_version }}-install.tar.gz -C install .
       shell: bash
 
     - name: Install SDL
