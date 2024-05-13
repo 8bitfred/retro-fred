@@ -1,4 +1,4 @@
-name: "build-ubuntu"
+name: "build-windows"
 on: [push]
 
 jobs:
@@ -20,9 +20,6 @@ jobs:
 
       - name: 'Configure and build'
         run: |
-          cmake -G Ninja -S . -B build
-          cmake --build build --verbose
-
           cmake -G "Visual Studio 17 2022" -A x64 "-DCMAKE_PREFIX_PATH=C:\SDL2;C:\SDL2_image" build/win64
           cmake --build build\win64 --config Release
           cpack -G ZIP --config build\win64\CPackConfig.cmake
