@@ -18,11 +18,19 @@ jobs:
           Invoke-WebRequest "https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.2/SDL2_image-devel-2.8.2-VC.zip" -OutFile "SDL2_image.zip"
           Expand-Archive -Path SDL2_image.zip -DestinationPath "C:\SDL2_image"
 
-      - name: 'Configure and build'
+      - name: 'Configure and build - 64 bit binary'
         run: |
           mkdir build
           mkdir build\win64
           cmake -G "Visual Studio 17 2022" -A x64 "-DCMAKE_PREFIX_PATH=C:\SDL2;C:\SDL2_image" -S . -B build\win64
           cmake --build build\win64 --config Release --verbose
-          cpack -G ZIP --config build\win64\CPackConfig.cmake
+          cd build\win64
+          cpack -G ZIP --config CPackConfig.cmake
+
+      - name: 'Archive 64 bit binary'
+        uses: actions/upload-artifact@v4
+        with:
+          name: retro-fred-win64
+          if-no-files-found: error
+          path: build/win64/retro-fred-*-win64.zip
   
