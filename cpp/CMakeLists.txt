@@ -1,7 +1,6 @@
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS}
-                    $<TARGET_PROPERTY:SDL2_image::SDL2_image,INTERFACE_INCLUDE_DIRECTORIES>)
+#find_package(SDL2 REQUIRED)
+#find_package(SDL2_image REQUIRED)
+include_directories(${SDL2_SOURCE_DIR}/include ../SDL_image/include)
 
 # default values
 set(CMAKE_CXX_STANDARD 20)
@@ -46,19 +45,21 @@ add_library(fredgame STATIC
     Tomb.cpp Tomb.hpp
     Application.cpp Application.hpp)
 
-add_executable(retro-fred main.cpp)
-target_link_libraries(retro-fred fredgame fredcore ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
+add_library(main main.cpp)
+target_link_libraries(main fredgame fredcore SDL2 SDL2main SDL2_image)
+# add_executable(retro-fred main.cpp)
+# target_link_libraries(retro-fred fredgame fredcore ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 
-add_executable(autofred autofred.cpp)
-target_link_libraries(autofred fredgame fredcore ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
+# add_executable(autofred autofred.cpp)
+# target_link_libraries(autofred fredgame fredcore ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 
-add_executable(sandbox
-               sandbox.cpp
-               sdl.hpp
-               Signal.hpp
-               GameEvent.hpp GameEvent.cpp
-               Controller.hpp Controller.cpp)
-target_link_libraries(sandbox ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
+# add_executable(sandbox
+#                sandbox.cpp
+#                sdl.hpp
+#                Signal.hpp
+#                GameEvent.hpp GameEvent.cpp
+#                Controller.hpp Controller.cpp)
+# target_link_libraries(sandbox ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 
 if (WIN32)
     # Configure retro-fred as a win32 executable (not a console application)
