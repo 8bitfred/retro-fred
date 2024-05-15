@@ -1,8 +1,19 @@
 #!/bin/bash
 
+show_help()
+{
+    cat <<HELP
+$0 --sdl=<SDL_SOURCE_DIR> --sdl-image=<SDL_IMAGE_SOURCE_DIR>
+
+Creates links for the SDL and SDL_image directories inside the android directory, and
+sets up the link to the assets directory from android/app/src/main
+HELP
+}
+
+
 PROJECT_ROOT=$(realpath $(dirname "$0")/..)
 
-ARGS=$(getopt -o "" --long "sdl:,sdl-image:" -- "$@")
+ARGS=$(getopt -o "" --long "help,sdl:,sdl-image:" -- "$@")
 if [ $? -ne 0 ]; then
     echo "Failed to parse options"
     exit 2
@@ -12,6 +23,10 @@ eval set -- "$ARGS"
 
 while true; do
     case "$1" in
+        '--help')
+            show_help
+            exit 0
+            ;;
         '--sdl')
             SDL_PATH="$2"
             shift 2
