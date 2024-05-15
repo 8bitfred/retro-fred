@@ -35,24 +35,36 @@ Use option --help to get a list of configuration options.
 Android
 -------
 
-You need to add the following symbolic links in the android-project
-subdirectory for building for Android:
+The Android build needs the source distributions of SDL and SDL_image. The SDL source code
+needs to be patched with patch-SDL2-2.29.3-aaudio-buffer-size.patch to ensure that the
+audio buffer gets set correctly.
 
-  cd android-project/app/src/main
-  ln -s ../../../../assets .
-  cd ../../jni
-  ln -s ../../../cpp .
+First, apply the patch (<SDL2_SOURCE> and <SDL2_IMAGE_SOURCE> are the directories of the
+source distributions of the SDL and SDL_image libraries):
 
-As well as the links to SDL and SDL_image (in android-project/app/jni):
+```
+    RETROFRED_ROOT=$(pwd); (cd <SDL2_SOURCE>; patch -p1 <$RETROFRED_ROOT/android/patch-SDL2-2.29.3-aaudio-buffer-size.patch)
+```
 
-  ln -s /usr/local/src/miguel-src/sdl2/SDL2-2.29.3-aaudio-buffer-size SDL
-  ln -s /usr/local/src/miguel-src/sdl2_image/SDL2_image-2.8.2 SDL_image
+Then set up the links to the source code of the SDL2 libraries in the android directory,
+and an internal link to the assets directory from the android/app/src/main directory:
 
-Note that SDL2 library must be patched with
-patch-SDL2-2.29.3-aaudio-buffer-size.patch to ensure that the audio
-buffer gets set correctly.
+```
+    ./android/configure --sdl=<SDL2_SOURCE> --sdl-image=<SDL2_IMAGE_SOURCE>
+```
 
-Android SDK versions (see File|Settings, Languages & Frameworks|Android SDK):
+Now the build can be started using the gradle tool included in the android directory.
+JAVA_HOME must point to the JDK directory, and ANDROID_HOME to the Android SDK directory:
+
+```
+    JAVA_HOME=<JAVA_HOME> ANDROID_HOME=<ANDROID_HOME> ./android/gradlew build
+```
+
+The APKs with the packages will be available in the android/app/build/outputs/apk
+directory.
+
+Android SDK versions (see File|Settings, Languages & Frameworks|Android SDK from Android
+studio):
 
   SDK Tools:
     Android SDK Build-Tools 34
@@ -75,7 +87,7 @@ Android SDK versions (see File|Settings, Languages & Frameworks|Android SDK):
     Android 13.0
       Android SDK Platform 33
 
-To build the project:
+To build the project using Android Studio:
 
   * In Android Studio: File|Open..., then open the android-project
     folder

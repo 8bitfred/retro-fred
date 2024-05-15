@@ -5,6 +5,12 @@ set(CMAKE_PROJECT_VERSION_MAJOR 0)
 set(CMAKE_PROJECT_VERSION_MINOR 1)
 set(CMAKE_PROJECT_VERSION_PATCH 2)
 
+if(ANDROID)
+    add_subdirectory(android/SDL)
+    add_subdirectory(android/SDL_image)
+    include_directories(android/SDL/include android/SDL_image/include)
+endif()
+
 add_subdirectory(cpp)
 add_subdirectory(assets/sprites sprites)
 add_subdirectory(assets/sounds sounds)

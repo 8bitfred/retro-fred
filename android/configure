@@ -1,0 +1,72 @@
+#!/bin/bash
+
+show_help()
+{
+    cat <<HELP
+$0 --sdl=<SDL_SOURCE_DIR> --sdl-image=<SDL_IMAGE_SOURCE_DIR>
+
+Creates links for the SDL and SDL_image directories inside the android directory, and
+sets up the link to the assets directory from android/app/src/main
+HELP
+}
+
+
+PROJECT_ROOT=$(realpath $(dirname "$0")/..)
+
+ARGS=$(getopt -o "" --long "help,sdl:,sdl-image:" -- "$@")
+if [ $? -ne 0 ]; then
+    echo "Failed to parse options"
+    exit 2
+fi
+
+eval set -- "$ARGS"
+
+while true; do
+    case "$1" in
+        '--help')
+            show_help
+            exit 0
+            ;;
+        '--sdl')
+            SDL_PATH="$2"
+            shift 2
+            ;;
+        '--sdl-image')
+            SDL_IMAGE_PATH="$2"
+            shift 2
+            ;;
+        '--')
+            shift
+            break
+            ;;
+        *)
+            echo "Invalid option: $1"
+            exit 2
+            ;;
+    esac
+done
+
+if [ -z "$SDL_PATH" ]; then
+    echo "Please set the path of the SDL library sources with option --sdl <sdl_path>"
+    exit 2
+fi
+if [ ! -d "$SDL_PATH" ]; then
+    echo "Directory $SDL_PATH does not exist"
+    exit 1
+fi
+if [ -z "$SDL_IMAGE_PATH" ]; then
+    echo "Please set the path of the SDL image library sources with option --sdl-image <sdl_image_path>"
+    exit 2
+fi
+if [ ! -d "$SDL_IMAGE_PATH" ]; then
+    echo "Directory $SDL_IMAGE_PATH does not exist"
+    exit 1
+fi
+
+rm -f "$PROJECT_ROOT/android/SDL"
+rm -f "$PROJECT_ROOT/android/SDL_image"
+rm -f "$PROJECT_ROOT/android/app/src/main/assets"
+
+ln -s "$SDL_PATH" "$PROJECT_ROOT/android/SDL"
+ln -s "$SDL_IMAGE_PATH" "$PROJECT_ROOT/android/SDL_image"
+ln -s ../../../../assets "$PROJECT_ROOT/android/app/src/main/"
