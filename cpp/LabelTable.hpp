@@ -9,7 +9,6 @@
 
 class LabelTable
 {
-    SDL_Rect window_rect;
     SDL_Rect char_rect;
     std::vector<Label> data;
 
