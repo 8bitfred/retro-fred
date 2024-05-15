@@ -1,7 +1,6 @@
 #include "LabelTable.hpp"
 
 LabelTable::LabelTable(SDL_Rect const &window_rect)
-    : window_rect(window_rect)
 {
     // TODO: I don't think this logic works correctly if window_rect.x + window_rect.w is
     // not a character border (the sum is 0 modulo 8)
