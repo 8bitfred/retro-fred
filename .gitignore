@@ -4,3 +4,9 @@
 /.vs/
 /.vscode/
 /.gradle/
+/.idea/
+
+/gradlew
+/gradlew.bat
+/local.properties
+/gradle
