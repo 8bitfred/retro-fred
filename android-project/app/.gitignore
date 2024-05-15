@@ -1,9 +1,0 @@
-/build/
-
-# symbolic links to common files:
-/jni/cpp
-/src/main/assets
-
-# symbolic links to libraries
-/jni/SDL
-/jni/SDL_image

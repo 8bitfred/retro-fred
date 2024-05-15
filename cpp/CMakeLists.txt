@@ -1,6 +1,6 @@
 #find_package(SDL2 REQUIRED)
 #find_package(SDL2_image REQUIRED)
-include_directories(${SDL2_SOURCE_DIR}/include ../SDL_image/include)
+include_directories(${SDL2_SOURCE_DIR}/include ../android/SDL_image/include)
 
 # default values
 set(CMAKE_CXX_STANDARD 20)
