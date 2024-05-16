@@ -1,0 +1,46 @@
+name: "Android build"
+on: [push, pull_request]
+
+env:
+  sdl_version: '2.29.3'
+  sdl_image_version: '2.8.2'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2.0.10
+
+      - name: 'Checkout source'
+        uses: actions/checkout@v4
+        with:
+          path: retro-fred
+
+      - name: 'Download SDL2'
+        id: download_sdl2
+        run: |
+          wget https://www.libsdl.org/release/SDL2-${{ env.sdl_version }}.tar.gz
+          tar xzf SDL2-${{ env.sdl_version }}.tar.gz
+          cd SDL2-${{ env.sdl_version }}
+          patch -p1 < "$GITHUB_WORKSPACE/android/patch-SDL2-2.29.3-aaudio-buffer-size.patch"
+          echo "sdl2_path="$(pwd) >> "$GITHUB_OUTPUT"
+      
+      - name: 'Download SDL2_image'
+        id: download_sdl2_image
+        run: |
+          wget https://github.com/libsdl-org/SDL_image/releases/download/release-${{ env.sdl_image_version }}/SDL2_image-${{ env.sdl_image_version }}.tar.gz
+          tar xzf SDL2_image-${{ env.sdl_image_version }}.tar.gz
+          echo "sdl2_image_path="$(pwd)/SDL2_image-${{ env.sdl_image_version }} >> "$GITHUB_OUTPUT"
+      
+      - name: 'Configure and build'
+        run: |
+          cd retro-fred
+          ./android/configure --sdl=${{ steps.download_sdl2.sdl2_path }} --sdl_image=${{ steps.download_sdl2_image.sdl2_image_path }}
+          ./android/gradlew build --info
