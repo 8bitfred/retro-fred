@@ -42,5 +42,12 @@ jobs:
       - name: 'Configure and build'
         run: |
           cd src
-          ./android/configure --sdl=${{ steps.download_sdl2.sdl2_path }} --sdl-image=${{ steps.download_sdl2_image.sdl2_image_path }}
+          ./android/configure --sdl="$GITHUB_WORKSPACE/SDL2-${{ env.sdl_version }}" --sdl-image=$GITHUB_WORKSPACE/SDL2_image-${{ env.sdl_image_version }}
           ./android/gradlew build --info
+
+      - name: 'Archive APK'
+        uses: actions/upload-artifact@v4
+        with:
+          name: retro-fred-android
+          if-no-files-found: error
+          path: src/android/app/build/outputs/apk/debug/app-debug.apk
