@@ -22,7 +22,6 @@ runs:
 
     - if: ${{ steps.cache-sdl_image.outputs.cache-hit != 'true' }}
       name: Download and build SDL_image
-      continue-on-error: true
       run: |
         wget https://github.com/libsdl-org/SDL_image/releases/download/release-${{ inputs.sdl_image_version }}/SDL2_image-${{ inputs.sdl_image_version }}.tar.gz
         tar xzf SDL2_image-${{ inputs.sdl_image_version }}.tar.gz
