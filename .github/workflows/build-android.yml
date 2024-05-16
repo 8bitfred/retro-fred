@@ -42,5 +42,5 @@ jobs:
       - name: 'Configure and build'
         run: |
           cd src
-          ./android/configure --sdl=${{ steps.download_sdl2.sdl2_path }} --sdl_image=${{ steps.download_sdl2_image.sdl2_image_path }}
+          ./android/configure --sdl=${{ steps.download_sdl2.sdl2_path }} --sdl-image=${{ steps.download_sdl2_image.sdl2_image_path }}
           ./android/gradlew build --info
