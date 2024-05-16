@@ -21,7 +21,7 @@ jobs:
       - name: 'Checkout source'
         uses: actions/checkout@v4
         with:
-          path: retro-fred
+          path: src
 
       - name: 'Download SDL2'
         id: download_sdl2
@@ -29,7 +29,7 @@ jobs:
           wget https://www.libsdl.org/release/SDL2-${{ env.sdl_version }}.tar.gz
           tar xzf SDL2-${{ env.sdl_version }}.tar.gz
           cd SDL2-${{ env.sdl_version }}
-          patch -p1 < "$GITHUB_WORKSPACE/android/patch-SDL2-2.29.3-aaudio-buffer-size.patch"
+          patch -p1 < "$GITHUB_WORKSPACE/src/android/patch-SDL2-2.29.3-aaudio-buffer-size.patch"
           echo "sdl2_path="$(pwd) >> "$GITHUB_OUTPUT"
       
       - name: 'Download SDL2_image'
@@ -41,6 +41,6 @@ jobs:
       
       - name: 'Configure and build'
         run: |
-          cd retro-fred
+          cd src
           ./android/configure --sdl=${{ steps.download_sdl2.sdl2_path }} --sdl_image=${{ steps.download_sdl2_image.sdl2_image_path }}
           ./android/gradlew build --info
