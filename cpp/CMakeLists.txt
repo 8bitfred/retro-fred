@@ -49,6 +49,8 @@ add_library(fredgame STATIC
     Tomb.cpp Tomb.hpp
     Application.cpp Application.hpp)
 
+include(InstallRequiredSystemLibraries)
+
 if(ANDROID)
     add_library(main main.cpp)
     target_link_libraries(main fredgame fredcore SDL2 SDL2main SDL2_image)
@@ -82,7 +84,6 @@ if(WIN32)
                           fredgame fredcore ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
-    include(InstallRequiredSystemLibraries)
     install(TARGETS
             retro-fred retro-fred-console autofred
             RUNTIME DESTINATION .)
