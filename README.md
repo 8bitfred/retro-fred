@@ -179,3 +179,37 @@ currently fails to archive all the required .dlls:
 ```
     cpack -G ZIP --config ./CPackConfig.cmake
 ```
+
+MacOs X
+-------
+
+First you need to install SDL2 and SDL2_image. The easiest way is to download the .dmg packages from 
+the SDL sites. Then copy the SDL2.framework and SDL2_image.framework directories to the system's
+/Library/Frameworks directory, or the user's Library/Frameworks directory inside the home directory.
+You can also install it in a different directory. In that case you will need to add option
+"-DCMAKE_PREFIX_PATH=<SDL_FRAMEWORK_DIR>;<SDL_IMAGE_FRAMEWORK_DIR>" to the cmake invocation to
+specify the location of the libraries.
+
+```
+    git clone <repository> retro-fred
+    cd retro-fred
+    mkdir build
+    cd build
+    cmake ..
+    cmake --build . --config Release
+    cpack -G Bundle --config ./CPackConfig.cmake
+```
+
+This will generate a Retro-Fred-<version>.dmg file in the build directory.
+
+You can also build using the Xcode generator:
+
+```
+    git clone <repository> retro-fred
+    cd retro-fred
+    mkdir build
+    cd build
+    cmake -G Xcode ..
+    cmake --build . --config Release
+    cpack -G Bundle --config ./CPackConfig.cmake
+```
