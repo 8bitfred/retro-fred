@@ -124,6 +124,50 @@ jobs:
           path: |
             src/android/app/build/outputs/apk/debug/app-debug.apk
 
+  build_macos:
+    name: 'MacOS X build'
+    runs-on: macos-latest
+    steps:
+      - name: Install SDL2
+        run: |
+          brew update
+          brew install sdl2
+
+      - name: Install SDL2_image
+        run: |
+          brew update
+          brew install sdl2_image
+
+      - name: 'Configure and build - makefiles'
+        run: |
+          mkdir -p build/makefiles
+          cd build/makefiles
+          cmake ../..
+          cmake --build . --config Release
+          cpack -G Bundle --config ./CPackConfig.cmake
+
+      - name: 'Archive bundle - makefiles'
+        uses: actions/upload-artifact@v4
+        with:
+          name: retro-fred-macos-mk
+          if-no-files-found: error
+          path: build/makefiles/Retro-Fred-*.dmg
+
+      - name: 'Configure and build - Xcode'
+        run: |
+          mkdir -p build/xcode
+          cd build/xcode
+          cmake -G Xcode ../..
+          cmake --build . --config Release
+          cpack -G Bundle --config ./CPackConfig.cmake
+
+      - name: 'Archive bundle - xcode'
+        uses: actions/upload-artifact@v4
+        with:
+          name: retro-fred-macos-xc
+          if-no-files-found: error
+          path: build/xcode/Retro-Fred-*.dmg
+
   unique-version:
     runs-on: ubuntu-latest
     needs: [build_windows]
@@ -199,4 +243,3 @@ jobs:
           body: ${{ steps.extract_notes.outputs.markdown }}
           name: ${{ steps.check_version.outputs.version }}
           token: ${{ secrets.RELEASE_TOKEN }}
-  
