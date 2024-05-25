@@ -123,6 +123,7 @@ jobs:
 
   check_release:
     runs-on: ubuntu-latest
+    needs: [build_linux, build_windows, build_android]
     steps:
       - name: 'Download builds'
         uses: actions/download-artifact@v4
