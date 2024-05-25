@@ -64,12 +64,9 @@ jobs:
         with:
           name: retro-fred-win64
           if-no-files-found: error
-          path: build/win64/retro-fred-*-win64.zip
-
-      - name: 'Check version number'
-        run: |
-          $v = (Get-Content build\win64\version)[0]
-          echo $v
+          path: |
+            build/win64/retro-fred-*-win64.zip
+            build/win64/version
 
   build_android:
     name: 'Android build'
@@ -114,9 +111,20 @@ jobs:
           ./android/configure --sdl="$GITHUB_WORKSPACE/SDL2-${{ env.sdl_version }}" --sdl-image=$GITHUB_WORKSPACE/SDL2_image-${{ env.sdl_image_version }}
           ./android/gradlew build --info
 
+      - name: 'Find version file'
+        run: find . -name "version"
+
       - name: 'Archive APK'
         uses: actions/upload-artifact@v4
         with:
           name: retro-fred-android
           if-no-files-found: error
           path: src/android/app/build/outputs/apk/debug/app-debug.apk
+
+  check_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Download builds'
+        uses: actions/download-artifact@v4
+      - name: 'See structure'
+        run: ls -R
