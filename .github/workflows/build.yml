@@ -1,7 +1,11 @@
 name: "Build"
 on:
   push:
-    branches: main
+    branches:
+      main
+      'releasetest/*'
+    tags:
+      'v*.*.*'
   pull_request:
     branches: main
     types:
@@ -61,6 +65,11 @@ jobs:
           name: retro-fred-win64
           if-no-files-found: error
           path: build/win64/retro-fred-*-win64.zip
+
+      - name: 'Check version number'
+        run: |
+          $v = (Get-Content version)[0]
+          echo $v
 
   build_android:
     name: 'Android build'
