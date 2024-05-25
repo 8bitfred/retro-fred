@@ -1,13 +1,14 @@
-name: "Build"
+name: "Build binaries, create release"
 on:
-  push:
-    branches: main
   pull_request:
-    branches: main
+    branches:
+      main
     types:
       - opened
       - edited
       - synchronize
+  push:
+    tags: '*'
 
 jobs:
   build_linux:
@@ -48,19 +49,29 @@ jobs:
 
       - name: 'Configure and build - 64 bit binary'
         run: |
-          mkdir build
-          mkdir build\win64
+          mkdir -p build\win64
           cmake -G "Visual Studio 17 2022" -A x64 "-DCMAKE_PREFIX_PATH=C:\SDL2;C:\SDL2_image" -S . -B build\win64
           cmake --build build\win64 --config Release --verbose
           cd build\win64
           cpack -G ZIP --config CPackConfig.cmake
 
-      - name: 'Archive 64 bit binary'
+      - name: 'Configure and build - 32 bit binary'
+        run: |
+          mkdir -p build\win32
+          cmake -G "Visual Studio 17 2022" -A Win32 "-DCMAKE_PREFIX_PATH=C:\SDL2;C:\SDL2_image" -S . -B build\win32
+          cmake --build build\win32 --config Release --verbose
+          cd build\win32
+          cpack -G ZIP --config CPackConfig.cmake
+
+      - name: 'Archive binaries'
         uses: actions/upload-artifact@v4
         with:
-          name: retro-fred-win64
+          name: retro-fred-win
           if-no-files-found: error
-          path: build/win64/retro-fred-*-win64.zip
+          path: |
+            build/win64/version
+            build/win64/retro-fred-*-win64.zip
+            build/win32/retro-fred-*-win32.zip
 
   build_android:
     name: 'Android build'
@@ -110,4 +121,82 @@ jobs:
         with:
           name: retro-fred-android
           if-no-files-found: error
-          path: src/android/app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            src/android/app/build/outputs/apk/debug/app-debug.apk
+
+  unique-version:
+    runs-on: ubuntu-latest
+    needs: [build_windows]
+    if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - name: 'Download archived builds'
+        uses: actions/download-artifact@v4
+        with:
+          name: retro-fred-win
+          path: retro-fred-win
+
+      - name: 'Check for unique version'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(tr -d '[:space:]' < retro-fred-win/win64/version)
+          if gh api \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /repos/${{ github.repository }}/git/ref/tags/"$version"; then
+            echo ""
+            echo -n "::error title='Release already exists'::"
+            echo -n "A release tag for $version already exists. "
+            echo    "You should update the version in CMakeLists.txt"
+            false  # fail with an error
+          fi
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build_windows, build_linux, build_android]
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: 'Checkout source'
+        uses: actions/checkout@v4
+
+      - name: 'Download archived builds'
+        uses: actions/download-artifact@v4
+        with:
+          path: build
+
+      - name: 'Check that tag name matches version'
+        id: check_version
+        run: |
+          version=$(tr -d '[:space:]' < build/retro-fred-win/win64/version)
+          if [ "${{ github.ref }}" != "refs/tags/$version" ]; then
+              echo -n "::error title='Version does not match release tag'::"
+              echo "Release tag expected to be $version"
+              false;
+          fi
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: 'Extract release notes from changelog'
+        id: extract_notes
+        uses: sean0x42/markdown-extract@v2
+        with:
+          file: CHANGELOG.md
+          pattern: ${{ steps.check_version.outputs.version }}
+          no-print-matched-heading: true
+
+      - name: Rename files for release
+        run: |
+          version=${{ steps.check_version.outputs.version }}
+          mkdir build/release
+          mv -i build/retro-fred-win/win64/retro-fred-$version-win64.zip build/release
+          mv -i build/retro-fred-win/win32/retro-fred-$version-win32.zip build/release
+          mv -i build/retro-fred-android/app-debug.apk build/release/retro-fred-$version-android-debug.apk
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/release/*
+          body: ${{ steps.extract_notes.outputs.markdown }}
+          name: ${{ steps.check_version.outputs.version }}
+          token: ${{ secrets.RELEASE_TOKEN }}
+  
