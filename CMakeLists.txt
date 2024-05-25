@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
-project("retro-fred")
+project("retro-fred" VERSION 0.2.0)
 
-set(CMAKE_PROJECT_VERSION_MAJOR 0)
-set(CMAKE_PROJECT_VERSION_MINOR 1)
-set(CMAKE_PROJECT_VERSION_PATCH 2)
+file(CONFIGURE OUTPUT version CONTENT "${CMAKE_PROJECT_VERSION}\n")
 
 if(ANDROID)
     add_subdirectory(android/SDL)
