@@ -68,7 +68,7 @@ jobs:
 
       - name: 'Check version number'
         run: |
-          $v = (Get-Content version)[0]
+          $v = (Get-Content build\win64\version)[0]
           echo $v
 
   build_android:
