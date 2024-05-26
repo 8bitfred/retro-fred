@@ -3,13 +3,13 @@ on:
   push:
     branches:
       main
-      miguel/releasetest
+      'miguel/releasetest'
     tags:
       'release/*'
   pull_request:
     branches:
       main
-      miguel/releasetest
+      'miguel/releasetest'
     types:
       - opened
       - edited
