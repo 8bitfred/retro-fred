@@ -17,7 +17,7 @@ add_subdirectory(assets/sounds sounds)
 
 include(CPack)
 set(CPACK_PACKAGE_NAME "Retro-Fred")
-set(CPACK_PACKAGE_VENDOR "Chirimoya Soft")
+set(CPACK_PACKAGE_VENDOR "8bitfred")
 set(CPACK_PACKAGE_DESCRIPTION "Modern port of the classic ZX Spectrum videogame Fred")
 set(CPACK_PACKAGE_ICON cpp/resources/fred_icon.ico)
 set(CPACK_STRIP_FILES True)
