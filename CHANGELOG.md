@@ -1,17 +1,7 @@
-# 0.1.16
-
-* Test one
-
-* Test two
-
-# 0.1.15
+# 0.2.0
 
 * Initial release
 
-* Runs on Linux, Windows and Android. Builds on MacOS, but it does not seem to be possible to distribute it.
-
-# 0.1.12
-
-* Blah blah 
-
-* some more blah blah
+* Supports game in Linux, Windows and Android. It builds for MacOS X, but there seems to
+  be some problem when trying to run the code in a different machine that the one where
+  the code was built. This is probably due to the bundle not being signed
