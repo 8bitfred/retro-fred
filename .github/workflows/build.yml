@@ -128,6 +128,9 @@ jobs:
     name: 'MacOS X build'
     runs-on: macos-latest
     steps:
+      - name: 'Checkout source'
+        uses: actions/checkout@v4
+
       - name: Install SDL2
         run: |
           brew update
