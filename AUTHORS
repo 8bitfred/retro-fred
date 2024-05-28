@@ -13,3 +13,6 @@ Juan Delcán
 
 Sprites and music assets (in the assets folder) are part of the original game, and are
 included in this distribution with authorization from the authors of Fred.
+
+The Android port of Retro-Fred includes code from the android directory of the libsdl
+distribution (see https://www.libsdl.org).
