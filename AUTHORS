@@ -1,0 +1,18 @@
+
+Retro-Fred, Copyright 2024 by:
+
+Miguel Catalina Gallego
+Alfredo Catalina Gallego
+
+Fred was originally created in 1984 by:
+
+Carlos Granados Martínez
+Fernando Rada Briega
+Paco Menéndez
+Juan Delcán
+
+Sprites and music assets (in the assets folder) are part of the original game, and are
+included in this distribution with authorization from the authors of Fred.
+
+The Android port of Retro-Fred includes code from the android directory of the libsdl
+distribution (see https://www.libsdl.org).

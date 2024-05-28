@@ -70,8 +70,8 @@ jobs:
           if-no-files-found: error
           path: |
             build/win64/version
-            build/win64/retro-fred-*-win64.zip
-            build/win32/retro-fred-*-win32.zip
+            build/win64/Retro-Fred-*-win64.zip
+            build/win32/Retro-Fred-*-win32.zip
 
   build_android:
     name: 'Android build'
@@ -234,9 +234,9 @@ jobs:
         run: |
           version=${{ steps.check_version.outputs.version }}
           mkdir build/release
-          mv -i build/retro-fred-win/win64/retro-fred-$version-win64.zip build/release
-          mv -i build/retro-fred-win/win32/retro-fred-$version-win32.zip build/release
-          mv -i build/retro-fred-android/app-debug.apk build/release/retro-fred-$version-android-debug.apk
+          mv -i build/retro-fred-win/win64/Retro-Fred-$version-win64.zip build/release
+          mv -i build/retro-fred-win/win32/Retro-Fred-$version-win32.zip build/release
+          mv -i build/retro-fred-android/app-debug.apk build/release/Retro-Fred-$version-android-debug.apk
 
       - name: Release
         uses: softprops/action-gh-release@v2
