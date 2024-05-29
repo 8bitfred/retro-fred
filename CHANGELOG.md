@@ -1,3 +1,7 @@
+# 0.2.1
+
+* Added support for saving and restoring high scores.
+
 # 0.2.0
 
 * Initial release
