@@ -66,9 +66,11 @@ class FredApp
     TextureManager tmgr;
     SoundManager smgr;
     std::vector<std::pair<unsigned, std::string>> high_scores;
+    std::string high_scores_path;
     State state = StateSplashScreen();
 
     static std::pair<sdl::WindowPtr, sdl::RendererPtr> initDisplay(Config const &cfg);
+    static std::string getPrefPath();
     void splashScreen(StateSplashScreen const &state_data);
     void menu(StateMenu &state_data);
     void todaysGreatest();
@@ -81,6 +83,8 @@ class FredApp
     void renderHighScoreScreen(std::string const &initials);
     void updateHighScore(std::string &initials, unsigned score,
                          EventManager &event_manager, EventMask event_mask);
+    void saveHighScores() const;
+    void loadHighScores();
 
 public:
     explicit FredApp(Config const &cfg, std::minstd_rand &random_engine);

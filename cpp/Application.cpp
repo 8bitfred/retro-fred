@@ -17,6 +17,7 @@
 #include "Controller.hpp"
 #include <iostream>
 #include <cstdio>
+#include <fstream>
 
 FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     : cfg(cfg)
@@ -26,7 +27,9 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     , tmgr(cfg, getRenderer())
     , smgr(cfg)
     , high_scores(4, {0, ""})
+    , high_scores_path(getPrefPath() + "high_scores.tbl")
 {
+    loadHighScores();
     SDL_SetWindowTitle(getWindow(), "Retro-Fred");
     SDL_SetWindowIcon(getWindow(), tmgr.getFredIcon());
 }
@@ -57,6 +60,14 @@ std::pair<sdl::WindowPtr, sdl::RendererPtr> FredApp::initDisplay(Config const &c
         window_flags = SDL_WINDOW_RESIZABLE;
     }
     return sdl::createWindowAndRenderer(width, height, window_flags);
+}
+
+std::string FredApp::getPrefPath()
+{
+    auto pref_path_ptr = SDL_GetPrefPath("8bitfred", "Retro-Fred");
+    std::string pref_path_str(pref_path_ptr);
+    SDL_free(pref_path_ptr);
+    return pref_path_str;
 }
 
 void FredApp::splashScreen(StateSplashScreen const &state_data)
@@ -279,6 +290,7 @@ void FredApp::updateHighScore(std::string &initials, unsigned score,
             high_scores.emplace(pos, score, std::move(initials));
             if (high_scores.size() > 4)
                 high_scores.resize(4);
+            saveHighScores();
             todaysGreatest();
             smgr.play(SoundID::FUNERAL_MARCH);
             event_manager.setTimer(8000);
@@ -289,6 +301,34 @@ void FredApp::updateHighScore(std::string &initials, unsigned score,
             initials += "A";
     }
     renderHighScoreScreen(initials);
+}
+
+void FredApp::saveHighScores() const
+{
+    std::ofstream hs_file(high_scores_path);
+    for (auto const &[score, name]: high_scores)
+    {
+        if (score == 0 || name.empty())
+            continue;
+        hs_file << name << " " << score << std::endl;
+    }
+}
+
+void FredApp::loadHighScores()
+{
+    std::ifstream hs_file(high_scores_path);
+    if (!hs_file.is_open())
+        return;
+    for (auto &[score, name]: high_scores)
+    {
+        std::string input_name;
+        int input_score;
+        hs_file >> input_name >> input_score;
+        if (hs_file.fail() || hs_file.eof())
+            break;
+        score = input_score;
+        name = input_name;
+    }
 }
 
 void FredApp::mainLoop()
