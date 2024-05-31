@@ -1,5 +1,5 @@
 #include "AcidDrop.hpp"
-#include "Game.hpp"
+#include "fredcore/Game.hpp"
 
 void AcidDrop::initialize(std::minstd_rand &random_engine, GameBase &game)
 {

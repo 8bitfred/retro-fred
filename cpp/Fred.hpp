@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Sprite.hpp"
-#include "SoundID.hpp"
-#include "GameEvent.hpp"
+#include "fredcore/Sprite.hpp"
+#include "fredcore/SoundID.hpp"
+#include "fredcore/GameEvent.hpp"
 
 class GameBase;
 

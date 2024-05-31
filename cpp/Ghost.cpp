@@ -1,6 +1,6 @@
 #include "Ghost.hpp"
-#include "GameMap.hpp"
-#include "Game.hpp"
+#include "fredcore/GameMap.hpp"
+#include "fredcore/Game.hpp"
 
 void Ghost::setRandomDirection()
 {

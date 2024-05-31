@@ -1,11 +1,11 @@
 #pragma once
 
-#include "sdl.hpp"
-#include "DisplayConfig.hpp"
-#include "TextureManager.hpp"
-#include "SoundManager.hpp"
-#include "GameEvent.hpp"
-#include "Window.hpp"
+#include "fredcore/sdl.hpp"
+#include "fredcore/DisplayConfig.hpp"
+#include "fredcore/TextureManager.hpp"
+#include "fredcore/SoundManager.hpp"
+#include "fredcore/GameEvent.hpp"
+#include "fredcore/Window.hpp"
 #include "GameRunner.hpp"
 #include <random>
 #include <variant>
