@@ -26,5 +26,6 @@ struct Config {
     bool set_bullets_with_level = false;
     bool replenish_power = false;
     bool replenish_bullets = false;
+    bool minimap_tracker = false;
     int level = 1;
 };

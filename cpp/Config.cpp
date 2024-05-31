@@ -12,6 +12,7 @@ namespace {
         "            [--boxes] [--fps FPS] [--virtual-controller]\n"
         "            [--power-with-level] [--bullets-with-level]\n"
         "            [--replenish-power] [--replenish-bullets]\n"
+        "            [--minimap-tracker]\n"
         "\n"
         "    --help    Show this message\n"
         "    --level LEVEL\n"
@@ -47,6 +48,8 @@ namespace {
         "              Refill the power when a level is completed.\n"
         "    --replenish-bullets\n"
         "              Refill the bullets when a level is completed.\n"
+        "    --minimap-tracker\n"
+        "              Show position of Fred in minimap.\n"
         "\n"
         "\n"
         "keybindings during gameplay:\n"
@@ -126,6 +129,8 @@ Config::Config(int argc, char *argv[])
             replenish_power = true;
         else if (svarg == "--replenish-bullets")
             replenish_bullets = true;
+        else if (svarg == "--minimap-tracker")
+            minimap_tracker = true;
         else
         {
             std::cerr << "unknown option: " << svarg << std::endl;
