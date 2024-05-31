@@ -1,5 +1,5 @@
 #include "Skeleton.hpp"
-#include "Game.hpp"
+#include "fredcore/Game.hpp"
 
 int Skeleton::climbing_frame = 0;
 

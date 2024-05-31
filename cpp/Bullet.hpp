@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Sprite.hpp"
+#include "fredcore/Sprite.hpp"
 
 class GameBase;
 

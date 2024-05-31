@@ -1,6 +1,6 @@
-#include "sdl.hpp"
+#include "fredcore/sdl.hpp"
 #include "Signal.hpp"
-#include "GameEvent.hpp"
+#include "fredcore/GameEvent.hpp"
 #include <iostream>
 
 

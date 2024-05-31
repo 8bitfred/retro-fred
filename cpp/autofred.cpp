@@ -1,4 +1,4 @@
-#include "sdl.hpp"
+#include "fredcore/sdl.hpp"
 #include "Application.hpp"
 #include <random>
 #include <iostream>

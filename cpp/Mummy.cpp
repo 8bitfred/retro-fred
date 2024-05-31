@@ -1,6 +1,6 @@
 #include "Mummy.hpp"
-#include "GameMap.hpp"
-#include "Game.hpp"
+#include "fredcore/GameMap.hpp"
+#include "fredcore/Game.hpp"
 
 int Mummy::mummy_timer = 0;
 

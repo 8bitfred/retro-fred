@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Game.hpp"
-#include "GameEvent.hpp"
+#include "fredcore/Game.hpp"
+#include "fredcore/GameEvent.hpp"
 
 class GameRunner: public GameBase
 {

@@ -1,6 +1,6 @@
 #include "Chameleon.hpp"
-#include "GameMap.hpp"
-#include "Game.hpp"
+#include "fredcore/GameMap.hpp"
+#include "fredcore/Game.hpp"
 
 void Chameleon::initialize(std::minstd_rand &random_engine, GameBase &game)
 {

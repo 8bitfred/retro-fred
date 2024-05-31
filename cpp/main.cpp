@@ -1,9 +1,9 @@
 #include <iostream>
-#include "sdl.hpp"
-#include "Config.hpp"
-#include "GameMap.hpp"
+#include "fredcore/sdl.hpp"
+#include "fredcore/Config.hpp"
+#include "fredcore/GameMap.hpp"
 #include "Application.hpp"
-#include "Game.hpp"
+#include "fredcore/Game.hpp"
 
 int main(int argc, char* argv[])
 {

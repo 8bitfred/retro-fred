@@ -1,5 +1,5 @@
 #include "MultiDirEnemy.hpp"
-#include "GameMap.hpp"
+#include "fredcore/GameMap.hpp"
 
 std::pair<int, int> MultiDirEnemy::getDirDelta() const
 {

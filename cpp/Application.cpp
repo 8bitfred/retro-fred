@@ -1,7 +1,7 @@
 #include "Application.hpp"
-#include "GameEvent.hpp"
-#include "Config.hpp"
-#include "Game.hpp"
+#include "fredcore/GameEvent.hpp"
+#include "fredcore/Config.hpp"
+#include "fredcore/Game.hpp"
 #include "Fred.hpp"
 #include "AcidDrop.hpp"
 #include "Rat.hpp"
@@ -14,7 +14,7 @@
 #include "Smoke.hpp"
 #include "Object.hpp"
 #include "Tomb.hpp"
-#include "Controller.hpp"
+#include "fredcore/Controller.hpp"
 #include <iostream>
 #include <cstdio>
 #include <fstream>
