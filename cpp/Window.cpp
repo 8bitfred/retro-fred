@@ -11,7 +11,7 @@
 // window where the map and characters are shown, and a scoreboard where the score and
 // other game information is displayed. The scoreboard is 7 characters wide and goes from
 // the top to the bottom of the screen. We allow the size of the screen to be
-// configurable, so the size of the game window varies with the screen size. 
+// configurable, so the size of the game window varies with the screen size.
 //
 // In the original ZX Spectrum game the screen is 256x192 pixels (32x24 characters) and
 // the game window is 192x176 pixels (24x22 characters):
@@ -152,8 +152,8 @@ void Window::renderFrame(GameBase const &game, SDL_Renderer *renderer,
         auto status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
-        for (int x = total_width - SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR; 
-            x < total_width; x += MapPos::PIXELS_PER_CHAR)
+        for (int x = total_width - SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR;
+             x < total_width; x += MapPos::PIXELS_PER_CHAR)
         {
             dst_rect.x = x;
             status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
@@ -163,7 +163,7 @@ void Window::renderFrame(GameBase const &game, SDL_Renderer *renderer,
     }
 
     SDL_Rect src_scoreboard{8, 8, 40, 176};
-    SDL_Rect dst_scoreboard{total_width - (SCOREBOARD_WIDTH - 1) * MapPos::PIXELS_PER_CHAR, 
+    SDL_Rect dst_scoreboard{total_width - (SCOREBOARD_WIDTH - 1) * MapPos::PIXELS_PER_CHAR,
                             MapPos::PIXELS_PER_CHAR, 40, 176};
     auto status = SDL_RenderCopy(renderer, base_window, &src_scoreboard, &dst_scoreboard);
     if (status < 0)
@@ -212,7 +212,15 @@ void Window::drawMinimap(GameBase const &game, SDL_Renderer *renderer, int x, in
     {
         for (int j = -10; j < 10; ++j)
         {
-            if (auto cell = game.getGameMap().getBlock(*minimap_pos, j, i);
+            if (auto fred_pos = game.getFredPos().cellPos();
+                game.getConfig().minimap_tracker &&
+                fred_pos.x == (minimap_pos->x + j) && fred_pos.y == (minimap_pos->y + i))
+            {
+                sdl::ColorGuard color_guard(renderer, 206, 0, 0, 255);
+                if (SDL_RenderFillRect(renderer, &dst) < 0)
+                    throw sdl::Error();
+            }
+            else if (auto cell = game.getGameMap().getBlock(*minimap_pos, j, i);
                 cell == GameMap::Cell::EMPTY ||
                 cell == GameMap::Cell::ROPE_START ||
                 cell == GameMap::Cell::ROPE_MAIN ||

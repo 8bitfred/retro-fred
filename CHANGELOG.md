@@ -1,5 +1,8 @@
 # 0.2.1
 
+* Added minimap tracker (configurable): when enabled, it shows the position of fred in the
+  minimap with a red dot.
+
 * Added support for saving and restoring high scores.
 
 # 0.2.0
