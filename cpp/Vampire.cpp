@@ -1,5 +1,5 @@
 #include "Vampire.hpp"
-#include "Game.hpp"
+#include "fredcore/Game.hpp"
 
 Vampire::Vampire(GameMap const &game_map, MapPos const &pos,
                  std::minstd_rand &random_engine)

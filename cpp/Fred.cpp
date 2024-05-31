@@ -1,5 +1,5 @@
 #include "Fred.hpp"
-#include "Game.hpp"
+#include "fredcore/Game.hpp"
 #include "Object.hpp" // TODO: this should not be exposed here
 #include <functional>
 

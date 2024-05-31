@@ -1,5 +1,5 @@
 #include "Bullet.hpp"
-#include "Game.hpp"
+#include "fredcore/Game.hpp"
 
 bool Bullet::isAlive()
 {

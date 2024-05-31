@@ -1,5 +1,5 @@
 #include "Object.hpp"
-#include "Game.hpp"
+#include "fredcore/Game.hpp"
 
 void Object::initialize(std::minstd_rand &random_engine, GameBase &game)
 {

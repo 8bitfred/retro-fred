@@ -1,5 +1,5 @@
 #include "GameRunner.hpp"
-#include "Config.hpp"
+#include "fredcore/Config.hpp"
 #include "Fred.hpp"
 #include "AcidDrop.hpp"
 #include "Rat.hpp"

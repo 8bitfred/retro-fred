@@ -16,23 +16,9 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-add_library(fredcore STATIC
-    sdl.hpp
-    Config.cpp Config.hpp
-    TextureID.hpp TextureManager.cpp TextureManager.hpp
-    SoundID.hpp SoundManager.cpp SoundManager.hpp
-    Label.hpp LabelTable.hpp LabelTable.cpp
-    DisplayConfig.cpp DisplayConfig.hpp
-    Coord.hpp
-    GameMap.cpp GameMap.hpp
-    GameWindow.hpp
-    Window.cpp Window.hpp
-    Sprite.cpp Sprite.hpp
-    GameEvent.hpp GameEvent.cpp
-    Game.cpp Game.hpp)
+add_subdirectory(fredcore)
 
 add_library(fredgame STATIC
-    Controller.cpp Controller.hpp
     GameRunner.cpp GameRunner.hpp
     AcidDrop.hpp AcidDrop.cpp
     Fred.cpp Fred.hpp
@@ -63,10 +49,10 @@ else()
 
     add_executable(sandbox
                    sandbox.cpp
-                   sdl.hpp
+                   fredcore/sdl.hpp
                    Signal.hpp
-                   GameEvent.hpp GameEvent.cpp
-                   Controller.hpp Controller.cpp)
+                   fredcore/GameEvent.hpp fredcore/GameEvent.cpp
+                   fredcore/Controller.hpp fredcore/Controller.cpp)
     target_link_libraries(sandbox ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 endif()
 

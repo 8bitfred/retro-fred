@@ -1,6 +1,6 @@
 #include "Rat.hpp"
-#include "GameMap.hpp"
-#include "Game.hpp"
+#include "fredcore/GameMap.hpp"
+#include "fredcore/Game.hpp"
 
 void Rat::initialize(std::minstd_rand &random_engine, GameBase &game)
 {
