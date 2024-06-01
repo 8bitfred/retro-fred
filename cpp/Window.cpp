@@ -203,24 +203,18 @@ void Window::renderFrame(GameBase const &game, SDL_Renderer *renderer,
 
 void Window::drawMinimap(GameBase const &game, SDL_Renderer *renderer, int x, int y) const
 {
+    static constexpr int MINIMAP_MAX = 10;
+    static constexpr int MINIMAP_CELL_SIZE = 2;
     auto minimap_pos = game.getMinimapPos();
     if (!minimap_pos)
         return;
     sdl::ColorGuard color_guard(renderer, 206, 206, 206, 255);
-    SDL_Rect dst{x, y, 2, 2};
-    for (int i = -10; i < 10; ++i)
+    SDL_Rect dst{x, y, MINIMAP_CELL_SIZE, MINIMAP_CELL_SIZE};
+    for (int i = -MINIMAP_MAX; i < MINIMAP_MAX; ++i)
     {
-        for (int j = -10; j < 10; ++j)
+        for (int j = -MINIMAP_MAX; j < MINIMAP_MAX; ++j)
         {
-            if (auto fred_pos = game.getFredPos().cellPos();
-                game.getConfig().minimap_tracker &&
-                fred_pos.x == (minimap_pos->x + j) && fred_pos.y == (minimap_pos->y + i))
-            {
-                sdl::ColorGuard color_guard(renderer, 206, 0, 0, 255);
-                if (SDL_RenderFillRect(renderer, &dst) < 0)
-                    throw sdl::Error();
-            }
-            else if (auto cell = game.getGameMap().getBlock(*minimap_pos, j, i);
+            if (auto cell = game.getGameMap().getBlock(*minimap_pos, j, i);
                 cell == GameMap::Cell::EMPTY ||
                 cell == GameMap::Cell::ROPE_START ||
                 cell == GameMap::Cell::ROPE_MAIN ||
@@ -230,9 +224,31 @@ void Window::drawMinimap(GameBase const &game, SDL_Renderer *renderer, int x, in
                 if (SDL_RenderFillRect(renderer, &dst) < 0)
                     throw sdl::Error();
             }
-            dst.x += 2;
+            dst.x += MINIMAP_CELL_SIZE;
         }
         dst.x = x;
-        dst.y += 2;
+        dst.y += MINIMAP_CELL_SIZE;
+    }
+    if (game.getConfig().minimap_tracker)
+    {
+        // coordingates of fred in a map assuming cells have size MINIMAP_CELL_SIZE pixels
+        int fred_x = game.getFredPos().getCharX() * MINIMAP_CELL_SIZE / MapPos::CELL_WIDTH;
+        int fred_y = game.getFredPos().getCharY() * MINIMAP_CELL_SIZE / MapPos::CELL_HEIGHT;
+
+        int top_left_x = (minimap_pos->x - MINIMAP_MAX) * MINIMAP_CELL_SIZE;
+        int top_left_y = (minimap_pos->y - MINIMAP_MAX) * MINIMAP_CELL_SIZE;
+
+        SDL_Rect minimap_rect = {x, y, 
+                                 2 * MINIMAP_MAX * MINIMAP_CELL_SIZE,
+                                 2 * MINIMAP_MAX * MINIMAP_CELL_SIZE};
+        SDL_Rect tracker_rect = {x + fred_x - top_left_x, y + fred_y - top_left_y,
+                                 MINIMAP_CELL_SIZE, MINIMAP_CELL_SIZE};
+        SDL_Rect visible_rect;
+        if (SDL_IntersectRect(&minimap_rect, &tracker_rect, &visible_rect))
+        {
+            sdl::ColorGuard color_guard_tracker(renderer, 206, 0, 0, 255);
+            if (SDL_RenderFillRect(renderer, &visible_rect) < 0)
+                throw sdl::Error();
+        }
     }
 }
