@@ -28,10 +28,23 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     , smgr(cfg)
     , high_scores(4, {0, ""})
     , high_scores_path(getPrefPath() + "high_scores.tbl")
+    , main_menu(SDL_Rect{88, 56, 168, 16})
+    , config_menu(SDL_Rect{16, 56, 224, 160})
 {
     loadHighScores();
     SDL_SetWindowTitle(getWindow(), "Retro-Fred");
     SDL_SetWindowIcon(getWindow(), tmgr.getFredIcon());
+
+    main_menu.addItem(std::make_unique<MenuItem>("OPTIONS"));
+    main_menu.addItem(std::make_unique<MenuItem>("PLAY"), true);
+
+    config_menu.addItem(std::make_unique<MenuItem>("BACK TO MAIN MENU"));
+    config_menu.addItem(std::make_unique<CheckBox>("Infinite power", &this->cfg.infinite_power));
+    config_menu.addItem(std::make_unique<CheckBox>("Infinite ammo", &this->cfg.infinite_ammo));
+    config_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &this->cfg.replenish_power));
+    config_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &this->cfg.replenish_bullets));
+    config_menu.addItem(std::make_unique<CheckBox>("Minimap tracker", &this->cfg.minimap_tracker));
+    config_menu.addItem(std::make_unique<CheckBox>("Show exit on minimap", &this->cfg.minimap_exit));
 }
 
 std::pair<sdl::WindowPtr, sdl::RendererPtr> FredApp::initDisplay(Config const &cfg)
@@ -81,21 +94,13 @@ void FredApp::splashScreen(StateSplashScreen const &state_data)
     SDL_RenderPresent(getRenderer());
 }
 
-void FredApp::menu(StateMenu &state_data)
+void FredApp::menu()
 {
     display_cfg.setIntroViewport();
     SDL_RenderClear(getRenderer());
     SDL_Rect logo = {88, 8, 76, 20};
     SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
-    if ((state_data.counter % 2) == 0)
-    // TODO: this is not a very sustainable way to customize messages depending on the
-    // device type => this should be moved to some xml/json file with all messages, that
-    // can support multiple languages, and can be customized depending on device type
-#ifdef __ANDROID__
-        tmgr.renderText(getRenderer(), "TAP ON THE SCREEN TO START", 24, 56, 206, 206, 206);
-#else
-        tmgr.renderText(getRenderer(), "PRESS ANY KEY TO START", 40, 56, 206, 206, 206);
-#endif
+    main_menu.render(getRenderer(), tmgr);
     tmgr.renderText(getRenderer(), "WRITTEN BY FERNANDO RADA,", 0, 104, 206, 206, 206);
     tmgr.renderText(getRenderer(), "PACO MENENDEZ & CARLOS GRANADOS.", 0, 112, 206, 206, 206);
     tmgr.renderText(getRenderer(), "       \x7f INDESCOMP SPAIN", 0, 120, 206, 206, 206);
@@ -107,6 +112,16 @@ void FredApp::menu(StateMenu &state_data)
     tmgr.renderText(getRenderer(), "MISTAKES: MARTA & PALOMA", 0, 168, 206, 206, 206);
     tmgr.renderText(getRenderer(), "2023 PORT:  MIGUEL CATALINA &", 0, 176, 206, 206, 206);
     tmgr.renderText(getRenderer(), "            ALFREDO CATALINA", 0, 184, 206, 206, 206);
+    SDL_RenderPresent(getRenderer());
+}
+
+void FredApp::configMenu()
+{
+    display_cfg.setIntroViewport();
+    SDL_RenderClear(getRenderer());
+    SDL_Rect logo = {88, 8, 76, 20};
+    SDL_RenderCopy(getRenderer(), tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
+    config_menu.render(getRenderer(), tmgr);
     SDL_RenderPresent(getRenderer());
 }
 
@@ -354,8 +369,8 @@ void FredApp::mainLoop()
                 (event_mask.check(GameEvent::TIMER) && splash_data->counter <= 0))
             {
                 smgr.clearQueuedAudio();
-                auto &menu_data = state.emplace<StateMenu>();
-                menu(menu_data);
+                state.emplace<StateMenu>();
+                menu();
                 event_manager.setTimer(500);
             }
             else if (event_mask.check(GameEvent::TIMER))
@@ -385,15 +400,6 @@ void FredApp::mainLoop()
         {
             if (event_mask.check(GameEvent::BACK))
                 break;
-            else if (event_mask.check(GameEvent::ANY_KEY))
-            {
-                auto &play_data = state.emplace<StatePlay>(cfg, display_cfg,
-                                                           random_engine,
-                                                           high_scores.front().first);
-                play_data.game.initializeSprites(random_engine);
-                play_data.play_window.setWindowPos(play_data.game.getFredCellPos());
-                renderGame(play_data);
-            }
             else if (event_mask.check(GameEvent::TIMER))
             {
                 ++menu_state->counter;
@@ -406,19 +412,49 @@ void FredApp::mainLoop()
                 }
                 else
                 {
-                    menu(*menu_state);
+                    menu();
                     event_manager.setTimer(500);
                 }
             }
+            else {
+                main_menu.eventHandler(event_mask);
+                if (main_menu.isSelected(1))
+                {
+                    auto &play_data = state.emplace<StatePlay>(cfg, display_cfg,
+                                                               random_engine,
+                                                               high_scores.front().first);
+                    play_data.game.initializeSprites(random_engine);
+                    play_data.play_window.setWindowPos(play_data.game.getFredCellPos());
+                    renderGame(play_data);
+                }
+                else if (main_menu.isSelected(0))
+                {
+                    state.emplace<StateConfigMenu>();
+                    configMenu();
+                }
+                else
+                    menu();
+            }
+        }
+        else if (auto config_menu_state = std::get_if<StateConfigMenu>(&state);
+                 config_menu_state)
+        {
+            config_menu.eventHandler(event_mask);
+            if (config_menu.isSelected(0))
+            {
+                state.emplace<StateMenu>();
+                menu();
+                event_manager.setTimer(500);
+            }
             else
-                menu(*menu_state);
+                configMenu();
         }
         else if (auto todays_greatest = std::get_if<StateTodaysGreatest>(&state); todays_greatest)
         {
             if (event_mask.check(GameEvent::TIMER))
             {
-                auto &menu_data = state.emplace<StateMenu>();
-                menu(menu_data);
+                state.emplace<StateMenu>();
+                menu();
                 event_manager.setTimer(500);
             }
             else if (event_mask.check(GameEvent::BACK))
@@ -430,8 +466,8 @@ void FredApp::mainLoop()
         {
             if (event_mask.check(GameEvent::BACK))
             {
-                auto &menu_data = state.emplace<StateMenu>();
-                menu(menu_data);
+                state.emplace<StateMenu>();
+                menu();
                 event_manager.setTimer(500);
             }
             else if (play_state->game.getLevelStatus() == GameBase::LevelStatus::PLAY)
