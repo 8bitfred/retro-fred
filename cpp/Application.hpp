@@ -7,6 +7,7 @@
 #include "fredcore/GameEvent.hpp"
 #include "fredcore/Window.hpp"
 #include "GameRunner.hpp"
+#include "Menu.hpp"
 #include <random>
 #include <variant>
 
@@ -28,6 +29,7 @@ class FredApp
         int counter = 0;
         StateMenu() = default;
     };
+    struct StateConfigMenu {};
     struct StateTodaysGreatest {};
     struct StatePlay {
         Window play_window;
@@ -54,12 +56,13 @@ class FredApp
     using State = std::variant<StateTodaysGreatest,
                                StateSplashScreen,
                                StateMenu,
+                               StateConfigMenu,
                                StatePlay,
                                StateGameOver,
                                StateEnterHighScore>;
 
     sdl::App app;
-    Config const &cfg;
+    Config cfg;
     std::minstd_rand &random_engine;
     std::pair<sdl::WindowPtr, sdl::RendererPtr> w_and_r;
     DisplayConfig display_cfg;
@@ -68,11 +71,13 @@ class FredApp
     std::vector<std::pair<unsigned, std::string>> high_scores;
     std::string high_scores_path;
     State state = StateSplashScreen();
+    Menu main_menu, config_menu;
 
     static std::pair<sdl::WindowPtr, sdl::RendererPtr> initDisplay(Config const &cfg);
     static std::string getPrefPath();
     void splashScreen(StateSplashScreen const &state_data);
-    void menu(StateMenu &state_data);
+    void menu();
+    void configMenu();
     void todaysGreatest();
     void renderGame(StatePlay const &state_data);
     void debugMode(StatePlay &state_data, EventMask event_mask);
