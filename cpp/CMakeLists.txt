@@ -33,7 +33,8 @@ add_library(fredgame STATIC
     Smoke.cpp Smoke.hpp
     Object.cpp Object.hpp
     Tomb.cpp Tomb.hpp
-    Application.cpp Application.hpp)
+    Application.cpp Application.hpp
+    Menu.cpp Menu.hpp)
 
 include(InstallRequiredSystemLibraries)
 
