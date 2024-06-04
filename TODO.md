@@ -1,3 +1,7 @@
+## 2024-06-04
+
+* Add Android version number
+
 ## 2024-05-28
 
 * In Android: ignore "Back" event if there is a touch event on the virtual controller. We
