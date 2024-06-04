@@ -14,7 +14,7 @@ class MenuItem
 public:
     explicit MenuItem(std::string const &label): label(label) {}
     explicit MenuItem(std::string &&label): label(std::move(label)) {}
-    virtual ~MenuItem() {}
+    virtual ~MenuItem() = default;
 
     void render(SDL_Renderer *renderer, TextureManager const &tmgr,
                 SDL_Rect const *rect) const;

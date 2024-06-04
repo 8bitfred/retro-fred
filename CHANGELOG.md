@@ -3,7 +3,12 @@
 * Added minimap tracker (configurable): when enabled, it shows the position of fred in the
   minimap with a red dot.
 
-* Added support for saving and restoring high scores.
+* Added support for saving and restoring high scores. High scores get saved in the
+  user-and-app specific path, as reported by SDL_GetPrefPath(). In Linux this is
+  `~/.local/share/8bitfred/Retro-Fred/high_scores.tbl`.
+
+* Added option menu for configuration. The new menu can be used by the user to set up game
+  configuration flags and cheats, like infinite power or ammo, the minimap tracker, etc.
 
 # 0.2.0
 
