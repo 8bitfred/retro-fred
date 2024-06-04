@@ -358,10 +358,11 @@ class StatePlay : public BaseState
 
     void updateGame(FredApp &app, AppState &app_state, EventMask event_mask)
     {
+        play_window->update(event_mask);
+        game->update(event_mask);
         if (app.getConfig().debug_keys)
             debugMode(event_mask);
-        play_window->update(event_mask);
-        auto level_status = game->update(event_mask);
+        auto level_status = game->getLevelStatus();
         if (level_status == GameBase::LevelStatus::GAME_OVER)
         {
             app.getSoundManager().play(SoundID::GAME_OVER);
