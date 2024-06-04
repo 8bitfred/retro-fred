@@ -10,6 +10,9 @@
 * Added option menu for configuration. The new menu can be used by the user to set up game
   configuration flags and cheats, like infinite power or ammo, the minimap tracker, etc.
 
+* Fixed bug in "manual kill" mode: when, with --debug-keys enabled, Shift+D is pressed
+  Fred cycled through one color too many.
+
 # 0.2.0
 
 * Initial release
