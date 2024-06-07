@@ -169,7 +169,7 @@ class StateMainMenu : public BaseState
         {
             if (event_mask.check(GameEvent::UP) || event_mask.check(GameEvent::DOWN))
                 counter = 0;
-            main_menu.eventHandler(event_mask);
+            main_menu.eventHandler(event_mask, app.getSoundManager());
             if (main_menu.isSelected(1))
                 app_state.set(AppState::PLAY, app);
             else if (main_menu.isSelected(0))
@@ -205,7 +205,7 @@ class StateConfigMenu : public BaseState
                       AppState &app_state,
                       EventMask const &event_mask) final
     {
-        config_menu.eventHandler(event_mask);
+        config_menu.eventHandler(event_mask, app.getSoundManager());
         if (config_menu.isSelected(0))
             app_state.set(AppState::MAIN_MENU, app);
     }

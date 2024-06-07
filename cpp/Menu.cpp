@@ -1,6 +1,7 @@
 #include "Menu.hpp"
 #include "fredcore/TextureManager.hpp"
 #include "fredcore/GameEvent.hpp"
+#include "fredcore/SoundManager.hpp"
 
 void MenuItem::render(SDL_Renderer *renderer, TextureManager const &tmgr,
                       SDL_Rect const *rect) const
@@ -29,16 +30,23 @@ void Menu::render(SDL_Renderer *renderer, TextureManager const &tmgr) const
     }
 }
 
-void Menu::eventHandler(EventMask const &event_mask)
+void Menu::eventHandler(EventMask const &event_mask, SoundManager &smgr)
 {
     selected = item_list.size();
     if (event_mask.check(GameEvent::DOWN))
+    {
         current = (current + 1) % item_list.size();
+        smgr.play(SoundID::WALK);
+    }
     else if (event_mask.check(GameEvent::UP))
+    {
         current = (current + item_list.size() - 1) % item_list.size();
+        smgr.play(SoundID::WALK);
+    }
     else if (event_mask.check(GameEvent::FIRE))
     {
         selected = current;
         item_list[current]->action();
+        smgr.play(SoundID::FIRE);
     }
 }
