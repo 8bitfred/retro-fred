@@ -6,6 +6,7 @@
 #include "fredcore/sdl.hpp"
 
 class TextureManager;
+class SoundManager;
 class EventMask;
 
 class MenuItem
@@ -52,6 +53,6 @@ public:
         item_list.emplace_back(std::move(item));
     }
     void render(SDL_Renderer *renderer, TextureManager const &tmgr) const;
-    void eventHandler(EventMask const &event_mask);
+    void eventHandler(EventMask const &event_mask, SoundManager &smgr);
     bool isSelected(size_t i) const { return selected == i; }
 };
