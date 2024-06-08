@@ -23,7 +23,7 @@ runs:
     - if: ${{ steps.cache-sdl.outputs.cache-hit != 'true' }}
       name: Download and build SDL
       run: |
-        wget https://www.libsdl.org/release/SDL2-${{ inputs.sdl_version }}.tar.gz
+        wget --no-check-certificate https://www.libsdl.org/release/SDL2-${{ inputs.sdl_version }}.tar.gz
         tar xzf SDL2-${{ inputs.sdl_version }}.tar.gz
         mkdir SDL2-${{ inputs.sdl_version }}-build
         cd SDL2-${{ inputs.sdl_version }}-build
