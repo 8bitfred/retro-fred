@@ -10,6 +10,9 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+configure_file(config.hpp.in config.hpp @ONLY)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 if (MSVC)
     add_compile_options(/W4 /WX)
 else()
@@ -34,7 +37,8 @@ add_library(fredgame STATIC
     Object.cpp Object.hpp
     Tomb.cpp Tomb.hpp
     Application.cpp Application.hpp
-    Menu.cpp Menu.hpp)
+    Menu.cpp Menu.hpp
+    config.hpp.in)
 
 include(InstallRequiredSystemLibraries)
 
