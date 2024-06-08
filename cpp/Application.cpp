@@ -157,7 +157,7 @@ class StateMainMenu : public BaseState
                       AppState &app_state,
                       EventMask const &event_mask) final
     {
-        if (event_mask.check(GameEvent::BACK))
+        if (event_mask.check(GameEvent::BACK) || event_mask.check(GameEvent::ESCAPE))
             app_state.set(AppState::EXIT, app);
         else if (event_mask.check(GameEvent::TIMER))
         {
@@ -207,9 +207,14 @@ class StateConfigMenu : public BaseState
                       AppState &app_state,
                       EventMask const &event_mask) final
     {
-        config_menu.eventHandler(event_mask, app.getSoundManager());
-        if (config_menu.isSelected(0))
+        if (event_mask.check(GameEvent::BACK) || event_mask.check(GameEvent::ESCAPE))
             app_state.set(AppState::MAIN_MENU, app);
+        else
+        {
+            config_menu.eventHandler(event_mask, app.getSoundManager());
+            if (config_menu.isSelected(0))
+                app_state.set(AppState::MAIN_MENU, app);
+        }
     }
 
 public:
@@ -409,6 +414,8 @@ class StatePlay : public BaseState
             {
                 if (event_mask.check(GameEvent::BACK))
                     app_state.set(AppState::MAIN_MENU, app);
+                else if (event_mask.check(GameEvent::ESCAPE))
+                    pause = false;
                 else
                 {
                     game_menu.eventHandler(event_mask, app.getSoundManager());
@@ -416,7 +423,7 @@ class StatePlay : public BaseState
                         pause = false;
                 }
             }
-            else if (event_mask.check(GameEvent::BACK))
+            else if (event_mask.check(GameEvent::BACK) || event_mask.check(GameEvent::ESCAPE))
                 pause = true;
             else
                 updateGame(app, app_state, event_mask);

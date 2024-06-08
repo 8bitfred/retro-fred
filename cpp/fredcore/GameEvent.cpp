@@ -13,6 +13,7 @@ namespace {
         { KMOD_CTRL,  SDL_SCANCODE_Q,      GameEvent::QUIT },
         { KMOD_CTRL,  SDL_SCANCODE_W,      GameEvent::BACK },
         { KMOD_NONE,  SDL_SCANCODE_AC_BACK,GameEvent::BACK },
+        { KMOD_NONE,  SDL_SCANCODE_ESCAPE, GameEvent::ESCAPE },
         { KMOD_NONE,  SDL_SCANCODE_LEFT,   GameEvent::LEFT },
         { KMOD_NONE,  SDL_SCANCODE_RIGHT,  GameEvent::RIGHT },
         { KMOD_NONE,  SDL_SCANCODE_UP,     GameEvent::UP },
