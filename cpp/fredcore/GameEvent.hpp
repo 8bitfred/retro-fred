@@ -8,6 +8,7 @@ enum class GameEvent
 {
     QUIT,
     BACK,
+    ESCAPE,
     ANY_KEY,
     LEFT,
     RIGHT,
