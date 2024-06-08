@@ -1,4 +1,4 @@
-# 0.2.1
+# 0.3.0
 
 * Added minimap tracker (configurable): when enabled, it shows the position of fred in the
   minimap with a red dot.
@@ -12,6 +12,12 @@
 
 * Fixed bug in "manual kill" mode: when, with --debug-keys enabled, Shift+D is pressed
   Fred cycled through one color too many.
+
+* Add version attributes to AndroidManifest.xml. Add checks to make sure that the Android
+  version name matches the version specified in CMakeLists.txt. Add checks to make sure
+  that the Android version code matches the number of versions in CHANGELOG.md. Run checks
+  on every build that runs from Linux
+
 
 # 0.2.0
 

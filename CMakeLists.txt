@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project("retro-fred" VERSION 0.2.1)
+project("retro-fred" VERSION 0.3.0)
 
 file(CONFIGURE OUTPUT version CONTENT "${CMAKE_PROJECT_VERSION}\n")
 
@@ -12,6 +12,10 @@ endif()
 add_subdirectory(cpp)
 add_subdirectory(assets/sprites sprites)
 add_subdirectory(assets/sounds sounds)
+
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+    add_custom_target(check_version ALL ${CMAKE_CURRENT_SOURCE_DIR}/tools/check_version.sh)
+endif()
 
 set(CPACK_PACKAGE_NAME "Retro-Fred")
 set(CPACK_PACKAGE_VENDOR "8bitfred")

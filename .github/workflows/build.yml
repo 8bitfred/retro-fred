@@ -171,36 +171,26 @@ jobs:
           if-no-files-found: error
           path: build/xcode/Retro-Fred-*.dmg
 
-  unique-version:
+  unique_version:
     runs-on: ubuntu-latest
-    needs: [build_windows]
     if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
     steps:
-      - name: 'Download archived builds'
-        uses: actions/download-artifact@v4
-        with:
-          name: retro-fred-win
-          path: retro-fred-win
-
-      - name: 'Check for unique version'
+      - name: 'Checkout source'
+        uses: actions/checkout@v4
+      - name: 'Check release number is unique'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          version=$(tr -d '[:space:]' < retro-fred-win/win64/version)
-          if gh api \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              /repos/${{ github.repository }}/git/ref/tags/"$version"; then
-            echo ""
-            echo -n "::error title='Release already exists'::"
-            echo -n "A release tag for $version already exists. "
-            echo    "You should update the version in CMakeLists.txt"
-            false  # fail with an error
-          fi
+        if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+        run: ./tools/check_version.sh --check-unique "${{ github.repository }}"
+      - name: 'Check release number matches tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: ./tools/check_version.sh --check-release-ref "${{ github.ref }}"
 
   release:
     runs-on: ubuntu-latest
-    needs: [build_windows, build_linux, build_android]
+    needs: [unique_version, build_windows, build_linux, build_android]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: 'Checkout source'
@@ -211,15 +201,10 @@ jobs:
         with:
           path: build
 
-      - name: 'Check that tag name matches version'
+      - name: 'Get version number'
         id: check_version
         run: |
-          version=$(tr -d '[:space:]' < build/retro-fred-win/win64/version)
-          if [ "${{ github.ref }}" != "refs/tags/$version" ]; then
-              echo -n "::error title='Version does not match release tag'::"
-              echo "Release tag expected to be $version"
-              false;
-          fi
+          version=$(./tools/check_version.sh --show-version | tr -d '[:space:]')
           echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: 'Extract release notes from changelog'
