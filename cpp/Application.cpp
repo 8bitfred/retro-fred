@@ -276,12 +276,15 @@ class StateTodaysGreatest : public BaseState
 
 class StatePlay : public BaseState
 {
+    Menu game_menu;
     std::optional<Window> play_window;
     std::optional<GameRunner> game;
     int counter = 0;
+    bool pause = false;
     void enter(FredApp &app, AppState &) final
     {
         counter = 0;
+        pause = false;
         play_window.emplace(app.getConfig(),
                             app.getDisplayConfig().getGameWindowWidth(),
                             app.getDisplayConfig().getGameWindowHeight());
@@ -330,6 +333,8 @@ class StatePlay : public BaseState
             game->render(app.getTextureManager(),
                          app.getRenderer(), play_window->getGameWindow());
             play_window->renderFrame(*game, app.getRenderer(), app.getTextureManager());
+            if (pause)
+                game_menu.render(app.getRenderer(), app.getTextureManager());
             if (app.getConfig().virtual_controller)
                 Controller::render(app.getWindow(), app.getRenderer(), app.getTextureManager());
             SDL_RenderPresent(app.getRenderer());
@@ -383,18 +388,44 @@ class StatePlay : public BaseState
         }
     }
 
+    void setEndOfGameState(FredApp &app, AppState &app_state)
+    {
+        if (game->getScore() > app.getHighScores().back().first)
+        {
+            app_state.new_high_score = game->getScore();
+            app_state.set(AppState::ENTER_HIGH_SCORE, app);
+        }
+        else
+            app_state.set(AppState::TODAYS_GREATEST, app);
+    }
+
     void eventHandler(FredApp &app,
                       AppState &app_state,
                       EventMask const &event_mask) final
     {
-        if (event_mask.check(GameEvent::BACK))
-            app_state.set(AppState::MAIN_MENU, app);
-        else if (game->getLevelStatus() == GameBase::LevelStatus::PLAY)
-            updateGame(app, app_state, event_mask);
+        if (game->getLevelStatus() == GameBase::LevelStatus::PLAY)
+        {
+            if (pause)
+            {
+                if (event_mask.check(GameEvent::BACK))
+                    app_state.set(AppState::MAIN_MENU, app);
+                else
+                {
+                    game_menu.eventHandler(event_mask, app.getSoundManager());
+                    if (game_menu.isSelected(0))
+                        pause = false;
+                }
+            }
+            else if (event_mask.check(GameEvent::BACK))
+                pause = true;
+            else
+                updateGame(app, app_state, event_mask);
+        }
         else if (game->getLevelStatus() == GameBase::LevelStatus::NEXT_LEVEL)
         {
-            if (event_mask.check(GameEvent::TIMER))
+            if (event_mask.check(GameEvent::TIMER) || event_mask.check(GameEvent::BACK))
             {
+                app.getSoundManager().clearQueuedAudio();
                 game->addScore(5000 + game->getTreasureCount() * 1000);
                 game->nextLevel(app.getRandomEngine());
                 game->initializeSprites(app.getRandomEngine());
@@ -403,7 +434,12 @@ class StatePlay : public BaseState
         }
         else if (game->getLevelStatus() == GameBase::LevelStatus::GAME_OVER)
         {
-            if (event_mask.check(GameEvent::TIMER))
+            if (event_mask.check(GameEvent::BACK))
+            {
+                app.getSoundManager().clearQueuedAudio();
+                setEndOfGameState(app, app_state);
+            }
+            else if (event_mask.check(GameEvent::TIMER))
             {
                 ++counter;
                 if (counter < 6)
@@ -421,17 +457,23 @@ class StatePlay : public BaseState
                     app_state.event_manager.setTimer(5000);
                 }
                 else
-                {
-                    if (game->getScore() > app.getHighScores().back().first)
-                    {
-                        app_state.new_high_score = game->getScore();
-                        app_state.set(AppState::ENTER_HIGH_SCORE, app);
-                    }
-                    else
-                        app_state.set(AppState::TODAYS_GREATEST, app);
-                }
+                    setEndOfGameState(app, app_state);
             }
         }
+    }
+
+public:
+    explicit StatePlay(Config &cfg)
+        : game_menu(SDL_Rect{16, 56, 224, 72})
+    {
+        game_menu.addItem(std::make_unique<MenuItem>("BACK TO GAME"));
+        game_menu.addItem(std::make_unique<CheckBox>("Infinite power", &cfg.infinite_power));
+        game_menu.addItem(std::make_unique<CheckBox>("Infinite ammo", &cfg.infinite_ammo));
+        game_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &cfg.replenish_power));
+        game_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &cfg.replenish_bullets));
+        game_menu.addItem(std::make_unique<CheckBox>("Minimap tracker", &cfg.minimap_tracker));
+        game_menu.addItem(std::make_unique<CheckBox>("Show exit on minimap", &cfg.minimap_exit));
+
     }
 };
 
@@ -502,7 +544,7 @@ AppState::AppState(Config &cfg)
     state_table[MAIN_MENU] = std::make_unique<StateMainMenu>();
     state_table[CONFIG_MENU] = std::make_unique<StateConfigMenu>(cfg);
     state_table[TODAYS_GREATEST] = std::make_unique<StateTodaysGreatest>();
-    state_table[PLAY] = std::make_unique<StatePlay>();
+    state_table[PLAY] = std::make_unique<StatePlay>(cfg);
     state_table[ENTER_HIGH_SCORE] = std::make_unique<StateEnterHighScore>();
 }
 
