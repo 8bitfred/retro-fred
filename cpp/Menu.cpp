@@ -20,7 +20,9 @@ void CheckBox::renderMarker(SDL_Renderer *renderer, TextureManager const &tmgr,
 
 void Menu::render(SDL_Renderer *renderer, TextureManager const &tmgr) const
 {
-    SDL_Rect item_rect = {rect.x + 8, rect.y, rect.w - 8, 8};
+    sdl::ColorGuard draw_color(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(renderer, &rect);
+    SDL_Rect item_rect = {rect.x + 8, rect.y + 8, rect.w - 8, 8};
     for (size_t i = 0; i < item_list.size(); ++i)
     {
         if (current == i)
