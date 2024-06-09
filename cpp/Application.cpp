@@ -38,6 +38,7 @@ struct AppState
 private:
     std::vector<std::unique_ptr<BaseState>> state_table;
     StateID state = SPLASH_SCREEN;
+
 public:
     EventManager event_manager;
     unsigned new_high_score = 0;
@@ -120,6 +121,11 @@ class StateSplashScreen : public BaseState
 
 class StateMainMenu : public BaseState
 {
+    enum MainMenu
+    {
+        MAIN_MENU_OPTIONS,
+        MAIN_MENU_PLAY,
+    };
     int counter = 0;
     Menu main_menu;
     void enter(FredApp &, AppState &app_state) final
@@ -172,9 +178,9 @@ class StateMainMenu : public BaseState
             if (event_mask.check(GameEvent::UP) || event_mask.check(GameEvent::DOWN))
                 counter = 0;
             main_menu.eventHandler(event_mask, app.getSoundManager());
-            if (main_menu.isSelected(1))
+            if (main_menu.isSelected(MAIN_MENU_PLAY))
                 app_state.set(AppState::PLAY, app);
-            else if (main_menu.isSelected(0))
+            else if (main_menu.isSelected(MAIN_MENU_OPTIONS))
                 app_state.set(AppState::CONFIG_MENU, app);
         }
     }
@@ -182,13 +188,17 @@ public:
     StateMainMenu()
         : main_menu(SDL_Rect{88, 56, 168, 16})
     {
-        main_menu.addItem(std::make_unique<MenuItem>("OPTIONS"));
-        main_menu.addItem(std::make_unique<MenuItem>("PLAY"), true);
+        main_menu.addItem(std::make_unique<MenuItem>("OPTIONS"), MAIN_MENU_OPTIONS);
+        main_menu.addItem(std::make_unique<MenuItem>("PLAY"), MAIN_MENU_PLAY, true);
     }
 };
 
 class StateConfigMenu : public BaseState
 {
+    enum ConfigMenu
+    {
+        CONFIG_MENU_BACK,
+    };
     Menu config_menu;
 
     void enter(FredApp &, AppState &) final {}
@@ -208,12 +218,18 @@ class StateConfigMenu : public BaseState
                       EventMask const &event_mask) final
     {
         if (event_mask.check(GameEvent::BACK) || event_mask.check(GameEvent::ESCAPE))
+        {
             app_state.set(AppState::MAIN_MENU, app);
+            app.saveConfig();
+        }
         else
         {
             config_menu.eventHandler(event_mask, app.getSoundManager());
-            if (config_menu.isSelected(0))
+            if (config_menu.isSelected(CONFIG_MENU_BACK))
+            {
                 app_state.set(AppState::MAIN_MENU, app);
+                app.saveConfig();
+            }
         }
     }
 
@@ -221,13 +237,13 @@ public:
     StateConfigMenu(Config &cfg)
         : config_menu(SDL_Rect{16, 56, 224, 160})
     {
-        config_menu.addItem(std::make_unique<MenuItem>("BACK TO MAIN MENU"));
-        config_menu.addItem(std::make_unique<CheckBox>("Infinite power", &cfg.infinite_power));
-        config_menu.addItem(std::make_unique<CheckBox>("Infinite ammo", &cfg.infinite_ammo));
-        config_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &cfg.replenish_power));
-        config_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &cfg.replenish_bullets));
+        config_menu.addItem(std::make_unique<MenuItem>("BACK TO MAIN MENU"), CONFIG_MENU_BACK);
         config_menu.addItem(std::make_unique<CheckBox>("Minimap tracker", &cfg.minimap_tracker));
         config_menu.addItem(std::make_unique<CheckBox>("Show exit on minimap", &cfg.minimap_exit));
+        config_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &cfg.replenish_power));
+        config_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &cfg.replenish_bullets));
+        config_menu.addItem(std::make_unique<CheckBox>("Level dependent power up", &cfg.set_power_with_level));
+        config_menu.addItem(std::make_unique<CheckBox>("Level dependent bullets up", &cfg.set_bullets_with_level));
     }
 };
 
@@ -281,22 +297,35 @@ class StateTodaysGreatest : public BaseState
 
 class StatePlay : public BaseState
 {
+    enum GameMenu
+    {
+        GAME_MENU_BACK,
+        GAME_MENU_QUIT,
+        GAME_MENU_REFILL_POWER,
+        GAME_MENU_REFILL_AMMO,
+        GAME_MENU_MOVE_TO_EXIT,
+        GAME_MENU_MINIMAP,
+    };
+    Config game_cfg;
     Menu game_menu;
     std::optional<Window> play_window;
     std::optional<GameRunner> game;
     int counter = 0;
     bool pause = false;
+    bool cheat = false;
     void enter(FredApp &app, AppState &) final
     {
-        counter = 0;
-        pause = false;
-        play_window.emplace(app.getConfig(),
+        game_cfg = app.getConfig();
+        play_window.emplace(game_cfg,
                             app.getDisplayConfig().getGameWindowWidth(),
                             app.getDisplayConfig().getGameWindowHeight());
-        game.emplace(app.getConfig(), app.getRandomEngine(),
+        game.emplace(game_cfg, app.getRandomEngine(),
                      app.getHighScores().front().first);
         game->initializeSprites(app.getRandomEngine());
         play_window->setWindowPos(game->getFredCellPos());
+        counter = 0;
+        pause = false;
+        cheat = false;
     }
     void renderLevelTransition(FredApp const &app) const
     {
@@ -340,9 +369,19 @@ class StatePlay : public BaseState
             play_window->renderFrame(*game, app.getRenderer(), app.getTextureManager());
             if (pause)
                 game_menu.render(app.getRenderer(), app.getTextureManager());
-            if (app.getConfig().virtual_controller)
+            if (game_cfg.virtual_controller)
                 Controller::render(app.getWindow(), app.getRenderer(), app.getTextureManager());
             SDL_RenderPresent(app.getRenderer());
+        }
+    }
+
+    void moveToExit()
+    {
+        auto fred = dynamic_cast<Fred *>(game->getSpriteList(SpriteClass::FRED).front().get());
+        if (fred->dbgMoveToHatch())
+        {
+            play_window->setWindowPos(game->getFredCellPos());
+            play_window->resetUserOffset();
         }
     }
 
@@ -358,13 +397,7 @@ class StatePlay : public BaseState
             }
         }
         else if (event_mask.check(GameEvent::DBG_MOVE_TO_EXIT))
-        {
-            if (fred->dbgMoveToHatch())
-            {
-                play_window->setWindowPos(game->getFredCellPos());
-                play_window->resetUserOffset();
-            }
-        }
+            moveToExit();
         else if (event_mask.check(GameEvent::DBG_DIE))
             fred->dbgDie();
     }
@@ -373,7 +406,7 @@ class StatePlay : public BaseState
     {
         play_window->update(event_mask);
         game->update(event_mask);
-        if (app.getConfig().debug_keys)
+        if (game_cfg.debug_keys)
             debugMode(event_mask);
         auto level_status = game->getLevelStatus();
         if (level_status == GameBase::LevelStatus::GAME_OVER)
@@ -395,13 +428,55 @@ class StatePlay : public BaseState
 
     void setEndOfGameState(FredApp &app, AppState &app_state)
     {
-        if (game->getScore() > app.getHighScores().back().first)
+        // Check if the score is higher than the lowest high score. We only add a score to
+        // the high score list if no cheats were used during the game.
+        if (game->getScore() > app.getHighScores().back().first && !cheat)
         {
             app_state.new_high_score = game->getScore();
             app_state.set(AppState::ENTER_HIGH_SCORE, app);
         }
         else
             app_state.set(AppState::TODAYS_GREATEST, app);
+    }
+
+    void handleGameMenuEvent(FredApp &app,
+                             AppState &app_state,
+                             EventMask const &event_mask)
+    {
+        if (event_mask.check(GameEvent::BACK))
+            app_state.set(AppState::MAIN_MENU, app);
+        else if (event_mask.check(GameEvent::ESCAPE))
+            pause = false;
+        else
+        {
+            game_menu.eventHandler(event_mask, app.getSoundManager());
+            if (game_menu.isSelected(GAME_MENU_BACK))
+                pause = false;
+            else if (game_menu.isSelected(GAME_MENU_QUIT))
+                app_state.set(AppState::MAIN_MENU, app);
+            else if (game_menu.isSelected(GAME_MENU_REFILL_POWER))
+            {
+                game->resetPower();
+                cheat = true;
+            }
+            else if (game_menu.isSelected(GAME_MENU_REFILL_AMMO))
+            {
+                game->resetBullets();
+                cheat = true;
+            }
+            else if (game_menu.isSelected(GAME_MENU_MOVE_TO_EXIT))
+            {
+                moveToExit();
+                cheat = true;
+            }
+            else if (game_menu.isSelected(GAME_MENU_MINIMAP))
+            {
+                game->setMinimapPos(game->getFredPos().cellPos());;
+                cheat = true;
+            }
+            if (game_cfg.infinite_power || game_cfg.infinite_ammo)
+                cheat = true;
+        }
     }
 
     void eventHandler(FredApp &app,
@@ -411,18 +486,7 @@ class StatePlay : public BaseState
         if (game->getLevelStatus() == GameBase::LevelStatus::PLAY)
         {
             if (pause)
-            {
-                if (event_mask.check(GameEvent::BACK))
-                    app_state.set(AppState::MAIN_MENU, app);
-                else if (event_mask.check(GameEvent::ESCAPE))
-                    pause = false;
-                else
-                {
-                    game_menu.eventHandler(event_mask, app.getSoundManager());
-                    if (game_menu.isSelected(0))
-                        pause = false;
-                }
-            }
+                handleGameMenuEvent(app, app_state, event_mask);
             else if (event_mask.check(GameEvent::BACK) || event_mask.check(GameEvent::ESCAPE))
                 pause = true;
             else
@@ -471,16 +535,23 @@ class StatePlay : public BaseState
 
 public:
     explicit StatePlay(Config &cfg)
-        : game_menu(SDL_Rect{16, 56, 224, 72})
+        : game_cfg(cfg)
+        , game_menu(SDL_Rect{16, 32, 224, 128})
     {
-        game_menu.addItem(std::make_unique<MenuItem>("BACK TO GAME"));
-        game_menu.addItem(std::make_unique<CheckBox>("Infinite power", &cfg.infinite_power));
-        game_menu.addItem(std::make_unique<CheckBox>("Infinite ammo", &cfg.infinite_ammo));
-        game_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &cfg.replenish_power));
-        game_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &cfg.replenish_bullets));
-        game_menu.addItem(std::make_unique<CheckBox>("Minimap tracker", &cfg.minimap_tracker));
-        game_menu.addItem(std::make_unique<CheckBox>("Show exit on minimap", &cfg.minimap_exit));
-
+        game_menu.addItem(std::make_unique<MenuItem>("BACK TO GAME"), GAME_MENU_BACK);
+        game_menu.addItem(std::make_unique<MenuItem>("QUIT GAME"), GAME_MENU_QUIT);
+        game_menu.addItem(std::make_unique<CheckBox>("Minimap tracker", &game_cfg.minimap_tracker));
+        game_menu.addItem(std::make_unique<CheckBox>("Show exit on minimap", &game_cfg.minimap_exit));
+        game_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &game_cfg.replenish_power));
+        game_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &game_cfg.replenish_bullets));
+        game_menu.addItem(std::make_unique<CheckBox>("Level dependent power up", &game_cfg.set_power_with_level));
+        game_menu.addItem(std::make_unique<CheckBox>("Level dependent ammo up", &game_cfg.set_bullets_with_level));
+        game_menu.addItem(std::make_unique<CheckBox>("Infinite power", &game_cfg.infinite_power));
+        game_menu.addItem(std::make_unique<CheckBox>("Infinite ammo", &game_cfg.infinite_ammo));
+        game_menu.addItem(std::make_unique<MenuItem>("Refill power"), GAME_MENU_REFILL_POWER);
+        game_menu.addItem(std::make_unique<MenuItem>("Refill ammo"), GAME_MENU_REFILL_AMMO);
+        game_menu.addItem(std::make_unique<MenuItem>("Move to exit"), GAME_MENU_MOVE_TO_EXIT);
+        game_menu.addItem(std::make_unique<MenuItem>("Set minimap"), GAME_MENU_MINIMAP);
     }
 };
 
@@ -582,8 +653,11 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     , display_cfg(cfg, w_and_r.first, w_and_r.second)
     , tmgr(cfg, getRenderer()), smgr(cfg)
     , high_scores(4, {0, ""})
-    , high_scores_path(getPrefPath() + "high_scores.tbl")
 {
+    auto pref_path = getPrefPath();
+    high_scores_path = pref_path / "high_scores.tbl";
+    config_path = pref_path / "retro-fred.cfg";
+    this->cfg.load(config_path);
     loadHighScores();
     SDL_SetWindowTitle(getWindow(), "Retro-Fred");
     SDL_SetWindowIcon(getWindow(), tmgr.getFredIcon());
@@ -617,10 +691,10 @@ std::pair<sdl::WindowPtr, sdl::RendererPtr> FredApp::initDisplay(Config const &c
     return sdl::createWindowAndRenderer(width, height, window_flags);
 }
 
-std::string FredApp::getPrefPath()
+std::filesystem::path FredApp::getPrefPath()
 {
     auto pref_path_ptr = SDL_GetPrefPath("8bitfred", "Retro-Fred");
-    std::string pref_path_str(pref_path_ptr);
+    std::filesystem::path pref_path_str(pref_path_ptr);
     SDL_free(pref_path_ptr);
     return pref_path_str;
 }
@@ -662,6 +736,11 @@ void FredApp::addHighScore(unsigned score, std::string const &initials)
     if (high_scores.size() > 4)
         high_scores.resize(4);
     saveHighScores();
+}
+
+void FredApp::saveConfig() const
+{
+    cfg.save(config_path);
 }
 
 void FredApp::mainLoop()

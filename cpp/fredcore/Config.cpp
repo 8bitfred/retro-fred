@@ -1,7 +1,7 @@
 #include "Config.hpp"
-#include <string_view>
 #include <iostream>
 #include <cstdlib>
+#include <fstream>
 
 namespace {
     const char *usage =
@@ -100,12 +100,6 @@ Config::Config(int argc, char *argv[])
             full_screen = true;
         else if (svarg == "--full-map")
             max_resolution = true;
-        else if (svarg == "--minimap-exit")
-            minimap_exit = true;
-        else if (svarg == "--infinite-ammo")
-            infinite_ammo = true;
-        else if (svarg == "--infinite-power")
-            infinite_power = true;
         else if (svarg == "--boxes")
             boxes = true;
         else if (svarg == "--fps")
@@ -121,21 +115,64 @@ Config::Config(int argc, char *argv[])
         }
         else if (svarg == "--virtual-controller")
             virtual_controller = true;
-        else if (svarg == "--power-with-level")
-            set_power_with_level = true;
-        else if (svarg == "--bullets-with-level")
-            set_bullets_with_level = true;
-        else if (svarg == "--replenish-power")
-            replenish_power = true;
-        else if (svarg == "--replenish-bullets")
-            replenish_bullets = true;
-        else if (svarg == "--minimap-tracker")
-            minimap_tracker = true;
-        else
+        else if (!parseFlag(svarg))
         {
             std::cerr << "unknown option: " << svarg << std::endl;
             std::cerr << usage << std::endl;
             std::exit(2);
         }
     }
+}
+
+void Config::load(std::filesystem::path config_path)
+{
+    std::ifstream file(config_path);
+    while (true)
+    {
+        std::string arg;
+        file >> arg;
+        if (file.fail() || file.eof())
+            break;
+        parseFlag(arg);
+    }
+}
+
+void Config::save(std::filesystem::path config_path) const
+{
+    std::ofstream file(config_path);
+    for (auto const &[name, ptr] : getBoolFlagList())
+    {
+        if (this->*ptr)
+            file << name << std::endl;
+    }
+}
+
+std::vector<std::pair<std::string, bool Config::*>> Config::getBoolFlagList()
+{
+    // Flags in this list will be saved and loaded. We restrict it to the flags that can
+    // be set with the menu, so that users can change their values after they are loaded.
+    static std::vector<std::pair<std::string, bool Config::*>> flag_list = {
+        {"--minimap-exit", &Config::minimap_exit},
+        {"--infinite-ammo", &Config::infinite_ammo},
+        {"--infinite-power", &Config::infinite_power},
+        {"--power-with-level", &Config::set_power_with_level},
+        {"--bullets-with-level", &Config::set_bullets_with_level},
+        {"--replenish-power", &Config::replenish_power},
+        {"--replenish-bullets", &Config::replenish_bullets},
+        {"--minimap-tracker", &Config::minimap_tracker},
+    };
+    return flag_list;
+}
+
+bool Config::parseFlag(std::string_view svarg)
+{
+    for (auto const &[name, ptr]: getBoolFlagList())
+    {
+        if (svarg == name)
+        {
+            this->*ptr = true;
+            return true;
+        }
+    }
+    return false;
 }
