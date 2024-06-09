@@ -18,6 +18,10 @@
   that the Android version code matches the number of versions in CHANGELOG.md. Run checks
   on every build that runs from Linux
 
+* Bugfix: fix reference to element of empty sprite list after Fred sprite has been destroyed,
+  during the game over sequence. This was causing crashes in Windows, but not in other
+  builds.
+
 
 # 0.2.0
 
