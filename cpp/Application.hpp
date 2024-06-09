@@ -6,8 +6,8 @@
 #include "fredcore/SoundManager.hpp"
 #include "fredcore/GameEvent.hpp"
 #include "fredcore/Window.hpp"
+#include "fredcore/Menu.hpp"
 #include "GameRunner.hpp"
-#include "Menu.hpp"
 #include <random>
 #include <variant>
 #include <filesystem>

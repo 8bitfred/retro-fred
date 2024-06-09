@@ -12,4 +12,5 @@ add_library(fredcore STATIC
     Sprite.cpp Sprite.hpp
     GameEvent.hpp GameEvent.cpp
     Controller.hpp Controller.cpp
-    Game.cpp Game.hpp)
+    Game.cpp Game.hpp
+    Menu.cpp Menu.hpp)

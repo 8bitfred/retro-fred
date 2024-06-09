@@ -37,7 +37,6 @@ add_library(fredgame STATIC
     Object.cpp Object.hpp
     Tomb.cpp Tomb.hpp
     Application.cpp Application.hpp
-    Menu.cpp Menu.hpp
     config.hpp.in)
 
 include(InstallRequiredSystemLibraries)

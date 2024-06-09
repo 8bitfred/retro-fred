@@ -1,7 +1,7 @@
 #include "Menu.hpp"
-#include "fredcore/TextureManager.hpp"
-#include "fredcore/GameEvent.hpp"
-#include "fredcore/SoundManager.hpp"
+#include "TextureManager.hpp"
+#include "GameEvent.hpp"
+#include "SoundManager.hpp"
 
 void MenuItem::render(SDL_Renderer *renderer, TextureManager const &tmgr,
                       SDL_Rect const *rect) const

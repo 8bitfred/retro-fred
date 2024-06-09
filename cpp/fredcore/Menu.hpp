@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "fredcore/sdl.hpp"
+#include "sdl.hpp"
 
 class TextureManager;
 class SoundManager;
