@@ -10,6 +10,7 @@
 #include "Menu.hpp"
 #include <random>
 #include <variant>
+#include <filesystem>
 
 struct Config;
 class GameBase;
@@ -25,10 +26,10 @@ class FredApp
     TextureManager tmgr;
     SoundManager smgr;
     std::vector<std::pair<unsigned, std::string>> high_scores;
-    std::string high_scores_path;
+    std::filesystem::path high_scores_path, config_path;
 
     static std::pair<sdl::WindowPtr, sdl::RendererPtr> initDisplay(Config const &cfg);
-    static std::string getPrefPath();
+    static std::filesystem::path getPrefPath();
     void saveHighScores() const;
     void loadHighScores();
 
@@ -46,5 +47,6 @@ public:
         return high_scores;
     }
     void addHighScore(unsigned score, std::string const &initials);
+    void saveConfig() const;
     void mainLoop();
 };

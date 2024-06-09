@@ -92,6 +92,9 @@ public:
     virtual std::unique_ptr<Sprite> makeBullet(MapPos initial_position, int direction) = 0;
     void fireGun(MapPos initial_position, int direction);
 
+    void resetPower() { power = MAX_POWER; }
+    void resetBullets() { bullet_count = MAX_BULLETS; }
+
 private:
     static SpriteCount getSpriteCountOfLevel(Config const &cfg, int level);
     Config const &cfg;

@@ -13,10 +13,14 @@
 * Fixed bug in "manual kill" mode: when, with --debug-keys enabled, Shift+D is pressed
   Fred cycled through one color too many.
 
-* Add version attributes to AndroidManifest.xml. Add checks to make sure that the Android
-  version name matches the version specified in CMakeLists.txt. Add checks to make sure
-  that the Android version code matches the number of versions in CHANGELOG.md. Run checks
-  on every build that runs from Linux
+* Added version attributes to AndroidManifest.xml. Added checks to make sure that the
+  Android version name matches the version specified in CMakeLists.txt. Added checks to
+  make sure that the Android version code matches the number of versions in CHANGELOG.md.
+  Run checks on every build that runs from Linux
+
+* Added in-game menu. Menu contains some of the same options as the configuration menus,
+  and it adds a few cheats. Enabling cheats prevents the score from being added to the
+  high scores.
 
 * Bugfix: fix reference to element of empty sprite list after Fred sprite has been destroyed,
   during the game over sequence. This was causing crashes in Windows, but not in other

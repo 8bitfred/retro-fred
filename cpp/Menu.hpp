@@ -41,18 +41,26 @@ public:
 class Menu
 {
     SDL_Rect rect;
-    size_t current = 0, selected = 0;
-    std::vector<std::unique_ptr<MenuItem>> item_list;
+    size_t current = 0;
+    int selected = -1;
+    struct ItemInfo {
+        std::unique_ptr<MenuItem> menu_item;
+        int selection_code = -1;
+        ItemInfo(std::unique_ptr<MenuItem> &&menu_item, int selection_code = -1)
+            : menu_item(std::move(menu_item)), selection_code(selection_code) {}
+    };
+    std::vector<ItemInfo> item_list;
 
 public:
     explicit Menu(SDL_Rect const &rect): rect(rect) {}
-    void addItem(std::unique_ptr<MenuItem> &&item, bool make_default = false)
+    void addItem(std::unique_ptr<MenuItem> &&item,
+                 int selection_code = -1, bool make_default = false)
     {
         if (make_default)
             current = item_list.size();
-        item_list.emplace_back(std::move(item));
+        item_list.emplace_back(std::move(item), selection_code);
     }
     void render(SDL_Renderer *renderer, TextureManager const &tmgr) const;
     void eventHandler(EventMask const &event_mask, SoundManager &smgr);
-    bool isSelected(size_t i) const { return selected == i; }
+    bool isSelected(int selection_code) const { return selected == selection_code; }
 };

@@ -1,9 +1,13 @@
 #pragma once
 
 #include <filesystem>
+#include <string_view>
+#include <vector>
 
 struct Config {
     Config(int argc, char *argv[]);
+    void load(std::filesystem::path config_path);
+    void save(std::filesystem::path config_path) const;
 
     static constexpr int PIXELS_PER_CHAR = 8;
     static constexpr int CELL_WIDTH = 4;
@@ -28,4 +32,8 @@ struct Config {
     bool replenish_bullets = false;
     bool minimap_tracker = false;
     int level = 1;
+
+private:
+    static std::vector<std::pair<std::string, bool Config::*>> getBoolFlagList();
+    bool parseFlag(std::string_view svarg);
 };
