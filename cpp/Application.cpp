@@ -405,10 +405,10 @@ class StatePlay : public BaseState
         {
             if (event_mask.check(GameEvent::TIMER))
             {
-                auto fred = dynamic_cast<Fred *>(game->getSpriteList(SpriteClass::FRED).front().get());
                 ++counter;
                 if (counter < 6)
                 {
+                    auto fred = dynamic_cast<Fred*>(game->getSpriteList(SpriteClass::FRED).front().get());
                     fred->updateFred(EventMask());
                     app_state.event_manager.setTimer(500);
                 }
