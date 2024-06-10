@@ -125,6 +125,7 @@ class StateMainMenu : public BaseState
     {
         MAIN_MENU_OPTIONS,
         MAIN_MENU_PLAY,
+        MAIN_MENU_QUIT,
     };
     int counter = 0;
     Menu main_menu;
@@ -182,14 +183,17 @@ class StateMainMenu : public BaseState
                 app_state.set(AppState::PLAY, app);
             else if (main_menu.isSelected(MAIN_MENU_OPTIONS))
                 app_state.set(AppState::CONFIG_MENU, app);
+            else if (main_menu.isSelected(MAIN_MENU_QUIT))
+                app_state.set(AppState::EXIT, app);
         }
     }
 public:
     StateMainMenu()
-        : main_menu(SDL_Rect{88, 56, 168, 16})
+        : main_menu(SDL_Rect{88, 40, 168, 24})
     {
         main_menu.addItem(std::make_unique<MenuItem>("OPTIONS"), MAIN_MENU_OPTIONS);
         main_menu.addItem(std::make_unique<MenuItem>("PLAY"), MAIN_MENU_PLAY, true);
+        main_menu.addItem(std::make_unique<MenuItem>("QUIT"), MAIN_MENU_QUIT);
     }
 };
 
@@ -443,9 +447,7 @@ class StatePlay : public BaseState
                              AppState &app_state,
                              EventMask const &event_mask)
     {
-        if (event_mask.check(GameEvent::BACK))
-            app_state.set(AppState::MAIN_MENU, app);
-        else if (event_mask.check(GameEvent::ESCAPE))
+        if (event_mask.check(GameEvent::BACK) || event_mask.check(GameEvent::ESCAPE))
             pause = false;
         else
         {
