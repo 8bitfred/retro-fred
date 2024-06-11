@@ -30,6 +30,8 @@ void GameBase::nextLevel(std::minstd_rand &random_engine)
     minimap_pos.reset();
     if (cfg.replenish_power)
         power = MAX_POWER;
+    else
+        power = std::min(power + 2, MAX_POWER);
     if (cfg.replenish_bullets)
         bullet_count = sprite_count.charge_bullets;
 }
