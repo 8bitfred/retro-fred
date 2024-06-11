@@ -7,9 +7,9 @@ SOURCE_DIR=$(realpath $(dirname "$0")/..)
 cd "$SOURCE_DIR"
 
 if [ "$1" = "--check-release-ref" ]; then
-    RELEASE_REF="$2"
+    CHECK_RELEASE_REF="$2"
 elif [ "$1" = "--check-unique" ]; then
-    GITHUB_REPOSITORY="$2"
+    CHECK_UNIQUE="$2"
 elif [ "$1" == "--show-version" ]; then
     SHOW_VERSION=1
 fi
@@ -35,18 +35,18 @@ if [ "$last_version" != "$cmake_version" ]; then
     echo "CMake version ($cmake_version) does not match latest release in CHANGELOG.md ($last_version)"
     exit 1
 fi
-if [ -n "$RELEASE_REF" ]; then
-    if [ "$RELEASE_REF" != "refs/tags/${cmake_version}" ]; then
+if [ -n "$CHECK_RELEASE_REF" ]; then
+    if [ "$CHECK_RELEASE_REF" != "refs/tags/${cmake_version}" ]; then
         echo -n "::error title='Mismatching tag name'::"
-        echo "Tag ref ($RELEASE_REF) does not match version number ($cmake_version)"
+        echo "Tag ref ($CHECK_RELEASE_REF) does not match version number ($cmake_version)"
         exit 1
     fi
 fi
-if [ -n "$GITHUB_REPOSITORY" ]; then
+if [ -n "$CHECK_UNIQUE" ]; then
     if gh api \
         -H "Accept: application/vnd.github+json" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
-        "/repos/${GITHUB_REPOSITORY}/git/ref/tags/${cmake_version}"; then
+        "/repos/${CHECK_UNIQUE}/git/ref/tags/${cmake_version}"; then
         echo -n "::error title='Tag already exists'::"
         echo "Tag ${cmake_version} already exists in repository"
         exit 1
