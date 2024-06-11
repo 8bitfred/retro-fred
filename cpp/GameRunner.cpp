@@ -95,22 +95,22 @@ void GameRunner::checkBulletCollisions()
             auto &sprite = *sprite_list[i];
             if (!sprite.checkCollision(bullet))
                 continue;
+            auto sprite_pos = sprite.getPos();
             auto effect = sprite.bulletHit();
-            if (effect == Sprite::BulletEffect::HIT)
+            if (effect == Sprite::BulletEffect::IGNORE)
+                continue;
+            else if (effect == Sprite::BulletEffect::HIT)
             {
                 bullet_list.pop_back();
                 return;
             }
-            else if (effect == Sprite::BulletEffect::DIE)
-            {
-                auto &smoke_list = getSpriteList(SpriteClass::SMOKE);
-                auto smoke_pos = sprite.getPos();
-                smoke_pos.yadd(1);
-                smoke_list.emplace_back(std::make_unique<Smoke>(smoke_pos));
+            auto &smoke_list = getSpriteList(SpriteClass::SMOKE);
+            sprite_pos.yadd(1);
+            smoke_list.emplace_back(std::make_unique<Smoke>(sprite_pos));
+            if (effect == Sprite::BulletEffect::DIE)
                 sprite_list.erase(sprite_list.begin() + i);
-                bullet_list.pop_back();
-                return;
-            }
+            bullet_list.pop_back();
+            return;
         }
     }
 }

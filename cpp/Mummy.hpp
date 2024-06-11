@@ -47,6 +47,6 @@ public:
     Mummy(GameMap const& game_map, std::minstd_rand &random_engine);
     static void initialize(std::minstd_rand &random_engine, GameBase &game);
     void update(unsigned events) override;
-    BulletEffect bulletHit() override { return BulletEffect::DIE; }
+    BulletEffect bulletHit() override;
     static void toggleMummyTimer() { mummy_timer ^= 1; }
 };

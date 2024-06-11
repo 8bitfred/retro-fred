@@ -48,6 +48,7 @@ public:
     {
         IGNORE,
         HIT,
+        DISAPPEAR,
         DIE
     };
     virtual BulletEffect bulletHit() { return BulletEffect::IGNORE; }

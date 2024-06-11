@@ -26,6 +26,8 @@
   during the game over sequence. This was causing crashes in Windows, but not in other
   builds.
 
+* Bugfix: when mummies get shot make them disappear and respawn in a different location,
+  instead of killing them.
 
 # 0.2.0
 
