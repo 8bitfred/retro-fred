@@ -371,6 +371,7 @@ class StatePlay : public BaseState
             game->render(app.getTextureManager(),
                          app.getRenderer(), play_window->getGameWindow());
             play_window->renderFrame(*game, app.getRenderer(), app.getTextureManager());
+            app.getDisplayConfig().setIntroViewport();
             if (pause)
                 game_menu.render(app.getRenderer(), app.getTextureManager());
             if (game_cfg.virtual_controller)
