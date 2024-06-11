@@ -29,6 +29,8 @@
 * Bugfix: when mummies get shot make them disappear and respawn in a different location,
   instead of killing them.
 
+* Bugfix: increase power by 2 units when starting a new level, per the original game.
+
 # 0.2.0
 
 * Initial release
