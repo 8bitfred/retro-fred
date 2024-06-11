@@ -157,3 +157,9 @@ int Mummy::getRandomDirection(std::minstd_rand &random_engine)
     std::uniform_int_distribution<> distrib(0, 1);
     return 2 * distrib(random_engine) - 1;
 }
+
+Sprite::BulletEffect Mummy::bulletHit()
+{
+    stateDisappear();
+    return Sprite::BulletEffect::DISAPPEAR;
+}
