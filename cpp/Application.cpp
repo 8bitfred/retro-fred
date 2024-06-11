@@ -560,10 +560,12 @@ public:
 class StateEnterHighScore : public BaseState
 {
     std::string initials = "A";
+    size_t index = 0;
 
     void enter(FredApp &, AppState &) final
     {
         initials = "A";
+        index = 0;
     }
     void render(FredApp const &app) const final
     {
@@ -581,38 +583,47 @@ class StateEnterHighScore : public BaseState
         tmgr.renderText(app.getRenderer(), "RIGHT & FIRE",
                         0, 24, 0, 0, 0);
         tmgr.renderText(app.getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
+        for (size_t i = initials.size(); i < 3; ++i)
+            tmgr.renderText(app.getRenderer(), "_", static_cast<int>(14 + i) * 8, 96, 0, 0, 0);
         if (app.getConfig().virtual_controller)
-            Controller::render(app.getWindow(), app.getRenderer(), tmgr);
+                Controller::render(app.getWindow(), app.getRenderer(), tmgr);
         SDL_RenderPresent(app.getRenderer());
     }
     void eventHandler(FredApp &app,
                       AppState &app_state,
                       EventMask const &event_mask) final
     {
+        static std::string_view alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ<";
         if (event_mask.check(GameEvent::LEFT))
         {
-            if (initials.back() == 'A')
-                initials.back() = 'Z';
-            else
-                --initials.back();
+            index = (index + alphabet.size() - 1) % alphabet.size();
+            if (initials.size() == 1 && alphabet[index] == '<')
+                index = alphabet.size() - 2;
         }
         else if (event_mask.check(GameEvent::RIGHT))
         {
-            if (initials.back() == 'Z')
-                initials.back() = 'A';
-            else
-                ++initials.back();
+            index = (index + 1) % alphabet.size();
+            if (initials.size() == 1 && alphabet[index] == '<')
+                index = 0;
         }
         else if (event_mask.check(GameEvent::FIRE))
         {
-            if (initials.size() == 3)
+            if (alphabet[index] == '<')
+            {
+                if (initials.size() > 1)
+                    initials.pop_back();
+            }
+            else if (initials.size() == 3)
             {
                 app.addHighScore(app_state.new_high_score, initials);
                 app_state.set(AppState::TODAYS_GREATEST, app);
+                return;
             }
             else
                 initials += "A";
+            index = 0;
         }
+        initials.back() = alphabet[index];
     }
 };
 

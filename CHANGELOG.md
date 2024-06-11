@@ -22,6 +22,9 @@
   and it adds a few cheats. Enabling cheats prevents the score from being added to the
   high scores.
 
+* Added option to delete the last letter when entering high scores. If the user selects
+  symbol '<' the last letter gets deleted.
+
 * Bugfix: fix reference to element of empty sprite list after Fred sprite has been destroyed,
   during the game over sequence. This was causing crashes in Windows, but not in other
   builds.
