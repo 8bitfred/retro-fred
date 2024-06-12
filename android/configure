@@ -66,7 +66,16 @@ fi
 rm -f "$PROJECT_ROOT/android/SDL"
 rm -f "$PROJECT_ROOT/android/SDL_image"
 rm -f "$PROJECT_ROOT/android/app/src/main/assets"
+rm -f "$PROJECT_ROOT/gradle"
+rm -f "$PROJECT_ROOT/gradle.properties"
+rm -f "$PROJECT_ROOT/gradlew"
+rm -f "$PROJECT_ROOT/gradlew.bat"
+
 
 ln -s "$SDL_PATH" "$PROJECT_ROOT/android/SDL"
 ln -s "$SDL_IMAGE_PATH" "$PROJECT_ROOT/android/SDL_image"
 ln -s ../../../../assets "$PROJECT_ROOT/android/app/src/main/"
+ln -s android/gradle "$PROJECT_ROOT"
+ln -s android/gradle.properties "$PROJECT_ROOT"
+ln -s android/gradlew "$PROJECT_ROOT"
+ln -s android/gradlew.bat "$PROJECT_ROOT"

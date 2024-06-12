@@ -1,3 +1,8 @@
+# 0.3.1
+
+* Use custom package name in Android app, instead of the default app.libsdl.org. In
+  Android, check version names in build.gradle, in addition to AndroidManifest.xml.
+
 # 0.3.0
 
 * Added minimap tracker (configurable): when enabled, it shows the position of fred in the
