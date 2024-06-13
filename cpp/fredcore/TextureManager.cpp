@@ -61,8 +61,8 @@ void TextureManager::renderText(SDL_Renderer *renderer, std::string_view text,
         auto c = static_cast<unsigned>(ch);
         if (c > ' ' && c < 0x90)
         {
-            src.x = 8 * (c % 16);
-            src.y = 8 * ((c - ' ') / 16);
+            src.x = 10 * (c % 16) + 1;
+            src.y = 10 * ((c - ' ') / 16) + 1;
             if (SDL_RenderCopy(renderer, texture, &src, &dst) < 0)
                 throw sdl::Error();
         }
