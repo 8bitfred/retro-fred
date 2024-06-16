@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fredcore/sdl.hpp"
+#include "fredcore/Config.hpp"
 #include "fredcore/DisplayConfig.hpp"
 #include "fredcore/TextureManager.hpp"
 #include "fredcore/SoundManager.hpp"
@@ -21,14 +22,12 @@ class FredApp
     sdl::App app;
     Config cfg;
     std::minstd_rand &random_engine;
-    std::pair<sdl::WindowPtr, sdl::RendererPtr> w_and_r;
     DisplayConfig display_cfg;
     TextureManager tmgr;
     SoundManager smgr;
     std::vector<std::pair<unsigned, std::string>> high_scores;
     std::filesystem::path high_scores_path, config_path;
 
-    static std::pair<sdl::WindowPtr, sdl::RendererPtr> initDisplay(Config const &cfg);
     static std::filesystem::path getPrefPath();
     void saveHighScores() const;
     void loadHighScores();
@@ -36,8 +35,8 @@ class FredApp
 public:
     explicit FredApp(Config const &cfg, std::minstd_rand &random_engine);
     std::minstd_rand &getRandomEngine() { return random_engine; }
-    SDL_Window *getWindow() const { return w_and_r.first; }
-    SDL_Renderer *getRenderer() const { return w_and_r.second; }
+    SDL_Window *getWindow() const { return display_cfg.getWindow(); }
+    SDL_Renderer *getRenderer() const { return display_cfg.getRenderer(); }
     TextureManager const &getTextureManager() const { return tmgr; }
     SoundManager &getSoundManager() { return smgr; }
     Config const &getConfig() const { return cfg; }

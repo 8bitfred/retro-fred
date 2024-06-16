@@ -663,8 +663,7 @@ bool AppState::eventHandler(FredApp &app, EventMask const &event_mask)
 FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     : cfg(cfg)
     , random_engine(random_engine)
-    , w_and_r(initDisplay(cfg))
-    , display_cfg(cfg, w_and_r.first, w_and_r.second)
+    , display_cfg(cfg)
     , tmgr(cfg, getRenderer()), smgr(cfg)
     , high_scores(4, {0, ""})
 {
@@ -675,34 +674,6 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     loadHighScores();
     SDL_SetWindowTitle(getWindow(), "Retro-Fred");
     SDL_SetWindowIcon(getWindow(), tmgr.getFredIcon());
-}
-
-std::pair<sdl::WindowPtr, sdl::RendererPtr> FredApp::initDisplay(Config const &cfg)
-{
-    SDL_DisplayMode display_mode;
-    SDL_GetCurrentDisplayMode(0, &display_mode);
-    Uint32 window_flags = 0;
-    int width = display_mode.w, height = display_mode.h;
-    if (cfg.full_screen)
-        window_flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
-    else if (cfg.max_resolution)
-    {
-        auto max_w = ((cfg.map_width+2) * MapPos::CELL_WIDTH + 8) * MapPos::PIXELS_PER_CHAR;
-        auto max_h = ((cfg.map_height+2) * MapPos::CELL_HEIGHT + 2) * MapPos::PIXELS_PER_CHAR;
-        width = std::min(max_w, display_mode.w * 19 / 20);
-        height = std::min(max_h, display_mode.h * 19 / 20);
-        window_flags = SDL_WINDOW_RESIZABLE;
-    }
-    else
-    {
-        auto scale_w = static_cast<int>(static_cast<double>(display_mode.w * .8 / cfg.logical_width));
-        auto scale_h = static_cast<int>(static_cast<double>(display_mode.h * .8 / cfg.logical_height));
-        auto scale = std::max(std::min(scale_w, scale_h), 1);
-        width = cfg.logical_width * scale;
-        height = cfg.logical_height * scale;
-        window_flags = SDL_WINDOW_RESIZABLE;
-    }
-    return sdl::createWindowAndRenderer(width, height, window_flags);
 }
 
 std::filesystem::path FredApp::getPrefPath()

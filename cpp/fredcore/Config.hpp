@@ -12,6 +12,7 @@ struct Config {
     static constexpr int PIXELS_PER_CHAR = 8;
     static constexpr int CELL_WIDTH = 4;
     static constexpr int CELL_HEIGHT = 5;
+    static constexpr int SCOREBOARD_WIDTH = 7;
 
     std::uint32_t ticks_per_frame = 1000 / 6;
     bool virtual_controller = false;
