@@ -14,8 +14,9 @@ DisplayConfig::DisplayConfig(Config const &cfg,
 
     if (cfg.max_resolution)
     {
-        auto max_w = (cfg.map_width * MapPos::CELL_WIDTH + 20) * MapPos::PIXELS_PER_CHAR;
-        auto max_h = (cfg.map_height * MapPos::CELL_HEIGHT + 15) * MapPos::PIXELS_PER_CHAR;
+        // TODO: this is duplicated with similar code in FredApp::initDisplay()
+        auto max_w = ((cfg.map_width+2) * MapPos::CELL_WIDTH + 8) * MapPos::PIXELS_PER_CHAR;
+        auto max_h = ((cfg.map_height+2) * MapPos::CELL_HEIGHT + 2) * MapPos::PIXELS_PER_CHAR;
         game_window_w = std::min(max_w, window_w);
         game_window_h = std::min(max_h, window_h);
     }
