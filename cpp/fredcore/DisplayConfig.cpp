@@ -2,7 +2,14 @@
 #include "Coord.hpp"
 #include "Config.hpp"
 
-std::pair<int, int> DisplayConfig::fullMapModeSize(Config const &cfg)
+void DisplayConfig::initWindowAndRenderer(int width, int height, Uint32 window_flags)
+{
+    auto [win, ren] = sdl::createWindowAndRenderer(width, height, window_flags);
+    window.emplace(std::move(win));
+    renderer.emplace(std::move(ren));
+}
+
+void DisplayConfig::initFullMapMode(Config const &cfg, SDL_DisplayMode const &display_mode)
 {
     // Size of the scoreboard and the window frame, in characters
     auto frame_x_size = (1 + Config::SCOREBOARD_WIDTH);
@@ -13,25 +20,26 @@ std::pair<int, int> DisplayConfig::fullMapModeSize(Config const &cfg)
     // Map height in characters: the map height in cells, plus one extra cell on each side
     // of the map (so we show a block of sand on the bottom and a block of sky on top)
     auto map_height_chars = (cfg.map_height + 2) * MapPos::CELL_HEIGHT;
-    return {(frame_x_size + map_width_chars) * MapPos::PIXELS_PER_CHAR,
-            (frame_y_size + map_height_chars) * MapPos::PIXELS_PER_CHAR};
+    auto max_w = (frame_x_size + map_width_chars) * MapPos::PIXELS_PER_CHAR;
+    auto max_h = (frame_y_size + map_height_chars) * MapPos::PIXELS_PER_CHAR;
+
+    int width = std::min(max_w, display_mode.w * 19 / 20);
+    int height = std::min(max_h, display_mode.h * 19 / 20);
+    initWindowAndRenderer(width, height, SDL_WINDOW_RESIZABLE);
+
+    int window_w, window_h;
+    SDL_GetWindowSize(getWindow(), &window_w, &window_h);
+
+    game_window_w = std::min(max_w, window_w);
+    game_window_h = std::min(max_h, window_h);
 }
 
-std::pair<sdl::WindowPtr, sdl::RendererPtr> DisplayConfig::initDisplay(Config const &cfg)
+void DisplayConfig::initNormalMode(Config const &cfg, SDL_DisplayMode const &display_mode)
 {
-    SDL_DisplayMode display_mode;
-    SDL_GetCurrentDisplayMode(0, &display_mode);
     Uint32 window_flags = 0;
     int width = display_mode.w, height = display_mode.h;
     if (cfg.full_screen)
         window_flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
-    else if (cfg.max_resolution)
-    {
-        auto [max_w, max_h] = fullMapModeSize(cfg);
-        width = std::min(max_w, display_mode.w * 19 / 20);
-        height = std::min(max_h, display_mode.h * 19 / 20);
-        window_flags = SDL_WINDOW_RESIZABLE;
-    }
     else
     {
         auto scale_w = static_cast<int>(static_cast<double>(display_mode.w * .8 / cfg.logical_width));
@@ -41,31 +49,21 @@ std::pair<sdl::WindowPtr, sdl::RendererPtr> DisplayConfig::initDisplay(Config co
         height = cfg.logical_height * scale;
         window_flags = SDL_WINDOW_RESIZABLE;
     }
-    return sdl::createWindowAndRenderer(width, height, window_flags);
+    initWindowAndRenderer(width, height, window_flags);
+    game_window_w = cfg.logical_width;
+    game_window_h = cfg.logical_height;
 }
 
-
-
 DisplayConfig::DisplayConfig(Config const &cfg) noexcept
-    : w_and_r(initDisplay(cfg))
-    , intro_window_w(cfg.logical_width)
+    : intro_window_w(cfg.logical_width)
     , intro_window_h(cfg.logical_height)
-    , max_resolution(cfg.max_resolution)
 {
-    int window_w, window_h;
-    SDL_GetWindowSize(getWindow(), &window_w, &window_h);
-
+    SDL_DisplayMode display_mode;
+    SDL_GetCurrentDisplayMode(0, &display_mode);
     if (cfg.max_resolution)
-    {
-        auto [max_w, max_h] = fullMapModeSize(cfg);
-        game_window_w = std::min(max_w, window_w);
-        game_window_h = std::min(max_h, window_h);
-    }
+        initFullMapMode(cfg, display_mode);
     else
-    {
-        game_window_w = cfg.logical_width;
-        game_window_h = cfg.logical_height;
-    }
+        initNormalMode(cfg, display_mode);
 }
 
 void DisplayConfig::setIntroViewport() const
