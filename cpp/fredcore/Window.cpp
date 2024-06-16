@@ -57,11 +57,6 @@ Window::Window(Config const &cfg, int total_width, int total_height)
     , game_window(SDL_Rect{MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR,
                            total_width - (SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
                            total_height - 2 * MapPos::PIXELS_PER_CHAR})
-    , min_window_pos(-6 * MapPos::PIXELS_PER_CHAR, -8 * MapPos::PIXELS_PER_CHAR)
-    , max_window_pos(cfg.map_width * MapPos::CELL_WIDTH_PIXELS + 
-                     6 * MapPos::PIXELS_PER_CHAR - game_window.getWindowRect().w,
-                     cfg.map_height * MapPos::CELL_HEIGHT_PIXELS + 
-                     4 * MapPos::PIXELS_PER_CHAR - game_window.getWindowRect().h)
 {
     auto const &window_rect = game_window.getWindowRect();
     // Position of the center cell (for Fred): in the center of the screen, rounded down
@@ -70,6 +65,23 @@ Window::Window(Config const &cfg, int total_width, int total_height)
                                  MapPos::PIXELS_PER_CHAR);
     center_offset_y = round_down((window_rect.h - MapPos::CELL_HEIGHT_PIXELS) / 2,
                                  MapPos::PIXELS_PER_CHAR);
+
+    if (cfg.max_resolution)
+    {
+        min_window_pos = {-MapPos::CELL_WIDTH_PIXELS, -MapPos::CELL_HEIGHT_PIXELS};
+        max_window_pos = {
+            (cfg.map_width + 1) * MapPos::CELL_WIDTH_PIXELS - window_rect.w,
+            (cfg.map_height + 1) * MapPos::CELL_HEIGHT_PIXELS - window_rect.h,
+        };
+    }
+    else
+    {
+        min_window_pos = { MapPos::CELL_WIDTH_PIXELS - center_offset_x, -center_offset_y };
+        max_window_pos = {
+            (cfg.map_width - 2) * MapPos::CELL_WIDTH_PIXELS - center_offset_x,
+            (cfg.map_height - 2) * MapPos::CELL_HEIGHT_PIXELS - center_offset_y
+        };
+    }
 
     if (cfg.debug_map)
     {

@@ -687,8 +687,8 @@ std::pair<sdl::WindowPtr, sdl::RendererPtr> FredApp::initDisplay(Config const &c
         window_flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
     else if (cfg.max_resolution)
     {
-        auto max_w = (cfg.map_width * MapPos::CELL_WIDTH + 20) * MapPos::PIXELS_PER_CHAR;
-        auto max_h = (cfg.map_height * MapPos::CELL_HEIGHT + 15) * MapPos::PIXELS_PER_CHAR;
+        auto max_w = ((cfg.map_width+2) * MapPos::CELL_WIDTH + 8) * MapPos::PIXELS_PER_CHAR;
+        auto max_h = ((cfg.map_height+2) * MapPos::CELL_HEIGHT + 2) * MapPos::PIXELS_PER_CHAR;
         width = std::min(max_w, display_mode.w * 19 / 20);
         height = std::min(max_h, display_mode.h * 19 / 20);
         window_flags = SDL_WINDOW_RESIZABLE;
