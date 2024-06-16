@@ -55,7 +55,7 @@ Window::Window(Config const &cfg, int total_width, int total_height)
     : total_width(total_width)
     , total_height(total_height)
     , game_window(SDL_Rect{MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR,
-                           total_width - (SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
+                           total_width - (Config::SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
                            total_height - 2 * MapPos::PIXELS_PER_CHAR})
 {
     auto const &window_rect = game_window.getWindowRect();
@@ -164,7 +164,7 @@ void Window::renderFrame(GameBase const &game, SDL_Renderer *renderer,
         auto status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
-        for (int x = total_width - SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR;
+        for (int x = total_width - Config::SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR;
              x < total_width; x += MapPos::PIXELS_PER_CHAR)
         {
             dst_rect.x = x;
@@ -175,7 +175,7 @@ void Window::renderFrame(GameBase const &game, SDL_Renderer *renderer,
     }
 
     SDL_Rect src_scoreboard{8, 8, 40, 176};
-    SDL_Rect dst_scoreboard{total_width - (SCOREBOARD_WIDTH - 1) * MapPos::PIXELS_PER_CHAR,
+    SDL_Rect dst_scoreboard{total_width - (Config::SCOREBOARD_WIDTH - 1) * MapPos::PIXELS_PER_CHAR,
                             MapPos::PIXELS_PER_CHAR, 40, 176};
     auto status = SDL_RenderCopy(renderer, base_window, &src_scoreboard, &dst_scoreboard);
     if (status < 0)

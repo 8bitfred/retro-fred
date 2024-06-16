@@ -27,7 +27,6 @@ class Window
     void drawMinimap(GameBase const &game, SDL_Renderer *renderer, int x, int y) const;
 
 public:
-    static constexpr int SCOREBOARD_WIDTH = 7;
     Window(Config const &cfg, int total_width, int total_height);
 
     void addUserOffset(int delta_x, int delta_y);
