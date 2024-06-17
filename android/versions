@@ -1,4 +1,6 @@
 # Mapping between version names and Android version codes
+# version   code    description
+0.4.0       6       Scale up window frame and HUD on full-map mode
 0.3.1       5       Fix font seeping
-# 0.3.1       4       First closed test release
-# 0.3.1       3     First internal test release
+0.3.1       4       First closed test release
+0.3.1       3       First internal test release
