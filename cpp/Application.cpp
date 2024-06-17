@@ -320,9 +320,7 @@ class StatePlay : public BaseState
     void enter(FredApp &app, AppState &) final
     {
         game_cfg = app.getConfig();
-        play_window.emplace(game_cfg,
-                            app.getDisplayConfig().getGameWindowWidth(),
-                            app.getDisplayConfig().getGameWindowHeight());
+        play_window.emplace(game_cfg, app.getDisplayConfig().getGameWindowRect());
         game.emplace(game_cfg, app.getRandomEngine(),
                      app.getHighScores().front().first);
         game->initializeSprites(app.getRandomEngine());
@@ -355,8 +353,7 @@ class StatePlay : public BaseState
         SDL_Rect fred_puffing{88, 128, 32, 40};
         SDL_RenderCopy(app.getRenderer(), tmgr.get(TextureID::FRED_PUFFING),
                        nullptr, &fred_puffing);
-        app.getDisplayConfig().setGameViewport();
-        play_window->renderFrame(*game, app.getRenderer(), tmgr);
+        play_window->renderFrame(*game, app.getDisplayConfig(), tmgr);
         SDL_RenderPresent(app.getRenderer());
     }
 
@@ -370,7 +367,7 @@ class StatePlay : public BaseState
             SDL_RenderClear(app.getRenderer());
             game->render(app.getTextureManager(),
                          app.getRenderer(), play_window->getGameWindow());
-            play_window->renderFrame(*game, app.getRenderer(), app.getTextureManager());
+            play_window->renderFrame(*game, app.getDisplayConfig(), app.getTextureManager());
             app.getDisplayConfig().setIntroViewport();
             if (pause)
                 game_menu.render(app.getRenderer(), app.getTextureManager());

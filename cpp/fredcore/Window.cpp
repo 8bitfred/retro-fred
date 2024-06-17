@@ -3,6 +3,7 @@
 #include "TextureManager.hpp"
 #include "sdl.hpp"
 #include "Game.hpp"
+#include "DisplayConfig.hpp"
 #include <iostream>
 
 // Game screen
@@ -51,12 +52,8 @@
 //     --+-------+-------+-------+-------+-------+-------+-------+-------+-------+--
 //
 // Our main character, Fred, is always placed on the center of the screen.
-Window::Window(Config const &cfg, int total_width, int total_height)
-    : total_width(total_width)
-    , total_height(total_height)
-    , game_window(SDL_Rect{MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR,
-                           total_width - (Config::SCOREBOARD_WIDTH + 1) * MapPos::PIXELS_PER_CHAR,
-                           total_height - 2 * MapPos::PIXELS_PER_CHAR})
+Window::Window(Config const &cfg, SDL_Rect const &game_window_rect)
+    : game_window(game_window_rect)
 {
     auto const &window_rect = game_window.getWindowRect();
     // Position of the center cell (for Fred): in the center of the screen, rounded down
@@ -85,9 +82,7 @@ Window::Window(Config const &cfg, int total_width, int total_height)
 
     if (cfg.debug_map)
     {
-        std::cout << "total_width=" << total_width
-                  << " total_height=" << total_height
-                  << std::endl
+        std::cout << std::endl
                   << "window_rect=(" << window_rect.x
                   << ", " << window_rect.y
                   << ", " << window_rect.w
@@ -138,66 +133,72 @@ CellPos Window::getCenter() const
                    (game_window.getPos().y + center_offset_y) / MapPos::CELL_HEIGHT_PIXELS};
 }
 
-void Window::renderFrame(GameBase const &game, SDL_Renderer *renderer,
+void Window::renderFrame(GameBase const &game, DisplayConfig const &display_cfg,
                          TextureManager const &tmgr) const
 {
     SDL_Texture *base_window = tmgr.get(TextureID::FRAME_BASE);
     Uint32 texture_format;
     SDL_QueryTexture(base_window, &texture_format, nullptr, nullptr, nullptr);
 
+    auto [frame_w, frame_h] = display_cfg.setWindowFrameViewport();
     SDL_Rect const window_char = {0, 0, MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR};
-    for (int x = 0; x < total_width; x += MapPos::PIXELS_PER_CHAR)
+    for (int x = 0; x < frame_w; x += MapPos::PIXELS_PER_CHAR)
     {
         SDL_Rect dst_rect = {x, 0, MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR};
-        auto status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
+        auto status = SDL_RenderCopy(display_cfg.getRenderer(), base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
-        dst_rect.y = total_height - MapPos::PIXELS_PER_CHAR;
-        status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
+        dst_rect.y = frame_h - MapPos::PIXELS_PER_CHAR;
+        status = SDL_RenderCopy(display_cfg.getRenderer(), base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
     }
 
-    for (int y = 0; y < total_height; y += MapPos::PIXELS_PER_CHAR)
+    for (int y = 0; y < frame_h; y += MapPos::PIXELS_PER_CHAR)
     {
         SDL_Rect dst_rect = {0, y, MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR};
-        auto status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
+        auto status = SDL_RenderCopy(display_cfg.getRenderer(), base_window, &window_char, &dst_rect);
         if (status < 0)
             throw sdl::Error();
-        for (int x = total_width - Config::SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR;
-             x < total_width; x += MapPos::PIXELS_PER_CHAR)
+    }
+
+    auto [sb_w, sb_h] = display_cfg.setScoreboardViewport();
+    //SDL_Log("frame_w=%d frame_h=%d sb_w=%d wb_h=%d", frame_w, frame_h, sb_w, sb_h);
+    for (int y = 0; y < sb_h; y += MapPos::PIXELS_PER_CHAR)
+    {
+        SDL_Rect dst_rect = {0, y, MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR};
+        for (int x = 0; x < sb_w; x += MapPos::PIXELS_PER_CHAR)
         {
             dst_rect.x = x;
-            status = SDL_RenderCopy(renderer, base_window, &window_char, &dst_rect);
+            auto status = SDL_RenderCopy(display_cfg.getRenderer(), base_window, &window_char, &dst_rect);
             if (status < 0)
                 throw sdl::Error();
         }
     }
-
     SDL_Rect src_scoreboard{8, 8, 40, 176};
-    SDL_Rect dst_scoreboard{total_width - (Config::SCOREBOARD_WIDTH - 1) * MapPos::PIXELS_PER_CHAR,
+    SDL_Rect dst_scoreboard{MapPos::PIXELS_PER_CHAR,
                             MapPos::PIXELS_PER_CHAR, 40, 176};
-    auto status = SDL_RenderCopy(renderer, base_window, &src_scoreboard, &dst_scoreboard);
+    auto status = SDL_RenderCopy(display_cfg.getRenderer(), base_window, &src_scoreboard, &dst_scoreboard);
     if (status < 0)
         throw sdl::Error();
 
     char buf[3];
     std::snprintf(buf, sizeof(buf), "%02d", game.getBulletCount());
-    tmgr.renderText(renderer, buf,
+    tmgr.renderText(display_cfg.getRenderer(), buf,
                     dst_scoreboard.x + 3 * 8, dst_scoreboard.y,
                     0, 0, 0);
     std::snprintf(buf, sizeof(buf), "%02d", game.getLevel());
-    tmgr.renderText(renderer, buf,
+    tmgr.renderText(display_cfg.getRenderer(), buf,
                     dst_scoreboard.x + 3 * 8, dst_scoreboard.y + 8,
                     0, 0, 0);
     std::snprintf(buf, sizeof(buf), "%02d", game.getFredPos().y());
-    tmgr.renderText(renderer, buf,
+    tmgr.renderText(display_cfg.getRenderer(), buf,
                     dst_scoreboard.x + 3 * 8, dst_scoreboard.y + 2*8,
                     0, 0, 0);
-    tmgr.renderScore(renderer, game.getScore(),
+    tmgr.renderScore(display_cfg.getRenderer(), game.getScore(),
                      dst_scoreboard.x + 3, dst_scoreboard.y + 17 * 8 + 2,
                      206, 206, 206);
-    tmgr.renderScore(renderer, game.getHighScore(),
+    tmgr.renderScore(display_cfg.getRenderer(), game.getHighScore(),
                      dst_scoreboard.x + 3, dst_scoreboard.y + 20 * 8 + 2,
                      206, 206, 206);
 
@@ -207,10 +208,10 @@ void Window::renderFrame(GameBase const &game, SDL_Renderer *renderer,
         SDL_Rect power_rect = {dst_scoreboard.x + 8 * (i % 5),
                                dst_scoreboard.y + 8 * (12 + (i / 5)),
                                8, 8};
-        if (SDL_RenderCopy(renderer, power_texture, nullptr, &power_rect) < 0)
+        if (SDL_RenderCopy(display_cfg.getRenderer(), power_texture, nullptr, &power_rect) < 0)
             throw sdl::Error();
     }
-    drawMinimap(game, renderer, dst_scoreboard.x, dst_scoreboard.y + 5 * 8);
+    drawMinimap(game, display_cfg.getRenderer(), dst_scoreboard.x, dst_scoreboard.y + 5 * 8);
 }
 
 void Window::drawMinimap(GameBase const &game, SDL_Renderer *renderer, int x, int y) const

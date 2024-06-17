@@ -107,8 +107,8 @@ class GameWrapper
 
 public:
     GameWrapper(Config const &cfg, std::minstd_rand &random_engine,
-                int width = 256, int height = 192)
-        : play_window(cfg, width, height)
+                SDL_Rect const &game_window_rect)
+        : play_window(cfg, game_window_rect)
         , capture_window(SDL_Rect{0, 0,
                                   play_window.getGameWindow().getWindowRect().w,
                                   play_window.getGameWindow().getWindowRect().h})
@@ -145,7 +145,7 @@ public:
         display_cfg.setGameViewport();
         SDL_RenderClear(renderer);
         game.render(tmgr, renderer, play_window.getGameWindow());
-        play_window.renderFrame(game, renderer, tmgr);
+        play_window.renderFrame(game, display_cfg, tmgr);
         SDL_RenderPresent(renderer);
         game.playPendingSounds(smgr);
 
@@ -162,7 +162,8 @@ public:
 void dataLoop(Config const &cfg, std::minstd_rand &random_engine)
 {
     sdl::App fred_app;
-    GameWrapper game_wrapper(cfg, random_engine);
+    GameWrapper game_wrapper(cfg, random_engine, 
+                             SDL_Rect{8, 8, 192, 176});
     Player player(game_wrapper.getGame());
 
     static int count = 0;
@@ -190,7 +191,8 @@ void dataLoop(Config const &cfg, std::minstd_rand &random_engine)
 void gameLoop(Config const &cfg, std::minstd_rand &random_engine)
 {
     FredApp fred_app(cfg, random_engine);
-    GameWrapper game_wrapper(cfg, random_engine);
+    GameWrapper game_wrapper(cfg, random_engine,
+                             fred_app.getDisplayConfig().getGameWindowRect());
     Player player(game_wrapper.getGame());
 
     EventManager event_manager(cfg.ticks_per_frame, cfg.virtual_controller);
