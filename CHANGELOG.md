@@ -1,3 +1,9 @@
+# 0.4.0
+
+* Refactored "full-map" mode: moved the initialization of the SDL window to the
+  DisplayConfig class; added support for scaling the window frame and scoreboard in
+  full-map mode.
+
 # 0.3.1
 
 * Use custom package name in Android app, instead of the default app.libsdl.org. In
