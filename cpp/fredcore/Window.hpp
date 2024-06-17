@@ -9,11 +9,10 @@ struct Config;
 struct SDL_Renderer;
 class TextureManager;
 class GameBase;
+class DisplayConfig;
 
 class Window
 {
-    // Total width of the system window (game window and window frame)
-    int total_width, total_height;
     // Position and size of the game window in the screen
     GameWindow game_window;
     // Offset, in pixels, to the center cell (position of Fred) relative to the top left
@@ -27,7 +26,7 @@ class Window
     void drawMinimap(GameBase const &game, SDL_Renderer *renderer, int x, int y) const;
 
 public:
-    Window(Config const &cfg, int total_width, int total_height);
+    Window(Config const &cfg, SDL_Rect const &game_window_rect);
 
     void addUserOffset(int delta_x, int delta_y);
     void resetUserOffset();
@@ -36,6 +35,6 @@ public:
     GameWindow const &getGameWindow() const { return game_window; }
     CellPos getCenter() const;
 
-    void renderFrame(GameBase const &game, SDL_Renderer *renderer,
+    void renderFrame(GameBase const &game, DisplayConfig const &display_cfg,
                      TextureManager const &tmgr) const;
 };

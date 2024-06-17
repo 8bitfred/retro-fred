@@ -11,17 +11,22 @@ void DisplayConfig::initWindowAndRenderer(int width, int height, Uint32 window_f
 
 void DisplayConfig::initFullMapMode(Config const &cfg, SDL_DisplayMode const &display_mode)
 {
+    // Scale of the window frame (and scoreboard)
+    auto scale_w = static_cast<int>(static_cast<double>(display_mode.w * .6 / cfg.logical_width));
+    auto scale_h = static_cast<int>(static_cast<double>(display_mode.h * .6 / cfg.logical_height));
+    window_frame_scale = std::max(std::min(scale_w, scale_h), 1);
+
     // Size of the scoreboard and the window frame, in characters
-    auto frame_x_size = (1 + Config::SCOREBOARD_WIDTH);
-    auto frame_y_size = 1 + 1;
+    auto frame_x_size = (1 + Config::SCOREBOARD_WIDTH) * MapPos::PIXELS_PER_CHAR;
+    auto frame_y_size = (1 + 1) * MapPos::PIXELS_PER_CHAR;
     // Map width in characters: the map width in cells, plus one extra cell on each side
     // of the map (so we show a block of sand on each side of the map)
-    auto map_width_chars = (cfg.map_width + 2) * MapPos::CELL_WIDTH;
+    auto map_width_pixels = (cfg.map_width + 2) * MapPos::CELL_WIDTH_PIXELS;
     // Map height in characters: the map height in cells, plus one extra cell on each side
     // of the map (so we show a block of sand on the bottom and a block of sky on top)
-    auto map_height_chars = (cfg.map_height + 2) * MapPos::CELL_HEIGHT;
-    auto max_w = (frame_x_size + map_width_chars) * MapPos::PIXELS_PER_CHAR;
-    auto max_h = (frame_y_size + map_height_chars) * MapPos::PIXELS_PER_CHAR;
+    auto map_height_pixels = (cfg.map_height + 2) * MapPos::CELL_HEIGHT_PIXELS;
+    auto max_w = frame_x_size * window_frame_scale + map_width_pixels;
+    auto max_h = frame_y_size * window_frame_scale + map_height_pixels;
 
     int width = std::min(max_w, display_mode.w * 19 / 20);
     int height = std::min(max_h, display_mode.h * 19 / 20);
@@ -66,6 +71,15 @@ DisplayConfig::DisplayConfig(Config const &cfg) noexcept
         initNormalMode(cfg, display_mode);
 }
 
+SDL_Rect DisplayConfig::getGameWindowRect() const
+{
+    return {
+        1 * MapPos::PIXELS_PER_CHAR * window_frame_scale,
+        1 * MapPos::PIXELS_PER_CHAR * window_frame_scale,
+        game_window_w - ((1+Config::SCOREBOARD_WIDTH) * MapPos::PIXELS_PER_CHAR * window_frame_scale),
+        game_window_h - (2 * MapPos::PIXELS_PER_CHAR * window_frame_scale)};
+}
+
 void DisplayConfig::setIntroViewport() const
 {
     int window_w, window_h;
@@ -95,9 +109,58 @@ void DisplayConfig::setGameViewport() const
     auto scale_h = static_cast<float>(window_h) / game_window_h;
     auto scale = std::min(scale_w, scale_h);
 
-    SDL_Rect rect{(static_cast<int>(window_w / scale) - game_window_w) / 2,
-                  (static_cast<int>(window_h / scale) - game_window_h) / 2,
-                  game_window_w, game_window_h};
-    SDL_RenderSetScale(getRenderer(), scale, scale);
+    SDL_RenderSetScale(getRenderer(), 1, 1);
+    SDL_Rect rect{(window_w - static_cast<int>(game_window_w * scale)) / 2,
+                  (window_h - static_cast<int>(game_window_h * scale)) / 2,
+                  static_cast<int>(game_window_w * scale),
+                  static_cast<int>(game_window_h * scale)};
     SDL_RenderSetViewport(getRenderer(), &rect);
+    SDL_RenderSetScale(getRenderer(), scale, scale);
+}
+
+std::pair<int, int> DisplayConfig::setWindowFrameViewport() const
+{
+    int window_w, window_h;
+    SDL_GetWindowSize(getWindow(), &window_w, &window_h);
+
+    auto scale_w = static_cast<float>(window_w) / game_window_w;
+    auto scale_h = static_cast<float>(window_h) / game_window_h;
+    auto scale = std::min(scale_w, scale_h);
+
+    auto scoreboard_w = Config::SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR * window_frame_scale;
+    auto viewport_w = static_cast<int>((game_window_w - scoreboard_w) * scale);
+    SDL_RenderSetScale(getRenderer(), 1, 1);
+    SDL_Rect rect{(window_w - static_cast<int>(game_window_w * scale)) / 2,
+                  (window_h - static_cast<int>(game_window_h * scale)) / 2,
+                  viewport_w,
+                  static_cast<int>(game_window_h * scale)};
+    SDL_RenderSetViewport(getRenderer(), &rect);
+    SDL_RenderSetScale(getRenderer(), scale*window_frame_scale, scale*window_frame_scale);
+
+    return {(game_window_w + window_frame_scale - 1) / window_frame_scale,
+            (game_window_h + window_frame_scale - 1) / window_frame_scale};
+}
+
+std::pair<int, int> DisplayConfig::setScoreboardViewport() const
+{
+    int window_w, window_h;
+    SDL_GetWindowSize(getWindow(), &window_w, &window_h);
+
+    auto scale_w = static_cast<float>(window_w) / game_window_w;
+    auto scale_h = static_cast<float>(window_h) / game_window_h;
+    auto scale = std::min(scale_w, scale_h);
+
+    auto scoreboard_w = Config::SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR * window_frame_scale;
+    auto frame_x = (window_w - static_cast<int>(game_window_w * scale)) / 2;
+    auto scoreboard_x = frame_x + static_cast<int>((game_window_w - scoreboard_w) * scale);
+    SDL_RenderSetScale(getRenderer(), 1, 1);
+    SDL_Rect rect{scoreboard_x,
+                  (window_h - static_cast<int>(game_window_h * scale)) / 2,
+                  static_cast<int>(scoreboard_w * scale),
+                  static_cast<int>(game_window_h * scale)};
+    SDL_RenderSetViewport(getRenderer(), &rect);
+    SDL_RenderSetScale(getRenderer(), scale*window_frame_scale, scale*window_frame_scale);
+
+    return {scoreboard_w / window_frame_scale,
+            (game_window_h + window_frame_scale - 1) / window_frame_scale};
 }
