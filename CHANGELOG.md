@@ -1,3 +1,9 @@
+# 0.4.1
+
+* Removed unnecessary "low latency audio" feature from Android manifest. Some users are
+  getting an "incompatible device" error when they try to download the app from Google
+  Play, and this may be the fix for it.
+
 # 0.4.0
 
 * Refactored "full-map" mode: moved the initialization of the SDL window to the
