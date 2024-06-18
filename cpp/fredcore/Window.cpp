@@ -163,7 +163,6 @@ void Window::renderFrame(GameBase const &game, DisplayConfig const &display_cfg,
     }
 
     auto [sb_w, sb_h] = display_cfg.setScoreboardViewport();
-    //SDL_Log("frame_w=%d frame_h=%d sb_w=%d wb_h=%d", frame_w, frame_h, sb_w, sb_h);
     for (int y = 0; y < sb_h; y += MapPos::PIXELS_PER_CHAR)
     {
         SDL_Rect dst_rect = {0, y, MapPos::PIXELS_PER_CHAR, MapPos::PIXELS_PER_CHAR};
@@ -199,7 +198,7 @@ void Window::renderFrame(GameBase const &game, DisplayConfig const &display_cfg,
                      dst_scoreboard.x + 3, dst_scoreboard.y + 17 * 8 + 2,
                      206, 206, 206);
     tmgr.renderScore(display_cfg.getRenderer(), game.getHighScore(),
-                     dst_scoreboard.x + 3, dst_scoreboard.y + 20 * 8 + 2,
+                     dst_scoreboard.x + 2, dst_scoreboard.y + 20 * 8 + 2,
                      206, 206, 206);
 
     SDL_Texture *power_texture = tmgr.get(TextureID::POWER);
