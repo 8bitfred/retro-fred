@@ -101,9 +101,11 @@ void GameRunner::checkBulletCollisions()
                 continue;
             else if (effect == Sprite::BulletEffect::HIT)
             {
+                addScore(200);
                 bullet_list.pop_back();
                 return;
             }
+            addScore(200);
             auto &smoke_list = getSpriteList(SpriteClass::SMOKE);
             sprite_pos.yadd(1);
             smoke_list.emplace_back(std::make_unique<Smoke>(sprite_pos));

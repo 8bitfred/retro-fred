@@ -4,6 +4,9 @@
   DisplayConfig class; added support for scaling the window frame and scoreboard in
   full-map mode.
 
+* Bugfix: add 200 points every time an enemy (ghost, mummy, vampire or skeleton) is hit by
+  a bullet.
+
 # 0.3.1
 
 * Use custom package name in Android app, instead of the default app.libsdl.org. In
