@@ -7,6 +7,9 @@
 * Bugfix: add 200 points every time an enemy (ghost, mummy, vampire or skeleton) is hit by
   a bullet.
 
+* Bugfix: intentionally mis-align the current score and the high score, as the original
+  game did it. The high score numer is one pixel to the left of the current score.
+
 # 0.3.1
 
 * Use custom package name in Android app, instead of the default app.libsdl.org. In
