@@ -1,3 +1,7 @@
+# 0.4.2
+
+* Added command line option to select window size on initialization.
+
 # 0.4.1
 
 * Removed unnecessary "low latency audio" feature from Android manifest. Some users are

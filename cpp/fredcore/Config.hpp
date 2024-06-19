@@ -17,6 +17,8 @@ struct Config {
     std::uint32_t ticks_per_frame = 1000 / 6;
     bool virtual_controller = false;
     int logical_width = 256, logical_height = 192;
+    bool user_window_size = false;
+    int window_width = 0, window_height = 0;
     bool full_screen = false;
     bool max_resolution = false;
     int map_width = 33, map_height = 33;
