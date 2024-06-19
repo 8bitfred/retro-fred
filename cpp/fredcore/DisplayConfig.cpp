@@ -28,9 +28,15 @@ void DisplayConfig::initFullMapMode(Config const &cfg, SDL_DisplayMode const &di
     auto max_w = frame_x_size * window_frame_scale + map_width_pixels;
     auto max_h = frame_y_size * window_frame_scale + map_height_pixels;
 
-    int width = std::min(max_w, display_mode.w * 19 / 20);
-    int height = std::min(max_h, display_mode.h * 19 / 20);
-    initWindowAndRenderer(width, height, SDL_WINDOW_RESIZABLE);
+    if (cfg.user_window_size)
+        initWindowAndRenderer(cfg.window_width, cfg.window_height,
+                              SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS);
+    else
+    {
+        int width = std::min(max_w, display_mode.w * 19 / 20);
+        int height = std::min(max_h, display_mode.h * 19 / 20);
+        initWindowAndRenderer(width, height, SDL_WINDOW_RESIZABLE);
+    }
 
     int window_w, window_h;
     SDL_GetWindowSize(getWindow(), &window_w, &window_h);
@@ -45,6 +51,12 @@ void DisplayConfig::initNormalMode(Config const &cfg, SDL_DisplayMode const &dis
     int width = display_mode.w, height = display_mode.h;
     if (cfg.full_screen)
         window_flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
+    else if (cfg.user_window_size)
+    {
+        width = cfg.window_width;
+        height = cfg.window_height;
+        window_flags = SDL_WINDOW_BORDERLESS;
+    }
     else
     {
         auto scale_w = static_cast<int>(static_cast<double>(display_mode.w * .8 / cfg.logical_width));
