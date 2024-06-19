@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
+#include <charconv>
 
 namespace {
     const char *usage =
@@ -12,7 +13,7 @@ namespace {
         "            [--boxes] [--fps FPS] [--virtual-controller]\n"
         "            [--power-with-level] [--bullets-with-level]\n"
         "            [--replenish-power] [--replenish-bullets]\n"
-        "            [--minimap-tracker]\n"
+        "            [--minimap-tracker] [--window-size WIDTHxHEIGHT]\n"
         "\n"
         "    --help    Show this message\n"
         "    --level LEVEL\n"
@@ -50,6 +51,8 @@ namespace {
         "              Refill the bullets when a level is completed.\n"
         "    --minimap-tracker\n"
         "              Show position of Fred in minimap.\n"
+        "    --window-size WIDTHxHEIGHT\n"
+        "              Select window size\n"
         "\n"
         "\n"
         "keybindings during gameplay:\n"
@@ -115,6 +118,25 @@ Config::Config(int argc, char *argv[])
         }
         else if (svarg == "--virtual-controller")
             virtual_controller = true;
+        else if (svarg == "--window-size")
+        {
+            ++i;
+            if (i >= argc)
+            {
+                std::cerr << "missing argument for option --widow-size" << std::endl;
+                std::exit(2);
+            }
+            auto wsize = std::string_view(argv[i]);
+            auto xpos = wsize.find('x');
+            if (xpos == wsize.npos)
+            {
+                std::cerr << "invalid argument: window size must be WIDTHxHEIGHT" << std::endl;
+                std::exit(2);
+            }
+            std::from_chars(wsize.data(), wsize.data() + xpos, window_width);
+            std::from_chars(wsize.data() + xpos + 1, wsize.data() + wsize.size(), window_height);
+            user_window_size = true;
+        }
         else if (!parseFlag(svarg))
         {
             std::cerr << "unknown option: " << svarg << std::endl;
