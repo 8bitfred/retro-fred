@@ -1,5 +1,7 @@
 
 if(NOT ANDROID)
+    # NOTE: VSCode cannot find the include files unless the include_directories() directive
+    # appears BEFORE the set(CMAKE_CXX_STANDARD) options.
     find_package(SDL2 REQUIRED)
     find_package(SDL2_image REQUIRED)
     include_directories(${SDL2_INCLUDE_DIRS}
