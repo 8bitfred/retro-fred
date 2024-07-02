@@ -2,6 +2,9 @@
 
 * Added command line option to select window size on initialization.
 
+* Fixed audio clipping: playing of some of the sound effects was getting interrupted at
+  the beginning of the game loop.
+
 # 0.4.1
 
 * Removed unnecessary "low latency audio" feature from Android manifest. Some users are

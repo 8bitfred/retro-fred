@@ -67,7 +67,6 @@ void GameBase::addSound(SoundID sound_id)
 
 void GameBase::playPendingSounds(SoundManager &smgr)
 {
-    smgr.clearQueuedAudio();
     std::uint32_t mask = 1;
     for (int i = 0; i < static_cast<int>(SoundID::COUNT); ++i, mask <<= 1)
     {
