@@ -7,6 +7,8 @@ if(ANDROID)
     add_subdirectory(android/SDL)
     add_subdirectory(android/SDL_image)
     include_directories(android/SDL/include android/SDL_image/include)
+    add_subdirectory(android/SDL_mixer)
+    include_directories(android/SDL/include android/SDL_mixer/include)
 endif()
 
 add_subdirectory(cpp)
