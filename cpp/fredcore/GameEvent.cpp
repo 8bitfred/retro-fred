@@ -19,6 +19,7 @@ namespace {
         { KMOD_NONE,  SDL_SCANCODE_UP,     GameEvent::UP },
         { KMOD_NONE,  SDL_SCANCODE_DOWN,   GameEvent::DOWN },
         { KMOD_NONE,  SDL_SCANCODE_SPACE,  GameEvent::FIRE },
+        { KMOD_NONE,  SDL_SCANCODE_RETURN, GameEvent::RETURN },
         { KMOD_SHIFT, SDL_SCANCODE_LEFT,   GameEvent::DBG_LEFT },
         { KMOD_SHIFT, SDL_SCANCODE_RIGHT,  GameEvent::DBG_RIGHT },
         { KMOD_SHIFT, SDL_SCANCODE_UP,     GameEvent::DBG_UP },

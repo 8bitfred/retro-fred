@@ -15,6 +15,7 @@ enum class GameEvent
     UP,
     DOWN,
     FIRE,
+    RETURN,
     DBG_LEFT,
     DBG_RIGHT,
     DBG_UP,
