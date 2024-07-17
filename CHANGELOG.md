@@ -5,6 +5,9 @@
 * Fixed audio clipping: playing of some of the sound effects was getting interrupted at
   the beginning of the game loop.
 
+* Refactored audio support: use SDL_mixer library to allow multiple sound effects to play
+  simultaneously.
+
 # 0.4.1
 
 * Removed unnecessary "low latency audio" feature from Android manifest. Some users are

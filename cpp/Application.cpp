@@ -70,8 +70,8 @@ class StateSplashScreen : public BaseState
     {
         seq = 0;
         counter = 5000 / LOADING_FRAME_TICKS;
-        auto const &wav_data = app.getSoundManager().get(SoundID::LOADING1);
-        sound_timer = SDL_GetTicks() + wav_data.getLenTicks();
+        auto loading_ticks = app.getSoundManager().getDuration(SoundID::LOADING1);
+        sound_timer = SDL_GetTicks() + loading_ticks;
         app.getSoundManager().play(SoundID::LOADING1);
         app_state.event_manager.setTimer(StateSplashScreen::LOADING_FRAME_TICKS);
     }
@@ -108,8 +108,8 @@ class StateSplashScreen : public BaseState
             if ((sound_timer - SDL_GetTicks()) < 100)
             {
                 auto sound_id = static_cast<SoundID>(static_cast<int>(SoundID::LOADING1) + seq);
-                auto const &wav_data = app.getSoundManager().get(sound_id);
-                sound_timer += wav_data.getLenTicks();
+                auto loading_ticks = app.getSoundManager().getDuration(sound_id);
+                sound_timer += loading_ticks;
                 app.getSoundManager().play(sound_id);
             }
             app_state.event_manager.setTimer(StateSplashScreen::LOADING_FRAME_TICKS);
