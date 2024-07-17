@@ -3,9 +3,9 @@
 show_help()
 {
     cat <<HELP
-$0 --sdl=<SDL_SOURCE_DIR> --sdl-image=<SDL_IMAGE_SOURCE_DIR>
+$0 --sdl=<SDL_SOURCE_DIR> --sdl-image=<SDL_IMAGE_SOURCE_DIR> --sdl-mixer=<SDL_MIXER_SOURCE_DIR>
 
-Creates links for the SDL and SDL_image directories inside the android directory, and
+Creates links for the SDL, SDL_image and SDL_mixer directories inside the android directory, and
 sets up the link to the assets directory from android/app/src/main
 HELP
 }
@@ -13,7 +13,7 @@ HELP
 
 PROJECT_ROOT=$(realpath $(dirname "$0")/..)
 
-ARGS=$(getopt -o "" --long "help,sdl:,sdl-image:" -- "$@")
+ARGS=$(getopt -o "" --long "help,sdl:,sdl-image:,sdl-mixer:" -- "$@")
 if [ $? -ne 0 ]; then
     echo "Failed to parse options"
     exit 2
@@ -33,6 +33,10 @@ while true; do
             ;;
         '--sdl-image')
             SDL_IMAGE_PATH="$2"
+            shift 2
+            ;;
+        '--sdl-mixer')
+            SDL_MIXER_PATH="$2"
             shift 2
             ;;
         '--')
@@ -62,9 +66,18 @@ if [ ! -d "$SDL_IMAGE_PATH" ]; then
     echo "Directory $SDL_IMAGE_PATH does not exist"
     exit 1
 fi
+if [ -z "$SDL_MIXER_PATH" ]; then
+    echo "Please set the path of the SDL mixer library sources with option --sdl-mixer <sdl_mixer_path>"
+    exit 2
+fi
+if [ ! -d "$SDL_MIXER_PATH" ]; then
+    echo "Directory $SDL_MIXER_PATH does not exist"
+    exit 1
+fi
 
 rm -f "$PROJECT_ROOT/android/SDL"
 rm -f "$PROJECT_ROOT/android/SDL_image"
+rm -f "$PROJECT_ROOT/android/SDL_mixer"
 rm -f "$PROJECT_ROOT/android/app/src/main/assets"
 rm -f "$PROJECT_ROOT/gradle"
 rm -f "$PROJECT_ROOT/gradle.properties"
@@ -74,6 +87,7 @@ rm -f "$PROJECT_ROOT/gradlew.bat"
 
 ln -s "$SDL_PATH" "$PROJECT_ROOT/android/SDL"
 ln -s "$SDL_IMAGE_PATH" "$PROJECT_ROOT/android/SDL_image"
+ln -s "$SDL_MIXER_PATH" "$PROJECT_ROOT/android/SDL_mixer"
 ln -s ../../../../assets "$PROJECT_ROOT/android/app/src/main/"
 ln -s android/gradle "$PROJECT_ROOT"
 ln -s android/gradle.properties "$PROJECT_ROOT"

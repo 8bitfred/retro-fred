@@ -25,6 +25,10 @@ jobs:
         uses: './.github/actions/setup-sdl_image'
         with:
           sdl_image_version: '2.8.2'
+      - name: 'Install SDL2_mixer'
+        uses: './.github/actions/setup-sdl_mixer'
+        with:
+          sdl_mixer_version: '2.8.0'
       - name: 'Configure and build'
         run: |
           cmake -G Ninja -S . -B build
@@ -47,10 +51,15 @@ jobs:
           Invoke-WebRequest "https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.2/SDL2_image-devel-2.8.2-VC.zip" -OutFile "SDL2_image.zip"
           Expand-Archive -Path SDL2_image.zip -DestinationPath "C:\SDL2_image"
 
+      - name: Download SDL2_mixer
+        run: |
+          Invoke-WebRequest "https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.8.0/SDL2_mixer-devel-2.8.0-VC.zip" -OutFile "SDL2_mixer.zip"
+          Expand-Archive -Path SDL2_mixer.zip -DestinationPath "C:\SDL2_mixer"
+
       - name: 'Configure and build - 64 bit binary'
         run: |
           mkdir -p build\win64
-          cmake -G "Visual Studio 17 2022" -A x64 "-DCMAKE_PREFIX_PATH=C:\SDL2;C:\SDL2_image" -S . -B build\win64
+          cmake -G "Visual Studio 17 2022" -A x64 "-DCMAKE_PREFIX_PATH=C:\SDL2;C:\SDL2_image;C:\SDL2_mixer" -S . -B build\win64
           cmake --build build\win64 --config Release --verbose
           cd build\win64
           cpack -G ZIP --config CPackConfig.cmake
@@ -58,7 +67,7 @@ jobs:
       - name: 'Configure and build - 32 bit binary'
         run: |
           mkdir -p build\win32
-          cmake -G "Visual Studio 17 2022" -A Win32 "-DCMAKE_PREFIX_PATH=C:\SDL2;C:\SDL2_image" -S . -B build\win32
+          cmake -G "Visual Studio 17 2022" -A Win32 "-DCMAKE_PREFIX_PATH=C:\SDL2;C:\SDL2_image;C:\SDL2_mixer" -S . -B build\win32
           cmake --build build\win32 --config Release --verbose
           cd build\win32
           cpack -G ZIP --config CPackConfig.cmake
@@ -79,6 +88,7 @@ jobs:
     env:
       sdl_version: '2.29.3'
       sdl_image_version: '2.8.2'
+      sdl_mixer_version: '2.8.0'
     steps:
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -110,10 +120,17 @@ jobs:
           tar xzf SDL2_image-${{ env.sdl_image_version }}.tar.gz
           echo "sdl2_image_path="$(pwd)/SDL2_image-${{ env.sdl_image_version }} >> "$GITHUB_OUTPUT"
       
+      - name: 'Download SDL2_mixer'
+        id: download_sdl2_mixer
+        run: |
+          wget --no-check-certificate https://github.com/libsdl-org/SDL_mixer/releases/download/release-${{ env.sdl_mixer_version }}/SDL2_mixer-${{ env.sdl_mixer_version }}.tar.gz
+          tar xzf SDL2_mixer-${{ env.sdl_mixer_version }}.tar.gz
+          echo "sdl2_mixer_path="$(pwd)/SDL2_mixer-${{ env.sdl_mixer_version }} >> "$GITHUB_OUTPUT"
+      
       - name: 'Configure and build'
         run: |
           cd src
-          ./android/configure --sdl="$GITHUB_WORKSPACE/SDL2-${{ env.sdl_version }}" --sdl-image=$GITHUB_WORKSPACE/SDL2_image-${{ env.sdl_image_version }}
+          ./android/configure --sdl="$GITHUB_WORKSPACE/SDL2-${{ env.sdl_version }}" --sdl-image=$GITHUB_WORKSPACE/SDL2_image-${{ env.sdl_image_version }} --sdl-mixer=$GITHUB_WORKSPACE/SDL2_mixer-${{ env.sdl_mixer_version }}
           ./android/gradlew build --info
 
       - name: 'Archive APK'
@@ -140,6 +157,11 @@ jobs:
         run: |
           brew update
           brew install sdl2_image
+
+      - name: Install SDL2_mixer
+        run: |
+          brew update
+          brew install sdl2_mixer
 
       - name: 'Configure and build - makefiles'
         run: |

@@ -1,22 +1,24 @@
 
-Prerequisities for all build: SDL and SDL_image libraries:
+Prerequisities for all build: SDL, SDL_image and SDL_mixer libraries:
 
     https://github.com/libsdl-org/SDL/releases/tag/release-2.30.0
     https://github.com/libsdl-org/SDL_image/releases
+    https://github.com/libsdl-org/SDL_mixer/releases
 
 
 Linux
 -----
 
-Replace <SDL2_PREFIX> and <SDL2_IMAGE_PREFIX> with the installation prefix of the SDL and
-SDL_image libraries, respectively (for example: /opt/sdl2/2.28.3 or /usr/local)
+Replace <SDL2_PREFIX>, <SDL2_IMAGE_PREFIX> and <SDL2_MIXER_PREFIX> with the installation
+prefix of the SDL, SDL_image and SDL_mixer libraries, respectively (for example:
+/opt/sdl2/2.28.3 or /usr/local)
 
 ```
     git clone <repository> retro-fred
     cd retro-fred
     mkdir build
     cd build
-    cmake '-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>' ..
+    cmake '-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>;<SDL2_MIXER_PREFIX>' ..
     cmake --build .
 ```
 
@@ -35,12 +37,12 @@ Use option --help to get a list of configuration options.
 Android
 -------
 
-The Android build needs the source distributions of SDL and SDL_image. The SDL source code
-needs to be patched with patch-SDL2-2.29.3-aaudio-buffer-size.patch to ensure that the
-audio buffer gets set correctly.
+The Android build needs the source distributions of SDL, SDL_image and SDL_mixer. The SDL
+source code needs to be patched with patch-SDL2-2.29.3-aaudio-buffer-size.patch to ensure
+that the audio buffer gets set correctly.
 
-First, apply the patch (<SDL2_SOURCE> and <SDL2_IMAGE_SOURCE> are the directories of the
-source distributions of the SDL and SDL_image libraries):
+First, apply the patch (<SDL2_SOURCE>, <SDL2_IMAGE_SOURCE> and <SDL2_MIXER_SOURCE> are the
+directories of the source distributions of the SDL, SDL_image and SDL_mixer libraries):
 
 ```
     RETROFRED_ROOT=$(pwd); (cd <SDL2_SOURCE>; patch -p1 <$RETROFRED_ROOT/android/patch-SDL2-2.29.3-aaudio-buffer-size.patch)
@@ -50,7 +52,9 @@ Then set up the links to the source code of the SDL2 libraries in the android di
 and an internal link to the assets directory from the android/app/src/main directory:
 
 ```
-    ./android/configure --sdl=<SDL2_SOURCE> --sdl-image=<SDL2_IMAGE_SOURCE>
+    ./android/configure --sdl=<SDL2_SOURCE> \
+                        --sdl-image=<SDL2_IMAGE_SOURCE> \
+                        --sdl-mixer=<SDL_MIXER_SOURCE>
 ```
 
 Now the build can be started using the gradle tool included in the android directory.
@@ -101,9 +105,9 @@ Windows - Visual Studio
 Tested with Visual Studio 2022, and CMake 3.28.3
 (note that the cmake install is not the one that comes with Visual Studio)
 
-Replace <SDL2_PREFIX> and <SDL2_IMAGE_PREFIX> with the installation prefix of the SDL and
-SDL_image libraries, respectively (typically the directory where the .zip file of the
-release has been unpacked)
+Replace <SDL2_PREFIX>, <SDL2_IMAGE_PREFIX> and <SDL2_MIXER_PREFIX> with the installation
+prefix of the SDL, SDL_image and SDL_mixer libraries, respectively (typically the
+directory where the .zip file of the release has been unpacked)
 
 ```
     git clone <repository> retro-fred
@@ -112,7 +116,8 @@ release has been unpacked)
     cd build
     mkdir win64
     cd win64
-    cmake -G "Visual Studio 17 2022" -A x64 "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>" ../..
+    cmake -G "Visual Studio 17 2022" -A x64 \
+        "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>;<SDL2_MIXER_REFIX>" ../..
     cmake --build . --config Release
     cpack -G ZIP --config .\CPackConfig.cmake
 ```
@@ -123,7 +128,8 @@ And for the 32 bit build:
     cd ..\..\build
     mkdir win32
     cd win32
-    cmake -G "Visual Studio 17 2022" -A Win32 "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>" ../..
+    cmake -G "Visual Studio 17 2022" -A Win32 \
+        "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>;<SDL2_MIXER_PREFIX>" ../..
     cmake --build . --config Release
     cpack -G ZIP --config .\CPackConfig.cmake
 ```
@@ -131,11 +137,10 @@ And for the 32 bit build:
 Windows - mingw-w64: cross compiling from Linux
 -----------------------------------------------
 
-Replace <SDL2_PREFIX> and <SDL2_IMAGE_PREFIX> with the installation
-prefix of the SDL and SDL_image libraries for the x86_64 target. For
-example: /opt/sdl2/2.30.0/x86_64-w64-mingw32 and
-/opt/sdl2_image/2.8.2/x86_64-w64-mingw32. You can use the binary
-distributions from the SDL2 and SDL2_image release page, respectively.
+Replace <SDL2_PREFIX>, <SDL2_IMAGE_PREFIX> and <SDL2_MIXER_PREFIX> with the installation
+prefix of the SDL, SDL_image and SDL_mixer libraries for the x86_64 target. For example:
+/opt/sdl2/2.30.0/x86_64-w64-mingw32 and /opt/sdl2_image/2.8.2/x86_64-w64-mingw32. You can
+use the binary distributions from the SDL2, SDL2_image and SDL2_mixer release pages.
 
 Replace <MINGW_TOOLCHAIN> with the path of the CMake toolchain file
 for the mingw install. For example:
@@ -169,7 +174,8 @@ Example toolchain file for mingw:
     cd retro-fred
     mkdir -p build/mingw-w64
     cd build/mingw-w64
-    cmake '-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>' -DCMAKE_TOOLCHAIN_FILE=<MINGW_TOOLCHAIN> -G Ninja ../..
+    cmake '-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>;<SDL2_MIXER_PREFIX>' \
+        -DCMAKE_TOOLCHAIN_FILE=<MINGW_TOOLCHAIN> -G Ninja ../..
     cmake --build .
 ```
 
@@ -183,12 +189,13 @@ currently fails to archive all the required .dlls:
 MacOS X
 -------
 
-First you need to install SDL2 and SDL2_image. The easiest way is to download the .dmg packages from 
-the SDL sites. Then copy the SDL2.framework and SDL2_image.framework directories to the system's
-/Library/Frameworks directory, or the user's Library/Frameworks directory inside the home directory.
-You can also install it in a different directory. In that case you will need to add option
-"-DCMAKE_PREFIX_PATH=<SDL_FRAMEWORK_DIR>;<SDL_IMAGE_FRAMEWORK_DIR>" to the cmake invocation to
-specify the location of the libraries.
+First you need to install SDL2, SDL2_image and SDL2_mixer. The easiest way is to download
+the .dmg packages from the SDL sites. Then copy the SDL2.framework, SDL2_image.framework
+and SDL2_mixer.framework directories to the system's /Library/Frameworks directory, or the
+user's Library/Frameworks directory inside the home directory. You can also install it in
+a different directory. In that case you will need to add option
+"-DCMAKE_PREFIX_PATH=<SDL_FRAMEWORK_DIR>;<SDL_IMAGE_FRAMEWORK_DIR>;<SDL_MIXER_FRAMEWORK_DIR>"
+to the cmake invocation to specify the location of the libraries.
 
 ```
     git clone <repository> retro-fred

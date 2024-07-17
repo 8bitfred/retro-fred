@@ -1,0 +1,39 @@
+name: 'Build SDL_mixer'
+description: 'Downloads and builds SDL_mixer'
+inputs:
+  sdl_mixer_version:
+    description: 'SDL_mixer version to build'
+    required: true
+    default: '2.8.0'
+runs:
+  using: 'composite'
+  steps:
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y build-essential git make pkg-config cmake ninja-build
+      shell: bash
+
+    - name: Cache SDL_mixer Build
+      id: cache-sdl_mixer
+      uses: actions/cache@v3
+      with:
+        path: |
+          SDL2_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz
+        key: ${{ runner.os }}-sdl2_mixer-${{ inputs.sdl_mixer_version }}-key2
+
+    - if: ${{ steps.cache-sdl_mixer.outputs.cache-hit != 'true' }}
+      name: Download and build SDL_mixer
+      run: |
+        wget --no-check-certificate https://github.com/libsdl-org/SDL_mixer/releases/download/release-${{ inputs.sdl_mixer_version }}/SDL2_mixer-${{ inputs.sdl_mixer_version }}.tar.gz
+        tar xzf SDL2_mixer-${{ inputs.sdl_mixer_version }}.tar.gz
+        mkdir SDL2_mixer-${{ inputs.sdl_mixer_version }}-build
+        cd SDL2_mixer-${{ inputs.sdl_mixer_version }}-build
+        ../SDL2_mixer-${{ inputs.sdl_mixer_version }}/configure
+        make
+        sudo make DESTDIR=$(realpath install) install
+        tar cf ../SDL2_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C install .
+      shell: bash
+
+    - name: Install SDL_mixer
+      run: |
+        sudo tar xf SDL2_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C /
+      shell: bash

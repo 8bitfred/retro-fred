@@ -1,3 +1,4 @@
 # Symbolic links to SDL libraries
 /SDL
 /SDL_image
+/SDL_mixer

@@ -19,7 +19,13 @@ android {
         versionName "0.4.2"
         externalNativeBuild {
             cmake {
-                arguments "-DANDROID_APP_PLATFORM=android-19", "-DANDROID_STL=c++_static"
+                arguments "-DANDROID_APP_PLATFORM=android-19", 
+                    "-DANDROID_STL=c++_static",
+                    "-DSDL2MIXER_VENDORED=OFF", 
+                    "-DSDL2MIXER_OPUS=OFF", 
+                    "-DSDL2MIXER_MOD=OFF",
+                    "-DSDL2MIXER_MIDI_FLUIDSYNTH=OFF",
+                    "-DSDL2MIXER_WAVPACK=OFF"
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
                 // abiFilters 'arm64-v8a'
             }
