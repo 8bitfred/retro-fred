@@ -45,7 +45,7 @@ void Menu::eventHandler(EventMask const &event_mask, SoundManager &smgr)
         current = (current + item_list.size() - 1) % item_list.size();
         smgr.play(SoundID::WALK);
     }
-    else if (event_mask.check(GameEvent::FIRE))
+    else if (event_mask.check(GameEvent::FIRE) || event_mask.check(GameEvent::RETURN))
     {
         selected = item_list[current].selection_code;
         item_list[current].menu_item->action();
