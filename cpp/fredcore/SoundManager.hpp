@@ -8,16 +8,18 @@ struct Config;
 
 class SoundManager
 {
-    std::vector<sdl::WAVData> wav_list;
-    SDL_AudioSpec audio_spec;
+    std::vector<sdl::MixChunkPtr> wav_list;
     sdl::AudioDevice audio_device;
 
-    static std::vector<sdl::WAVData> loadWAVs(Config const &cfg);
-    static SDL_AudioSpec initAudioSpec(sdl::WAVData const &wav_data);
+    void loadWAVs(Config const &cfg);
 
 public:
     explicit SoundManager(Config const &cfg);
     void play(SoundID sound_id);
-    sdl::WAVData const &get(SoundID sound_id) const;
+    Uint32 getDuration(SoundID sound_id) const
+    {
+        auto chunk = wav_list[static_cast<size_t>(sound_id)].get();
+        return audio_device.getDuration(chunk);
+    }
     void clearQueuedAudio() { audio_device.clearQueuedAudio(); }
 };

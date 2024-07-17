@@ -4,8 +4,10 @@ if(NOT ANDROID)
     # appears BEFORE the set(CMAKE_CXX_STANDARD) options.
     find_package(SDL2 REQUIRED)
     find_package(SDL2_image REQUIRED)
+    find_package(SDL2_mixer REQUIRED)
     include_directories(${SDL2_INCLUDE_DIRS}
-                        $<TARGET_PROPERTY:SDL2_image::SDL2_image,INTERFACE_INCLUDE_DIRECTORIES>)
+                        $<TARGET_PROPERTY:SDL2_image::SDL2_image,INTERFACE_INCLUDE_DIRECTORIES>
+                        $<TARGET_PROPERTY:SDL2_mixer::SDL2_mixer,INTERFACE_INCLUDE_DIRECTORIES>)
 endif()
 
 # default values
@@ -45,13 +47,19 @@ include(InstallRequiredSystemLibraries)
 
 if(ANDROID)
     add_library(main main.cpp)
-    target_link_libraries(main fredgame fredcore SDL2 SDL2main SDL2_image)
+    target_link_libraries(main fredgame fredcore SDL2 SDL2main SDL2_image SDL2_mixer)
 else()
     add_executable(retro-fred main.cpp)
-    target_link_libraries(retro-fred fredgame fredcore ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
+    target_link_libraries(retro-fred fredgame fredcore
+                          ${SDL2_LIBRARIES}
+                          SDL2_image::SDL2_image
+                          SDL2_mixer::SDL2_mixer)
 
     add_executable(autofred autofred.cpp)
-    target_link_libraries(autofred fredgame fredcore ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
+    target_link_libraries(autofred fredgame fredcore
+                          ${SDL2_LIBRARIES}
+                          SDL2_image::SDL2_image
+                          SDL2_mixer::SDL2_mixer)
 
     add_executable(sandbox
                    sandbox.cpp
@@ -59,7 +67,10 @@ else()
                    Signal.hpp
                    fredcore/GameEvent.hpp fredcore/GameEvent.cpp
                    fredcore/Controller.hpp fredcore/Controller.cpp)
-    target_link_libraries(sandbox ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
+    target_link_libraries(sandbox
+                          ${SDL2_LIBRARIES}
+                          SDL2_image::SDL2_image
+                          SDL2_mixer::SDL2_mixer)
 endif()
 
 if(WIN32)
@@ -73,7 +84,10 @@ if(WIN32)
     # Create a console version of the fred app, to allow command-line interaction
     add_executable(retro-fred-console main.cpp)
     target_link_libraries(retro-fred-console
-                          fredgame fredcore ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
+                          fredgame fredcore
+                          ${SDL2_LIBRARIES}
+                          SDL2_image::SDL2_image
+                          SDL2_mixer::SDL2_mixer)
 
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     install(TARGETS
@@ -81,6 +95,8 @@ if(WIN32)
             RUNTIME DESTINATION .)
     install(FILES
             $<TARGET_PROPERTY:SDL2::SDL2,IMPORTED_LOCATION>
-            $<TARGET_PROPERTY:SDL2_image::SDL2_image,IMPORTED_LOCATION> DESTINATION .)
+            $<TARGET_PROPERTY:SDL2_image::SDL2_image,IMPORTED_LOCATION>
+            $<TARGET_PROPERTY:SDL2_mixer::SDL2_mixer,IMPORTED_LOCATION>
+            DESTINATION .)
 endif()
 

@@ -5,6 +5,7 @@
 #include <functional>
 
 #include <SDL.h>
+#include <SDL_mixer.h>
 
 namespace sdl
 {
@@ -125,82 +126,50 @@ namespace sdl
         }
     };
 
-    class WAVData {
-        SDL_AudioSpec spec;
-        Uint8* audio_buf;
-        Uint32 audio_len;
-    public:
-        explicit WAVData(const char* file)
-        {
-            auto result = SDL_LoadWAV(file, &spec, &audio_buf, &audio_len);
-            if (!result)
-                throw Error();
-        }
-        WAVData(WAVData const &) = delete;
-        WAVData(WAVData &&other) noexcept
-            : spec(other.spec), audio_buf(other.audio_buf), audio_len(other.audio_len)
-        {
-            other.audio_buf = nullptr;
-            other.audio_len = 0;
-        }
-        ~WAVData() noexcept { SDL_FreeWAV(audio_buf); }
-        WAVData &operator=(WAVData const &) = delete;
-        WAVData &operator=(WAVData&& other) noexcept
-        {
-            spec = other.spec;
-            audio_buf = other.audio_buf;
-            audio_len = other.audio_len;
-            other.audio_buf = nullptr;
-            other.audio_len = 0;
-            return *this;
-        }
-
-        SDL_AudioSpec const* getSpec() const noexcept { return &spec; }
-        Uint8 const* getBuf() const noexcept { return audio_buf; }
-        Uint32 getLen() const noexcept { return audio_len; }
-        Uint32 getLenTicks() const noexcept {
-            auto sample_size = SDL_AUDIO_BITSIZE(spec.format) / 8;
-            auto sample_count = audio_len / (sample_size * spec.channels);
-            return 1000 * sample_count / spec.freq;
-        }
-    };
+    using MixChunkPtr = ObjectPtr<Mix_Chunk, Mix_FreeChunk>;
 
     class AudioDevice
     {
-        SDL_AudioDeviceID device_id;
+        int audio_frequency;
+        Uint16 audio_format;
+        int audio_channels;
 
     public:
-        AudioDevice(char const *device, bool iscapture,
-                    SDL_AudioSpec const *desired, SDL_AudioSpec *obtained,
-                    int allowed_changes)
+        AudioDevice(int chunksize = 1024,
+                    int frequency = MIX_DEFAULT_FREQUENCY,
+                    Uint16 format = MIX_DEFAULT_FORMAT,
+                    int channels = MIX_DEFAULT_CHANNELS)
         {
-            device_id = SDL_OpenAudioDevice(device, iscapture,
-                                            desired, obtained, allowed_changes);
-            if (device_id == 0)
+            // NOTE: if we actually want to choose a device (instead of the default) we
+            // need to call Mix_OpenAudioDevice
+            if (Mix_OpenAudio(frequency, format, channels, chunksize) < 0)
                 throw Error();
+            Mix_QuerySpec(&audio_frequency, &audio_format, &audio_channels);
         }
         AudioDevice(AudioDevice const &) = delete;
-        AudioDevice(AudioDevice &&other) noexcept : device_id(other.device_id) { other.device_id = 0; }
+        AudioDevice(AudioDevice &&other) = delete;
         ~AudioDevice() noexcept
         {
-            if (device_id)
-                SDL_CloseAudioDevice(device_id);
+            Mix_CloseAudio();
         }
         AudioDevice &operator=(AudioDevice const &) = delete;
-        AudioDevice &operator=(AudioDevice &&other) noexcept
+        AudioDevice &operator=(AudioDevice &&other) = delete;
+        int playChannel(Mix_Chunk *chunk, int channel = -1, int loops = 0)
         {
-            device_id = other.device_id;
-            other.device_id = 0;
-            return *this;
-        }
-        void queueAudio(WAVData const& wav_data)
-        {
-            auto status = SDL_QueueAudio(device_id, wav_data.getBuf(), wav_data.getLen());
-            if (status < 0)
+            auto out_channel = Mix_PlayChannel(channel, chunk, loops);
+            if (out_channel < 0)
                 throw Error();
+            return out_channel;
         }
-        void pause(bool pause_on) noexcept { SDL_PauseAudioDevice(device_id, pause_on); }
-        void clearQueuedAudio() noexcept { SDL_ClearQueuedAudio(device_id); }
+        Uint32 getDuration(Mix_Chunk *chunk) const noexcept
+        {
+            auto sample_size = SDL_AUDIO_BITSIZE(audio_format) / 8;
+            auto sample_count = chunk->alen / (sample_size * audio_channels);
+            return 1000 * sample_count / audio_frequency;
+
+        }
+        void pause(bool pause_on) noexcept { Mix_PauseAudio(static_cast<int>(pause_on)); }
+        void clearQueuedAudio() noexcept { Mix_HaltChannel(-1); }
     };
 
 } // namespace sdl
