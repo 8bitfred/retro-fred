@@ -27,13 +27,13 @@ struct Config {
     bool infinite_ammo = false;
     bool infinite_power = false;
     bool boxes = false;
-    bool minimap_exit = false;
+    bool minimap_exit = true;
     std::filesystem::path resource_path;
-    bool set_power_with_level = false;
-    bool set_bullets_with_level = false;
-    bool replenish_power = false;
-    bool replenish_bullets = false;
-    bool minimap_tracker = false;
+    bool set_power_with_level = true;
+    bool set_bullets_with_level = true;
+    bool refill_power = true;
+    bool refill_bullets = true;
+    bool minimap_tracker = true;
     int level = 1;
 
 private:

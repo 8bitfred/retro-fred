@@ -15,7 +15,7 @@
 #include "Object.hpp"
 #include "Tomb.hpp"
 #include "fredcore/Controller.hpp"
-#include "config.hpp"
+#include "build_config.hpp"
 #include <iostream>
 #include <cstdio>
 #include <fstream>
@@ -244,8 +244,8 @@ public:
         config_menu.addItem(std::make_unique<MenuItem>("BACK TO MAIN MENU"), CONFIG_MENU_BACK);
         config_menu.addItem(std::make_unique<CheckBox>("Minimap tracker", &cfg.minimap_tracker));
         config_menu.addItem(std::make_unique<CheckBox>("Show exit on minimap", &cfg.minimap_exit));
-        config_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &cfg.replenish_power));
-        config_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &cfg.replenish_bullets));
+        config_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &cfg.refill_power));
+        config_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &cfg.refill_bullets));
         config_menu.addItem(std::make_unique<CheckBox>("Level dependent power up", &cfg.set_power_with_level));
         config_menu.addItem(std::make_unique<CheckBox>("Level dependent bullets up", &cfg.set_bullets_with_level));
     }
@@ -542,8 +542,8 @@ public:
         game_menu.addItem(std::make_unique<MenuItem>("QUIT GAME"), GAME_MENU_QUIT);
         game_menu.addItem(std::make_unique<CheckBox>("Minimap tracker", &game_cfg.minimap_tracker));
         game_menu.addItem(std::make_unique<CheckBox>("Show exit on minimap", &game_cfg.minimap_exit));
-        game_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &game_cfg.replenish_power));
-        game_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &game_cfg.replenish_bullets));
+        game_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &game_cfg.refill_power));
+        game_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &game_cfg.refill_bullets));
         game_menu.addItem(std::make_unique<CheckBox>("Level dependent power up", &game_cfg.set_power_with_level));
         game_menu.addItem(std::make_unique<CheckBox>("Level dependent ammo up", &game_cfg.set_bullets_with_level));
         game_menu.addItem(std::make_unique<CheckBox>("Infinite power", &game_cfg.infinite_power));
