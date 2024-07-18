@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <charconv>
+#include "build_config.hpp"
 
 namespace {
     const char *usage =
@@ -12,7 +13,7 @@ namespace {
         "            [--infinite-ammo] [--infinite-power]\n"
         "            [--boxes] [--fps FPS] [--virtual-controller]\n"
         "            [--power-with-level] [--bullets-with-level]\n"
-        "            [--replenish-power] [--replenish-bullets]\n"
+        "            [--refill-power] [--refill-bullets]\n"
         "            [--minimap-tracker] [--window-size WIDTHxHEIGHT]\n"
         "\n"
         "    --help    Show this message\n"
@@ -45,9 +46,9 @@ namespace {
         "    --bullets-with-level\n"
         "              Change the max number of bullets with the\n"
         "              level.\n"
-        "    --replenish-power\n"
+        "    --refill-power\n"
         "              Refill the power when a level is completed.\n"
-        "    --replenish-bullets\n"
+        "    --refill-bullets\n"
         "              Refill the bullets when a level is completed.\n"
         "    --minimap-tracker\n"
         "              Show position of Fred in minimap.\n"
@@ -137,7 +138,7 @@ Config::Config(int argc, char *argv[])
             std::from_chars(wsize.data() + xpos + 1, wsize.data() + wsize.size(), window_height);
             user_window_size = true;
         }
-        else if (!parseFlag(svarg))
+        else if (svarg.starts_with("--") && !parseFlag(svarg.substr(2)))
         {
             std::cerr << "unknown option: " << svarg << std::endl;
             std::cerr << usage << std::endl;
@@ -146,26 +147,40 @@ Config::Config(int argc, char *argv[])
     }
 }
 
+namespace {
+    std::string_view strip(std::string_view in)
+    {
+        auto s = in.find_first_not_of(' ');
+        if (s == in.npos)
+            return {};
+        auto e = in.find_last_not_of(' ');
+        return in.substr(s, e - s + 1);
+    }
+}
+
 void Config::load(std::filesystem::path config_path)
 {
     std::ifstream file(config_path);
-    while (true)
+    for (std::string line; std::getline(file, line);)
     {
-        std::string arg;
-        file >> arg;
-        if (file.fail() || file.eof())
-            break;
-        parseFlag(arg);
+        auto svarg = strip(line);
+        // for now we just ignore version settings
+        if (svarg.starts_with("version "))
+            continue;
+        parseFlag(svarg);
     }
 }
 
 void Config::save(std::filesystem::path config_path) const
 {
     std::ofstream file(config_path);
+    file << "version " << RETRO_FRED_VERSION_STRING << std::endl;
     for (auto const &[name, ptr] : getBoolFlagList())
     {
         if (this->*ptr)
             file << name << std::endl;
+        else
+            file << "no-" << name << std::endl;
     }
 }
 
@@ -174,14 +189,14 @@ std::vector<std::pair<std::string, bool Config::*>> Config::getBoolFlagList()
     // Flags in this list will be saved and loaded. We restrict it to the flags that can
     // be set with the menu, so that users can change their values after they are loaded.
     static std::vector<std::pair<std::string, bool Config::*>> flag_list = {
-        {"--minimap-exit", &Config::minimap_exit},
-        {"--infinite-ammo", &Config::infinite_ammo},
-        {"--infinite-power", &Config::infinite_power},
-        {"--power-with-level", &Config::set_power_with_level},
-        {"--bullets-with-level", &Config::set_bullets_with_level},
-        {"--replenish-power", &Config::replenish_power},
-        {"--replenish-bullets", &Config::replenish_bullets},
-        {"--minimap-tracker", &Config::minimap_tracker},
+        {"minimap-exit", &Config::minimap_exit},
+        {"infinite-ammo", &Config::infinite_ammo},
+        {"infinite-power", &Config::infinite_power},
+        {"power-with-level", &Config::set_power_with_level},
+        {"bullets-with-level", &Config::set_bullets_with_level},
+        {"refill-power", &Config::refill_power},
+        {"refill-bullets", &Config::refill_bullets},
+        {"minimap-tracker", &Config::minimap_tracker},
     };
     return flag_list;
 }
@@ -193,6 +208,11 @@ bool Config::parseFlag(std::string_view svarg)
         if (svarg == name)
         {
             this->*ptr = true;
+            return true;
+        }
+        else if (svarg.starts_with("no-") && svarg.substr(3) == name)
+        {
+            this->*ptr = false;
             return true;
         }
     }

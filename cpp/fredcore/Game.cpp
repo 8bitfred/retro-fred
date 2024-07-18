@@ -28,11 +28,11 @@ void GameBase::nextLevel(std::minstd_rand &random_engine)
     treasure_count = 0;
     sprite_count = getSpriteCountOfLevel(cfg, level);
     minimap_pos.reset();
-    if (cfg.replenish_power)
+    if (cfg.refill_power)
         power = MAX_POWER;
     else
         power = std::min(power + 2, MAX_POWER);
-    if (cfg.replenish_bullets)
+    if (cfg.refill_bullets)
         bullet_count = sprite_count.charge_bullets;
 }
 

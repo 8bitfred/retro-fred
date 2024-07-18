@@ -8,6 +8,10 @@
 * Refactored audio support: use SDL_mixer library to allow multiple sound effects to play
   simultaneously.
 
+* Set configuration defaults to easier values. Store version number in configuration file.
+  Store true or false for all supported options in configuration file.
+
+
 # 0.4.1
 
 * Removed unnecessary "low latency audio" feature from Android manifest. Some users are
