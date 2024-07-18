@@ -1,5 +1,6 @@
 # Mapping between version names and Android version codes
 # version   code    description
+0.4.2       10      Refactor configuration menus
 0.4.2       9       Switch to SDL_mixer to allow multiple effects playing simultaneously
 0.4.2       8       Added --window-size command-line option; prevent audio clipping
 0.4.1       7       Remove unnecessary low-latency audio feature from manifest

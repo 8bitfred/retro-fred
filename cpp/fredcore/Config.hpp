@@ -8,6 +8,9 @@ struct Config {
     Config(int argc, char *argv[]);
     void load(std::filesystem::path config_path);
     void save(std::filesystem::path config_path) const;
+    void normalMode();
+    void classicMode();
+    void resetCheats();
 
     static constexpr int PIXELS_PER_CHAR = 8;
     static constexpr int CELL_WIDTH = 4;
@@ -25,7 +28,9 @@ struct Config {
     bool debug_map = false;
     bool debug_keys = false;
     bool infinite_ammo = false;
+    bool default_infinite_ammo = false;
     bool infinite_power = false;
+    bool default_infinite_power = false;
     bool boxes = false;
     bool minimap_exit = true;
     std::filesystem::path resource_path;
