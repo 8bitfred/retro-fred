@@ -11,6 +11,10 @@
 * Set configuration defaults to easier values. Store version number in configuration file.
   Store true or false for all supported options in configuration file.
 
+* Separate the in-game menu between configuration options, and cheats (POKEs).
+  Configuration changes from the in-game menu affect the global configuration (instead of
+  just for the current game). Cheats get reset to their default values (which can only be
+  set from te command line) at the beginning of every game. 
 
 # 0.4.1
 

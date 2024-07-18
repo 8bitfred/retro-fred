@@ -202,7 +202,10 @@ class StateConfigMenu : public BaseState
     enum ConfigMenu
     {
         CONFIG_MENU_BACK,
+        CONFIG_MENU_CLASSIC,
+        CONFIG_MENU_NORMAL,
     };
+    Config &app_cfg;
     Menu config_menu;
 
     void enter(FredApp &, AppState &) final {}
@@ -234,20 +237,26 @@ class StateConfigMenu : public BaseState
                 app_state.set(AppState::MAIN_MENU, app);
                 app.saveConfig();
             }
+            else if (config_menu.isSelected(CONFIG_MENU_CLASSIC))
+                app_cfg.classicMode();
+            else if (config_menu.isSelected(CONFIG_MENU_NORMAL))
+                app_cfg.normalMode();
         }
     }
 
 public:
     StateConfigMenu(Config &cfg)
-        : config_menu(SDL_Rect{16, 56, 224, 160})
+        : app_cfg(cfg), config_menu(SDL_Rect{16, 56, 224, 160})
     {
         config_menu.addItem(std::make_unique<MenuItem>("BACK TO MAIN MENU"), CONFIG_MENU_BACK);
+        config_menu.addItem(std::make_unique<MenuItem>("Classic mode"), CONFIG_MENU_CLASSIC);
+        config_menu.addItem(std::make_unique<MenuItem>("Normal mode"), CONFIG_MENU_NORMAL);
         config_menu.addItem(std::make_unique<CheckBox>("Minimap tracker", &cfg.minimap_tracker));
         config_menu.addItem(std::make_unique<CheckBox>("Show exit on minimap", &cfg.minimap_exit));
         config_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &cfg.refill_power));
         config_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &cfg.refill_bullets));
-        config_menu.addItem(std::make_unique<CheckBox>("Level dependent power up", &cfg.set_power_with_level));
-        config_menu.addItem(std::make_unique<CheckBox>("Level dependent bullets up", &cfg.set_bullets_with_level));
+        config_menu.addItem(std::make_unique<CheckBox>("Level-dependent power up", &cfg.set_power_with_level));
+        config_menu.addItem(std::make_unique<CheckBox>("Level-dependent bullets up", &cfg.set_bullets_with_level));
     }
 };
 
@@ -305,28 +314,41 @@ class StatePlay : public BaseState
     {
         GAME_MENU_BACK,
         GAME_MENU_QUIT,
-        GAME_MENU_REFILL_POWER,
-        GAME_MENU_REFILL_AMMO,
-        GAME_MENU_MOVE_TO_EXIT,
-        GAME_MENU_MINIMAP,
+        GAME_MENU_CLASSIC,
+        GAME_MENU_NORMAL,
+        GAME_MENU_CHEATS,
     };
-    Config game_cfg;
-    Menu game_menu;
+    enum CheatsMenu
+    {
+        CHEATS_MENU_BACK,
+        CHEATS_MENU_REFILL_POWER,
+        CHEATS_MENU_REFILL_AMMO,
+        CHEATS_MENU_MOVE_TO_EXIT,
+        CHEATS_MENU_MINIMAP,
+    };
+    enum class PauseMode
+    {
+        OFF,
+        GAME_MENU,
+        CHEATS_MENU,
+    };
+    Config &game_cfg;
+    Menu game_menu, cheats_menu;
     std::optional<Window> play_window;
     std::optional<GameRunner> game;
     int counter = 0;
-    bool pause = false;
+    PauseMode pause_mode = PauseMode::OFF;
     bool cheat = false;
     void enter(FredApp &app, AppState &) final
     {
-        game_cfg = app.getConfig();
+        game_cfg.resetCheats();
         play_window.emplace(game_cfg, app.getDisplayConfig().getGameWindowRect());
         game.emplace(game_cfg, app.getRandomEngine(),
                      app.getHighScores().front().first);
         game->initializeSprites(app.getRandomEngine());
         play_window->setWindowPos(game->getFredCellPos());
         counter = 0;
-        pause = false;
+        pause_mode = PauseMode::OFF;
         cheat = false;
     }
     void renderLevelTransition(FredApp const &app) const
@@ -369,8 +391,10 @@ class StatePlay : public BaseState
                          app.getRenderer(), play_window->getGameWindow());
             play_window->renderFrame(*game, app.getDisplayConfig(), app.getTextureManager());
             app.getDisplayConfig().setIntroViewport();
-            if (pause)
+            if (pause_mode == PauseMode::GAME_MENU)
                 game_menu.render(app.getRenderer(), app.getTextureManager());
+            else if (pause_mode == PauseMode::CHEATS_MENU)
+                cheats_menu.render(app.getRenderer(), app.getTextureManager());
             if (game_cfg.virtual_controller)
                 Controller::render(app.getWindow(), app.getRenderer(), app.getTextureManager());
             SDL_RenderPresent(app.getRenderer());
@@ -446,30 +470,56 @@ class StatePlay : public BaseState
                              EventMask const &event_mask)
     {
         if (event_mask.check(GameEvent::BACK) || event_mask.check(GameEvent::ESCAPE))
-            pause = false;
+        {
+            pause_mode = PauseMode::OFF;
+            app.saveConfig();
+        }
         else
         {
             game_menu.eventHandler(event_mask, app.getSoundManager());
             if (game_menu.isSelected(GAME_MENU_BACK))
-                pause = false;
+            {
+                pause_mode = PauseMode::OFF;
+                app.saveConfig();
+            }
             else if (game_menu.isSelected(GAME_MENU_QUIT))
                 app_state.set(AppState::MAIN_MENU, app);
-            else if (game_menu.isSelected(GAME_MENU_REFILL_POWER))
+            else if (game_menu.isSelected(GAME_MENU_CLASSIC))
+                game_cfg.classicMode();
+            else if (game_menu.isSelected(GAME_MENU_NORMAL))
+                game_cfg.normalMode();
+            else if (game_menu.isSelected(GAME_MENU_CHEATS))
+                pause_mode = PauseMode::CHEATS_MENU;
+        }
+    }
+
+    void handleCheatsMenuEvent(FredApp &app,
+                              AppState &,
+                              EventMask const &event_mask)
+    {
+        if (event_mask.check(GameEvent::BACK) || event_mask.check(GameEvent::ESCAPE))
+            pause_mode = PauseMode::GAME_MENU;
+        else
+        {
+            cheats_menu.eventHandler(event_mask, app.getSoundManager());
+            if (cheats_menu.isSelected(GAME_MENU_BACK))
+                pause_mode = PauseMode::GAME_MENU;
+            else if (cheats_menu.isSelected(CHEATS_MENU_REFILL_POWER))
             {
                 game->resetPower();
                 cheat = true;
             }
-            else if (game_menu.isSelected(GAME_MENU_REFILL_AMMO))
+            else if (cheats_menu.isSelected(CHEATS_MENU_REFILL_AMMO))
             {
                 game->resetBullets();
                 cheat = true;
             }
-            else if (game_menu.isSelected(GAME_MENU_MOVE_TO_EXIT))
+            else if (cheats_menu.isSelected(CHEATS_MENU_MOVE_TO_EXIT))
             {
                 moveToExit();
                 cheat = true;
             }
-            else if (game_menu.isSelected(GAME_MENU_MINIMAP))
+            else if (cheats_menu.isSelected(CHEATS_MENU_MINIMAP))
             {
                 game->setMinimapPos(game->getFredPos().cellPos());;
                 cheat = true;
@@ -485,10 +535,12 @@ class StatePlay : public BaseState
     {
         if (game->getLevelStatus() == GameBase::LevelStatus::PLAY)
         {
-            if (pause)
+            if (pause_mode == PauseMode::GAME_MENU)
                 handleGameMenuEvent(app, app_state, event_mask);
+            else if (pause_mode == PauseMode::CHEATS_MENU)
+                handleCheatsMenuEvent(app, app_state, event_mask);
             else if (event_mask.check(GameEvent::BACK) || event_mask.check(GameEvent::ESCAPE))
-                pause = true;
+                pause_mode = PauseMode::GAME_MENU;
             else
                 updateGame(app, app_state, event_mask);
         }
@@ -536,22 +588,28 @@ class StatePlay : public BaseState
 public:
     explicit StatePlay(Config &cfg)
         : game_cfg(cfg)
-        , game_menu(SDL_Rect{16, 32, 224, 128})
+        , game_menu(SDL_Rect{16, 32, 224, 104})
+        , cheats_menu(SDL_Rect{16, 32, 224, 72})
     {
         game_menu.addItem(std::make_unique<MenuItem>("BACK TO GAME"), GAME_MENU_BACK);
         game_menu.addItem(std::make_unique<MenuItem>("QUIT GAME"), GAME_MENU_QUIT);
+        game_menu.addItem(std::make_unique<MenuItem>("Classic mode"), GAME_MENU_CLASSIC);
+        game_menu.addItem(std::make_unique<MenuItem>("Normal mode"), GAME_MENU_NORMAL);
         game_menu.addItem(std::make_unique<CheckBox>("Minimap tracker", &game_cfg.minimap_tracker));
         game_menu.addItem(std::make_unique<CheckBox>("Show exit on minimap", &game_cfg.minimap_exit));
         game_menu.addItem(std::make_unique<CheckBox>("Reset power on new level", &game_cfg.refill_power));
         game_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &game_cfg.refill_bullets));
-        game_menu.addItem(std::make_unique<CheckBox>("Level dependent power up", &game_cfg.set_power_with_level));
-        game_menu.addItem(std::make_unique<CheckBox>("Level dependent ammo up", &game_cfg.set_bullets_with_level));
-        game_menu.addItem(std::make_unique<CheckBox>("Infinite power", &game_cfg.infinite_power));
-        game_menu.addItem(std::make_unique<CheckBox>("Infinite ammo", &game_cfg.infinite_ammo));
-        game_menu.addItem(std::make_unique<MenuItem>("Refill power"), GAME_MENU_REFILL_POWER);
-        game_menu.addItem(std::make_unique<MenuItem>("Refill ammo"), GAME_MENU_REFILL_AMMO);
-        game_menu.addItem(std::make_unique<MenuItem>("Move to exit"), GAME_MENU_MOVE_TO_EXIT);
-        game_menu.addItem(std::make_unique<MenuItem>("Set minimap"), GAME_MENU_MINIMAP);
+        game_menu.addItem(std::make_unique<CheckBox>("Level-dependent power up", &game_cfg.set_power_with_level));
+        game_menu.addItem(std::make_unique<CheckBox>("Level-dependent ammo up", &game_cfg.set_bullets_with_level));
+        game_menu.addItem(std::make_unique<MenuItem>("POKEs"), GAME_MENU_CHEATS);
+
+        cheats_menu.addItem(std::make_unique<MenuItem>("BACK"), CHEATS_MENU_BACK);
+        cheats_menu.addItem(std::make_unique<CheckBox>("Infinite power", &game_cfg.infinite_power));
+        cheats_menu.addItem(std::make_unique<CheckBox>("Infinite ammo", &game_cfg.infinite_ammo));
+        cheats_menu.addItem(std::make_unique<MenuItem>("Refill power"), CHEATS_MENU_REFILL_POWER);
+        cheats_menu.addItem(std::make_unique<MenuItem>("Refill ammo"), CHEATS_MENU_REFILL_AMMO);
+        cheats_menu.addItem(std::make_unique<MenuItem>("Move to exit"), CHEATS_MENU_MOVE_TO_EXIT);
+        cheats_menu.addItem(std::make_unique<MenuItem>("Set minimap"), CHEATS_MENU_MINIMAP);
     }
 };
 

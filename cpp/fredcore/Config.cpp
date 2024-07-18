@@ -104,6 +104,10 @@ Config::Config(int argc, char *argv[])
             full_screen = true;
         else if (svarg == "--full-map")
             max_resolution = true;
+        else if (svarg == "--infinite-ammo")
+            infinite_ammo = default_infinite_ammo = true;
+        else if (svarg == "--infinite-power")
+            infinite_power = default_infinite_power = true;
         else if (svarg == "--boxes")
             boxes = true;
         else if (svarg == "--fps")
@@ -184,19 +188,43 @@ void Config::save(std::filesystem::path config_path) const
     }
 }
 
+void Config::normalMode()
+{
+    minimap_tracker = true;
+    minimap_exit = true;
+    refill_power = true;
+    refill_bullets = true;
+    set_power_with_level = true;
+    set_bullets_with_level = true;
+}
+
+void Config::classicMode()
+{
+    minimap_tracker = false;
+    minimap_exit = false;
+    refill_power = false;
+    refill_bullets = false;
+    set_power_with_level = false;
+    set_bullets_with_level = false;
+}
+
+void Config::resetCheats()
+{
+    infinite_ammo = default_infinite_ammo;
+    infinite_power = default_infinite_power;
+}
+
 std::vector<std::pair<std::string, bool Config::*>> Config::getBoolFlagList()
 {
     // Flags in this list will be saved and loaded. We restrict it to the flags that can
     // be set with the menu, so that users can change their values after they are loaded.
     static std::vector<std::pair<std::string, bool Config::*>> flag_list = {
         {"minimap-exit", &Config::minimap_exit},
-        {"infinite-ammo", &Config::infinite_ammo},
-        {"infinite-power", &Config::infinite_power},
+        {"minimap-tracker", &Config::minimap_tracker},
         {"power-with-level", &Config::set_power_with_level},
         {"bullets-with-level", &Config::set_bullets_with_level},
         {"refill-power", &Config::refill_power},
         {"refill-bullets", &Config::refill_bullets},
-        {"minimap-tracker", &Config::minimap_tracker},
     };
     return flag_list;
 }
