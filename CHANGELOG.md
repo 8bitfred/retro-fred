@@ -1,3 +1,7 @@
+# 1.0.0
+
+* First official release.
+
 # 0.4.2
 
 * Added command line option to select window size on initialization.
