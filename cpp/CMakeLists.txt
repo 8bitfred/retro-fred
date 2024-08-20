@@ -45,21 +45,29 @@ add_library(fredgame STATIC
 
 include(InstallRequiredSystemLibraries)
 
+if(WIN32)
+    set(RETRO_FRED_SDL_LIBRARIES 
+        ${SDL2_LIBRARIES}
+        SDL2_image::SDL2_image
+        SDL2_mixer::SDL2_mixer)
+else()
+    set(RETRO_FRED_SDL_LIBRARIES
+        ${SDL2_STATIC_LIBRARIES}
+        SDL2_image::SDL2_image-static
+        SDL2_mixer::SDL2_mixer-static)
+endif()
+
 if(ANDROID)
     add_library(main main.cpp)
     target_link_libraries(main fredgame fredcore SDL2 SDL2main SDL2_image SDL2_mixer)
 else()
     add_executable(retro-fred main.cpp)
     target_link_libraries(retro-fred fredgame fredcore
-                          ${SDL2_LIBRARIES}
-                          SDL2_image::SDL2_image
-                          SDL2_mixer::SDL2_mixer)
+                          ${RETRO_FRED_SDL_LIBRARIES})
 
     add_executable(autofred autofred.cpp)
     target_link_libraries(autofred fredgame fredcore
-                          ${SDL2_LIBRARIES}
-                          SDL2_image::SDL2_image
-                          SDL2_mixer::SDL2_mixer)
+                          ${RETRO_FRED_SDL_LIBRARIES})
 
     add_executable(sandbox
                    sandbox.cpp
@@ -69,9 +77,7 @@ else()
                    fredcore/Controller.hpp fredcore/Controller.cpp
                    fredcore/DisplayConfig.hpp fredcore/DisplayConfig.cpp)
     target_link_libraries(sandbox
-                          ${SDL2_LIBRARIES}
-                          SDL2_image::SDL2_image
-                          SDL2_mixer::SDL2_mixer)
+                          ${RETRO_FRED_SDL_LIBRARIES})
 endif()
 
 if(WIN32)
@@ -86,9 +92,7 @@ if(WIN32)
     add_executable(retro-fred-console main.cpp)
     target_link_libraries(retro-fred-console
                           fredgame fredcore
-                          ${SDL2_LIBRARIES}
-                          SDL2_image::SDL2_image
-                          SDL2_mixer::SDL2_mixer)
+                          ${RETRO_FRED_SDL_LIBRARIES})
 
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     install(TARGETS
