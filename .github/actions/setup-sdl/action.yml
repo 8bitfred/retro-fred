@@ -9,16 +9,17 @@ runs:
   using: 'composite'
   steps:
     - name: Install dependencies
+      if: runner.os == 'Linux'
       run: sudo apt-get update && sudo apt-get install -y build-essential git make pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev libaudio-dev libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev libpipewire-0.3-dev libwayland-dev libdecor-0-dev
       shell: bash
 
     - name: Cache SDL Build
       id: cache-sdl
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           SDL2-${{ inputs.sdl_version }}-install.tar.gz
-        key: ${{ runner.os }}-sdl2-${{ inputs.sdl_version }}-key2
+        key: ${{ runner.os }}-sdl2-${{ inputs.sdl_version }}-key3
 
     - if: ${{ steps.cache-sdl.outputs.cache-hit != 'true' }}
       name: Download and build SDL
@@ -27,13 +28,14 @@ runs:
         tar xzf SDL2-${{ inputs.sdl_version }}.tar.gz
         mkdir SDL2-${{ inputs.sdl_version }}-build
         cd SDL2-${{ inputs.sdl_version }}-build
-        ../SDL2-${{ inputs.sdl_version }}/configure
+        ../SDL2-${{ inputs.sdl_version }}/configure --prefix=/usr/local/sdl
         make
-        sudo make DESTDIR=$(realpath install) install
-        tar cf ../SDL2-${{ inputs.sdl_version }}-install.tar.gz -C install .
+        mkdir install
+        make DESTDIR=$(realpath install) install
+        tar cf ../SDL2-${{ inputs.sdl_version }}-install.tar.gz -C install/usr/local sdl
       shell: bash
 
     - name: Install SDL
       run: |
-        sudo tar xf SDL2-${{ inputs.sdl_version }}-install.tar.gz -C /
+        sudo tar xf SDL2-${{ inputs.sdl_version }}-install.tar.gz -C /usr/local
       shell: bash

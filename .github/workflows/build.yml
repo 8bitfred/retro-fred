@@ -31,7 +31,7 @@ jobs:
           sdl_mixer_version: '2.8.0'
       - name: 'Configure and build'
         run: |
-          cmake -G Ninja -S . -B build
+          cmake -DCMAKE_PREFIX_PATH=/usr/local/sdl -G Ninja -S . -B build
           cmake --build build --verbose
 
   build_windows:
@@ -91,13 +91,13 @@ jobs:
       sdl_mixer_version: '2.8.0'
     steps:
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2.0.10
+        uses: android-actions/setup-android@v3.2.1
 
       - name: 'Checkout source'
         uses: actions/checkout@v4
@@ -148,27 +148,25 @@ jobs:
       - name: 'Checkout source'
         uses: actions/checkout@v4
 
-      - name: Install SDL2
-        run: |
-          brew update
-          brew install sdl2
-
-      - name: Install SDL2_image
-        run: |
-          brew update
-          brew install sdl2_image
-
-      - name: Install SDL2_mixer
-        run: |
-          brew update
-          brew install sdl2_mixer
+      - name: 'Install SDL2'
+        uses: './.github/actions/setup-sdl'
+        with:
+          sdl_version: '2.30.3'
+      - name: 'Install SDL2_image'
+        uses: './.github/actions/setup-sdl_image'
+        with:
+          sdl_image_version: '2.8.2'
+      - name: 'Install SDL2_mixer'
+        uses: './.github/actions/setup-sdl_mixer'
+        with:
+          sdl_mixer_version: '2.8.0'
 
       - name: 'Configure and build - makefiles'
         run: |
           mkdir -p build/makefiles
           cd build/makefiles
-          cmake ../..
-          cmake --build . --config Release
+          cmake -DCMAKE_PREFIX_PATH=/usr/local/sdl ../..
+          cmake --build . --verbose --config Release
           cpack -G Bundle --config ./CPackConfig.cmake
 
       - name: 'Archive bundle - makefiles'
@@ -182,7 +180,7 @@ jobs:
         run: |
           mkdir -p build/xcode
           cd build/xcode
-          cmake -G Xcode ../..
+          cmake -DCMAKE_PREFIX_PATH=/usr/local/sdl -G Xcode ../..
           cmake --build . --config Release
           cpack -G Bundle --config ./CPackConfig.cmake
 
