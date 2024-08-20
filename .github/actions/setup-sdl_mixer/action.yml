@@ -9,16 +9,17 @@ runs:
   using: 'composite'
   steps:
     - name: Install dependencies
+      if: runner.os == 'Linux'
       run: sudo apt-get update && sudo apt-get install -y build-essential git make pkg-config cmake ninja-build
       shell: bash
 
     - name: Cache SDL_mixer Build
       id: cache-sdl_mixer
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           SDL2_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz
-        key: ${{ runner.os }}-sdl2_mixer-${{ inputs.sdl_mixer_version }}-key2
+        key: ${{ runner.os }}-sdl2_mixer-${{ inputs.sdl_mixer_version }}-key3
 
     - if: ${{ steps.cache-sdl_mixer.outputs.cache-hit != 'true' }}
       name: Download and build SDL_mixer
@@ -27,13 +28,14 @@ runs:
         tar xzf SDL2_mixer-${{ inputs.sdl_mixer_version }}.tar.gz
         mkdir SDL2_mixer-${{ inputs.sdl_mixer_version }}-build
         cd SDL2_mixer-${{ inputs.sdl_mixer_version }}-build
-        ../SDL2_mixer-${{ inputs.sdl_mixer_version }}/configure
+        ../SDL2_mixer-${{ inputs.sdl_mixer_version }}/configure --prefix=/usr/local/sdl --with-sdl-prefix=/usr/local/sdl
         make
-        sudo make DESTDIR=$(realpath install) install
-        tar cf ../SDL2_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C install .
+        mkdir install
+        make DESTDIR=$(realpath install) install
+        tar cf ../SDL2_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C install/usr/local sdl
       shell: bash
 
     - name: Install SDL_mixer
       run: |
-        sudo tar xf SDL2_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C /
+        sudo tar xf SDL2_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C /usr/local
       shell: bash
