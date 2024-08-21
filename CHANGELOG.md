@@ -1,5 +1,7 @@
 # 1.0.2
 
+* Use static build for Linux and MacOS builds.
+
 * Fix out-of-bounds object type bug: it was causing object pickup sounds to be played at 
   unexpected times.
 
