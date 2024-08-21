@@ -57,6 +57,10 @@ else()
         SDL2_mixer::SDL2_mixer-static)
 endif()
 
+if(LINUX)
+    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+endif()
+
 if(ANDROID)
     add_library(main main.cpp)
     target_link_libraries(main fredgame fredcore SDL2 SDL2main SDL2_image SDL2_mixer)
