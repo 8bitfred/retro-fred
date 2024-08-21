@@ -78,6 +78,10 @@ else()
                    fredcore/DisplayConfig.hpp fredcore/DisplayConfig.cpp)
     target_link_libraries(sandbox
                           ${RETRO_FRED_SDL_LIBRARIES})
+
+    install(TARGETS
+            retro-fred
+            RUNTIME DESTINATION .)
 endif()
 
 if(WIN32)
@@ -96,7 +100,7 @@ if(WIN32)
 
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     install(TARGETS
-            retro-fred retro-fred-console autofred
+            retro-fred-console
             RUNTIME DESTINATION .)
     install(FILES
             $<TARGET_PROPERTY:SDL2::SDL2,IMPORTED_LOCATION>

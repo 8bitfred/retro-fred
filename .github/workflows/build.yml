@@ -33,6 +33,17 @@ jobs:
         run: |
           cmake -DCMAKE_PREFIX_PATH=/usr/local/sdl -G Ninja -S . -B build
           cmake --build build --verbose
+          cd build
+          cpack -G TGZ --config CPackConfig.cmake
+
+      - name: 'Archive binaries'
+        uses: actions/upload-artifact@v4
+        with:
+          name: retro-fred-linux
+          if-no-files-found: error
+          path: |
+            build/version
+            build/Retro-Fred-*-Linux.tar.gz
 
   build_windows:
     name: 'Windows build'
