@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
 project("retro-fred" VERSION 1.0.2)
 
 file(CONFIGURE OUTPUT version CONTENT "${CMAKE_PROJECT_VERSION}\n")
