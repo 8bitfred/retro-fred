@@ -172,7 +172,7 @@ namespace {
     }
 }
 
-void Config::load(std::filesystem::path config_path)
+void Config::load(std::string const& config_path)
 {
     std::ifstream file(config_path);
     for (std::string line; std::getline(file, line);)
@@ -185,7 +185,7 @@ void Config::load(std::filesystem::path config_path)
     }
 }
 
-void Config::save(std::filesystem::path config_path) const
+void Config::save(std::string const& config_path) const
 {
     std::ofstream file(config_path);
     file << "version " << RETRO_FRED_VERSION_STRING << std::endl;

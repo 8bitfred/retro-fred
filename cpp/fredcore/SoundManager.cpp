@@ -21,8 +21,8 @@ void SoundManager::loadWAVs(Config const &cfg)
     };
     static_assert(std::size(wav_files) == static_cast<size_t>(SoundID::COUNT));
     for (auto p : wav_files) {
-        auto path = cfg.resource_path / p;
-        wav_list.emplace_back(Mix_LoadWAV(path.string().c_str()));
+        auto path = cfg.resource_path.empty() ? p : cfg.resource_path + "/" + p;
+        wav_list.emplace_back(Mix_LoadWAV(path.c_str()));
     }
 }
 

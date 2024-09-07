@@ -1,13 +1,12 @@
 #pragma once
 
-#include <filesystem>
-#include <string_view>
+#include <string>
 #include <vector>
 
 struct Config {
     Config(int argc, char *argv[]);
-    void load(std::filesystem::path config_path);
-    void save(std::filesystem::path config_path) const;
+    void load(std::string const& config_path);
+    void save(std::string const& config_path) const;
     void normalMode();
     void classicMode();
     void resetCheats();
@@ -36,7 +35,7 @@ struct Config {
     bool default_infinite_power = false;
     bool boxes = false;
     bool minimap_exit = true;
-    std::filesystem::path resource_path;
+    std::string resource_path;
     bool set_power_with_level = true;
     bool set_bullets_with_level = true;
     bool refill_power = true;
