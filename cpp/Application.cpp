@@ -723,8 +723,8 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     , high_scores(4, {0, ""})
 {
     auto pref_path = getPrefPath();
-    high_scores_path = pref_path / "high_scores.tbl";
-    config_path = pref_path / "retro-fred.cfg";
+    high_scores_path = pref_path + "/" + "high_scores.tbl";
+    config_path = pref_path + "/" + "retro-fred.cfg";
     this->cfg.load(config_path);
     loadHighScores();
     SDL_SetWindowTitle(getWindow(), "Retro-Fred");
@@ -733,10 +733,10 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
         controller.emplace(display_cfg, cfg.back_button);
 }
 
-std::filesystem::path FredApp::getPrefPath()
+std::string FredApp::getPrefPath()
 {
     auto pref_path_ptr = SDL_GetPrefPath("8bitfred", "Retro-Fred");
-    std::filesystem::path pref_path_str(pref_path_ptr);
+    std::string pref_path_str(pref_path_ptr);
     SDL_free(pref_path_ptr);
     return pref_path_str;
 }

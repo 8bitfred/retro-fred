@@ -38,12 +38,13 @@ TextureManager::TextureManager(Config const &cfg, SDL_Renderer *renderer)
     };
     static_assert(std::size(sprite_list) == static_cast<size_t>(TextureID::COUNT));
     for (auto p : sprite_list) {
-        auto path = cfg.resource_path / p;
-        texture_list.emplace_back(IMG_LoadTexture(renderer, path.string().c_str()));
+        auto path = cfg.resource_path.empty() ? p : cfg.resource_path + "/" + p;
+        texture_list.emplace_back(IMG_LoadTexture(renderer, path.c_str()));
     }
 
-    auto fred_path = cfg.resource_path / sprite_list[static_cast<int>(TextureID::FRED_ICON)];
-    fred_icon = sdl::SurfacePtr(IMG_Load(fred_path.string().c_str()));
+    auto const &fred_icon_path = sprite_list[static_cast<int>(TextureID::FRED_ICON)];
+    auto fred_path = cfg.resource_path.empty() ? fred_icon_path : cfg.resource_path + "/" + fred_icon_path;
+    fred_icon = sdl::SurfacePtr(IMG_Load(fred_path.c_str()));
 }
 
 void TextureManager::renderText(SDL_Renderer *renderer, std::string_view text,

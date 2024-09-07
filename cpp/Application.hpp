@@ -12,7 +12,6 @@
 #include "GameRunner.hpp"
 #include <random>
 #include <variant>
-#include <filesystem>
 #include <optional>
 
 struct Config;
@@ -29,9 +28,9 @@ class FredApp
     TextureManager tmgr;
     SoundManager smgr;
     std::vector<std::pair<unsigned, std::string>> high_scores;
-    std::filesystem::path high_scores_path, config_path;
+    std::string high_scores_path, config_path;
 
-    static std::filesystem::path getPrefPath();
+    static std::string getPrefPath();
     void saveHighScores() const;
     void loadHighScores();
 
