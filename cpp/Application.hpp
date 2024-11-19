@@ -8,10 +8,12 @@
 #include "fredcore/GameEvent.hpp"
 #include "fredcore/Window.hpp"
 #include "fredcore/Menu.hpp"
+#include "fredcore/Controller.hpp"
 #include "GameRunner.hpp"
 #include <random>
 #include <variant>
 #include <filesystem>
+#include <optional>
 
 struct Config;
 class GameBase;
@@ -23,6 +25,7 @@ class FredApp
     Config cfg;
     std::minstd_rand &random_engine;
     DisplayConfig display_cfg;
+    std::optional<Controller> controller;
     TextureManager tmgr;
     SoundManager smgr;
     std::vector<std::pair<unsigned, std::string>> high_scores;
@@ -47,5 +50,6 @@ public:
     }
     void addHighScore(unsigned score, std::string const &initials);
     void saveConfig() const;
+    void renderController() const;
     void mainLoop();
 };

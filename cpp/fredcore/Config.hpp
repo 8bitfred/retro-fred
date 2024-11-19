@@ -19,6 +19,7 @@ struct Config {
 
     std::uint32_t ticks_per_frame = 1000 / 6;
     bool virtual_controller = false;
+    bool back_button = true;
     int logical_width = 256, logical_height = 192;
     bool user_window_size = false;
     int window_width = 0, window_height = 0;

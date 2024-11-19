@@ -156,8 +156,7 @@ class StateMainMenu : public BaseState
                         0, 168, 206, 206, 0);
         tmgr.renderText(renderer, "    MIGUEL CATALINA", 0, 176, 206, 206, 0);
         tmgr.renderText(renderer, "    ALFREDO CATALINA", 0, 184, 206, 206, 0);
-        if (app.getConfig().virtual_controller)
-            Controller::render(app.getWindow(), app.getRenderer(), app.getTextureManager());
+        app.renderController();
         SDL_RenderPresent(renderer);
     }
     void eventHandler(FredApp &app,
@@ -216,8 +215,7 @@ class StateConfigMenu : public BaseState
         SDL_Rect logo = {88, 8, 76, 20};
         SDL_RenderCopy(app.getRenderer(), app.getTextureManager().get(TextureID::FRED_LOGO), nullptr, &logo);
         config_menu.render(app.getRenderer(), app.getTextureManager());
-        if (app.getConfig().virtual_controller)
-            Controller::render(app.getWindow(), app.getRenderer(), app.getTextureManager());
+        app.renderController();
         SDL_RenderPresent(app.getRenderer());
     }
     void eventHandler(FredApp &app,
@@ -395,8 +393,7 @@ class StatePlay : public BaseState
                 game_menu.render(app.getRenderer(), app.getTextureManager());
             else if (pause_mode == PauseMode::CHEATS_MENU)
                 cheats_menu.render(app.getRenderer(), app.getTextureManager());
-            if (game_cfg.virtual_controller)
-                Controller::render(app.getWindow(), app.getRenderer(), app.getTextureManager());
+            app.renderController();
             SDL_RenderPresent(app.getRenderer());
         }
     }
@@ -641,8 +638,7 @@ class StateEnterHighScore : public BaseState
         tmgr.renderText(app.getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
         for (size_t i = initials.size(); i < 3; ++i)
             tmgr.renderText(app.getRenderer(), "_", static_cast<int>(14 + i) * 8, 96, 0, 0, 0);
-        if (app.getConfig().virtual_controller)
-                Controller::render(app.getWindow(), app.getRenderer(), tmgr);
+        app.renderController();
         SDL_RenderPresent(app.getRenderer());
     }
     void eventHandler(FredApp &app,
@@ -685,7 +681,7 @@ class StateEnterHighScore : public BaseState
 
 AppState::AppState(Config &cfg)
     : state_table(COUNT)
-    , event_manager(cfg.ticks_per_frame, cfg.virtual_controller)
+    , event_manager(cfg.ticks_per_frame)
 {
     state_table[SPLASH_SCREEN] = std::make_unique<StateSplashScreen>();
     state_table[MAIN_MENU] = std::make_unique<StateMainMenu>();
@@ -729,6 +725,8 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     loadHighScores();
     SDL_SetWindowTitle(getWindow(), "Retro-Fred");
     SDL_SetWindowIcon(getWindow(), tmgr.getFredIcon());
+    if (cfg.virtual_controller)
+        controller.emplace(getWindow(), cfg.back_button);
 }
 
 std::filesystem::path FredApp::getPrefPath()
@@ -783,14 +781,22 @@ void FredApp::saveConfig() const
     cfg.save(config_path);
 }
 
+void FredApp::renderController() const
+{
+    if (controller)
+        controller->render(getRenderer(), getTextureManager());
+}
+
 void FredApp::mainLoop()
 {
     AppState app_state(cfg);
     app_state.set(AppState::SPLASH_SCREEN, *this);
     while (true)
     {
+        if (controller)
+            controller->resetPosition(getWindow());
         app_state.render(*this);
-        auto event_mask = app_state.event_manager.collectEvents(getWindow());
+        auto event_mask = app_state.event_manager.collectEvents(controller);
         if (event_mask.check(GameEvent::QUIT))
             break;
         if (!app_state.eventHandler(*this, event_mask))

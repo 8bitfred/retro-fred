@@ -4,6 +4,8 @@
 #include <optional>
 #include <map>
 
+class Controller;
+
 enum class GameEvent
 {
     QUIT,
@@ -37,7 +39,7 @@ class EventMask {
 public:
     explicit EventMask(std::uint32_t event_mask = 0) : event_mask(event_mask) {}
     void set(GameEvent game_event)
-    { 
+    {
         auto bit_number = static_cast<int>(game_event);
         event_mask |= 1 << bit_number;
     }
@@ -50,7 +52,6 @@ public:
 
 class EventManager {
     std::uint32_t ticks_per_frame;
-    bool virtual_controller;
     Uint32 next_frame;
     std::optional<Uint32> timer_expiration;
 
@@ -60,16 +61,15 @@ class EventManager {
     }
 
     std::map<SDL_FingerID, GameEvent> finger_state;
-    std::optional<GameEvent> getTouchEvent(SDL_Window *window,
+    std::optional<GameEvent> getTouchEvent(Controller const &virtual_controller,
                                            SDL_TouchFingerEvent const &tfinger);
 
 public:
-    explicit EventManager(std::uint32_t ticks_per_frame, bool virtual_controller = false)
+    explicit EventManager(std::uint32_t ticks_per_frame)
     : ticks_per_frame(ticks_per_frame)
-    , virtual_controller(virtual_controller)
     , next_frame(SDL_GetTicks() + ticks_per_frame)
     {}
-    EventMask collectEvents(SDL_Window *window);
+    EventMask collectEvents(std::optional<Controller> const &virtual_controller);
     void setTimer(std::uint32_t ticks)
     {
         timer_expiration = SDL_GetTicks() + ticks;
