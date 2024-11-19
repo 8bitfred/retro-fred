@@ -114,7 +114,7 @@ class StateSplashScreen : public BaseState
             }
             app_state.event_manager.setTimer(StateSplashScreen::LOADING_FRAME_TICKS);
         }
-        else if (event_mask.check(GameEvent::BACK))
+        else if (event_mask.check(GameEvent::BACK) && app.getConfig().quit_option)
             app_state.set(AppState::EXIT, app);
     }
 };
@@ -164,7 +164,10 @@ class StateMainMenu : public BaseState
                       EventMask const &event_mask) final
     {
         if (event_mask.check(GameEvent::BACK) || event_mask.check(GameEvent::ESCAPE))
-            app_state.set(AppState::EXIT, app);
+        {
+            if (app.getConfig().quit_option)
+                app_state.set(AppState::EXIT, app);
+        }
         else if (event_mask.check(GameEvent::TIMER))
         {
             ++counter;
@@ -187,12 +190,13 @@ class StateMainMenu : public BaseState
         }
     }
 public:
-    StateMainMenu()
+    StateMainMenu(bool has_quit_option)
         : main_menu(SDL_Rect{88, 40, 168, 24})
     {
         main_menu.addItem(std::make_unique<MenuItem>("OPTIONS"), MAIN_MENU_OPTIONS);
         main_menu.addItem(std::make_unique<MenuItem>("PLAY"), MAIN_MENU_PLAY, true);
-        main_menu.addItem(std::make_unique<MenuItem>("QUIT"), MAIN_MENU_QUIT);
+        if (has_quit_option)
+            main_menu.addItem(std::make_unique<MenuItem>("QUIT"), MAIN_MENU_QUIT);
     }
 };
 
@@ -684,7 +688,7 @@ AppState::AppState(Config &cfg)
     , event_manager(cfg.ticks_per_frame)
 {
     state_table[SPLASH_SCREEN] = std::make_unique<StateSplashScreen>();
-    state_table[MAIN_MENU] = std::make_unique<StateMainMenu>();
+    state_table[MAIN_MENU] = std::make_unique<StateMainMenu>(cfg.quit_option);
     state_table[CONFIG_MENU] = std::make_unique<StateConfigMenu>(cfg);
     state_table[TODAYS_GREATEST] = std::make_unique<StateTodaysGreatest>();
     state_table[PLAY] = std::make_unique<StatePlay>(cfg);
@@ -798,8 +802,14 @@ void FredApp::mainLoop()
         app_state.render(*this);
         auto event_mask = app_state.event_manager.collectEvents(controller);
         if (event_mask.check(GameEvent::QUIT))
-            break;
+        {
+            if (cfg.quit_option)
+                break;
+        }
         if (!app_state.eventHandler(*this, event_mask))
-            break;
+        {
+            if (cfg.quit_option)
+               break;
+        }
     }
 }
