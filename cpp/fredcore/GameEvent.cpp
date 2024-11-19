@@ -34,17 +34,12 @@ namespace {
     };
 }
 
-std::optional<GameEvent> EventManager::getTouchEvent(SDL_Window *window, 
+std::optional<GameEvent> EventManager::getTouchEvent(Controller const &virtual_controller,
                                                      SDL_TouchFingerEvent const &tfinger)
 {
-    int window_w, window_h;
-    SDL_GetWindowSize(window, &window_w, &window_h);
-    auto px = static_cast<int>(window_w * tfinger.x);
-    auto py = static_cast<int>(window_h * tfinger.y);
-    auto [arrows_rect, fire_rect] = Controller::getRects(window);
-
-    auto arrows_x = px - arrows_rect.x;
-    auto arrows_y = py - arrows_rect.y;
+    auto const &arrows_rect = virtual_controller.getArrowRect();
+    auto arrows_x = tfinger.x - arrows_rect.x;
+    auto arrows_y = tfinger.y - arrows_rect.y;
     if (arrows_x >= 0 && arrows_x < arrows_rect.w &&
         arrows_y >= 0 && arrows_y < arrows_rect.h)
     {
@@ -66,15 +61,19 @@ std::optional<GameEvent> EventManager::getTouchEvent(SDL_Window *window,
         }
     }
 
-    auto fire_x = px - fire_rect.x;
-    auto fire_y = py - fire_rect.y;
-    if (fire_x >= 0 && fire_x < fire_rect.w &&
-        fire_y >= 0 && fire_y < fire_rect.h)
+    SDL_FPoint point{tfinger.x, tfinger.y};
+    if (SDL_PointInFRect(&point, &virtual_controller.getFireRect()))
         return GameEvent::FIRE;
+
+    if (virtual_controller.hasBackButton())
+    {
+        if (SDL_PointInFRect(&point, &virtual_controller.getBackRect()))
+            return GameEvent::BACK;
+    }
     return {};
 }
 
-EventMask EventManager::collectEvents(SDL_Window *window) 
+EventMask EventManager::collectEvents(std::optional<Controller> const &virtual_controller)
 {
     static constexpr Uint16 STDMODS = KMOD_SHIFT | KMOD_ALT | KMOD_CTRL | KMOD_GUI;
     EventMask event_mask;
@@ -111,7 +110,7 @@ EventMask EventManager::collectEvents(SDL_Window *window)
                 event_mask.set(GameEvent::ANY_KEY);
             for (auto const &binding: game_bindings)
             {
-                if (checkKeymod(keymods, binding.keymod) && 
+                if (checkKeymod(keymods, binding.keymod) &&
                     event.key.keysym.scancode == binding.scancode)
                 {
                     event_mask.set(binding.game_event);
@@ -125,7 +124,7 @@ EventMask EventManager::collectEvents(SDL_Window *window)
         {
             if (event.type == SDL_FINGERDOWN)
             {
-                auto game_event = getTouchEvent(window, event.tfinger);
+                auto game_event = getTouchEvent(*virtual_controller, event.tfinger);
                 // Trigger the ANY_KEY event only if the event is for the center of the
                 // screen (20%-80% of the x coordinates). This avoids triggering the
                 // ANY_KEY event when the user is trying to make the BACK gesture.
@@ -143,7 +142,7 @@ EventMask EventManager::collectEvents(SDL_Window *window)
             }
             else if (event.type == SDL_FINGERMOTION)
             {
-                auto game_event = getTouchEvent(window, event.tfinger);
+                auto game_event = getTouchEvent(*virtual_controller, event.tfinger);
                 auto state = finger_state.find(event.tfinger.fingerId);
                 if (state != finger_state.end() && game_event)
                     state->second = *game_event;

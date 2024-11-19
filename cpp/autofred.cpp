@@ -162,7 +162,7 @@ public:
 void dataLoop(Config const &cfg, std::minstd_rand &random_engine)
 {
     sdl::App fred_app;
-    GameWrapper game_wrapper(cfg, random_engine, 
+    GameWrapper game_wrapper(cfg, random_engine,
                              SDL_Rect{8, 8, 192, 176});
     Player player(game_wrapper.getGame());
 
@@ -195,7 +195,7 @@ void gameLoop(Config const &cfg, std::minstd_rand &random_engine)
                              fred_app.getDisplayConfig().getGameWindowRect());
     Player player(game_wrapper.getGame());
 
-    EventManager event_manager(cfg.ticks_per_frame, cfg.virtual_controller);
+    EventManager event_manager(cfg.ticks_per_frame);
     while (true)
     {
         game_wrapper.renderAndPlay(fred_app.getDisplayConfig(),
@@ -204,7 +204,7 @@ void gameLoop(Config const &cfg, std::minstd_rand &random_engine)
                                    fred_app.getRenderer());
 
         EventMask event_mask;
-        event_mask = event_manager.collectEvents(fred_app.getWindow());
+        event_mask = event_manager.collectEvents({});
         if (event_mask.check(GameEvent::QUIT))
             break;
         else if (event_mask.check(GameEvent::BACK))
