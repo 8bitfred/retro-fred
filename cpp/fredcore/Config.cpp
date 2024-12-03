@@ -78,6 +78,11 @@ Config::Config(int argc, char *argv[])
 #ifdef __ANDROID__
     virtual_controller = true;
 #endif
+#ifdef RETRO_FRED_IOS
+    virtual_controller = true;
+    back_button = true;
+    quit_option = false;
+#endif
     for (int i = 1; i < argc; ++i)
     {
         std::string_view svarg(argv[i]);
