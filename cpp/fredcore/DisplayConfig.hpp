@@ -21,6 +21,7 @@ public:
     explicit DisplayConfig(Config const &cfg) noexcept;
     SDL_Window *getWindow() const { return *window; }
     SDL_Renderer *getRenderer() const { return *renderer; }
+    std::pair<int, int> getWindowSize() const;
     SDL_Rect getGameWindowRect() const;
     void setIntroViewport() const;
     void setGameViewport() const;

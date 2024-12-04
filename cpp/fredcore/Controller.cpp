@@ -1,16 +1,16 @@
 #include "Controller.hpp"
 #include "TextureManager.hpp"
+#include "DisplayConfig.hpp"
 
-Controller::Controller(SDL_Window *window, bool back_button)
+Controller::Controller(DisplayConfig const &display_cfg, bool back_button)
     : back_button(back_button)
 {
-    resetPosition(window);
+    resetPosition(display_cfg);
 }
 
-void Controller::resetPosition(SDL_Window *window)
+void Controller::resetPosition(DisplayConfig const &display_cfg)
 {
-    int window_w, window_h;
-    SDL_GetWindowSize(window, &window_w, &window_h);
+    auto [window_w, window_h] = display_cfg.getWindowSize();
     int size = 0;
     if (window_w > window_h) // landscape orientation
         size = window_w / 5;

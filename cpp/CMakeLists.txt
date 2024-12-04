@@ -66,7 +66,8 @@ else()
                    fredcore/sdl.hpp
                    Signal.hpp
                    fredcore/GameEvent.hpp fredcore/GameEvent.cpp
-                   fredcore/Controller.hpp fredcore/Controller.cpp)
+                   fredcore/Controller.hpp fredcore/Controller.cpp
+                   fredcore/DisplayConfig.hpp fredcore/DisplayConfig.cpp)
     target_link_libraries(sandbox
                           ${SDL2_LIBRARIES}
                           SDL2_image::SDL2_image
@@ -99,4 +100,3 @@ if(WIN32)
             $<TARGET_PROPERTY:SDL2_mixer::SDL2_mixer,IMPORTED_LOCATION>
             DESTINATION .)
 endif()
-

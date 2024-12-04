@@ -26,6 +26,7 @@ struct Config {
     int window_width = 0, window_height = 0;
     bool full_screen = false;
     bool max_resolution = false;
+    bool high_dpi = false;
     int map_width = 33, map_height = 33;
     bool debug_map = false;
     bool debug_keys = false;

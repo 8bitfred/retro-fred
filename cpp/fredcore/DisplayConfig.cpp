@@ -28,18 +28,18 @@ void DisplayConfig::initFullMapMode(Config const &cfg, SDL_DisplayMode const &di
     auto max_w = frame_x_size * window_frame_scale + map_width_pixels;
     auto max_h = frame_y_size * window_frame_scale + map_height_pixels;
 
+    Uint32 window_flags = cfg.high_dpi ? SDL_WINDOW_ALLOW_HIGHDPI : 0;
     if (cfg.user_window_size)
         initWindowAndRenderer(cfg.window_width, cfg.window_height,
-                              SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS);
+                              window_flags | SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS);
     else
     {
         int width = std::min(max_w, display_mode.w * 19 / 20);
         int height = std::min(max_h, display_mode.h * 19 / 20);
-        initWindowAndRenderer(width, height, SDL_WINDOW_RESIZABLE);
+        initWindowAndRenderer(width, height, window_flags | SDL_WINDOW_RESIZABLE);
     }
 
-    int window_w, window_h;
-    SDL_GetWindowSize(getWindow(), &window_w, &window_h);
+    auto [window_w, window_h] = getWindowSize();
 
     game_window_w = std::min(max_w, window_w);
     game_window_h = std::min(max_h, window_h);
@@ -47,15 +47,15 @@ void DisplayConfig::initFullMapMode(Config const &cfg, SDL_DisplayMode const &di
 
 void DisplayConfig::initNormalMode(Config const &cfg, SDL_DisplayMode const &display_mode)
 {
-    Uint32 window_flags = 0;
+    Uint32 window_flags = cfg.high_dpi ? SDL_WINDOW_ALLOW_HIGHDPI : 0;
     int width = display_mode.w, height = display_mode.h;
     if (cfg.full_screen)
-        window_flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
+        window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     else if (cfg.user_window_size)
     {
         width = cfg.window_width;
         height = cfg.window_height;
-        window_flags = SDL_WINDOW_BORDERLESS;
+        window_flags |= SDL_WINDOW_BORDERLESS;
     }
     else
     {
@@ -64,7 +64,7 @@ void DisplayConfig::initNormalMode(Config const &cfg, SDL_DisplayMode const &dis
         auto scale = std::max(std::min(scale_w, scale_h), 1);
         width = cfg.logical_width * scale;
         height = cfg.logical_height * scale;
-        window_flags = SDL_WINDOW_RESIZABLE;
+        window_flags |= SDL_WINDOW_RESIZABLE;
     }
     initWindowAndRenderer(width, height, window_flags);
     game_window_w = cfg.logical_width;
@@ -83,6 +83,13 @@ DisplayConfig::DisplayConfig(Config const &cfg) noexcept
         initNormalMode(cfg, display_mode);
 }
 
+std::pair<int, int> DisplayConfig::getWindowSize() const
+{
+    int window_w, window_h;
+    SDL_GetRendererOutputSize(getRenderer(), &window_w, &window_h);
+    return {window_w, window_h};
+}
+
 SDL_Rect DisplayConfig::getGameWindowRect() const
 {
     return {
@@ -94,9 +101,7 @@ SDL_Rect DisplayConfig::getGameWindowRect() const
 
 void DisplayConfig::setIntroViewport() const
 {
-    int window_w, window_h;
-    SDL_GetWindowSize(getWindow(), &window_w, &window_h);
-
+    auto [window_w, window_h] = getWindowSize();
     auto gw_scale_w = static_cast<float>(window_w) / game_window_w;
     auto gw_scale_h = static_cast<float>(window_h) / game_window_h;
     auto gw_scale = std::min(gw_scale_w, gw_scale_h);
@@ -114,9 +119,7 @@ void DisplayConfig::setIntroViewport() const
 
 void DisplayConfig::setGameViewport() const
 {
-    int window_w, window_h;
-    SDL_GetWindowSize(getWindow(), &window_w, &window_h);
-
+    auto [window_w, window_h] = getWindowSize();
     auto scale_w = static_cast<float>(window_w) / game_window_w;
     auto scale_h = static_cast<float>(window_h) / game_window_h;
     auto scale = std::min(scale_w, scale_h);
@@ -132,9 +135,7 @@ void DisplayConfig::setGameViewport() const
 
 std::pair<int, int> DisplayConfig::setWindowFrameViewport() const
 {
-    int window_w, window_h;
-    SDL_GetWindowSize(getWindow(), &window_w, &window_h);
-
+    auto [window_w, window_h] = getWindowSize();
     auto scale_w = static_cast<float>(window_w) / game_window_w;
     auto scale_h = static_cast<float>(window_h) / game_window_h;
     auto scale = std::min(scale_w, scale_h);
@@ -155,9 +156,7 @@ std::pair<int, int> DisplayConfig::setWindowFrameViewport() const
 
 std::pair<int, int> DisplayConfig::setScoreboardViewport() const
 {
-    int window_w, window_h;
-    SDL_GetWindowSize(getWindow(), &window_w, &window_h);
-
+    auto [window_w, window_h] = getWindowSize();
     auto scale_w = static_cast<float>(window_w) / game_window_w;
     auto scale_h = static_cast<float>(window_h) / game_window_h;
     auto scale = std::min(scale_w, scale_h);

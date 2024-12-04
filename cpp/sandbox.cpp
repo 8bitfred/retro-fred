@@ -1,6 +1,7 @@
 #include "fredcore/sdl.hpp"
 #include "Signal.hpp"
 #include "fredcore/GameEvent.hpp"
+#include "fredcore/DisplayConfig.hpp"
 #include "fredcore/Controller.hpp"
 #include <iostream>
 

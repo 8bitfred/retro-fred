@@ -54,6 +54,8 @@ namespace {
         "              Show position of Fred in minimap.\n"
         "    --window-size WIDTHxHEIGHT\n"
         "              Select window size\n"
+        "    --high-dpi\n"
+        "              Enable high DPI mode.\n"
         "\n"
         "\n"
         "keybindings during gameplay:\n"
@@ -82,6 +84,7 @@ Config::Config(int argc, char *argv[])
     virtual_controller = true;
     back_button = true;
     quit_option = false;
+    high_dpi = true;
 #endif
     for (int i = 1; i < argc; ++i)
     {
@@ -147,6 +150,8 @@ Config::Config(int argc, char *argv[])
             std::from_chars(wsize.data() + xpos + 1, wsize.data() + wsize.size(), window_height);
             user_window_size = true;
         }
+        else if (svarg == "--high-dpi")
+            high_dpi = true;
         else if (svarg.starts_with("--") && !parseFlag(svarg.substr(2)))
         {
             std::cerr << "unknown option: " << svarg << std::endl;

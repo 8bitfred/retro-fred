@@ -3,6 +3,7 @@
 #include "sdl.hpp"
 
 class TextureManager;
+class DisplayConfig;
 
 class Controller
 {
@@ -13,8 +14,8 @@ class Controller
     SDL_FRect farrows, ffire, fback;
 
 public:
-    Controller(SDL_Window *window, bool back_button);
-    void resetPosition(SDL_Window *window);
+    Controller(DisplayConfig const &display_cfg, bool back_button);
+    void resetPosition(DisplayConfig const &display_cfg);
     bool hasBackButton() const { return back_button; }
     SDL_FRect const &getArrowRect() const { return farrows; }
     SDL_FRect const &getFireRect() const { return ffire; }
