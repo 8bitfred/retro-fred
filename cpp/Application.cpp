@@ -730,7 +730,7 @@ FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
     SDL_SetWindowTitle(getWindow(), "Retro-Fred");
     SDL_SetWindowIcon(getWindow(), tmgr.getFredIcon());
     if (cfg.virtual_controller)
-        controller.emplace(getWindow(), cfg.back_button);
+        controller.emplace(display_cfg, cfg.back_button);
 }
 
 std::filesystem::path FredApp::getPrefPath()
@@ -798,7 +798,7 @@ void FredApp::mainLoop()
     while (true)
     {
         if (controller)
-            controller->resetPosition(getWindow());
+            controller->resetPosition(display_cfg);
         app_state.render(*this);
         auto event_mask = app_state.event_manager.collectEvents(controller);
         if (event_mask.check(GameEvent::QUIT))
