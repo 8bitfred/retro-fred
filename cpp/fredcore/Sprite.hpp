@@ -5,7 +5,6 @@
 #include "Label.hpp"
 #include "LabelTable.hpp"
 #include <vector>
-#include <SDL.h>
 #include <memory>
 
 
