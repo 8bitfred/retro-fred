@@ -1,3 +1,11 @@
+# 1.0.1
+
+* Add support for iOS.
+
+* Modify scaling/viewport settings to add support for high DPI devices.
+
+* Add back button to the virtual controller, for devices with no back gesture.
+
 # 1.0.0
 
 * First official release.
@@ -18,7 +26,7 @@
 * Separate the in-game menu between configuration options, and cheats (POKEs).
   Configuration changes from the in-game menu affect the global configuration (instead of
   just for the current game). Cheats get reset to their default values (which can only be
-  set from te command line) at the beginning of every game. 
+  set from te command line) at the beginning of every game.
 
 # 0.4.1
 
