@@ -1,6 +1,5 @@
 #include "TextureManager.hpp"
 #include "Config.hpp"
-#include <SDL_image.h>
 #include <cassert>
 #include <cstdio>
 #include <map>
