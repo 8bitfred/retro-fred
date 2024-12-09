@@ -1,0 +1,787 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4936417F2D0693E7006B8545 /* Skeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641772D0693E7006B8545 /* Skeleton.cpp */; };
+		493641802D0693E7006B8545 /* GameMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641432D0693E7006B8545 /* GameMap.cpp */; };
+		493641812D0693E7006B8545 /* Tomb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936417B2D0693E7006B8545 /* Tomb.cpp */; };
+		493641822D0693E7006B8545 /* SoundManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936414D2D0693E7006B8545 /* SoundManager.cpp */; };
+		493641832D0693E7006B8545 /* Fred.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641662D0693E7006B8545 /* Fred.cpp */; };
+		493641842D0693E7006B8545 /* Window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641542D0693E7006B8545 /* Window.cpp */; };
+		493641852D0693E7006B8545 /* GameEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641412D0693E7006B8545 /* GameEvent.cpp */; };
+		493641862D0693E7006B8545 /* TextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641522D0693E7006B8545 /* TextureManager.cpp */; };
+		493641872D0693E7006B8545 /* Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936413A2D0693E7006B8545 /* Controller.cpp */; };
+		493641882D0693E7006B8545 /* Application.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936415D2D0693E7006B8545 /* Application.cpp */; };
+		493641892D0693E7006B8545 /* Vampire.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936417D2D0693E7006B8545 /* Vampire.cpp */; };
+		4936418A2D0693E7006B8545 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936416B2D0693E7006B8545 /* main.cpp */; };
+		4936418B2D0693E7006B8545 /* Ghost.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936416A2D0693E7006B8545 /* Ghost.cpp */; };
+		4936418D2D0693E7006B8545 /* Menu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641492D0693E7006B8545 /* Menu.cpp */; };
+		4936418E2D0693E7006B8545 /* DisplayConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936413D2D0693E7006B8545 /* DisplayConfig.cpp */; };
+		4936418F2D0693E7006B8545 /* GameRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641682D0693E7006B8545 /* GameRunner.cpp */; };
+		493641902D0693E7006B8545 /* Smoke.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641792D0693E7006B8545 /* Smoke.cpp */; };
+		493641912D0693E7006B8545 /* Bullet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641612D0693E7006B8545 /* Bullet.cpp */; };
+		493641922D0693E7006B8545 /* Rat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641732D0693E7006B8545 /* Rat.cpp */; };
+		493641932D0693E7006B8545 /* AcidDrop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936415B2D0693E7006B8545 /* AcidDrop.cpp */; };
+		493641942D0693E7006B8545 /* Mummy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936416F2D0693E7006B8545 /* Mummy.cpp */; };
+		493641952D0693E7006B8545 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641712D0693E7006B8545 /* Object.cpp */; };
+		493641962D0693E7006B8545 /* Chameleon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641632D0693E7006B8545 /* Chameleon.cpp */; };
+		493641972D0693E7006B8545 /* MultiDirEnemy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936416D2D0693E7006B8545 /* MultiDirEnemy.cpp */; };
+		493641992D0693E7006B8545 /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936414F2D0693E7006B8545 /* Sprite.cpp */; };
+		4936419A2D0693E7006B8545 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4936413F2D0693E7006B8545 /* Game.cpp */; };
+		4936419B2D0693E7006B8545 /* LabelTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641472D0693E7006B8545 /* LabelTable.cpp */; };
+		4936419C2D0693E7006B8545 /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493641382D0693E7006B8545 /* Config.cpp */; };
+		493641C52D0696AF006B8545 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 493641C42D0696AF006B8545 /* SDL2.framework */; };
+		493641C62D0696AF006B8545 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 493641C42D0696AF006B8545 /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		493641C92D0696B9006B8545 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 493641C82D0696B9006B8545 /* SDL2_image.framework */; };
+		493641CA2D0696B9006B8545 /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 493641C82D0696B9006B8545 /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		493641CC2D0696C2006B8545 /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 493641CB2D0696C2006B8545 /* SDL2_mixer.framework */; };
+		493641CD2D0696C2006B8545 /* SDL2_mixer.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 493641CB2D0696C2006B8545 /* SDL2_mixer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		493641C72D0696AF006B8545 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				493641CD2D0696C2006B8545 /* SDL2_mixer.framework in Embed Frameworks */,
+				493641C62D0696AF006B8545 /* SDL2.framework in Embed Frameworks */,
+				493641CA2D0696B9006B8545 /* SDL2_image.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		493642282D0697B5006B8545 /* Copy Sprites */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = sprites;
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			name = "Copy Sprites";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		493642462D0697E6006B8545 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = sounds;
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		493640892D06924A006B8545 /* Retro-Fred.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Retro-Fred.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		493640C02D06933D006B8545 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = "/Users/miguel/Projects/sdl/frameworks-ipad/SDL2.framework"; sourceTree = "<absolute>"; };
+		493640C42D069370006B8545 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = "/Users/miguel/Projects/sdl/frameworks-ipad/SDL2_image.framework"; sourceTree = "<absolute>"; };
+		493640C72D06938A006B8545 /* SDL2_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_mixer.framework; path = "/Users/miguel/Projects/sdl/frameworks-ipad/SDL2_mixer.framework"; sourceTree = "<absolute>"; };
+		493641362D0693E7006B8545 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		493641372D0693E7006B8545 /* Config.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Config.hpp; sourceTree = "<group>"; };
+		493641382D0693E7006B8545 /* Config.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Config.cpp; sourceTree = "<group>"; };
+		493641392D0693E7006B8545 /* Controller.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Controller.hpp; sourceTree = "<group>"; };
+		4936413A2D0693E7006B8545 /* Controller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Controller.cpp; sourceTree = "<group>"; };
+		4936413B2D0693E7006B8545 /* Coord.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Coord.hpp; sourceTree = "<group>"; };
+		4936413C2D0693E7006B8545 /* DisplayConfig.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DisplayConfig.hpp; sourceTree = "<group>"; };
+		4936413D2D0693E7006B8545 /* DisplayConfig.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DisplayConfig.cpp; sourceTree = "<group>"; };
+		4936413E2D0693E7006B8545 /* Game.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Game.hpp; sourceTree = "<group>"; };
+		4936413F2D0693E7006B8545 /* Game.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
+		493641402D0693E7006B8545 /* GameEvent.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GameEvent.hpp; sourceTree = "<group>"; };
+		493641412D0693E7006B8545 /* GameEvent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GameEvent.cpp; sourceTree = "<group>"; };
+		493641422D0693E7006B8545 /* GameMap.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GameMap.hpp; sourceTree = "<group>"; };
+		493641432D0693E7006B8545 /* GameMap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GameMap.cpp; sourceTree = "<group>"; };
+		493641442D0693E7006B8545 /* GameWindow.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GameWindow.hpp; sourceTree = "<group>"; };
+		493641452D0693E7006B8545 /* Label.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Label.hpp; sourceTree = "<group>"; };
+		493641462D0693E7006B8545 /* LabelTable.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LabelTable.hpp; sourceTree = "<group>"; };
+		493641472D0693E7006B8545 /* LabelTable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LabelTable.cpp; sourceTree = "<group>"; };
+		493641482D0693E7006B8545 /* Menu.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Menu.hpp; sourceTree = "<group>"; };
+		493641492D0693E7006B8545 /* Menu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Menu.cpp; sourceTree = "<group>"; };
+		4936414A2D0693E7006B8545 /* sdl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = sdl.hpp; sourceTree = "<group>"; };
+		4936414B2D0693E7006B8545 /* SoundID.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SoundID.hpp; sourceTree = "<group>"; };
+		4936414C2D0693E7006B8545 /* SoundManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SoundManager.hpp; sourceTree = "<group>"; };
+		4936414D2D0693E7006B8545 /* SoundManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SoundManager.cpp; sourceTree = "<group>"; };
+		4936414E2D0693E7006B8545 /* Sprite.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Sprite.hpp; sourceTree = "<group>"; };
+		4936414F2D0693E7006B8545 /* Sprite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sprite.cpp; sourceTree = "<group>"; };
+		493641502D0693E7006B8545 /* TextureID.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextureID.hpp; sourceTree = "<group>"; };
+		493641512D0693E7006B8545 /* TextureManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextureManager.hpp; sourceTree = "<group>"; };
+		493641522D0693E7006B8545 /* TextureManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextureManager.cpp; sourceTree = "<group>"; };
+		493641532D0693E7006B8545 /* Window.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Window.hpp; sourceTree = "<group>"; };
+		493641542D0693E7006B8545 /* Window.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Window.cpp; sourceTree = "<group>"; };
+		493641562D0693E7006B8545 /* fred_icon.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = fred_icon.ico; sourceTree = "<group>"; };
+		493641572D0693E7006B8545 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; };
+		493641582D0693E7006B8545 /* retro-fred.rc */ = {isa = PBXFileReference; lastKnownFileType = text; path = "retro-fred.rc"; sourceTree = "<group>"; };
+		4936415A2D0693E7006B8545 /* AcidDrop.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AcidDrop.hpp; sourceTree = "<group>"; };
+		4936415B2D0693E7006B8545 /* AcidDrop.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AcidDrop.cpp; sourceTree = "<group>"; };
+		4936415C2D0693E7006B8545 /* Application.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Application.hpp; sourceTree = "<group>"; };
+		4936415D2D0693E7006B8545 /* Application.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Application.cpp; sourceTree = "<group>"; };
+		4936415E2D0693E7006B8545 /* autofred.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = autofred.cpp; sourceTree = "<group>"; };
+		4936415F2D0693E7006B8545 /* build_config.hpp.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = build_config.hpp.in; sourceTree = "<group>"; };
+		493641602D0693E7006B8545 /* Bullet.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Bullet.hpp; sourceTree = "<group>"; };
+		493641612D0693E7006B8545 /* Bullet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Bullet.cpp; sourceTree = "<group>"; };
+		493641622D0693E7006B8545 /* Chameleon.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Chameleon.hpp; sourceTree = "<group>"; };
+		493641632D0693E7006B8545 /* Chameleon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Chameleon.cpp; sourceTree = "<group>"; };
+		493641642D0693E7006B8545 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		493641652D0693E7006B8545 /* Fred.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Fred.hpp; sourceTree = "<group>"; };
+		493641662D0693E7006B8545 /* Fred.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Fred.cpp; sourceTree = "<group>"; };
+		493641672D0693E7006B8545 /* GameRunner.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GameRunner.hpp; sourceTree = "<group>"; };
+		493641682D0693E7006B8545 /* GameRunner.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GameRunner.cpp; sourceTree = "<group>"; };
+		493641692D0693E7006B8545 /* Ghost.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Ghost.hpp; sourceTree = "<group>"; };
+		4936416A2D0693E7006B8545 /* Ghost.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Ghost.cpp; sourceTree = "<group>"; };
+		4936416B2D0693E7006B8545 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4936416C2D0693E7006B8545 /* MultiDirEnemy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MultiDirEnemy.hpp; sourceTree = "<group>"; };
+		4936416D2D0693E7006B8545 /* MultiDirEnemy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MultiDirEnemy.cpp; sourceTree = "<group>"; };
+		4936416E2D0693E7006B8545 /* Mummy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Mummy.hpp; sourceTree = "<group>"; };
+		4936416F2D0693E7006B8545 /* Mummy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mummy.cpp; sourceTree = "<group>"; };
+		493641702D0693E7006B8545 /* Object.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
+		493641712D0693E7006B8545 /* Object.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
+		493641722D0693E7006B8545 /* Rat.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Rat.hpp; sourceTree = "<group>"; };
+		493641732D0693E7006B8545 /* Rat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Rat.cpp; sourceTree = "<group>"; };
+		493641742D0693E7006B8545 /* sandbox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sandbox.cpp; sourceTree = "<group>"; };
+		493641752D0693E7006B8545 /* Signal.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Signal.hpp; sourceTree = "<group>"; };
+		493641762D0693E7006B8545 /* Skeleton.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Skeleton.hpp; sourceTree = "<group>"; };
+		493641772D0693E7006B8545 /* Skeleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Skeleton.cpp; sourceTree = "<group>"; };
+		493641782D0693E7006B8545 /* Smoke.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Smoke.hpp; sourceTree = "<group>"; };
+		493641792D0693E7006B8545 /* Smoke.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Smoke.cpp; sourceTree = "<group>"; };
+		4936417A2D0693E7006B8545 /* Tomb.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tomb.hpp; sourceTree = "<group>"; };
+		4936417B2D0693E7006B8545 /* Tomb.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Tomb.cpp; sourceTree = "<group>"; };
+		4936417C2D0693E7006B8545 /* Vampire.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Vampire.hpp; sourceTree = "<group>"; };
+		4936417D2D0693E7006B8545 /* Vampire.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Vampire.cpp; sourceTree = "<group>"; };
+		493641C42D0696AF006B8545 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDL2.framework; sourceTree = "<group>"; };
+		493641C82D0696B9006B8545 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDL2_image.framework; sourceTree = "<group>"; };
+		493641CB2D0696C2006B8545 /* SDL2_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDL2_mixer.framework; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		493642272D06976A006B8545 /* Exceptions for "assets" folder in "Retro-Fred" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				sounds/climbkok.wav,
+				sounds/climbtak.wav,
+				sounds/CMakeLists.txt,
+				sounds/collision.wav,
+				sounds/exit_maze.wav,
+				sounds/fire.wav,
+				sounds/funeral_march.wav,
+				sounds/game_over.wav,
+				sounds/jump.wav,
+				sounds/loading1.wav,
+				sounds/loading2.wav,
+				sounds/loading3.wav,
+				sounds/loading4.wav,
+				sounds/pick_object.wav,
+				sounds/walk.wav,
+				sprites/aciddrop.png,
+				sprites/block.png,
+				sprites/bullet.png,
+				sprites/chameleon.png,
+				sprites/CMakeLists.txt,
+				sprites/controller.png,
+				sprites/fred_icon.png,
+				sprites/fred_logo.png,
+				sprites/fred_puffing.png,
+				sprites/fred.png,
+				sprites/ghost.png,
+				sprites/loading1.png,
+				sprites/loading2.png,
+				sprites/loading3.png,
+				sprites/loading4.png,
+				sprites/mummy.png,
+				sprites/object.png,
+				sprites/power.png,
+				sprites/rat.png,
+				sprites/skeleton.png,
+				sprites/small_digits.png,
+				sprites/smoke.png,
+				sprites/splash_screen.png,
+				sprites/todays_greatest.png,
+				sprites/tomb.png,
+				sprites/vampire.png,
+				sprites/window.png,
+				sprites/zx_font.png,
+			);
+			target = 493640882D06924A006B8545 /* Retro-Fred */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		493642452D0697D6006B8545 /* Exceptions for "assets" folder in "Copy Sprites" phase from "Retro-Fred" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 493642282D0697B5006B8545 /* Copy Sprites */;
+			membershipExceptions = (
+				sprites/aciddrop.png,
+				sprites/block.png,
+				sprites/bullet.png,
+				sprites/chameleon.png,
+				sprites/controller.png,
+				sprites/fred_icon.png,
+				sprites/fred_logo.png,
+				sprites/fred_puffing.png,
+				sprites/fred.png,
+				sprites/ghost.png,
+				sprites/loading1.png,
+				sprites/loading2.png,
+				sprites/loading3.png,
+				sprites/loading4.png,
+				sprites/mummy.png,
+				sprites/object.png,
+				sprites/power.png,
+				sprites/rat.png,
+				sprites/skeleton.png,
+				sprites/small_digits.png,
+				sprites/smoke.png,
+				sprites/splash_screen.png,
+				sprites/todays_greatest.png,
+				sprites/tomb.png,
+				sprites/vampire.png,
+				sprites/window.png,
+				sprites/zx_font.png,
+			);
+		};
+		493642562D0697F1006B8545 /* Exceptions for "assets" folder in "Copy Files" phase from "Retro-Fred" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 493642462D0697E6006B8545 /* CopyFiles */;
+			membershipExceptions = (
+				sounds/climbkok.wav,
+				sounds/climbtak.wav,
+				sounds/collision.wav,
+				sounds/exit_maze.wav,
+				sounds/fire.wav,
+				sounds/funeral_march.wav,
+				sounds/game_over.wav,
+				sounds/jump.wav,
+				sounds/loading1.wav,
+				sounds/loading2.wav,
+				sounds/loading3.wav,
+				sounds/loading4.wav,
+				sounds/pick_object.wav,
+				sounds/walk.wav,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		4936408B2D06924A006B8545 /* Retro-Fred */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Retro-Fred";
+			sourceTree = "<group>";
+		};
+		493641FB2D069747006B8545 /* assets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				493642272D06976A006B8545 /* Exceptions for "assets" folder in "Retro-Fred" target */,
+				493642452D0697D6006B8545 /* Exceptions for "assets" folder in "Copy Sprites" phase from "Retro-Fred" target */,
+				493642562D0697F1006B8545 /* Exceptions for "assets" folder in "Copy Files" phase from "Retro-Fred" target */,
+			);
+			name = assets;
+			path = ../assets;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		493640862D06924A006B8545 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				493641CC2D0696C2006B8545 /* SDL2_mixer.framework in Frameworks */,
+				493641C52D0696AF006B8545 /* SDL2.framework in Frameworks */,
+				493641C92D0696B9006B8545 /* SDL2_image.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		493640802D06924A006B8545 = {
+			isa = PBXGroup;
+			children = (
+				493641FB2D069747006B8545 /* assets */,
+				4936417E2D0693E7006B8545 /* cpp */,
+				4936408B2D06924A006B8545 /* Retro-Fred */,
+				493640BF2D06933D006B8545 /* Frameworks */,
+				4936408A2D06924A006B8545 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4936408A2D06924A006B8545 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				493640892D06924A006B8545 /* Retro-Fred.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		493640BF2D06933D006B8545 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				493641CB2D0696C2006B8545 /* SDL2_mixer.framework */,
+				493641C82D0696B9006B8545 /* SDL2_image.framework */,
+				493641C42D0696AF006B8545 /* SDL2.framework */,
+				493640C72D06938A006B8545 /* SDL2_mixer.framework */,
+				493640C42D069370006B8545 /* SDL2_image.framework */,
+				493640C02D06933D006B8545 /* SDL2.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		493641552D0693E7006B8545 /* fredcore */ = {
+			isa = PBXGroup;
+			children = (
+				493641362D0693E7006B8545 /* CMakeLists.txt */,
+				493641372D0693E7006B8545 /* Config.hpp */,
+				493641382D0693E7006B8545 /* Config.cpp */,
+				493641392D0693E7006B8545 /* Controller.hpp */,
+				4936413A2D0693E7006B8545 /* Controller.cpp */,
+				4936413B2D0693E7006B8545 /* Coord.hpp */,
+				4936413C2D0693E7006B8545 /* DisplayConfig.hpp */,
+				4936413D2D0693E7006B8545 /* DisplayConfig.cpp */,
+				4936413E2D0693E7006B8545 /* Game.hpp */,
+				4936413F2D0693E7006B8545 /* Game.cpp */,
+				493641402D0693E7006B8545 /* GameEvent.hpp */,
+				493641412D0693E7006B8545 /* GameEvent.cpp */,
+				493641422D0693E7006B8545 /* GameMap.hpp */,
+				493641432D0693E7006B8545 /* GameMap.cpp */,
+				493641442D0693E7006B8545 /* GameWindow.hpp */,
+				493641452D0693E7006B8545 /* Label.hpp */,
+				493641462D0693E7006B8545 /* LabelTable.hpp */,
+				493641472D0693E7006B8545 /* LabelTable.cpp */,
+				493641482D0693E7006B8545 /* Menu.hpp */,
+				493641492D0693E7006B8545 /* Menu.cpp */,
+				4936414A2D0693E7006B8545 /* sdl.hpp */,
+				4936414B2D0693E7006B8545 /* SoundID.hpp */,
+				4936414C2D0693E7006B8545 /* SoundManager.hpp */,
+				4936414D2D0693E7006B8545 /* SoundManager.cpp */,
+				4936414E2D0693E7006B8545 /* Sprite.hpp */,
+				4936414F2D0693E7006B8545 /* Sprite.cpp */,
+				493641502D0693E7006B8545 /* TextureID.hpp */,
+				493641512D0693E7006B8545 /* TextureManager.hpp */,
+				493641522D0693E7006B8545 /* TextureManager.cpp */,
+				493641532D0693E7006B8545 /* Window.hpp */,
+				493641542D0693E7006B8545 /* Window.cpp */,
+			);
+			path = fredcore;
+			sourceTree = "<group>";
+		};
+		493641592D0693E7006B8545 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				493641562D0693E7006B8545 /* fred_icon.ico */,
+				493641572D0693E7006B8545 /* resource.h */,
+				493641582D0693E7006B8545 /* retro-fred.rc */,
+			);
+			path = resources;
+			sourceTree = "<group>";
+		};
+		4936417E2D0693E7006B8545 /* cpp */ = {
+			isa = PBXGroup;
+			children = (
+				493641552D0693E7006B8545 /* fredcore */,
+				493641592D0693E7006B8545 /* resources */,
+				4936415A2D0693E7006B8545 /* AcidDrop.hpp */,
+				4936415B2D0693E7006B8545 /* AcidDrop.cpp */,
+				4936415C2D0693E7006B8545 /* Application.hpp */,
+				4936415D2D0693E7006B8545 /* Application.cpp */,
+				4936415E2D0693E7006B8545 /* autofred.cpp */,
+				4936415F2D0693E7006B8545 /* build_config.hpp.in */,
+				493641602D0693E7006B8545 /* Bullet.hpp */,
+				493641612D0693E7006B8545 /* Bullet.cpp */,
+				493641622D0693E7006B8545 /* Chameleon.hpp */,
+				493641632D0693E7006B8545 /* Chameleon.cpp */,
+				493641642D0693E7006B8545 /* CMakeLists.txt */,
+				493641652D0693E7006B8545 /* Fred.hpp */,
+				493641662D0693E7006B8545 /* Fred.cpp */,
+				493641672D0693E7006B8545 /* GameRunner.hpp */,
+				493641682D0693E7006B8545 /* GameRunner.cpp */,
+				493641692D0693E7006B8545 /* Ghost.hpp */,
+				4936416A2D0693E7006B8545 /* Ghost.cpp */,
+				4936416B2D0693E7006B8545 /* main.cpp */,
+				4936416C2D0693E7006B8545 /* MultiDirEnemy.hpp */,
+				4936416D2D0693E7006B8545 /* MultiDirEnemy.cpp */,
+				4936416E2D0693E7006B8545 /* Mummy.hpp */,
+				4936416F2D0693E7006B8545 /* Mummy.cpp */,
+				493641702D0693E7006B8545 /* Object.hpp */,
+				493641712D0693E7006B8545 /* Object.cpp */,
+				493641722D0693E7006B8545 /* Rat.hpp */,
+				493641732D0693E7006B8545 /* Rat.cpp */,
+				493641742D0693E7006B8545 /* sandbox.cpp */,
+				493641752D0693E7006B8545 /* Signal.hpp */,
+				493641762D0693E7006B8545 /* Skeleton.hpp */,
+				493641772D0693E7006B8545 /* Skeleton.cpp */,
+				493641782D0693E7006B8545 /* Smoke.hpp */,
+				493641792D0693E7006B8545 /* Smoke.cpp */,
+				4936417A2D0693E7006B8545 /* Tomb.hpp */,
+				4936417B2D0693E7006B8545 /* Tomb.cpp */,
+				4936417C2D0693E7006B8545 /* Vampire.hpp */,
+				4936417D2D0693E7006B8545 /* Vampire.cpp */,
+			);
+			name = cpp;
+			path = ../cpp;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		493640882D06924A006B8545 /* Retro-Fred */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 493640A42D06924A006B8545 /* Build configuration list for PBXNativeTarget "Retro-Fred" */;
+			buildPhases = (
+				493641C32D069571006B8545 /* Generate build_config.hpp */,
+				493640852D06924A006B8545 /* Sources */,
+				493640862D06924A006B8545 /* Frameworks */,
+				493640872D06924A006B8545 /* Resources */,
+				493641C72D0696AF006B8545 /* Embed Frameworks */,
+				493642282D0697B5006B8545 /* Copy Sprites */,
+				493642462D0697E6006B8545 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				4936408B2D06924A006B8545 /* Retro-Fred */,
+				493641FB2D069747006B8545 /* assets */,
+			);
+			name = "Retro-Fred";
+			packageProductDependencies = (
+			);
+			productName = "Retro-Fred";
+			productReference = 493640892D06924A006B8545 /* Retro-Fred.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		493640812D06924A006B8545 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1610;
+				TargetAttributes = {
+					493640882D06924A006B8545 = {
+						CreatedOnToolsVersion = 16.1;
+					};
+				};
+			};
+			buildConfigurationList = 493640842D06924A006B8545 /* Build configuration list for PBXProject "Retro-Fred" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 493640802D06924A006B8545;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 4936408A2D06924A006B8545 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				493640882D06924A006B8545 /* Retro-Fred */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		493640872D06924A006B8545 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		493641C32D069571006B8545 /* Generate build_config.hpp */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/../CMakeLists.txt",
+			);
+			name = "Generate build_config.hpp";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/build_config.hpp",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "# Ensure we can find cmake\nexport PATH=\"/opt/homebrew/bin:$PATH\"\nCMAKE_ROOT=\"$SRCROOT/..\"\nmkdir -p \"$CMAKE_ROOT/build\"\ncmake -B \"$CMAKE_ROOT/build\" -S \"$CMAKE_ROOT\"\ncp -f \"$CMAKE_ROOT/build/cpp/build_config.hpp\" \"$SCRIPT_OUTPUT_FILE_0\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		493640852D06924A006B8545 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4936417F2D0693E7006B8545 /* Skeleton.cpp in Sources */,
+				493641802D0693E7006B8545 /* GameMap.cpp in Sources */,
+				493641812D0693E7006B8545 /* Tomb.cpp in Sources */,
+				493641822D0693E7006B8545 /* SoundManager.cpp in Sources */,
+				493641832D0693E7006B8545 /* Fred.cpp in Sources */,
+				493641842D0693E7006B8545 /* Window.cpp in Sources */,
+				493641852D0693E7006B8545 /* GameEvent.cpp in Sources */,
+				493641862D0693E7006B8545 /* TextureManager.cpp in Sources */,
+				493641872D0693E7006B8545 /* Controller.cpp in Sources */,
+				493641882D0693E7006B8545 /* Application.cpp in Sources */,
+				493641892D0693E7006B8545 /* Vampire.cpp in Sources */,
+				4936418A2D0693E7006B8545 /* main.cpp in Sources */,
+				4936418B2D0693E7006B8545 /* Ghost.cpp in Sources */,
+				4936418D2D0693E7006B8545 /* Menu.cpp in Sources */,
+				4936418E2D0693E7006B8545 /* DisplayConfig.cpp in Sources */,
+				4936418F2D0693E7006B8545 /* GameRunner.cpp in Sources */,
+				493641902D0693E7006B8545 /* Smoke.cpp in Sources */,
+				493641912D0693E7006B8545 /* Bullet.cpp in Sources */,
+				493641922D0693E7006B8545 /* Rat.cpp in Sources */,
+				493641932D0693E7006B8545 /* AcidDrop.cpp in Sources */,
+				493641942D0693E7006B8545 /* Mummy.cpp in Sources */,
+				493641952D0693E7006B8545 /* Object.cpp in Sources */,
+				493641962D0693E7006B8545 /* Chameleon.cpp in Sources */,
+				493641972D0693E7006B8545 /* MultiDirEnemy.cpp in Sources */,
+				493641992D0693E7006B8545 /* Sprite.cpp in Sources */,
+				4936419A2D0693E7006B8545 /* Game.cpp in Sources */,
+				4936419B2D0693E7006B8545 /* LabelTable.cpp in Sources */,
+				4936419C2D0693E7006B8545 /* Config.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		493640A22D06924A006B8545 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		493640A32D06924A006B8545 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		493640A52D06924A006B8545 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8P2R7JZF87;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"RETRO_FRED_IOS=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../../SDL2-2.30.9/include\"",
+					"\"$(SRCROOT)/../../SDL2_image-2.8.2/include\"",
+					"\"$(SRCROOT)/../../SDL2_mixer-2.8.0/include\"",
+				);
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app does not use Bluetooth";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = metal;
+				INFOPLIST_KEY_UIStatusBarHidden = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eightbitfred.RetroFred;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		493640A62D06924A006B8545 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8P2R7JZF87;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = "RETRO_FRED_IOS=1";
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../../SDL2-2.30.9/include\"",
+					"\"$(SRCROOT)/../../SDL2_image-2.8.2/include\"",
+					"\"$(SRCROOT)/../../SDL2_mixer-2.8.0/include\"",
+				);
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app does not use Bluetooth";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = metal;
+				INFOPLIST_KEY_UIStatusBarHidden = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eightbitfred.RetroFred;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		493640842D06924A006B8545 /* Build configuration list for PBXProject "Retro-Fred" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				493640A22D06924A006B8545 /* Debug */,
+				493640A32D06924A006B8545 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		493640A42D06924A006B8545 /* Build configuration list for PBXNativeTarget "Retro-Fred" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				493640A52D06924A006B8545 /* Debug */,
+				493640A62D06924A006B8545 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 493640812D06924A006B8545 /* Project object */;
+}
