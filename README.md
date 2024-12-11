@@ -220,3 +220,62 @@ You can also build using the Xcode generator:
     cmake --build . --config Release
     cpack -G Bundle --config ./CPackConfig.cmake
 ```
+
+Note that the generated .dmg file and the .app bundle inside are not signed, so they will
+not run if you transfer them to a different machine. To be able to run in a different
+machine you need to copy the .app directory to a separate directory, then use `xattr -c
+Retro-Fred.app` to clear the attributes, which should allow the executable to run.
+
+iOS
+---
+
+For iOS we mostly followed the instructions from this post:
+
+  https://discourse.libsdl.org/t/latest-sdl2-2-0-26-ios-dev-anyone-having-any-success-solved/41524
+
+The LazyFoo tutorial (https://lazyfoo.net/tutorials/SDL/52_hello_mobile/ios_mac/index.php)
+was also pretty useful, as well as the documentation in the SDL library itself
+(https://github.com/libsdl-org/SDL/blob/release-2.30.x/docs/README-ios.md).
+
+The steps are roughly the following:
+
+  1) Create a work directory, and unpack the SDL libraries, and clone the repository in
+     it:
+
+```
+    cd <work_directory>
+    tar xf SDL2-<version>
+    tar xf SDL2_image-<version>
+    tar xf SDL2_mixer-<version>
+    git clone <repository> retro-fred
+````
+
+  2) Build SDL2:
+
+      * Open the Xcode project Xcode/SDL/SDL.xcodeproj inside the SDL source code
+        directory.
+      * Set Framework-iOS and Build->Any iOS device (arm64) in the status bar up top (see
+        the instructions in the libsdl discussion forum)
+      * Go to Product->Archive. This will build SDL2 in Release mode.
+      * The Organizer window will pop up and you will see the archive. Right click on it
+        and select "Show in Finder"
+      * In the Finder window right click on the archive and pick "Show Package Contents".
+        Go to Product/Library/Frameworks.
+      * Copy SDL2.framework to the retro-fred/ios directory in the work directory.
+
+  3) Build SDL2_image and SDL2_mixer: repeat the previous steps for SDL2_image and
+     SDL2_mixer. You may need to add the SDL2 framework to each of them so that they can
+     find the SDL library.
+
+  4) Open the retro-fred/ios/Retro-Fred.xcodeproj project with Xcode
+
+  5) Select Retro-Fred on the Project Navigator, select General, and ensure that the SDL2
+     frameworks in "Frameworks, Libraries and Embedded Content" point to the frameworks
+     that you just built.
+
+  6) In Build Settings ensure that the Header Search Paths point to the include
+     directories inside the source packages of the SDL libraries. Note that we do not want
+     to point to the include headers in the frameworks, since the headers in the
+     frameworks sit in the SDL2 directory instead of the top level directory.
+
+  7) Select Product->Archive to build
