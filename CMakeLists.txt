@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project("retro-fred" VERSION 1.0.1)
+project("retro-fred" VERSION 1.0.2)
 
 file(CONFIGURE OUTPUT version CONTENT "${CMAKE_PROJECT_VERSION}\n")
 

@@ -6,7 +6,7 @@ void Object::initialize(std::minstd_rand &random_engine, GameBase &game)
     auto &sprite_list = game.getSpriteList(SpriteClass::OBJECT);
     std::uniform_int_distribution<> distrib_x(1, game.getGameMap().getWidth() - 2);
     std::uniform_int_distribution<> distrib_y(1, game.getGameMap().getHeight() - 4);
-    std::uniform_int_distribution<> distrib_t(0, static_cast<int>(Object::Type::COUNT));
+    std::uniform_int_distribution<> distrib_t(0, static_cast<int>(Object::Type::COUNT) - 1);
     // TODO: the number of objects depends on the game level. Also not all objects are
     // allowed in all levels.
     for (int counter = game.getSpriteCount().objects; counter > 0;)
