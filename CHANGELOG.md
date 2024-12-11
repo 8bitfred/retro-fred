@@ -1,5 +1,7 @@
 # 1.0.1
 
+* First release in the Apple App Store, as version 1.0
+
 * Add support for iOS.
 
 * Modify scaling/viewport settings to add support for high DPI devices.
