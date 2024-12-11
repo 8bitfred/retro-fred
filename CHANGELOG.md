@@ -1,3 +1,8 @@
+# 1.0.2
+
+* Fix out-of-bounds object type bug: it was causing object pickup sounds to be played at 
+  unexpected times.
+
 # 1.0.1
 
 * First release in the Apple App Store, as version 1.0
