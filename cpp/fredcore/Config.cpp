@@ -40,6 +40,8 @@ namespace {
         "              Defaults to 6.\n"
         "    --virtual-controller\n"
         "              Enable virtual controller.\n"
+        "    --back-button\n"
+        "              Enable back button in the virtual controller.\n"
         "    --power-with-level\n"
         "              Change the amount that the power object\n"
         "              increases the power with the level.\n"
@@ -131,6 +133,8 @@ Config::Config(int argc, char *argv[])
         }
         else if (svarg == "--virtual-controller")
             virtual_controller = true;
+        else if (svarg == "--back-button")
+            back_button = true;
         else if (svarg == "--window-size")
         {
             ++i;
