@@ -155,6 +155,8 @@ jobs:
   build_macos:
     name: 'MacOS X build'
     runs-on: macos-latest
+    env:
+      MACOSX_DEPLOYMENT_TARGET: 10.9
     steps:
       - name: 'Checkout source'
         uses: actions/checkout@v4
