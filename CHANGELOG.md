@@ -2,8 +2,15 @@
 
 * Use static build for Linux and MacOS builds.
 
-* Fix out-of-bounds object type bug: it was causing object pickup sounds to be played at 
+* Fix out-of-bounds object type bug: it was causing object pickup sounds to be played at
   unexpected times.
+
+* Move virtual controller away from the edge of the screen to avoid triggering gestures
+  that start at the end of the screen.
+
+* Update to high resolution Fred log.
+
+* Minor fix on the hat in the sprite of Fred climbing.
 
 # 1.0.1
 
