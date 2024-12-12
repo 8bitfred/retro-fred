@@ -17,10 +17,12 @@ void Controller::resetPosition(DisplayConfig const &display_cfg)
     else // portrait orientation
         size = std::min(window_w / 2, window_h / 5);
 
-    arrows = SDL_Rect{0, window_h - size, size, size};
-    fire = SDL_Rect{window_w - size, window_h - size, size, size};
+    auto offset = std::min(window_w / 32, window_h / 32);
+
+    arrows = SDL_Rect{offset, window_h - size - offset, size, size};
+    fire = SDL_Rect{window_w - size - offset, window_h - size - offset, size, size};
     auto third = size / 3;
-    back = SDL_Rect{window_w - third, 0, third, third};
+    back = SDL_Rect{window_w - third - offset, offset, third, third};
 
     float window_fw = static_cast<float>(window_w);
     float window_fh = static_cast<float>(window_h);
