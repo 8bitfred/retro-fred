@@ -24,7 +24,7 @@ namespace sdl
     class App
     {
     public:
-        App(Uint32 flags = SDL_INIT_EVERYTHING)
+        App(Uint32 flags = SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS)
         {
             if (SDL_Init(flags) < 0)
                 throw Error();
@@ -158,8 +158,10 @@ namespace sdl
         int playChannel(Mix_Chunk *chunk, int channel = -1, int loops = 0)
         {
             auto out_channel = Mix_PlayChannel(channel, chunk, loops);
-            if (out_channel < 0)
-                throw Error();
+            if (out_channel < 0) {
+                SDL_Log("sdl::playChannel: failed to play sound: %s", SDL_GetError());
+                SDL_ClearError();
+            }
             return out_channel;
         }
         Uint32 getDuration(Mix_Chunk *chunk) const noexcept
