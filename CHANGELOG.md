@@ -1,3 +1,7 @@
+# 1.0.3
+
+* Avoid crashing if playChannel() fails.
+
 # 1.0.2
 
 * Use static build for Linux and MacOS builds.
