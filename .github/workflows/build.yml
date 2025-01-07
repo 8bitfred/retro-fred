@@ -20,7 +20,7 @@ jobs:
       - name: 'Install SDL2'
         uses: './.github/actions/setup-sdl'
         with:
-          sdl_version: '2.30.3'
+          sdl_version: '2.30.11'
       - name: 'Install SDL2_image'
         uses: './.github/actions/setup-sdl_image'
         with:
@@ -54,7 +54,7 @@ jobs:
 
       - name: Download SDL2
         run: |
-          Invoke-WebRequest "https://www.libsdl.org/release/SDL2-devel-2.30.3-VC.zip" -OutFile "SDL2.zip"
+          Invoke-WebRequest "https://www.libsdl.org/release/SDL2-devel-2.30.11-VC.zip" -OutFile "SDL2.zip"
           Expand-Archive -Path SDL2.zip -DestinationPath "C:\SDL2"
 
       - name: Download SDL2_image
@@ -97,7 +97,7 @@ jobs:
     name: 'Android build'
     runs-on: ubuntu-latest
     env:
-      sdl_version: '2.29.3'
+      sdl_version: '2.30.11'
       sdl_image_version: '2.8.2'
       sdl_mixer_version: '2.8.0'
     steps:
@@ -121,7 +121,7 @@ jobs:
           wget --no-check-certificate https://www.libsdl.org/release/SDL2-${{ env.sdl_version }}.tar.gz
           tar xzf SDL2-${{ env.sdl_version }}.tar.gz
           cd SDL2-${{ env.sdl_version }}
-          patch -p1 < "$GITHUB_WORKSPACE/src/android/patch-SDL2-2.29.3-aaudio-buffer-size.patch"
+          patch -p1 < "$GITHUB_WORKSPACE/src/android/patch-SDL2-2.30.11-aaudio-buffer-size.patch"
           echo "sdl2_path="$(pwd) >> "$GITHUB_OUTPUT"
       
       - name: 'Download SDL2_image'
@@ -164,7 +164,7 @@ jobs:
       - name: 'Install SDL2'
         uses: './.github/actions/setup-sdl'
         with:
-          sdl_version: '2.30.3'
+          sdl_version: '2.30.11'
       - name: 'Install SDL2_image'
         uses: './.github/actions/setup-sdl_image'
         with:

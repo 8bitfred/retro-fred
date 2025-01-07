@@ -1,3 +1,7 @@
+# 1.0.4
+
+* Use SDL2 2.30.11 to avoid compatibility issues of SDL2 with Android 15. 
+
 # 1.0.3
 
 * Avoid crashing if playChannel() fails.

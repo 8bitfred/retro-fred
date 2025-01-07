@@ -1,7 +1,7 @@
 diff -Naur a/src/audio/aaudio/SDL_aaudio.c b/src/audio/aaudio/SDL_aaudio.c
---- a/src/audio/aaudio/SDL_aaudio.c	2024-01-28 01:51:37.000000000 -0500
-+++ b/src/audio/aaudio/SDL_aaudio.c	2024-01-31 23:36:22.164434054 -0500
-@@ -128,6 +128,7 @@
+--- a/src/audio/aaudio/SDL_aaudio.c	2025-01-01 10:48:45.000000000 -0500
++++ b/src/audio/aaudio/SDL_aaudio.c	2025-01-06 21:29:44.592324472 -0500
+@@ -127,6 +127,7 @@
          return SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
      }
  
@@ -9,7 +9,7 @@ diff -Naur a/src/audio/aaudio/SDL_aaudio.c b/src/audio/aaudio/SDL_aaudio.c
      this->spec.freq = ctx.AAudioStream_getSampleRate(private->stream);
      this->spec.channels = ctx.AAudioStream_getChannelCount(private->stream);
      {
-@@ -250,6 +251,7 @@
+@@ -248,6 +249,7 @@
          LOGI("SDL Failed AAudioStreamBuilder_openStream %d", res);
          return SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
      }
@@ -18,8 +18,8 @@ diff -Naur a/src/audio/aaudio/SDL_aaudio.c b/src/audio/aaudio/SDL_aaudio.c
      {
          const aaudio_format_t fmt = ctx.AAudioStream_getFormat(hidden->stream);
 diff -Naur a/src/audio/aaudio/SDL_aaudiofuncs.h b/src/audio/aaudio/SDL_aaudiofuncs.h
---- a/src/audio/aaudio/SDL_aaudiofuncs.h	2024-01-28 01:51:37.000000000 -0500
-+++ b/src/audio/aaudio/SDL_aaudiofuncs.h	2024-01-31 23:32:55.766345696 -0500
+--- a/src/audio/aaudio/SDL_aaudiofuncs.h	2025-01-01 10:48:45.000000000 -0500
++++ b/src/audio/aaudio/SDL_aaudiofuncs.h	2025-01-06 21:29:44.592324472 -0500
 @@ -54,7 +54,7 @@
  SDL_PROC_UNUSED(aaudio_result_t, AAudioStream_waitForStateChange, (AAudioStream * stream, aaudio_stream_state_t inputState, aaudio_stream_state_t *nextState, int64_t timeoutNanoseconds))
  SDL_PROC(aaudio_result_t, AAudioStream_read, (AAudioStream * stream, void *buffer, int32_t numFrames, int64_t timeoutNanoseconds))
