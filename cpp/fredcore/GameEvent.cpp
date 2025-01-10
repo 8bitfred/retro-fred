@@ -73,6 +73,90 @@ std::optional<GameEvent> EventManager::getTouchEvent(Controller const &virtual_c
     return {};
 }
 
+EventManager::EventManager(std::uint32_t ticks_per_frame)
+    : ticks_per_frame(ticks_per_frame)
+    , next_frame(SDL_GetTicks() + ticks_per_frame)
+{
+    // If there are any joysticks open the first one
+    if (SDL_NumJoysticks() > 0)
+        joystick = sdl::JoystickPtr(SDL_JoystickOpen(0));
+}
+
+void EventManager::getJoystickHatEvent(EventMask &event_mask, Uint8 hat_position)
+{
+    switch (hat_position)
+    {
+        case SDL_HAT_DOWN:
+            event_mask.set(GameEvent::DOWN);
+            break;
+        case SDL_HAT_UP:
+            event_mask.set(GameEvent::UP);
+            break;
+        case SDL_HAT_LEFT:
+            event_mask.set(GameEvent::LEFT);
+            break;
+        case SDL_HAT_RIGHT:
+            event_mask.set(GameEvent::RIGHT);
+            break;
+        case SDL_HAT_LEFTDOWN:
+            event_mask.set(GameEvent::LEFT);
+            event_mask.set(GameEvent::DOWN);
+            break;
+        case SDL_HAT_LEFTUP:
+            event_mask.set(GameEvent::LEFT);
+            event_mask.set(GameEvent::UP);
+            break;
+        case SDL_HAT_RIGHTDOWN:
+            event_mask.set(GameEvent::RIGHT);
+            event_mask.set(GameEvent::DOWN);
+            break;
+        case SDL_HAT_RIGHTUP:
+            event_mask.set(GameEvent::RIGHT);
+            event_mask.set(GameEvent::UP);
+            break;
+    }
+}
+
+void EventManager::getJoystickButtonEvent(EventMask &event_mask, Uint8 button)
+{
+    if (button == 0)
+        event_mask.set(GameEvent::FIRE);
+    else if (button == 1)
+        event_mask.set(GameEvent::BACK);
+}
+
+void EventManager::getJoystickAxisEvent(EventMask &event_mask)
+{
+    if (!joystick)
+        return;
+    auto pjoystick = joystick->get();
+    auto num_axes = SDL_JoystickNumAxes(pjoystick);
+    if (num_axes < 2)
+        return;
+    Sint16 x = SDL_JoystickGetAxis(pjoystick, 0);
+    auto absx = std::abs(x);
+    Sint16 y = SDL_JoystickGetAxis(pjoystick, 1);
+    auto absy = std::abs(y);
+    if (absx < 5000)
+        absx = 0;
+    if (absy < 5000)
+        absy = 0;
+    if (absx > absy)
+    {
+        if (x > 0)
+            event_mask.set(GameEvent::RIGHT);
+        else
+            event_mask.set(GameEvent::LEFT);
+    }
+    else if (absx < absy)
+    {
+        if (y > 0)
+            event_mask.set(GameEvent::DOWN);
+        else
+            event_mask.set(GameEvent::UP);
+    }
+}
+
 EventMask EventManager::collectEvents(std::optional<Controller> const &virtual_controller)
 {
     static constexpr Uint16 STDMODS = KMOD_SHIFT | KMOD_ALT | KMOD_CTRL | KMOD_GUI;
@@ -120,6 +204,12 @@ EventMask EventManager::collectEvents(std::optional<Controller> const &virtual_c
                 }
             }
         }
+        else if (event.type == SDL_JOYHATMOTION)
+            getJoystickHatEvent(event_mask, event.jhat.hat);
+        else if (event.type == SDL_JOYBUTTONDOWN)
+            getJoystickButtonEvent(event_mask, event.jbutton.button);
+        else if (event.type == SDL_JOYAXISMOTION && event.jaxis.axis < 2)
+            getJoystickAxisEvent(event_mask);
         else if (virtual_controller)
         {
             if (event.type == SDL_FINGERDOWN)
@@ -155,13 +245,23 @@ EventMask EventManager::collectEvents(std::optional<Controller> const &virtual_c
     {
         if (checkKeymod(keymods, binding.keymod) &&
             keystate[binding.scancode] != 0)
-        {
             event_mask.set(binding.game_event);
-        }
     }
     for (auto const &[id, game_event] : finger_state)
-    {
         event_mask.set(game_event);
+
+    if (joystick) {
+        auto pjoystick = joystick->get();
+        auto num_hats = SDL_JoystickNumHats(pjoystick);
+        for (int hat = 0; hat < num_hats; ++hat)
+            getJoystickHatEvent(event_mask, SDL_JoystickGetHat(pjoystick, hat));
+        auto num_buttons = SDL_JoystickNumButtons(pjoystick);
+        for (int button = 0; button < num_buttons; ++button)
+        {
+            if (SDL_JoystickGetButton(pjoystick, button) == 1)
+                getJoystickButtonEvent(event_mask, button);
+        }
+        getJoystickAxisEvent(event_mask);
     }
 
     return event_mask;

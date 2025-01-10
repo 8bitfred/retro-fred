@@ -24,7 +24,8 @@ namespace sdl
     class App
     {
     public:
-        App(Uint32 flags = SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS)
+        App(Uint32 flags = SDL_INIT_AUDIO | SDL_INIT_VIDEO |
+            SDL_INIT_EVENTS | SDL_INIT_JOYSTICK)
         {
             if (SDL_Init(flags) < 0)
                 throw Error();
@@ -175,4 +176,5 @@ namespace sdl
         void clearQueuedAudio() noexcept { Mix_HaltChannel(-1); }
     };
 
+    using JoystickPtr = ObjectPtr<SDL_Joystick, SDL_JoystickClose>;
 } // namespace sdl
