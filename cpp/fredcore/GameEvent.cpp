@@ -119,7 +119,7 @@ void EventManager::getJoystickHatEvent(EventMask &event_mask, Uint8 hat_position
 
 void EventManager::getJoystickButtonEvent(EventMask &event_mask, Uint8 button)
 {
-    if (button == 0)
+    if (button == 0 || button >= 4)
         event_mask.set(GameEvent::FIRE);
     else if (button == 1)
         event_mask.set(GameEvent::BACK);
@@ -130,30 +130,31 @@ void EventManager::getJoystickAxisEvent(EventMask &event_mask)
     if (!joystick)
         return;
     auto pjoystick = joystick->get();
-    auto num_axes = SDL_JoystickNumAxes(pjoystick);
-    if (num_axes < 2)
-        return;
-    Sint16 x = SDL_JoystickGetAxis(pjoystick, 0);
-    auto absx = std::abs(x);
-    Sint16 y = SDL_JoystickGetAxis(pjoystick, 1);
-    auto absy = std::abs(y);
-    if (absx < 5000)
-        absx = 0;
-    if (absy < 5000)
-        absy = 0;
-    if (absx > absy)
+    auto num_axes = std::min(SDL_JoystickNumAxes(pjoystick), 4);
+    for (int axis = 1; axis < num_axes; axis += 2)
     {
-        if (x > 0)
-            event_mask.set(GameEvent::RIGHT);
-        else
-            event_mask.set(GameEvent::LEFT);
-    }
-    else if (absx < absy)
-    {
-        if (y > 0)
-            event_mask.set(GameEvent::DOWN);
-        else
-            event_mask.set(GameEvent::UP);
+        Sint16 x = SDL_JoystickGetAxis(pjoystick, axis - 1);
+        auto absx = std::abs(x);
+        Sint16 y = SDL_JoystickGetAxis(pjoystick, axis);
+        auto absy = std::abs(y);
+        if (absx < 5000)
+            absx = 0;
+        if (absy < 5000)
+            absy = 0;
+        if (absx > absy)
+        {
+            if (x > 0)
+                event_mask.set(GameEvent::RIGHT);
+            else
+                event_mask.set(GameEvent::LEFT);
+        }
+        else if (absx < absy)
+        {
+            if (y > 0)
+                event_mask.set(GameEvent::DOWN);
+            else
+                event_mask.set(GameEvent::UP);
+        }
     }
 }
 
