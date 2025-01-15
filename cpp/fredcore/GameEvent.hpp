@@ -54,6 +54,7 @@ class EventManager {
     std::uint32_t ticks_per_frame;
     Uint32 next_frame;
     std::optional<Uint32> timer_expiration;
+    std::optional<sdl::JoystickPtr> joystick;
 
     static bool checkKeymod(Uint16 keymod, Uint16 mask)
     {
@@ -63,12 +64,12 @@ class EventManager {
     std::map<SDL_FingerID, GameEvent> finger_state;
     std::optional<GameEvent> getTouchEvent(Controller const &virtual_controller,
                                            SDL_TouchFingerEvent const &tfinger);
+    static void getJoystickHatEvent(EventMask &event_mask, Uint8 hat_position);
+    static void getJoystickButtonEvent(EventMask &event_mask, Uint8 button);
+    void getJoystickAxisEvent(EventMask &event_mask);
 
 public:
-    explicit EventManager(std::uint32_t ticks_per_frame)
-    : ticks_per_frame(ticks_per_frame)
-    , next_frame(SDL_GetTicks() + ticks_per_frame)
-    {}
+    explicit EventManager(std::uint32_t ticks_per_frame);
     EventMask collectEvents(std::optional<Controller> const &virtual_controller);
     void setTimer(std::uint32_t ticks)
     {

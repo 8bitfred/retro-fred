@@ -13,15 +13,13 @@ elif [ "$1" = "--check-unique" ]; then
 elif [ "$1" == "--show-version" ]; then
     SHOW_VERSION=1
 fi
-
 last_version=$(grep -oP '^# \K\S*' CHANGELOG.md | head -1)
 cmake_version=$(grep -oP '^project.*VERSION\s+\K[\d\.]*' CMakeLists.txt)
 manifest_version_code=$(grep -oP 'android:versionCode="\K[^"]+' android/app/src/main/AndroidManifest.xml)
 manifest_version_name=$(grep -oP 'android:versionName="\K[^"]+' android/app/src/main/AndroidManifest.xml)
 gradle_version_code=$(grep -oP 'versionCode\s+\K\S+' android/app/build.gradle)
 gradle_version_name=$(grep -oP 'versionName\s+"\K[^"]+' android/app/build.gradle)
-android_version_name=$(grep -oP '\S+(?=\s+'$gradle_version_code'\b)' android/versions)
-
+android_version_name=$(grep -oP '\S+(?=\s+'$gradle_version_code'\b)' android/versions || true)
 if [ -n "$SHOW_VERSION" ]; then
     echo "$cmake_version"
 else

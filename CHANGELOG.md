@@ -1,6 +1,12 @@
+# 1.1.0
+
+* Add basic support for joysticks and game pads. We map SDL events for joystick axis, hats
+  and buttons to events. This is expected to work for most devices, but we only had one
+  joystick that we could use for testing.
+
 # 1.0.4
 
-* Use SDL2 2.30.11 to avoid compatibility issues of SDL2 with Android 15. 
+* Use SDL2 2.30.11 to avoid compatibility issues of SDL2 with Android 15.
 
 # 1.0.3
 

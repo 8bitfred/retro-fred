@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdint>
 
 struct Config {
     Config(int argc, char *argv[]);
