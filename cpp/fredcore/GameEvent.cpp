@@ -256,8 +256,8 @@ EventMask EventManager::collectEvents(std::optional<Controller> const &virtual_c
         auto num_hats = SDL_JoystickNumHats(pjoystick);
         for (int hat = 0; hat < num_hats; ++hat)
             getJoystickHatEvent(event_mask, SDL_JoystickGetHat(pjoystick, hat));
-        auto num_buttons = SDL_JoystickNumButtons(pjoystick);
-        for (int button = 0; button < num_buttons; ++button)
+        Uint8 num_buttons = static_cast<Uint8>(SDL_JoystickNumButtons(pjoystick));
+        for (Uint8 button = 0; button < num_buttons; ++button)
         {
             if (SDL_JoystickGetButton(pjoystick, button) == 1)
                 getJoystickButtonEvent(event_mask, button);
