@@ -1,3 +1,7 @@
+# 1.1.1
+
+* Ignore accelerometer joysticks
+
 # 1.1.0
 
 * Add basic support for joysticks and game pads. We map SDL events for joystick axis, hats
