@@ -152,7 +152,7 @@ class StateMainMenu : public BaseState
         tmgr.renderText(renderer, "CHARACTER DESIGN: GAELIC", 0, 144, 206, 206, 206);
         tmgr.renderText(renderer, "PET: SENATOR & DRULY'S DUCK", 0, 152, 206, 206, 206);
         tmgr.renderText(renderer, "MISTAKES: MARTA & PALOMA", 0, 160, 206, 206, 206);
-        tmgr.renderText(renderer, "RETRO-FRED " RETRO_FRED_VERSION_STRING " \x7f 2024",
+        tmgr.renderText(renderer, "RETRO-FRED " RETRO_FRED_VERSION_STRING " \x7f 2024-2025",
                         0, 168, 206, 206, 0);
         tmgr.renderText(renderer, "    MIGUEL CATALINA", 0, 176, 206, 206, 0);
         tmgr.renderText(renderer, "    ALFREDO CATALINA", 0, 184, 206, 206, 0);
