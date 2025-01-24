@@ -18,6 +18,7 @@ int main(int argc, char* argv[])
         std::uniform_int_distribution<std::uint32_t> distrib;
         random_engine.seed(distrib(random_dev));
     }
+    SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
     FredApp fred_app(cfg, random_engine);
     fred_app.mainLoop();
     return 0;
