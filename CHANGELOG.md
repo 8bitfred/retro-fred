@@ -1,3 +1,9 @@
+# 1.1.2
+
+* Add SDL hint to avoid detecting accelerometer devices are joysticks.
+
+* Use the controller API if a joystick is detected as a controller.
+
 # 1.1.1
 
 * Ignore accelerometer joysticks

@@ -25,7 +25,7 @@ namespace sdl
     {
     public:
         App(Uint32 flags = SDL_INIT_AUDIO | SDL_INIT_VIDEO |
-            SDL_INIT_EVENTS | SDL_INIT_JOYSTICK)
+            SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER)
         {
             if (SDL_Init(flags) < 0)
                 throw Error();
@@ -177,4 +177,5 @@ namespace sdl
     };
 
     using JoystickPtr = ObjectPtr<SDL_Joystick, SDL_JoystickClose>;
+    using GameControllerPtr = ObjectPtr<SDL_GameController, SDL_GameControllerClose>;
 } // namespace sdl
