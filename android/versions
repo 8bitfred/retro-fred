@@ -1,5 +1,6 @@
 # Mapping between version names and Android version codes
 # version   code    description
+1.1.1       18      Ignore accelerometer joysticks
 1.1.0       17      Add support for joysticks and gamepads
 1.0.4       16      Use newer SDL2 release to avoid issues with Android 15
 1.0.3       15      Prevent crashing if playChannel() fails

@@ -78,8 +78,15 @@ EventManager::EventManager(std::uint32_t ticks_per_frame)
     , next_frame(SDL_GetTicks() + ticks_per_frame)
 {
     // If there are any joysticks open the first one
-    if (SDL_NumJoysticks() > 0)
-        joystick = sdl::JoystickPtr(SDL_JoystickOpen(0));
+
+    for (int i = 0; i < SDL_NumJoysticks(); ++i)
+    {
+        auto candidate = sdl::JoystickPtr(SDL_JoystickOpen(i));
+        if (SDL_JoystickNumAxes(candidate) >= 2 && SDL_JoystickNumButtons(candidate) >= 2) {
+            joystick = std::move(candidate);
+            break;
+        }
+    }
 }
 
 void EventManager::getJoystickHatEvent(EventMask &event_mask, Uint8 hat_position)
