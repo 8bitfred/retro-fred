@@ -2,7 +2,7 @@
 
 #include "fredcore/Sprite.hpp"
 #include "fredcore/SoundID.hpp"
-#include "fredcore/GameEvent.hpp"
+#include "platform/GameEvent.hpp"
 
 class GameBase;
 

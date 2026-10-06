@@ -1,5 +1,5 @@
 #include "Application.hpp"
-#include "fredcore/GameEvent.hpp"
+#include "platform/GameEvent.hpp"
 #include "fredcore/Config.hpp"
 #include "fredcore/Game.hpp"
 #include "Fred.hpp"

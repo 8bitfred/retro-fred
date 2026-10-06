@@ -1,7 +1,7 @@
 #include "Menu.hpp"
-#include "Renderer.hpp"
+#include "platform/Renderer.hpp"
 #include "TextureManager.hpp"
-#include "GameEvent.hpp"
+#include "platform/GameEvent.hpp"
 #include "SoundManager.hpp"
 
 void MenuItem::render(Renderer &renderer, TextureManager const &tmgr,

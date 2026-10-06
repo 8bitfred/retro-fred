@@ -1,6 +1,6 @@
 #include "Sprite.hpp"
 #include "GameWindow.hpp"
-#include "Renderer.hpp"
+#include "platform/Renderer.hpp"
 #include "TextureManager.hpp"
 #include "Config.hpp"
 

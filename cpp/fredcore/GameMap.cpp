@@ -1,7 +1,7 @@
 #include "GameMap.hpp"
 #include "TextureManager.hpp"
 #include "GameWindow.hpp"
-#include "Renderer.hpp"
+#include "platform/Renderer.hpp"
 #include "Config.hpp"
 
 std::uint8_t GameMap::debug_map[] = {

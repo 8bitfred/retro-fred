@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include <string_view>
-#include "Renderer.hpp"
+#include "platform/Renderer.hpp"
 #include "TextureID.hpp"
 
 struct Config;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Coord.hpp"
-#include "Geometry.hpp"
+#include "platform/Geometry.hpp"
 
 class GameWindow
 {

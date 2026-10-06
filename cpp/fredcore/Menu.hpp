@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "Geometry.hpp"
+#include "platform/Geometry.hpp"
 
 class Renderer;
 class TextureManager;

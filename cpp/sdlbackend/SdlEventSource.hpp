@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fredcore/GameEvent.hpp"
+#include "platform/GameEvent.hpp"
 #include "sdl_raii.hpp"
 #include <map>
 

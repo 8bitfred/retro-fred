@@ -1,5 +1,5 @@
 #include "Controller.hpp"
-#include "Renderer.hpp"
+#include "platform/Renderer.hpp"
 #include "TextureManager.hpp"
 #include "DisplayConfig.hpp"
 #include <algorithm>

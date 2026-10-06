@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fredcore/Renderer.hpp"
+#include "platform/Renderer.hpp"
 #include "sdl_raii.hpp"
 
 // A Renderer backed by an SDL window + renderer (on-screen), or by an SDL software

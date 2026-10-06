@@ -12,6 +12,7 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
+add_subdirectory(platform)
 add_subdirectory(fredcore)
 add_subdirectory(sdlbackend)
 
@@ -32,6 +33,7 @@ add_library(fredgame STATIC
     Tomb.cpp Tomb.hpp
     Application.cpp Application.hpp
     build_config.hpp.in)
+target_link_libraries(fredgame PUBLIC fredcore)
 
 include(InstallRequiredSystemLibraries)
 

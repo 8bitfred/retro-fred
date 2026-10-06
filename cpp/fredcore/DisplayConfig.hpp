@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer.hpp"
+#include "platform/Renderer.hpp"
 #include <memory>
 
 class Platform;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fredcore/Platform.hpp"
+#include "platform/Platform.hpp"
 #include "sdl_raii.hpp"
 
 class SdlPlatform : public Platform

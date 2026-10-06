@@ -20,7 +20,7 @@ add_library(sdlbackend STATIC
     SdlPlatform.hpp SdlPlatform.cpp)
 
 target_include_directories(sdlbackend PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
-target_link_libraries(sdlbackend PUBLIC fredcore)
+target_link_libraries(sdlbackend PUBLIC platform fredcore)
 
 if(WIN32)
     target_link_libraries(sdlbackend PUBLIC

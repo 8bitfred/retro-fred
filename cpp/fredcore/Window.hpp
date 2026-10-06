@@ -2,7 +2,7 @@
 
 #include "Coord.hpp"
 #include "GameWindow.hpp"
-#include "GameEvent.hpp"
+#include "platform/GameEvent.hpp"
 
 struct Config;
 class Renderer;

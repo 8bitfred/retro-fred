@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fredcore/AudioDevice.hpp"
+#include "platform/AudioDevice.hpp"
 #include "sdl_raii.hpp"
 
 class SdlSound : public Sound

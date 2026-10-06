@@ -1,7 +1,7 @@
 #include "Window.hpp"
 #include "Config.hpp"
 #include "TextureManager.hpp"
-#include "Renderer.hpp"
+#include "platform/Renderer.hpp"
 #include "Game.hpp"
 #include "DisplayConfig.hpp"
 #include <iostream>

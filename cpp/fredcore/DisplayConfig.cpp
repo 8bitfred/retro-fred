@@ -1,5 +1,5 @@
 #include "DisplayConfig.hpp"
-#include "Platform.hpp"
+#include "platform/Platform.hpp"
 #include "Coord.hpp"
 #include "Config.hpp"
 

@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include <cstdint>
-#include "AudioDevice.hpp"
+#include "platform/AudioDevice.hpp"
 #include "SoundID.hpp"
 
 struct Config;

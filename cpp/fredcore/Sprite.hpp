@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Coord.hpp"
-#include "Geometry.hpp"
+#include "platform/Geometry.hpp"
 #include "TextureID.hpp"
 #include "Label.hpp"
 #include "LabelTable.hpp"

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "fredcore/Platform.hpp"
+#include "platform/Platform.hpp"
 #include "fredcore/Config.hpp"
 #include "fredcore/DisplayConfig.hpp"
 #include "fredcore/TextureManager.hpp"
 #include "fredcore/SoundManager.hpp"
-#include "fredcore/GameEvent.hpp"
+#include "platform/GameEvent.hpp"
 #include "fredcore/Window.hpp"
 #include "fredcore/Menu.hpp"
 #include "fredcore/Controller.hpp"

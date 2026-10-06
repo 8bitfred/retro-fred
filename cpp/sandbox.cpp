@@ -1,7 +1,7 @@
 #include "sdlbackend/sdl_raii.hpp"
 #include "sdlbackend/SdlPlatform.hpp"
 #include "Signal.hpp"
-#include "fredcore/GameEvent.hpp"
+#include "platform/GameEvent.hpp"
 #include "fredcore/Controller.hpp"
 #include <iostream>
 

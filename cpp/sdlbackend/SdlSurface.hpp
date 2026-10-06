@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fredcore/Renderer.hpp"
+#include "platform/Renderer.hpp"
 #include "sdl_raii.hpp"
 
 class SdlSurface : public Surface
