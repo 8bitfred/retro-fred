@@ -1,5 +1,6 @@
 #include <iostream>
-#include "fredcore/sdl.hpp"
+#include "sdlbackend/SdlMain.hpp"
+#include "sdlbackend/SdlPlatform.hpp"
 #include "fredcore/Config.hpp"
 #include "fredcore/GameMap.hpp"
 #include "Application.hpp"
@@ -18,8 +19,8 @@ int main(int argc, char* argv[])
         std::uniform_int_distribution<std::uint32_t> distrib;
         random_engine.seed(distrib(random_dev));
     }
-    SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
-    FredApp fred_app(cfg, random_engine);
+    SdlPlatform platform;
+    FredApp fred_app(cfg, random_engine, platform);
     fred_app.mainLoop();
     return 0;
 }

@@ -1,5 +1,8 @@
 #pragma once
 
+// Internal RAII helpers over the SDL2 C API. Not part of the public interface of
+// sdlbackend: only .cpp files inside this library should include this header.
+
 #include <stdexcept>
 #include <memory>
 #include <functional>
@@ -58,7 +61,7 @@ namespace sdl
             ptr = ptr_type(p);
         }
         operator Type *() const { return ptr.get(); }
-        operator bool() const { return ptr; }
+        operator bool() const { return static_cast<bool>(ptr); }
         Type *operator->() const { return ptr.get(); }
         Type *get() const { return ptr.get(); }
     };

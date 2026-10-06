@@ -3,8 +3,9 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "sdl.hpp"
+#include "Geometry.hpp"
 
+class Renderer;
 class TextureManager;
 class SoundManager;
 class EventMask;
@@ -17,11 +18,11 @@ public:
     explicit MenuItem(std::string &&label): label(std::move(label)) {}
     virtual ~MenuItem() = default;
 
-    void render(SDL_Renderer *renderer, TextureManager const &tmgr,
-                SDL_Rect const *rect) const;
+    void render(Renderer &renderer, TextureManager const &tmgr,
+                Rect const *rect) const;
 
-    virtual void renderMarker(SDL_Renderer *, TextureManager const &,
-                              SDL_Rect const *) const {}
+    virtual void renderMarker(Renderer &, TextureManager const &,
+                              Rect const *) const {}
     virtual void action() {}
 };
 
@@ -29,8 +30,8 @@ class CheckBox: public MenuItem
 {
     bool *data;
 
-    void renderMarker(SDL_Renderer *renderer, TextureManager const &tmgr, 
-                      SDL_Rect const *rect) const final;
+    void renderMarker(Renderer &renderer, TextureManager const &tmgr,
+                      Rect const *rect) const final;
     void action() final { *data = !*data; }
 
 public:
@@ -40,7 +41,7 @@ public:
 
 class Menu
 {
-    SDL_Rect rect;
+    Rect rect;
     size_t current = 0;
     int selected = -1;
     struct ItemInfo {
@@ -52,7 +53,7 @@ class Menu
     std::vector<ItemInfo> item_list;
 
 public:
-    explicit Menu(SDL_Rect const &rect): rect(rect) {}
+    explicit Menu(Rect const &rect): rect(rect) {}
     void addItem(std::unique_ptr<MenuItem> &&item,
                  int selection_code = -1, bool make_default = false)
     {
@@ -60,7 +61,7 @@ public:
             current = item_list.size();
         item_list.emplace_back(std::move(item), selection_code);
     }
-    void render(SDL_Renderer *renderer, TextureManager const &tmgr) const;
+    void render(Renderer &renderer, TextureManager const &tmgr) const;
     void eventHandler(EventMask const &event_mask, SoundManager &smgr);
     bool isSelected(int selection_code) const { return selected == selection_code; }
 };

@@ -1,6 +1,7 @@
-#include "GameEvent.hpp"
-#include "Controller.hpp"
-#include "SDL_gamecontroller.h"
+#include "SdlEventSource.hpp"
+#include "fredcore/Controller.hpp"
+#include <SDL_gamecontroller.h>
+#include <cstdlib>
 
 namespace {
     struct KeyBinding
@@ -35,8 +36,8 @@ namespace {
     };
 }
 
-std::optional<GameEvent> EventManager::getTouchEvent(Controller const &virtual_controller,
-                                                     SDL_TouchFingerEvent const &tfinger)
+std::optional<GameEvent> SdlEventSource::getTouchEvent(Controller const &virtual_controller,
+                                                       SDL_TouchFingerEvent const &tfinger)
 {
     auto const &arrows_rect = virtual_controller.getArrowRect();
     auto arrows_x = tfinger.x - arrows_rect.x;
@@ -62,19 +63,19 @@ std::optional<GameEvent> EventManager::getTouchEvent(Controller const &virtual_c
         }
     }
 
-    SDL_FPoint point{tfinger.x, tfinger.y};
-    if (SDL_PointInFRect(&point, &virtual_controller.getFireRect()))
+    FPoint point{tfinger.x, tfinger.y};
+    if (pointInRect(point, virtual_controller.getFireRect()))
         return GameEvent::FIRE;
 
     if (virtual_controller.hasBackButton())
     {
-        if (SDL_PointInFRect(&point, &virtual_controller.getBackRect()))
+        if (pointInRect(point, virtual_controller.getBackRect()))
             return GameEvent::BACK;
     }
     return {};
 }
 
-void EventManager::tryAddJoystick(int device_index)
+void SdlEventSource::tryAddJoystick(int device_index)
 {
     if (joystick || game_controller)
         return;
@@ -88,7 +89,7 @@ void EventManager::tryAddJoystick(int device_index)
     }
 }
 
-void EventManager::tryRemoveJoystick(int instance_id)
+void SdlEventSource::tryRemoveJoystick(int instance_id)
 {
     if (game_controller) {
         auto joystick_ptr = SDL_GameControllerGetJoystick(game_controller->get());
@@ -103,7 +104,7 @@ void EventManager::tryRemoveJoystick(int instance_id)
 }
 
 
-void EventManager::getJoystickHatEvent(EventMask &event_mask, Uint8 hat_position)
+void SdlEventSource::getJoystickHatEvent(EventMask &event_mask, Uint8 hat_position)
 {
     switch (hat_position)
     {
@@ -138,14 +139,14 @@ void EventManager::getJoystickHatEvent(EventMask &event_mask, Uint8 hat_position
     }
 }
 
-void EventManager::getJoystickButtonEvent(EventMask &event_mask, Uint8 button) {
+void SdlEventSource::getJoystickButtonEvent(EventMask &event_mask, Uint8 button) {
     if (button == 0 || button >= 4)
         event_mask.set(GameEvent::FIRE);
     else if (button == 1)
         event_mask.set(GameEvent::BACK);
 }
 
-void EventManager::getAxisEvent(EventMask &event_mask, Sint16 x, Sint16 y)
+void SdlEventSource::getAxisEvent(EventMask &event_mask, Sint16 x, Sint16 y)
 {
     auto absx = std::abs(x);
     auto absy = std::abs(y);
@@ -169,7 +170,7 @@ void EventManager::getAxisEvent(EventMask &event_mask, Sint16 x, Sint16 y)
     }
 }
 
-void EventManager::getJoystickAxisEvent(EventMask &event_mask)
+void SdlEventSource::getJoystickAxisEvent(EventMask &event_mask)
 {
     if (!joystick)
         return;
@@ -183,7 +184,7 @@ void EventManager::getJoystickAxisEvent(EventMask &event_mask)
     }
 }
 
-void EventManager::getGameControllerButtonEvent(EventMask &event_mask)
+void SdlEventSource::getGameControllerButtonEvent(EventMask &event_mask)
 {
     auto pgame_controller = game_controller->get();
     if (SDL_GameControllerGetButton(pgame_controller, SDL_CONTROLLER_BUTTON_A) == 1)
@@ -201,7 +202,7 @@ void EventManager::getGameControllerButtonEvent(EventMask &event_mask)
         event_mask.set(GameEvent::DOWN);
 }
 
-void EventManager::getGameControllerAxisEvent(EventMask &event_mask)
+void SdlEventSource::getGameControllerAxisEvent(EventMask &event_mask)
 {
     if (!game_controller)
         return;
@@ -215,7 +216,7 @@ void EventManager::getGameControllerAxisEvent(EventMask &event_mask)
 }
 
 
-EventMask EventManager::collectEvents(std::optional<Controller> const &virtual_controller)
+EventMask SdlEventSource::collectEvents(std::optional<Controller> const &virtual_controller)
 {
     static constexpr Uint16 STDMODS = KMOD_SHIFT | KMOD_ALT | KMOD_CTRL | KMOD_GUI;
     EventMask event_mask;

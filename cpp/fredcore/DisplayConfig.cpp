@@ -1,19 +1,21 @@
 #include "DisplayConfig.hpp"
+#include "Platform.hpp"
 #include "Coord.hpp"
 #include "Config.hpp"
 
-void DisplayConfig::initWindowAndRenderer(int width, int height, Uint32 window_flags)
+void DisplayConfig::initWindowAndRenderer(Platform &platform, int width, int height,
+                                          WindowFlags flags)
 {
-    auto [win, ren] = sdl::createWindowAndRenderer(width, height, window_flags);
-    window.emplace(std::move(win));
-    renderer.emplace(std::move(ren));
+    renderer = platform.createWindowAndRenderer(width, height, flags);
 }
 
-void DisplayConfig::initFullMapMode(Config const &cfg, SDL_DisplayMode const &display_mode)
+void DisplayConfig::initFullMapMode(Platform &platform, Config const &cfg,
+                                    std::pair<int, int> const &display_resolution)
 {
+    auto [display_w, display_h] = display_resolution;
     // Scale of the window frame (and scoreboard)
-    auto scale_w = static_cast<int>(static_cast<double>(display_mode.w * .6 / cfg.logical_width));
-    auto scale_h = static_cast<int>(static_cast<double>(display_mode.h * .6 / cfg.logical_height));
+    auto scale_w = static_cast<int>(static_cast<double>(display_w * .6 / cfg.logical_width));
+    auto scale_h = static_cast<int>(static_cast<double>(display_h * .6 / cfg.logical_height));
     window_frame_scale = std::max(std::min(scale_w, scale_h), 1);
 
     // Size of the scoreboard and the window frame, in characters
@@ -28,15 +30,15 @@ void DisplayConfig::initFullMapMode(Config const &cfg, SDL_DisplayMode const &di
     auto max_w = frame_x_size * window_frame_scale + map_width_pixels;
     auto max_h = frame_y_size * window_frame_scale + map_height_pixels;
 
-    Uint32 window_flags = cfg.high_dpi ? SDL_WINDOW_ALLOW_HIGHDPI : 0;
+    WindowFlags window_flags = cfg.high_dpi ? WindowFlags::HIGH_DPI : WindowFlags::NONE;
     if (cfg.user_window_size)
-        initWindowAndRenderer(cfg.window_width, cfg.window_height,
-                              window_flags | SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS);
+        initWindowAndRenderer(platform, cfg.window_width, cfg.window_height,
+                              window_flags | WindowFlags::RESIZABLE | WindowFlags::BORDERLESS);
     else
     {
-        int width = std::min(max_w, display_mode.w * 19 / 20);
-        int height = std::min(max_h, display_mode.h * 19 / 20);
-        initWindowAndRenderer(width, height, window_flags | SDL_WINDOW_RESIZABLE);
+        int width = std::min(max_w, display_w * 19 / 20);
+        int height = std::min(max_h, display_h * 19 / 20);
+        initWindowAndRenderer(platform, width, height, window_flags | WindowFlags::RESIZABLE);
     }
 
     auto [window_w, window_h] = getWindowSize();
@@ -45,58 +47,63 @@ void DisplayConfig::initFullMapMode(Config const &cfg, SDL_DisplayMode const &di
     game_window_h = std::min(max_h, window_h);
 }
 
-void DisplayConfig::initNormalMode(Config const &cfg, SDL_DisplayMode const &display_mode)
+void DisplayConfig::initNormalMode(Platform &platform, Config const &cfg,
+                                   std::pair<int, int> const &display_resolution)
 {
-    Uint32 window_flags = cfg.high_dpi ? SDL_WINDOW_ALLOW_HIGHDPI : 0;
-    int width = display_mode.w, height = display_mode.h;
+    auto [display_w, display_h] = display_resolution;
+    WindowFlags window_flags = cfg.high_dpi ? WindowFlags::HIGH_DPI : WindowFlags::NONE;
+    int width = display_w, height = display_h;
     if (cfg.full_screen)
-        window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        window_flags = window_flags | WindowFlags::FULLSCREEN_DESKTOP;
     else if (cfg.user_window_size)
     {
         width = cfg.window_width;
         height = cfg.window_height;
-        window_flags |= SDL_WINDOW_BORDERLESS;
+        window_flags = window_flags | WindowFlags::BORDERLESS;
     }
     else
     {
-        auto scale_w = static_cast<int>(static_cast<double>(display_mode.w * .8 / cfg.logical_width));
-        auto scale_h = static_cast<int>(static_cast<double>(display_mode.h * .8 / cfg.logical_height));
+        auto scale_w = static_cast<int>(static_cast<double>(display_w * .8 / cfg.logical_width));
+        auto scale_h = static_cast<int>(static_cast<double>(display_h * .8 / cfg.logical_height));
         auto scale = std::max(std::min(scale_w, scale_h), 1);
         width = cfg.logical_width * scale;
         height = cfg.logical_height * scale;
-        window_flags |= SDL_WINDOW_RESIZABLE;
+        window_flags = window_flags | WindowFlags::RESIZABLE;
     }
-    initWindowAndRenderer(width, height, window_flags);
+    initWindowAndRenderer(platform, width, height, window_flags);
     game_window_w = cfg.logical_width;
     game_window_h = cfg.logical_height;
 }
 
-DisplayConfig::DisplayConfig(Config const &cfg) noexcept
+DisplayConfig::DisplayConfig(Config const &cfg, Platform &platform)
     : intro_window_w(cfg.logical_width)
     , intro_window_h(cfg.logical_height)
 {
-    SDL_DisplayMode display_mode;
-    SDL_GetCurrentDisplayMode(0, &display_mode);
+    auto display_resolution = platform.getDisplayResolution();
     if (cfg.max_resolution)
-        initFullMapMode(cfg, display_mode);
+        initFullMapMode(platform, cfg, display_resolution);
     else
-        initNormalMode(cfg, display_mode);
+        initNormalMode(platform, cfg, display_resolution);
 }
 
 std::pair<int, int> DisplayConfig::getWindowSize() const
 {
-    int window_w, window_h;
-    SDL_GetRendererOutputSize(getRenderer(), &window_w, &window_h);
-    return {window_w, window_h};
+    return renderer->getOutputSize();
 }
 
-SDL_Rect DisplayConfig::getGameWindowRect() const
+Rect DisplayConfig::getGameWindowRect() const
 {
     return {
         1 * MapPos::PIXELS_PER_CHAR * window_frame_scale,
         1 * MapPos::PIXELS_PER_CHAR * window_frame_scale,
         game_window_w - ((1+Config::SCOREBOARD_WIDTH) * MapPos::PIXELS_PER_CHAR * window_frame_scale),
         game_window_h - (2 * MapPos::PIXELS_PER_CHAR * window_frame_scale)};
+}
+
+void DisplayConfig::setWindowTitleAndIcon(std::string const &title, Surface const &icon) const
+{
+    renderer->setTitle(title);
+    renderer->setIcon(icon);
 }
 
 void DisplayConfig::setIntroViewport() const
@@ -110,11 +117,11 @@ void DisplayConfig::setIntroViewport() const
     auto iw_scale = std::min(iw_scale_w, iw_scale_h);
     auto scale = gw_scale * iw_scale;
 
-    SDL_Rect rect{(static_cast<int>(window_w / scale) - intro_window_w) / 2,
-                  (static_cast<int>(window_h / scale) - intro_window_h) / 2,
-                  intro_window_w, intro_window_h};
-    SDL_RenderSetScale(getRenderer(), scale, scale);
-    SDL_RenderSetViewport(getRenderer(), &rect);
+    Rect rect{(static_cast<int>(window_w / scale) - intro_window_w) / 2,
+             (static_cast<int>(window_h / scale) - intro_window_h) / 2,
+             intro_window_w, intro_window_h};
+    renderer->setScale(scale, scale);
+    renderer->setViewport(&rect);
 }
 
 void DisplayConfig::setGameViewport() const
@@ -124,13 +131,13 @@ void DisplayConfig::setGameViewport() const
     auto scale_h = static_cast<float>(window_h) / game_window_h;
     auto scale = std::min(scale_w, scale_h);
 
-    SDL_RenderSetScale(getRenderer(), 1, 1);
-    SDL_Rect rect{(window_w - static_cast<int>(game_window_w * scale)) / 2,
-                  (window_h - static_cast<int>(game_window_h * scale)) / 2,
-                  static_cast<int>(game_window_w * scale),
-                  static_cast<int>(game_window_h * scale)};
-    SDL_RenderSetViewport(getRenderer(), &rect);
-    SDL_RenderSetScale(getRenderer(), scale, scale);
+    renderer->setScale(1, 1);
+    Rect rect{(window_w - static_cast<int>(game_window_w * scale)) / 2,
+             (window_h - static_cast<int>(game_window_h * scale)) / 2,
+             static_cast<int>(game_window_w * scale),
+             static_cast<int>(game_window_h * scale)};
+    renderer->setViewport(&rect);
+    renderer->setScale(scale, scale);
 }
 
 std::pair<int, int> DisplayConfig::setWindowFrameViewport() const
@@ -142,13 +149,13 @@ std::pair<int, int> DisplayConfig::setWindowFrameViewport() const
 
     auto scoreboard_w = Config::SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR * window_frame_scale;
     auto viewport_w = static_cast<int>((game_window_w - scoreboard_w) * scale);
-    SDL_RenderSetScale(getRenderer(), 1, 1);
-    SDL_Rect rect{(window_w - static_cast<int>(game_window_w * scale)) / 2,
-                  (window_h - static_cast<int>(game_window_h * scale)) / 2,
-                  viewport_w,
-                  static_cast<int>(game_window_h * scale)};
-    SDL_RenderSetViewport(getRenderer(), &rect);
-    SDL_RenderSetScale(getRenderer(), scale*window_frame_scale, scale*window_frame_scale);
+    renderer->setScale(1, 1);
+    Rect rect{(window_w - static_cast<int>(game_window_w * scale)) / 2,
+             (window_h - static_cast<int>(game_window_h * scale)) / 2,
+             viewport_w,
+             static_cast<int>(game_window_h * scale)};
+    renderer->setViewport(&rect);
+    renderer->setScale(scale*window_frame_scale, scale*window_frame_scale);
 
     return {(game_window_w + window_frame_scale - 1) / window_frame_scale,
             (game_window_h + window_frame_scale - 1) / window_frame_scale};
@@ -164,13 +171,13 @@ std::pair<int, int> DisplayConfig::setScoreboardViewport() const
     auto scoreboard_w = Config::SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR * window_frame_scale;
     auto frame_x = (window_w - static_cast<int>(game_window_w * scale)) / 2;
     auto scoreboard_x = frame_x + static_cast<int>((game_window_w - scoreboard_w) * scale);
-    SDL_RenderSetScale(getRenderer(), 1, 1);
-    SDL_Rect rect{scoreboard_x,
-                  (window_h - static_cast<int>(game_window_h * scale)) / 2,
-                  static_cast<int>(scoreboard_w * scale),
-                  static_cast<int>(game_window_h * scale)};
-    SDL_RenderSetViewport(getRenderer(), &rect);
-    SDL_RenderSetScale(getRenderer(), scale*window_frame_scale, scale*window_frame_scale);
+    renderer->setScale(1, 1);
+    Rect rect{scoreboard_x,
+             (window_h - static_cast<int>(game_window_h * scale)) / 2,
+             static_cast<int>(scoreboard_w * scale),
+             static_cast<int>(game_window_h * scale)};
+    renderer->setViewport(&rect);
+    renderer->setScale(scale*window_frame_scale, scale*window_frame_scale);
 
     return {scoreboard_w / window_frame_scale,
             (game_window_h + window_frame_scale - 1) / window_frame_scale};

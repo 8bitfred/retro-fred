@@ -22,18 +22,17 @@ void SoundManager::loadWAVs(Config const &cfg)
     static_assert(std::size(wav_files) == static_cast<size_t>(SoundID::COUNT));
     for (auto p : wav_files) {
         auto path = cfg.resource_path.empty() ? p : cfg.resource_path + "/" + p;
-        wav_list.emplace_back(Mix_LoadWAV(path.c_str()));
+        wav_list.emplace_back(audio_device->loadSound(path));
     }
 }
 
-SoundManager::SoundManager(Config const &cfg)
-    : audio_device(256)
+SoundManager::SoundManager(Config const &cfg, std::unique_ptr<AudioDevice> audio_device)
+    : audio_device(std::move(audio_device))
 {
-    audio_device.pause(false);
     loadWAVs(cfg);
 }
 
 void SoundManager::play(SoundID sound_id)
 {
-    audio_device.playChannel(wav_list[static_cast<size_t>(sound_id)]);
+    audio_device->play(*wav_list[static_cast<size_t>(sound_id)]);
 }

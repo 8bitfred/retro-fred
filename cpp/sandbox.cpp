@@ -1,7 +1,7 @@
-#include "fredcore/sdl.hpp"
+#include "sdlbackend/sdl_raii.hpp"
+#include "sdlbackend/SdlPlatform.hpp"
 #include "Signal.hpp"
 #include "fredcore/GameEvent.hpp"
-#include "fredcore/DisplayConfig.hpp"
 #include "fredcore/Controller.hpp"
 #include <iostream>
 
@@ -71,15 +71,15 @@ void test_event_manager()
     using namespace std::string_view_literals;
     auto event_codes = "QALRUDFlrudcxhopkmT"sv;
 
-    sdl::App test_app;
-    auto [window, renderer] = sdl::createWindowAndRenderer(1000, 1000);
-    EventManager event_manager(1000);
-    event_manager.setTimer(5200);
-    auto ticks = SDL_GetTicks();
+    SdlPlatform platform;
+    auto renderer = platform.createWindowAndRenderer(1000, 1000, WindowFlags::NONE);
+    auto event_source = platform.createEventSource(1000);
+    event_source->setTimer(5200);
+    auto ticks = platform.getTicks();
     while (true)
     {
-        auto event_mask = event_manager.collectEvents({});
-        auto new_ticks = SDL_GetTicks();
+        auto event_mask = event_source->collectEvents({});
+        auto new_ticks = platform.getTicks();
         std::string event_str;
         bool any_event = false;
         for (size_t i = 0; i < event_codes.size(); ++i)

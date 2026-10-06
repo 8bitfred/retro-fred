@@ -1,10 +1,10 @@
-#include "fredcore/sdl.hpp"
+#include "sdlbackend/SdlMain.hpp"
+#include "sdlbackend/SdlPlatform.hpp"
 #include "Application.hpp"
 #include <random>
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <SDL_image.h>
 
 
 class Player
@@ -100,25 +100,21 @@ class GameWrapper
     Window play_window;
     GameWindow capture_window;
     GameRunner game;
-    sdl::SurfacePtr capture_surface;
-    sdl::RendererPtr capture_renderer;
+    std::unique_ptr<Renderer> capture_renderer;
     TextureManager capture_tmgr;
     LabelTable label_table;
 
 public:
-    GameWrapper(Config const &cfg, std::minstd_rand &random_engine,
-                SDL_Rect const &game_window_rect)
+    GameWrapper(Config const &cfg, std::minstd_rand &random_engine, Platform &platform,
+                Rect const &game_window_rect)
         : play_window(cfg, game_window_rect)
-        , capture_window(SDL_Rect{0, 0,
-                                  play_window.getGameWindow().getWindowRect().w,
-                                  play_window.getGameWindow().getWindowRect().h})
+        , capture_window(Rect{0, 0,
+                              play_window.getGameWindow().getWindowRect().w,
+                              play_window.getGameWindow().getWindowRect().h})
         , game(cfg, random_engine, 0)
-        , capture_surface(SDL_CreateRGBSurfaceWithFormat(0,
-                                                         capture_window.getWindowRect().w,
-                                                         capture_window.getWindowRect().h,
-                                                         8, SDL_PIXELFORMAT_RGBA8888))
-        , capture_renderer(SDL_CreateSoftwareRenderer(capture_surface))
-        , capture_tmgr(cfg, capture_renderer)
+        , capture_renderer(platform.createOffscreenRenderer(
+              capture_window.getWindowRect().w, capture_window.getWindowRect().h))
+        , capture_tmgr(cfg, *capture_renderer)
         , label_table(play_window.getGameWindow().getWindowRect())
     {
         game.initializeSprites(random_engine);
@@ -126,27 +122,31 @@ public:
     }
 
     GameRunner const &getGame() const { return game; }
-    SDL_Surface *getCaptureSurface() const { return capture_surface; }
     LabelTable const &getLabelTable() const { return label_table; }
 
     void renderToMemory()
     {
         capture_window.setPos(play_window.getGameWindow().getPos());
-        SDL_RenderClear(capture_renderer);
-        game.render(capture_tmgr, capture_renderer, capture_window);
+        capture_renderer->renderClear();
+        game.render(capture_tmgr, *capture_renderer, capture_window);
         game.setLabels(label_table, play_window.getGameWindow());
+    }
+
+    void saveCapture(std::string const &path) const
+    {
+        capture_renderer->saveAsPNG(path);
     }
 
     void renderAndPlay(DisplayConfig const &display_cfg,
                        TextureManager const &tmgr,
                        SoundManager &smgr,
-                       SDL_Renderer *renderer)
+                       Renderer &renderer)
     {
         display_cfg.setGameViewport();
-        SDL_RenderClear(renderer);
+        renderer.renderClear();
         game.render(tmgr, renderer, play_window.getGameWindow());
         play_window.renderFrame(game, display_cfg, tmgr);
-        SDL_RenderPresent(renderer);
+        renderer.present();
         game.playPendingSounds(smgr);
 
     }
@@ -159,11 +159,10 @@ public:
     }
 };
 
-void dataLoop(Config const &cfg, std::minstd_rand &random_engine)
+void dataLoop(Config const &cfg, std::minstd_rand &random_engine, Platform &platform)
 {
-    sdl::App fred_app;
-    GameWrapper game_wrapper(cfg, random_engine,
-                             SDL_Rect{8, 8, 192, 176});
+    GameWrapper game_wrapper(cfg, random_engine, platform,
+                             Rect{8, 8, 192, 176});
     Player player(game_wrapper.getGame());
 
     static int count = 0;
@@ -176,7 +175,7 @@ void dataLoop(Config const &cfg, std::minstd_rand &random_engine)
         char file_name[200];
         ++count;
         std::snprintf(file_name, sizeof(file_name), "image_%04d.png", count);
-        IMG_SavePNG(game_wrapper.getCaptureSurface(), file_name);
+        game_wrapper.saveCapture(file_name);
         label_file << file_name << "\n"
                    << game_wrapper.getLabelTable().toString() << "\n\n\n";
 
@@ -188,14 +187,14 @@ void dataLoop(Config const &cfg, std::minstd_rand &random_engine)
 }
 
 
-void gameLoop(Config const &cfg, std::minstd_rand &random_engine)
+void gameLoop(Config const &cfg, std::minstd_rand &random_engine, Platform &platform)
 {
-    FredApp fred_app(cfg, random_engine);
-    GameWrapper game_wrapper(cfg, random_engine,
+    FredApp fred_app(cfg, random_engine, platform);
+    GameWrapper game_wrapper(cfg, random_engine, platform,
                              fred_app.getDisplayConfig().getGameWindowRect());
     Player player(game_wrapper.getGame());
 
-    EventManager event_manager(cfg.ticks_per_frame);
+    auto event_manager = platform.createEventSource(cfg.ticks_per_frame);
     while (true)
     {
         game_wrapper.renderAndPlay(fred_app.getDisplayConfig(),
@@ -204,7 +203,7 @@ void gameLoop(Config const &cfg, std::minstd_rand &random_engine)
                                    fred_app.getRenderer());
 
         EventMask event_mask;
-        event_mask = event_manager.collectEvents({});
+        event_mask = event_manager->collectEvents({});
         if (event_mask.check(GameEvent::QUIT))
             break;
         else if (event_mask.check(GameEvent::BACK))
@@ -234,9 +233,10 @@ int main(int argc, char* argv[])
         std::uniform_int_distribution<std::uint32_t> distrib;
         random_engine.seed(distrib(random_dev));
     }
+    SdlPlatform platform;
     // example 1: run a game and collect frames and their labels
-    //dataLoop(cfg, random_engine);
+    //dataLoop(cfg, random_engine, platform);
     // example 2: run a game, show it in a window, and collect frames and labels
-    gameLoop(cfg, random_engine);
+    gameLoop(cfg, random_engine, platform);
     return 0;
 }

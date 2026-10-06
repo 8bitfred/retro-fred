@@ -4,6 +4,12 @@
 
 * Use the controller API if a joystick is detected as a controller.
 
+* Move all SDL-specific code into a new `sdlbackend` library, behind abstract
+  rendering/audio/input interfaces owned by `fredcore`. The rest of the codebase
+  (`fredcore`, `fredgame`, `Application`) no longer depends on SDL directly, which makes it
+  possible to support a different graphics/sound backend in the future. No user-visible
+  behavior change.
+
 # 1.1.1
 
 * Ignore accelerometer joysticks

@@ -1,15 +1,4 @@
 
-if(NOT ANDROID)
-    # NOTE: VSCode cannot find the include files unless the include_directories() directive
-    # appears BEFORE the set(CMAKE_CXX_STANDARD) options.
-    find_package(SDL2 REQUIRED)
-    find_package(SDL2_image REQUIRED)
-    find_package(SDL2_mixer REQUIRED)
-    include_directories(${SDL2_INCLUDE_DIRS}
-                        $<TARGET_PROPERTY:SDL2_image::SDL2_image,INTERFACE_INCLUDE_DIRECTORIES>
-                        $<TARGET_PROPERTY:SDL2_mixer::SDL2_mixer,INTERFACE_INCLUDE_DIRECTORIES>)
-endif()
-
 # default values
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -24,6 +13,7 @@ else()
 endif()
 
 add_subdirectory(fredcore)
+add_subdirectory(sdlbackend)
 
 add_library(fredgame STATIC
     GameRunner.cpp GameRunner.hpp
@@ -45,43 +35,24 @@ add_library(fredgame STATIC
 
 include(InstallRequiredSystemLibraries)
 
-if(WIN32)
-    set(RETRO_FRED_SDL_LIBRARIES 
-        ${SDL2_LIBRARIES}
-        SDL2_image::SDL2_image
-        SDL2_mixer::SDL2_mixer)
-else()
-    set(RETRO_FRED_SDL_LIBRARIES
-        ${SDL2_STATIC_LIBRARIES}
-        SDL2_image::SDL2_image-static
-        SDL2_mixer::SDL2_mixer-static)
-endif()
-
 if(LINUX)
     set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 endif()
 
 if(ANDROID)
     add_library(main main.cpp)
-    target_link_libraries(main fredgame fredcore SDL2 SDL2main SDL2_image SDL2_mixer)
+    target_link_libraries(main fredgame fredcore sdlbackend)
 else()
     add_executable(retro-fred main.cpp)
-    target_link_libraries(retro-fred fredgame fredcore
-                          ${RETRO_FRED_SDL_LIBRARIES})
+    target_link_libraries(retro-fred fredgame fredcore sdlbackend)
 
     add_executable(autofred autofred.cpp)
-    target_link_libraries(autofred fredgame fredcore
-                          ${RETRO_FRED_SDL_LIBRARIES})
+    target_link_libraries(autofred fredgame fredcore sdlbackend)
 
     add_executable(sandbox
                    sandbox.cpp
-                   fredcore/sdl.hpp
-                   Signal.hpp
-                   fredcore/GameEvent.hpp fredcore/GameEvent.cpp
-                   fredcore/Controller.hpp fredcore/Controller.cpp
-                   fredcore/DisplayConfig.hpp fredcore/DisplayConfig.cpp)
-    target_link_libraries(sandbox
-                          ${RETRO_FRED_SDL_LIBRARIES})
+                   Signal.hpp)
+    target_link_libraries(sandbox fredcore sdlbackend)
 
     install(TARGETS
             retro-fred
@@ -99,8 +70,7 @@ if(WIN32)
     # Create a console version of the fred app, to allow command-line interaction
     add_executable(retro-fred-console main.cpp)
     target_link_libraries(retro-fred-console
-                          fredgame fredcore
-                          ${RETRO_FRED_SDL_LIBRARIES})
+                          fredgame fredcore sdlbackend)
 
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     install(TARGETS

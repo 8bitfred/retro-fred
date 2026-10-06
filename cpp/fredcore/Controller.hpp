@@ -1,7 +1,8 @@
 #pragma once
 
-#include "sdl.hpp"
+#include "Geometry.hpp"
 
+class Renderer;
 class TextureManager;
 class DisplayConfig;
 
@@ -9,16 +10,16 @@ class Controller
 {
     bool back_button = false;
     // Coordinates and size in pixels in the window
-    SDL_Rect arrows, fire, back;
+    Rect arrows, fire, back;
     // Relative position as a fraction of the window width and height
-    SDL_FRect farrows, ffire, fback;
+    FRect farrows, ffire, fback;
 
 public:
     Controller(DisplayConfig const &display_cfg, bool back_button);
     void resetPosition(DisplayConfig const &display_cfg);
     bool hasBackButton() const { return back_button; }
-    SDL_FRect const &getArrowRect() const { return farrows; }
-    SDL_FRect const &getFireRect() const { return ffire; }
-    SDL_FRect const &getBackRect() const { return fback; }
-    void render(SDL_Renderer *renderer, TextureManager const &tmgr) const;
+    FRect const &getArrowRect() const { return farrows; }
+    FRect const &getFireRect() const { return ffire; }
+    FRect const &getBackRect() const { return fback; }
+    void render(Renderer &renderer, TextureManager const &tmgr) const;
 };

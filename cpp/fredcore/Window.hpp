@@ -3,10 +3,9 @@
 #include "Coord.hpp"
 #include "GameWindow.hpp"
 #include "GameEvent.hpp"
-#include "sdl.hpp"
 
 struct Config;
-struct SDL_Renderer;
+class Renderer;
 class TextureManager;
 class GameBase;
 class DisplayConfig;
@@ -23,10 +22,10 @@ class Window
     // Minimum and maximum values for window_pos
     MapPixelPos min_window_pos, max_window_pos;
 
-    void drawMinimap(GameBase const &game, SDL_Renderer *renderer, int x, int y) const;
+    void drawMinimap(GameBase const &game, Renderer &renderer, int x, int y) const;
 
 public:
-    Window(Config const &cfg, SDL_Rect const &game_window_rect);
+    Window(Config const &cfg, Rect const &game_window_rect);
 
     void addUserOffset(int delta_x, int delta_y);
     void resetUserOffset();

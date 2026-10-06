@@ -1,6 +1,6 @@
 #include "LabelTable.hpp"
 
-LabelTable::LabelTable(SDL_Rect const &window_rect)
+LabelTable::LabelTable(Rect const &window_rect)
 {
     // TODO: I don't think this logic works correctly if window_rect.x + window_rect.w is
     // not a character border (the sum is 0 modulo 8)
@@ -18,7 +18,7 @@ constexpr int floor_div(int x, int y)
     return x / y + (x < 0 ? -1 : 0);
 }
 
-void LabelTable::set(SDL_Rect const &rect, Label v)
+void LabelTable::set(Rect const &rect, Label v)
 {
     // We assume that there is a black border around the sprite that does not need to
     // labeled. Another option would be to use the hit boxes for creating the labels.

@@ -10,6 +10,7 @@
 
 class TextureManager;
 class SoundManager;
+class Renderer;
 
 class GameBase
 {
@@ -54,7 +55,7 @@ public:
         return sprite_lists[static_cast<int>(sprite_class)];
     }
     void render(TextureManager const &tmgr,
-                SDL_Renderer *renderer,
+                Renderer &renderer,
                 GameWindow const &game_window) const;
     void setLabels(LabelTable &label_table, GameWindow const &game_window) const;
     void addSound(SoundID sound_id);
