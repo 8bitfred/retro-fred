@@ -2,6 +2,7 @@
 #include "SdlTexture.hpp"
 #include "SdlSurface.hpp"
 #include <stdexcept>
+#include <cmath>
 
 namespace
 {
@@ -94,20 +95,36 @@ void SdlRenderer::setTextureAlphaMod(Texture &texture, std::uint8_t alpha)
         throw sdl::Error();
 }
 
-void SdlRenderer::setViewport(Rect const *viewport)
+void SdlRenderer::applyViewport()
 {
-    if (!viewport)
+    if (!viewport_rect)
     {
         SDL_SetRenderViewport(renderer, nullptr);
         return;
     }
-    auto sdl_rect = toSdlRect(*viewport);
+    // Pre-divide the origin by the current scale so that SDL3's internal re-multiplication
+    // of the viewport origin by the render scale recovers the raw pixel position we were
+    // asked for. Width/height are left alone: SDL3 doesn't re-scale those.
+    Rect compensated{
+        static_cast<int>(std::lround(viewport_rect->x / scale_x)),
+        static_cast<int>(std::lround(viewport_rect->y / scale_y)),
+        viewport_rect->w, viewport_rect->h};
+    auto sdl_rect = toSdlRect(compensated);
     SDL_SetRenderViewport(renderer, &sdl_rect);
 }
 
-void SdlRenderer::setScale(float scale_x, float scale_y)
+void SdlRenderer::setViewport(Rect const *viewport)
 {
+    viewport_rect = viewport ? std::optional<Rect>(*viewport) : std::nullopt;
+    applyViewport();
+}
+
+void SdlRenderer::setScale(float scale_x_, float scale_y_)
+{
+    scale_x = scale_x_;
+    scale_y = scale_y_;
     SDL_SetRenderScale(renderer, scale_x, scale_y);
+    applyViewport();
 }
 
 std::pair<int, int> SdlRenderer::getOutputSize() const
