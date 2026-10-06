@@ -61,8 +61,8 @@ if(WIN32)
             retro-fred-console
             RUNTIME DESTINATION .)
     install(FILES
-            $<TARGET_PROPERTY:SDL2::SDL2,IMPORTED_LOCATION>
-            $<TARGET_PROPERTY:SDL2_image::SDL2_image,IMPORTED_LOCATION>
-            $<TARGET_PROPERTY:SDL2_mixer::SDL2_mixer,IMPORTED_LOCATION>
+            $<TARGET_PROPERTY:SDL3::SDL3,IMPORTED_LOCATION>
+            $<TARGET_PROPERTY:SDL3_image::SDL3_image,IMPORTED_LOCATION>
+            $<TARGET_PROPERTY:SDL3_mixer::SDL3_mixer,IMPORTED_LOCATION>
             DESTINATION .)
 endif()

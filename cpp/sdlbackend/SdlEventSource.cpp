@@ -1,6 +1,5 @@
 #include "SdlEventSource.hpp"
 #include "fredcore/Controller.hpp"
-#include <SDL_gamecontroller.h>
 #include <cstdlib>
 
 namespace {
@@ -12,27 +11,27 @@ namespace {
     };
 
     KeyBinding game_bindings[] = {
-        { KMOD_CTRL,  SDL_SCANCODE_Q,      GameEvent::QUIT },
-        { KMOD_CTRL,  SDL_SCANCODE_W,      GameEvent::BACK },
-        { KMOD_NONE,  SDL_SCANCODE_AC_BACK,GameEvent::BACK },
-        { KMOD_NONE,  SDL_SCANCODE_ESCAPE, GameEvent::ESCAPE },
-        { KMOD_NONE,  SDL_SCANCODE_LEFT,   GameEvent::LEFT },
-        { KMOD_NONE,  SDL_SCANCODE_RIGHT,  GameEvent::RIGHT },
-        { KMOD_NONE,  SDL_SCANCODE_UP,     GameEvent::UP },
-        { KMOD_NONE,  SDL_SCANCODE_DOWN,   GameEvent::DOWN },
-        { KMOD_NONE,  SDL_SCANCODE_SPACE,  GameEvent::FIRE },
-        { KMOD_NONE,  SDL_SCANCODE_RETURN, GameEvent::RETURN },
-        { KMOD_SHIFT, SDL_SCANCODE_LEFT,   GameEvent::DBG_LEFT },
-        { KMOD_SHIFT, SDL_SCANCODE_RIGHT,  GameEvent::DBG_RIGHT },
-        { KMOD_SHIFT, SDL_SCANCODE_UP,     GameEvent::DBG_UP },
-        { KMOD_SHIFT, SDL_SCANCODE_DOWN,   GameEvent::DBG_DOWN },
-        { KMOD_SHIFT, SDL_SCANCODE_F,      GameEvent::DBG_CENTER_FRED },
-        { KMOD_SHIFT, SDL_SCANCODE_R,      GameEvent::DBG_CENTER_WINDOW },
-        { KMOD_SHIFT, SDL_SCANCODE_H,      GameEvent::DBG_MOVE_TO_EXIT },
-        { KMOD_SHIFT, SDL_SCANCODE_O,      GameEvent::DBG_EXIT_LEFT },
-        { KMOD_SHIFT, SDL_SCANCODE_P,      GameEvent::DBG_EXIT_RIGHT },
-        { KMOD_SHIFT, SDL_SCANCODE_K,      GameEvent::DBG_DIE },
-        { KMOD_SHIFT, SDL_SCANCODE_M,      GameEvent::DBG_MAP },
+        { SDL_KMOD_CTRL,  SDL_SCANCODE_Q,      GameEvent::QUIT },
+        { SDL_KMOD_CTRL,  SDL_SCANCODE_W,      GameEvent::BACK },
+        { SDL_KMOD_NONE,  SDL_SCANCODE_AC_BACK,GameEvent::BACK },
+        { SDL_KMOD_NONE,  SDL_SCANCODE_ESCAPE, GameEvent::ESCAPE },
+        { SDL_KMOD_NONE,  SDL_SCANCODE_LEFT,   GameEvent::LEFT },
+        { SDL_KMOD_NONE,  SDL_SCANCODE_RIGHT,  GameEvent::RIGHT },
+        { SDL_KMOD_NONE,  SDL_SCANCODE_UP,     GameEvent::UP },
+        { SDL_KMOD_NONE,  SDL_SCANCODE_DOWN,   GameEvent::DOWN },
+        { SDL_KMOD_NONE,  SDL_SCANCODE_SPACE,  GameEvent::FIRE },
+        { SDL_KMOD_NONE,  SDL_SCANCODE_RETURN, GameEvent::RETURN },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_LEFT,   GameEvent::DBG_LEFT },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_RIGHT,  GameEvent::DBG_RIGHT },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_UP,     GameEvent::DBG_UP },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_DOWN,   GameEvent::DBG_DOWN },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_F,      GameEvent::DBG_CENTER_FRED },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_R,      GameEvent::DBG_CENTER_WINDOW },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_H,      GameEvent::DBG_MOVE_TO_EXIT },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_O,      GameEvent::DBG_EXIT_LEFT },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_P,      GameEvent::DBG_EXIT_RIGHT },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_K,      GameEvent::DBG_DIE },
+        { SDL_KMOD_SHIFT, SDL_SCANCODE_M,      GameEvent::DBG_MAP },
     };
 }
 
@@ -75,29 +74,29 @@ std::optional<GameEvent> SdlEventSource::getTouchEvent(Controller const &virtual
     return {};
 }
 
-void SdlEventSource::tryAddJoystick(int device_index)
+void SdlEventSource::tryAddJoystick(SDL_JoystickID device_id)
 {
-    if (joystick || game_controller)
+    if (joystick || gamepad)
         return;
-    if (SDL_IsGameController(device_index))
-        game_controller.emplace(SDL_GameControllerOpen(device_index));
+    if (SDL_IsGamepad(device_id))
+        gamepad.emplace(SDL_OpenGamepad(device_id));
     else {
-        auto candidate = sdl::JoystickPtr(SDL_JoystickOpen(device_index));
-        joystick.emplace(SDL_JoystickOpen(device_index));
-        if (SDL_JoystickNumAxes(candidate) >= 2 && SDL_JoystickNumButtons(candidate) >= 2)
+        auto candidate = sdl::JoystickPtr(SDL_OpenJoystick(device_id));
+        joystick.emplace(SDL_OpenJoystick(device_id));
+        if (SDL_GetNumJoystickAxes(candidate) >= 2 && SDL_GetNumJoystickButtons(candidate) >= 2)
             joystick = std::move(candidate);
     }
 }
 
-void SdlEventSource::tryRemoveJoystick(int instance_id)
+void SdlEventSource::tryRemoveJoystick(SDL_JoystickID instance_id)
 {
-    if (game_controller) {
-        auto joystick_ptr = SDL_GameControllerGetJoystick(game_controller->get());
-        if (SDL_JoystickInstanceID(joystick_ptr) == instance_id)
-            game_controller.reset();
+    if (gamepad) {
+        auto joystick_ptr = SDL_GetGamepadJoystick(gamepad->get());
+        if (SDL_GetJoystickID(joystick_ptr) == instance_id)
+            gamepad.reset();
     }
     else if (joystick) {
-        if (SDL_JoystickInstanceID(joystick->get()) == instance_id)
+        if (SDL_GetJoystickID(joystick->get()) == instance_id)
             joystick.reset();
     }
 
@@ -175,58 +174,58 @@ void SdlEventSource::getJoystickAxisEvent(EventMask &event_mask)
     if (!joystick)
         return;
     auto pjoystick = joystick->get();
-    auto num_axes = std::min(SDL_JoystickNumAxes(pjoystick), 4);
+    auto num_axes = std::min(SDL_GetNumJoystickAxes(pjoystick), 4);
     for (int axis = 1; axis < num_axes; axis += 2)
     {
         getAxisEvent(event_mask,
-                     SDL_JoystickGetAxis(pjoystick, axis - 1),
-                     SDL_JoystickGetAxis(pjoystick, axis));
+                     SDL_GetJoystickAxis(pjoystick, axis - 1),
+                     SDL_GetJoystickAxis(pjoystick, axis));
     }
 }
 
-void SdlEventSource::getGameControllerButtonEvent(EventMask &event_mask)
+void SdlEventSource::getGamepadButtonEvent(EventMask &event_mask)
 {
-    auto pgame_controller = game_controller->get();
-    if (SDL_GameControllerGetButton(pgame_controller, SDL_CONTROLLER_BUTTON_A) == 1)
+    auto pgamepad = gamepad->get();
+    if (SDL_GetGamepadButton(pgamepad, SDL_GAMEPAD_BUTTON_SOUTH))
             event_mask.set(GameEvent::FIRE);
-    if (SDL_GameControllerGetButton(pgame_controller, SDL_CONTROLLER_BUTTON_B) == 1 ||
-        SDL_GameControllerGetButton(pgame_controller, SDL_CONTROLLER_BUTTON_BACK) == 1)
+    if (SDL_GetGamepadButton(pgamepad, SDL_GAMEPAD_BUTTON_EAST) ||
+        SDL_GetGamepadButton(pgamepad, SDL_GAMEPAD_BUTTON_BACK))
         event_mask.set(GameEvent::BACK);
-    if (SDL_GameControllerGetButton(pgame_controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT) == 1)
+    if (SDL_GetGamepadButton(pgamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT))
         event_mask.set(GameEvent::LEFT);
-    if (SDL_GameControllerGetButton(pgame_controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT) == 1)
+    if (SDL_GetGamepadButton(pgamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT))
         event_mask.set(GameEvent::RIGHT);
-    if (SDL_GameControllerGetButton(pgame_controller, SDL_CONTROLLER_BUTTON_DPAD_UP) == 1)
+    if (SDL_GetGamepadButton(pgamepad, SDL_GAMEPAD_BUTTON_DPAD_UP))
         event_mask.set(GameEvent::UP);
-    if (SDL_GameControllerGetButton(pgame_controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN) == 1)
+    if (SDL_GetGamepadButton(pgamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN))
         event_mask.set(GameEvent::DOWN);
 }
 
-void SdlEventSource::getGameControllerAxisEvent(EventMask &event_mask)
+void SdlEventSource::getGamepadAxisEvent(EventMask &event_mask)
 {
-    if (!game_controller)
+    if (!gamepad)
         return;
-    auto pgame_controller = game_controller->get();
+    auto pgamepad = gamepad->get();
     getAxisEvent(event_mask,
-                 SDL_GameControllerGetAxis(pgame_controller, SDL_CONTROLLER_AXIS_LEFTX),
-                 SDL_GameControllerGetAxis(pgame_controller, SDL_CONTROLLER_AXIS_LEFTY));
+                 SDL_GetGamepadAxis(pgamepad, SDL_GAMEPAD_AXIS_LEFTX),
+                 SDL_GetGamepadAxis(pgamepad, SDL_GAMEPAD_AXIS_LEFTY));
     getAxisEvent(event_mask,
-                 SDL_GameControllerGetAxis(pgame_controller, SDL_CONTROLLER_AXIS_RIGHTX),
-                 SDL_GameControllerGetAxis(pgame_controller, SDL_CONTROLLER_AXIS_RIGHTY));
+                 SDL_GetGamepadAxis(pgamepad, SDL_GAMEPAD_AXIS_RIGHTX),
+                 SDL_GetGamepadAxis(pgamepad, SDL_GAMEPAD_AXIS_RIGHTY));
 }
 
 
 EventMask SdlEventSource::collectEvents(std::optional<Controller> const &virtual_controller)
 {
-    static constexpr Uint16 STDMODS = KMOD_SHIFT | KMOD_ALT | KMOD_CTRL | KMOD_GUI;
+    static constexpr Uint16 STDMODS = SDL_KMOD_SHIFT | SDL_KMOD_ALT | SDL_KMOD_CTRL | SDL_KMOD_GUI;
     EventMask event_mask;
     while (true)
     {
         SDL_Event event;
         if (timer_expiration && *timer_expiration < next_frame)
         {
-            auto timeout = static_cast<std::int32_t>(*timer_expiration - SDL_GetTicks());
-            if (timeout <= 0 || SDL_WaitEventTimeout(&event, timeout) == 0)
+            auto timeout = static_cast<std::int32_t>(*timer_expiration - static_cast<Uint32>(SDL_GetTicks()));
+            if (timeout <= 0 || !SDL_WaitEventTimeout(&event, timeout))
             {
                 timer_expiration.reset();
                 event_mask.set(GameEvent::TIMER);
@@ -234,27 +233,27 @@ EventMask SdlEventSource::collectEvents(std::optional<Controller> const &virtual
             }
         }
         else {
-            auto timeout = static_cast<std::int32_t>(next_frame - SDL_GetTicks());
-            if (timeout <= 0 || SDL_WaitEventTimeout(&event, timeout) == 0)
+            auto timeout = static_cast<std::int32_t>(next_frame - static_cast<Uint32>(SDL_GetTicks()));
+            if (timeout <= 0 || !SDL_WaitEventTimeout(&event, timeout))
             {
-                next_frame = SDL_GetTicks() + ticks_per_frame;
+                next_frame = static_cast<Uint32>(SDL_GetTicks()) + ticks_per_frame;
                 break;
             }
         }
-        if (event.type == SDL_QUIT)
+        if (event.type == SDL_EVENT_QUIT)
         {
             event_mask.set(GameEvent::QUIT);
             break;
         }
-        else if (event.type == SDL_KEYDOWN)
+        else if (event.type == SDL_EVENT_KEY_DOWN)
         {
-            Uint16 keymods = event.key.keysym.mod & STDMODS;
+            Uint16 keymods = event.key.mod & STDMODS;
             if (keymods == 0)
                 event_mask.set(GameEvent::ANY_KEY);
             for (auto const &binding: game_bindings)
             {
                 if (checkKeymod(keymods, binding.keymod) &&
-                    event.key.keysym.scancode == binding.scancode)
+                    event.key.scancode == binding.scancode)
                 {
                     event_mask.set(binding.game_event);
                     if (binding.game_event == GameEvent::QUIT)
@@ -263,28 +262,28 @@ EventMask SdlEventSource::collectEvents(std::optional<Controller> const &virtual
                 }
             }
         }
-        else if (event.type == SDL_JOYDEVICEADDED)
+        else if (event.type == SDL_EVENT_JOYSTICK_ADDED)
             tryAddJoystick(event.jdevice.which);
-        else if (event.type == SDL_JOYDEVICEREMOVED)
+        else if (event.type == SDL_EVENT_JOYSTICK_REMOVED)
             tryRemoveJoystick(event.jdevice.which);
 
         if (joystick) {
-            if (event.type == SDL_JOYHATMOTION)
+            if (event.type == SDL_EVENT_JOYSTICK_HAT_MOTION)
                 getJoystickHatEvent(event_mask, event.jhat.hat);
-            else if (event.type == SDL_JOYBUTTONDOWN)
+            else if (event.type == SDL_EVENT_JOYSTICK_BUTTON_DOWN)
                 getJoystickButtonEvent(event_mask, event.jbutton.button);
-            else if (event.type == SDL_JOYAXISMOTION && event.jaxis.axis < 2)
+            else if (event.type == SDL_EVENT_JOYSTICK_AXIS_MOTION && event.jaxis.axis < 2)
                 getJoystickAxisEvent(event_mask);
         }
-        if (game_controller) {
-            if (event.type == SDL_CONTROLLERAXISMOTION)
-                getGameControllerAxisEvent(event_mask);
-            else if (event.type == SDL_CONTROLLERBUTTONDOWN)
-                getGameControllerButtonEvent(event_mask);
+        if (gamepad) {
+            if (event.type == SDL_EVENT_GAMEPAD_AXIS_MOTION)
+                getGamepadAxisEvent(event_mask);
+            else if (event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN)
+                getGamepadButtonEvent(event_mask);
         }
         if (virtual_controller)
         {
-            if (event.type == SDL_FINGERDOWN)
+            if (event.type == SDL_EVENT_FINGER_DOWN)
             {
                 auto game_event = getTouchEvent(*virtual_controller, event.tfinger);
                 // Trigger the ANY_KEY event only if the event is for the center of the
@@ -295,15 +294,15 @@ EventMask SdlEventSource::collectEvents(std::optional<Controller> const &virtual
                 if (game_event)
                 {
                     event_mask.set(*game_event);
-                    finger_state[event.tfinger.fingerId] = *game_event;
+                    finger_state[event.tfinger.fingerID] = *game_event;
                 }
             }
-            else if (event.type == SDL_FINGERUP)
-                finger_state.erase(event.tfinger.fingerId);
-            else if (event.type == SDL_FINGERMOTION)
+            else if (event.type == SDL_EVENT_FINGER_UP)
+                finger_state.erase(event.tfinger.fingerID);
+            else if (event.type == SDL_EVENT_FINGER_MOTION)
             {
                 auto game_event = getTouchEvent(*virtual_controller, event.tfinger);
-                auto state = finger_state.find(event.tfinger.fingerId);
+                auto state = finger_state.find(event.tfinger.fingerID);
                 if (state != finger_state.end() && game_event)
                     state->second = *game_event;
             }
@@ -314,7 +313,7 @@ EventMask SdlEventSource::collectEvents(std::optional<Controller> const &virtual
     for (auto const &binding : game_bindings)
     {
         if (checkKeymod(keymods, binding.keymod) &&
-            keystate[binding.scancode] != 0)
+            keystate[binding.scancode])
             event_mask.set(binding.game_event);
     }
     for (auto const &[id, game_event] : finger_state)
@@ -322,20 +321,20 @@ EventMask SdlEventSource::collectEvents(std::optional<Controller> const &virtual
 
     if (joystick) {
         auto pjoystick = joystick->get();
-        auto num_hats = SDL_JoystickNumHats(pjoystick);
+        auto num_hats = SDL_GetNumJoystickHats(pjoystick);
         for (int hat = 0; hat < num_hats; ++hat)
-            getJoystickHatEvent(event_mask, SDL_JoystickGetHat(pjoystick, hat));
-        Uint8 num_buttons = static_cast<Uint8>(SDL_JoystickNumButtons(pjoystick));
+            getJoystickHatEvent(event_mask, SDL_GetJoystickHat(pjoystick, hat));
+        Uint8 num_buttons = static_cast<Uint8>(SDL_GetNumJoystickButtons(pjoystick));
         for (Uint8 button = 0; button < num_buttons; ++button)
         {
-            if (SDL_JoystickGetButton(pjoystick, button) == 1)
+            if (SDL_GetJoystickButton(pjoystick, button))
                 getJoystickButtonEvent(event_mask, button);
         }
         getJoystickAxisEvent(event_mask);
     }
-    if (game_controller) {
-        getGameControllerButtonEvent(event_mask);
-        getGameControllerAxisEvent(event_mask);
+    if (gamepad) {
+        getGamepadButtonEvent(event_mask);
+        getGamepadAxisEvent(event_mask);
     }
 
     return event_mask;

@@ -12,7 +12,7 @@ public:
     SDL_Surface *get() const { return surface; }
     void savePNG(std::string const &path) const override
     {
-        if (IMG_SavePNG(surface, path.c_str()) < 0)
+        if (!IMG_SavePNG(surface, path.c_str()))
             throw sdl::Error();
     }
 };

@@ -10,6 +10,12 @@ namespace
         return SDL_Rect{r.x, r.y, r.w, r.h};
     }
 
+    SDL_FRect toSdlFRect(Rect const &r)
+    {
+        return SDL_FRect{static_cast<float>(r.x), static_cast<float>(r.y),
+                         static_cast<float>(r.w), static_cast<float>(r.h)};
+    }
+
     SDL_Texture *sdlTextureOf(Texture &texture)
     {
         return static_cast<SdlTexture &>(texture).get();
@@ -28,28 +34,27 @@ std::unique_ptr<Surface> SdlRenderer::loadSurface(std::string const &path)
 
 void SdlRenderer::renderClear()
 {
-    if (SDL_RenderClear(renderer) < 0)
+    if (!SDL_RenderClear(renderer))
         throw sdl::Error();
 }
 
 void SdlRenderer::renderCopy(Texture &texture, Rect const *src, Rect const *dst, bool hflip)
 {
-    SDL_Rect sdl_src, sdl_dst;
-    SDL_Rect const *sdl_src_ptr = nullptr;
-    SDL_Rect const *sdl_dst_ptr = nullptr;
+    SDL_FRect sdl_src, sdl_dst;
+    SDL_FRect const *sdl_src_ptr = nullptr;
+    SDL_FRect const *sdl_dst_ptr = nullptr;
     if (src)
     {
-        sdl_src = toSdlRect(*src);
+        sdl_src = toSdlFRect(*src);
         sdl_src_ptr = &sdl_src;
     }
     if (dst)
     {
-        sdl_dst = toSdlRect(*dst);
+        sdl_dst = toSdlFRect(*dst);
         sdl_dst_ptr = &sdl_dst;
     }
-    auto status = SDL_RenderCopyEx(renderer, sdlTextureOf(texture), sdl_src_ptr, sdl_dst_ptr, 0,
-                                   nullptr, hflip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
-    if (status != 0)
+    if (!SDL_RenderTextureRotated(renderer, sdlTextureOf(texture), sdl_src_ptr, sdl_dst_ptr, 0,
+                                  nullptr, hflip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE))
         throw sdl::Error();
 }
 
@@ -59,12 +64,12 @@ void SdlRenderer::renderFillRect(Rect const *rect, Color const &color)
     sdl::ColorGuard color_guard(renderer, color.r, color.g, color.b, color.a, blend_mode);
     if (!rect)
     {
-        if (SDL_RenderFillRect(renderer, nullptr) < 0)
+        if (!SDL_RenderFillRect(renderer, nullptr))
             throw sdl::Error();
         return;
     }
-    auto sdl_rect = toSdlRect(*rect);
-    if (SDL_RenderFillRect(renderer, &sdl_rect) < 0)
+    auto sdl_rect = toSdlFRect(*rect);
+    if (!SDL_RenderFillRect(renderer, &sdl_rect))
         throw sdl::Error();
 }
 
@@ -72,20 +77,20 @@ void SdlRenderer::renderDrawRect(Rect const &rect, Color const &color)
 {
     auto blend_mode = color.a == 0xff ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND;
     sdl::ColorGuard color_guard(renderer, color.r, color.g, color.b, color.a, blend_mode);
-    auto sdl_rect = toSdlRect(rect);
-    if (SDL_RenderDrawRect(renderer, &sdl_rect) < 0)
+    auto sdl_rect = toSdlFRect(rect);
+    if (!SDL_RenderRect(renderer, &sdl_rect))
         throw sdl::Error();
 }
 
 void SdlRenderer::setTextureColorMod(Texture &texture, Color const &color)
 {
-    if (SDL_SetTextureColorMod(sdlTextureOf(texture), color.r, color.g, color.b) < 0)
+    if (!SDL_SetTextureColorMod(sdlTextureOf(texture), color.r, color.g, color.b))
         throw sdl::Error();
 }
 
 void SdlRenderer::setTextureAlphaMod(Texture &texture, std::uint8_t alpha)
 {
-    if (SDL_SetTextureAlphaMod(sdlTextureOf(texture), alpha) < 0)
+    if (!SDL_SetTextureAlphaMod(sdlTextureOf(texture), alpha))
         throw sdl::Error();
 }
 
@@ -93,22 +98,23 @@ void SdlRenderer::setViewport(Rect const *viewport)
 {
     if (!viewport)
     {
-        SDL_RenderSetViewport(renderer, nullptr);
+        SDL_SetRenderViewport(renderer, nullptr);
         return;
     }
     auto sdl_rect = toSdlRect(*viewport);
-    SDL_RenderSetViewport(renderer, &sdl_rect);
+    SDL_SetRenderViewport(renderer, &sdl_rect);
 }
 
 void SdlRenderer::setScale(float scale_x, float scale_y)
 {
-    SDL_RenderSetScale(renderer, scale_x, scale_y);
+    SDL_SetRenderScale(renderer, scale_x, scale_y);
 }
 
 std::pair<int, int> SdlRenderer::getOutputSize() const
 {
     int w, h;
-    SDL_GetRendererOutputSize(renderer, &w, &h);
+    if (!SDL_GetRenderOutputSize(renderer, &w, &h))
+        throw sdl::Error();
     return {w, h};
 }
 
@@ -128,7 +134,11 @@ void SdlRenderer::saveAsPNG(std::string const &path) const
 {
     if (!offscreen_surface)
         throw std::logic_error("SdlRenderer::saveAsPNG: not an offscreen renderer");
-    if (IMG_SavePNG(offscreen_surface, path.c_str()) < 0)
+    // Unlike SDL2, SDL3's software renderer buffers draws and only writes them through to
+    // the backing surface on present -- flush before reading the surface back out.
+    if (!SDL_RenderPresent(renderer))
+        throw sdl::Error();
+    if (!IMG_SavePNG(offscreen_surface, path.c_str()))
         throw sdl::Error();
 }
 

@@ -43,23 +43,23 @@ int test_events()
 {
     using namespace std::string_view_literals;
     sdl::App test_app;
-    auto [window, renderer] = sdl::createWindowAndRenderer(1000, 1000);
+    auto [window, renderer] = sdl::createWindowAndRenderer("sandbox", 1000, 1000);
 
     SDL_Event event;
     while (SDL_WaitEvent(&event))
     {
-        if (event.type == SDL_QUIT)
+        if (event.type == SDL_EVENT_QUIT)
             return 0;
         std::string_view type;
-        if (event.type == SDL_KEYDOWN)
+        if (event.type == SDL_EVENT_KEY_DOWN)
             type = "KEYDOWN"sv;
-        else if (event.type == SDL_KEYUP)
+        else if (event.type == SDL_EVENT_KEY_UP)
             type = "KEYUP  "sv;
         else
             continue;
-        std::cout << type << " " << SDL_GetKeyName(event.key.keysym.sym)
+        std::cout << type << " " << SDL_GetKeyName(event.key.key)
                   << " rep=" << std::dec << static_cast<bool>(event.key.repeat)
-                  << " mod=" << std::hex << event.key.keysym.mod
+                  << " mod=" << std::hex << event.key.mod
                   << std::endl;
     }
     std::cout << "event error: " << SDL_GetError() << std::endl;

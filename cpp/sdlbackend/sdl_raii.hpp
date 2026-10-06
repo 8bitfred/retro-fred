@@ -1,15 +1,16 @@
 #pragma once
 
-// Internal RAII helpers over the SDL2 C API. Not part of the public interface of
+// Internal RAII helpers over the SDL3 C API. Not part of the public interface of
 // sdlbackend: only .cpp files inside this library should include this header.
 
 #include <stdexcept>
 #include <memory>
 #include <functional>
 
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 namespace sdl
 {
@@ -27,10 +28,10 @@ namespace sdl
     class App
     {
     public:
-        App(Uint32 flags = SDL_INIT_AUDIO | SDL_INIT_VIDEO |
-            SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER)
+        App(SDL_InitFlags flags = SDL_INIT_AUDIO | SDL_INIT_VIDEO |
+            SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD)
         {
-            if (SDL_Init(flags) < 0)
+            if (!SDL_Init(flags))
                 throw Error();
         }
         ~App() { SDL_Quit(); }
@@ -66,42 +67,17 @@ namespace sdl
         Type *get() const { return ptr.get(); }
     };
 
-    class WindowPtr : public ObjectPtr<SDL_Window, SDL_DestroyWindow>
-    {
-    public:
-        using ObjectPtr::ObjectPtr;
-        WindowPtr(const char *title, int x, int y, int w, int h, Uint32 flags = 0)
-            : ObjectPtr::ObjectPtr(SDL_CreateWindow(title, x, y, w, h, flags)) {}
-    };
-
-    class RendererPtr : public ObjectPtr<SDL_Renderer, SDL_DestroyRenderer>
-    {
-    public:
-        using ObjectPtr::ObjectPtr;
-        RendererPtr(WindowPtr w, int index = -1, Uint32 flags = 0)
-            : ObjectPtr::ObjectPtr(SDL_CreateRenderer(w, index, flags)) {}
-    };
-
-    using SurfacePtr = ObjectPtr<SDL_Surface, SDL_FreeSurface>;
+    using WindowPtr = ObjectPtr<SDL_Window, SDL_DestroyWindow>;
+    using RendererPtr = ObjectPtr<SDL_Renderer, SDL_DestroyRenderer>;
+    using SurfacePtr = ObjectPtr<SDL_Surface, SDL_DestroySurface>;
     using TexturePtr = ObjectPtr<SDL_Texture, SDL_DestroyTexture>;
 
-    class LockedSurfacePtr : public ObjectPtr<SDL_Surface, SDL_UnlockSurface>
-    {
-    public:
-        LockedSurfacePtr() = default;
-        explicit LockedSurfacePtr(SDL_Surface *p): ObjectPtr(p)
-        {
-            if (SDL_LockSurface(p) < 0)
-                throw Error();
-        }
-    };
-
     inline std::pair<WindowPtr, RendererPtr>
-    createWindowAndRenderer(int w, int h, Uint32 window_flags = 0)
+    createWindowAndRenderer(const char *title, int w, int h, SDL_WindowFlags window_flags = 0)
     {
         SDL_Window *win = nullptr;
         SDL_Renderer *rend = nullptr;
-        if (SDL_CreateWindowAndRenderer(w, h, window_flags, &win, &rend) < 0)
+        if (!SDL_CreateWindowAndRenderer(title, w, h, window_flags, &win, &rend))
             throw Error();
         return {WindowPtr(win), RendererPtr(rend)};
     }
@@ -116,10 +92,10 @@ namespace sdl
         SDL_BlendMode blend_mode = SDL_BLENDMODE_NONE)
         : renderer(renderer)
         {
-            if (SDL_GetRenderDrawBlendMode(renderer, &saved_blend_mode) < 0)
+            if (!SDL_GetRenderDrawBlendMode(renderer, &saved_blend_mode))
                 throw Error();
-            if (SDL_GetRenderDrawColor(renderer, &saved_red, &saved_green,
-                                       &saved_blue, &saved_alpha) < 0)
+            if (!SDL_GetRenderDrawColor(renderer, &saved_red, &saved_green,
+                                       &saved_blue, &saved_alpha))
                 throw Error();
             SDL_SetRenderDrawBlendMode(renderer, blend_mode);
             SDL_SetRenderDrawColor(renderer, red, green, blue, alpha);
@@ -131,54 +107,64 @@ namespace sdl
         }
     };
 
-    using MixChunkPtr = ObjectPtr<Mix_Chunk, Mix_FreeChunk>;
+    using MixAudioPtr = ObjectPtr<MIX_Audio, MIX_DestroyAudio>;
 
+    // Wraps a MIX_Mixer opened on the default playback device, and the handful of
+    // mixer-wide operations SoundManager needs (everything in this game is played as a
+    // one-shot, fire-and-forget sound via MIX_PlayAudio -- nothing uses explicit tracks).
     class AudioDevice
     {
-        int audio_frequency;
-        Uint16 audio_format;
-        int audio_channels;
+        MIX_Mixer *mixer;
 
     public:
-        AudioDevice(int chunksize = 1024,
-                    int frequency = MIX_DEFAULT_FREQUENCY,
-                    Uint16 format = MIX_DEFAULT_FORMAT,
-                    int channels = MIX_DEFAULT_CHANNELS)
+        AudioDevice()
         {
-            // NOTE: if we actually want to choose a device (instead of the default) we
-            // need to call Mix_OpenAudioDevice
-            if (Mix_OpenAudio(frequency, format, channels, chunksize) < 0)
+            if (!MIX_Init())
                 throw Error();
-            Mix_QuerySpec(&audio_frequency, &audio_format, &audio_channels);
+            mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
+            if (!mixer)
+                throw Error();
         }
         AudioDevice(AudioDevice const &) = delete;
         AudioDevice(AudioDevice &&other) = delete;
         ~AudioDevice() noexcept
         {
-            Mix_CloseAudio();
+            MIX_DestroyMixer(mixer);
+            MIX_Quit();
         }
         AudioDevice &operator=(AudioDevice const &) = delete;
         AudioDevice &operator=(AudioDevice &&other) = delete;
-        int playChannel(Mix_Chunk *chunk, int channel = -1, int loops = 0)
+
+        MixAudioPtr loadAudio(char const *path)
         {
-            auto out_channel = Mix_PlayChannel(channel, chunk, loops);
-            if (out_channel < 0) {
-                SDL_Log("sdl::playChannel: failed to play sound: %s", SDL_GetError());
+            return MixAudioPtr(MIX_LoadAudio(mixer, path, /*predecode=*/true));
+        }
+        bool play(MIX_Audio *audio)
+        {
+            auto ok = MIX_PlayAudio(mixer, audio);
+            if (!ok) {
+                SDL_Log("sdl::AudioDevice::play: failed to play sound: %s", SDL_GetError());
                 SDL_ClearError();
             }
-            return out_channel;
+            return ok;
         }
-        Uint32 getDuration(Mix_Chunk *chunk) const noexcept
+        Uint32 getDurationMS(MIX_Audio *audio) const noexcept
         {
-            auto sample_size = SDL_AUDIO_BITSIZE(audio_format) / 8;
-            auto sample_count = chunk->alen / (sample_size * audio_channels);
-            return 1000 * sample_count / audio_frequency;
-
+            auto frames = MIX_GetAudioDuration(audio);
+            if (frames < 0)
+                return 0;
+            return static_cast<Uint32>(MIX_AudioFramesToMS(audio, frames));
         }
-        void pause(bool pause_on) noexcept { Mix_PauseAudio(static_cast<int>(pause_on)); }
-        void clearQueuedAudio() noexcept { Mix_HaltChannel(-1); }
+        void pause(bool pause_on) noexcept
+        {
+            if (pause_on)
+                MIX_PauseAllTracks(mixer);
+            else
+                MIX_ResumeAllTracks(mixer);
+        }
+        void clearQueuedAudio() noexcept { MIX_StopAllTracks(mixer, 0); }
     };
 
-    using JoystickPtr = ObjectPtr<SDL_Joystick, SDL_JoystickClose>;
-    using GameControllerPtr = ObjectPtr<SDL_GameController, SDL_GameControllerClose>;
+    using JoystickPtr = ObjectPtr<SDL_Joystick, SDL_CloseJoystick>;
+    using GamepadPtr = ObjectPtr<SDL_Gamepad, SDL_CloseGamepad>;
 } // namespace sdl

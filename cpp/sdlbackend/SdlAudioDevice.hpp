@@ -5,11 +5,11 @@
 
 class SdlSound : public Sound
 {
-    sdl::MixChunkPtr chunk;
+    sdl::MixAudioPtr audio;
 
 public:
-    explicit SdlSound(sdl::MixChunkPtr chunk) : chunk(std::move(chunk)) {}
-    Mix_Chunk *get() const { return chunk; }
+    explicit SdlSound(sdl::MixAudioPtr audio) : audio(std::move(audio)) {}
+    MIX_Audio *get() const { return audio; }
 };
 
 class SdlAudioDevice : public AudioDevice
@@ -17,19 +17,20 @@ class SdlAudioDevice : public AudioDevice
     sdl::AudioDevice audio_device;
 
 public:
-    SdlAudioDevice() : audio_device(256) { audio_device.pause(false); }
+    SdlAudioDevice() = default;
 
     std::unique_ptr<Sound> loadSound(std::string const &path) override
     {
-        return std::make_unique<SdlSound>(sdl::MixChunkPtr(Mix_LoadWAV(path.c_str())));
+        return std::make_unique<SdlSound>(audio_device.loadAudio(path.c_str()));
     }
-    int play(Sound const &sound, int loops) override
+    // loops is unused: nothing in this game ever plays a sound on a loop.
+    int play(Sound const &sound, int /*loops*/) override
     {
-        return audio_device.playChannel(static_cast<SdlSound const &>(sound).get(), -1, loops);
+        return audio_device.play(static_cast<SdlSound const &>(sound).get()) ? 0 : -1;
     }
     std::uint32_t getDuration(Sound const &sound) const override
     {
-        return audio_device.getDuration(static_cast<SdlSound const &>(sound).get());
+        return audio_device.getDurationMS(static_cast<SdlSound const &>(sound).get());
     }
     void pause(bool pause_on) override { audio_device.pause(pause_on); }
     void clearQueuedAudio() override { audio_device.clearQueuedAudio(); }

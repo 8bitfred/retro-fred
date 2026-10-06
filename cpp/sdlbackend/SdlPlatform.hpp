@@ -5,12 +5,6 @@
 
 class SdlPlatform : public Platform
 {
-    // Constructed before `app` (declaration order) so the hint is set before SDL_Init runs.
-    struct HintSetter
-    {
-        HintSetter() { SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0"); }
-    };
-    HintSetter hint_setter;
     sdl::App app;
 
 public:

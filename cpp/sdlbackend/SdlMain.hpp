@@ -4,4 +4,4 @@
 // glue calls SDL_main directly). Include this header from the composition root (main.cpp)
 // before defining main() -- it is the one unavoidable, purely mechanical SDL touch outside
 // of sdlbackend itself.
-#include <SDL_main.h>
+#include <SDL3/SDL_main.h>

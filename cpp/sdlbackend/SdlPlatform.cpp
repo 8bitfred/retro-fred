@@ -5,24 +5,24 @@
 
 namespace
 {
-    Uint32 toSdlWindowFlags(WindowFlags flags)
+    SDL_WindowFlags toSdlWindowFlags(WindowFlags flags)
     {
-        Uint32 result = 0;
+        SDL_WindowFlags result = 0;
         if (flags & WindowFlags::HIGH_DPI)
-            result |= SDL_WINDOW_ALLOW_HIGHDPI;
+            result |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
         if (flags & WindowFlags::RESIZABLE)
             result |= SDL_WINDOW_RESIZABLE;
         if (flags & WindowFlags::BORDERLESS)
             result |= SDL_WINDOW_BORDERLESS;
         if (flags & WindowFlags::FULLSCREEN_DESKTOP)
-            result |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+            result |= SDL_WINDOW_FULLSCREEN;
         return result;
     }
 }
 
 std::uint32_t SdlPlatform::getTicks() const
 {
-    return SDL_GetTicks();
+    return static_cast<std::uint32_t>(SDL_GetTicks());
 }
 
 std::string SdlPlatform::getPrefPath(std::string const &org, std::string const &app_name) const
@@ -35,22 +35,22 @@ std::string SdlPlatform::getPrefPath(std::string const &org, std::string const &
 
 std::pair<int, int> SdlPlatform::getDisplayResolution() const
 {
-    SDL_DisplayMode display_mode;
-    SDL_GetCurrentDisplayMode(0, &display_mode);
-    return {display_mode.w, display_mode.h};
+    auto display_mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
+    if (!display_mode)
+        throw sdl::Error();
+    return {display_mode->w, display_mode->h};
 }
 
 std::unique_ptr<Renderer> SdlPlatform::createWindowAndRenderer(int width, int height,
                                                                 WindowFlags flags)
 {
-    auto [win, rend] = sdl::createWindowAndRenderer(width, height, toSdlWindowFlags(flags));
+    auto [win, rend] = sdl::createWindowAndRenderer("", width, height, toSdlWindowFlags(flags));
     return std::make_unique<SdlRenderer>(std::move(win), std::move(rend));
 }
 
 std::unique_ptr<Renderer> SdlPlatform::createOffscreenRenderer(int width, int height)
 {
-    sdl::SurfacePtr surface(SDL_CreateRGBSurfaceWithFormat(0, width, height, 8,
-                                                           SDL_PIXELFORMAT_RGBA8888));
+    sdl::SurfacePtr surface(SDL_CreateSurface(width, height, SDL_PIXELFORMAT_RGBA8888));
     sdl::RendererPtr renderer(SDL_CreateSoftwareRenderer(surface));
     return std::make_unique<SdlRenderer>(std::move(surface), std::move(renderer));
 }
