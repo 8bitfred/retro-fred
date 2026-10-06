@@ -25,7 +25,13 @@ namespace
 
 std::unique_ptr<Texture> SdlRenderer::loadTexture(std::string const &path)
 {
-    return std::make_unique<SdlTexture>(sdl::TexturePtr(IMG_LoadTexture(renderer, path.c_str())));
+    sdl::TexturePtr texture(IMG_LoadTexture(renderer, path.c_str()));
+    // SDL3 defaults new textures to linear filtering (SDL2 defaulted to nearest-neighbor).
+    // This is pixel art rendered at a large integer-ish scale: linear filtering blurs it and
+    // bleeds adjacent sprite-sheet tiles into each other at their edges.
+    if (!SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST))
+        throw sdl::Error();
+    return std::make_unique<SdlTexture>(std::move(texture));
 }
 
 std::unique_ptr<Surface> SdlRenderer::loadSurface(std::string const &path)
