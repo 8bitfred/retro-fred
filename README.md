@@ -33,6 +33,42 @@ current working directory.
 
 Use option --help to get a list of configuration options.
 
+### CMake presets / IDE setup (VSCode, CLion, etc.)
+
+The repository ships a `CMakePresets.json` with a `linux` configure preset (generates
+`compile_commands.json`, which is what most editors use for C++ IntelliSense/indexing). It
+does not hardcode `CMAKE_PREFIX_PATH`, since that is specific to where you installed SDL on
+your machine. Instead, create a `CMakeUserPresets.json` next to it (already gitignored, not
+meant to be committed) with your own prefix paths:
+
+```json
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "linux-local",
+            "inherits": "linux",
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>;<SDL2_MIXER_PREFIX>"
+            }
+        }
+    ]
+}
+```
+
+Then configure and build with:
+
+```
+    cmake --preset linux-local
+    cmake --build --preset linux
+```
+
+In VSCode with the CMake Tools extension installed, the presets above show up directly in
+the CMake preset picker (status bar, or Command Palette → "CMake: Select Configure Preset"),
+and compile_commands.json-backed IntelliSense will work without any further configuration.
+`windows-x64`/`windows-x86` (Visual Studio) and `macos` presets are also provided, following
+the same `CMakeUserPresets.json` pattern for `CMAKE_PREFIX_PATH` where needed.
+
 
 Android
 -------
