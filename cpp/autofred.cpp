@@ -1,6 +1,6 @@
 #include "sdlbackend/SdlMain.hpp"
 #include "sdlbackend/SdlPlatform.hpp"
-#include "Application.hpp"
+#include "fredgame/Application.hpp"
 #include <random>
 #include <iostream>
 #include <fstream>

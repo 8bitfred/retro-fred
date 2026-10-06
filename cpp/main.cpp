@@ -3,7 +3,7 @@
 #include "sdlbackend/SdlPlatform.hpp"
 #include "fredcore/Config.hpp"
 #include "fredcore/GameMap.hpp"
-#include "Application.hpp"
+#include "fredgame/Application.hpp"
 #include "fredcore/Game.hpp"
 
 int main(int argc, char* argv[])

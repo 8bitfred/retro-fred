@@ -14,26 +14,8 @@ endif()
 
 add_subdirectory(platform)
 add_subdirectory(fredcore)
+add_subdirectory(fredgame)
 add_subdirectory(sdlbackend)
-
-add_library(fredgame STATIC
-    GameRunner.cpp GameRunner.hpp
-    AcidDrop.hpp AcidDrop.cpp
-    Fred.cpp Fred.hpp
-    Rat.cpp Rat.hpp
-    Ghost.cpp Ghost.hpp
-    Chameleon.cpp Chameleon.hpp
-    Mummy.cpp Mummy.hpp
-    MultiDirEnemy.cpp MultiDirEnemy.hpp
-    Vampire.cpp Vampire.hpp
-    Skeleton.cpp Skeleton.hpp
-    Bullet.cpp Bullet.hpp
-    Smoke.cpp Smoke.hpp
-    Object.cpp Object.hpp
-    Tomb.cpp Tomb.hpp
-    Application.cpp Application.hpp
-    build_config.hpp.in)
-target_link_libraries(fredgame PUBLIC fredcore)
 
 include(InstallRequiredSystemLibraries)
 
