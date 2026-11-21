@@ -73,28 +73,33 @@ the same `CMakeUserPresets.json` pattern for `CMAKE_PREFIX_PATH` where needed.
 Android
 -------
 
-The Android build needs the source distributions of SDL, SDL_image and SDL_mixer. The SDL
-source code needs to be patched with patch-SDL2-2.29.3-aaudio-buffer-size.patch to ensure
-that the audio buffer gets set correctly.
+The Android build needs the source distributions of SDL3, SDL3_image and SDL3_mixer
+(SDL 3.4.x, SDL3_image 3.4.x and SDL3_mixer 3.2.x were tested), which are compiled from
+source as part of the Gradle build. The SDL3 sources include the Java glue code
+(`android/app/src/main/java/org/libsdl/app`), which must come from the same SDL3 release as
+the native library; when upgrading SDL3, copy the files from
+`<SDL3_SOURCE>/android-project/app/src/main/java/org/libsdl/app` and
+`<SDL3_SOURCE>/android-project/app/proguard-rules.pro`.
 
-First, apply the patch (<SDL2_SOURCE>, <SDL2_IMAGE_SOURCE> and <SDL2_MIXER_SOURCE> are the
-directories of the source distributions of the SDL, SDL_image and SDL_mixer libraries):
+The AAudio buffer size patch that was required with SDL2 does not apply to SDL3, which sizes
+the audio buffer itself. Audio on Android has not been verified yet; if there is crackling or
+lag, try the SDL_HINT_AUDIO_DEVICE_SAMPLE_FRAMES and SDL_HINT_ANDROID_LOW_LATENCY_AUDIO hints.
+
+Set up the links to the source code of the SDL3 libraries in the android directory,
+and an internal link to the assets directory from the android/app/src/main directory
+(<SDL3_SOURCE>, <SDL3_IMAGE_SOURCE> and <SDL3_MIXER_SOURCE> are the directories of the
+source distributions of the SDL3, SDL3_image and SDL3_mixer libraries):
 
 ```
-    RETROFRED_ROOT=$(pwd); (cd <SDL2_SOURCE>; patch -p1 <$RETROFRED_ROOT/android/patch-SDL2-2.29.3-aaudio-buffer-size.patch)
-```
-
-Then set up the links to the source code of the SDL2 libraries in the android directory,
-and an internal link to the assets directory from the android/app/src/main directory:
-
-```
-    ./android/configure --sdl=<SDL2_SOURCE> \
-                        --sdl-image=<SDL2_IMAGE_SOURCE> \
-                        --sdl-mixer=<SDL_MIXER_SOURCE>
+    ./android/configure --sdl=<SDL3_SOURCE> \
+                        --sdl-image=<SDL3_IMAGE_SOURCE> \
+                        --sdl-mixer=<SDL3_MIXER_SOURCE>
 ```
 
 Now the build can be started using the gradle tool included in the android directory.
-JAVA_HOME must point to the JDK directory, and ANDROID_HOME to the Android SDK directory:
+JAVA_HOME must point to a JDK (17 to 21; the JDK must include the compiler, and Gradle 8.12
+does not run with JDK 24 or later, so the JBR bundled with recent Android Studio versions
+cannot be used), and ANDROID_HOME to the Android SDK directory:
 
 ```
     JAVA_HOME=<JAVA_HOME> ANDROID_HOME=<ANDROID_HOME> ./android/gradlew build
@@ -107,10 +112,8 @@ Android SDK versions (see File|Settings, Languages & Frameworks|Android SDK from
 studio):
 
   SDK Tools:
-    Android SDK Build-Tools 34
-      34.0.0
-      33.0.1
-      30.0.3
+    Android SDK Build-Tools 35
+      35.0.1
     NDK
       25.1.8937393
     CMake
@@ -120,12 +123,9 @@ studio):
     Android SDK Platform-Tools 34.0.5
 
   SDK Platforms:
-    Android 14.0
-      Android SDK Platform 34
-      Sources for Android 34
+    Android 15.0
+      Android SDK Platform 35
       Google APIs Intel x86_64 Atom System Image
-    Android 13.0
-      Android SDK Platform 33
 
 To build the project using Android Studio:
 

@@ -11,21 +11,36 @@ android {
     if (buildAsApplication) {
         namespace "com.eightbitfred.retro_fred"
     }
-    compileSdkVersion 34
+    compileSdkVersion 35
+    ndkVersion "25.1.8937393"
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 34
+        minSdkVersion 21
+        targetSdkVersion 35
         versionCode 19
         versionName "1.1.2"
         externalNativeBuild {
             cmake {
-                arguments "-DANDROID_APP_PLATFORM=android-19",
+                arguments "-DANDROID_PLATFORM=android-21",
                     "-DANDROID_STL=c++_static",
-                    "-DSDL2MIXER_VENDORED=OFF",
-                    "-DSDL2MIXER_OPUS=OFF",
-                    "-DSDL2MIXER_MOD=OFF",
-                    "-DSDL2MIXER_MIDI_FLUIDSYNTH=OFF",
-                    "-DSDL2MIXER_WAVPACK=OFF"
+                    "-DSDLIMAGE_VENDORED=OFF",
+                    "-DSDLIMAGE_STRICT=OFF",
+                    "-DSDLIMAGE_PNG_LIBPNG=OFF",
+                    "-DSDLIMAGE_AVIF=OFF",
+                    "-DSDLIMAGE_TIF=OFF",
+                    "-DSDLIMAGE_WEBP=OFF",
+                    "-DSDLIMAGE_SAMPLES=OFF",
+                    "-DSDLMIXER_VENDORED=OFF",
+                    "-DSDLMIXER_EXAMPLES=OFF",
+                    "-DSDLMIXER_TESTS=OFF",
+                    "-DSDLMIXER_OPUS=OFF",
+                    "-DSDLMIXER_MOD=OFF",
+                    "-DSDLMIXER_MIDI=OFF",
+                    "-DSDLMIXER_GME=OFF",
+                    "-DSDLMIXER_MP3=OFF",
+                    "-DSDLMIXER_FLAC=OFF",
+                    "-DSDLMIXER_VORBIS_STB=OFF",
+                    "-DSDLMIXER_VORBIS_VORBISFILE=OFF",
+                    "-DSDLMIXER_WAVPACK=OFF"
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
                 // abiFilters 'arm64-v8a'
             }

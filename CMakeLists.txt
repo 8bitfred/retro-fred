@@ -5,11 +5,15 @@ project("retro-fred" VERSION 1.1.2)
 file(CONFIGURE OUTPUT version CONTENT "${CMAKE_PROJECT_VERSION}\n")
 
 if(ANDROID)
+    # SDL3 is built from source as a shared library (libSDL3.so), which is loaded by
+    # SDLActivity.java; the SDL3_image and SDL3_mixer targets are linked against it.
+    set(SDL_SHARED ON CACHE BOOL "" FORCE)
+    set(SDL_STATIC OFF CACHE BOOL "" FORCE)
+    set(SDL_TEST_LIBRARY OFF CACHE BOOL "" FORCE)
+    set(SDL_DISABLE_INSTALL ON CACHE BOOL "" FORCE)
     add_subdirectory(android/SDL)
     add_subdirectory(android/SDL_image)
-    include_directories(android/SDL/include android/SDL_image/include)
     add_subdirectory(android/SDL_mixer)
-    include_directories(android/SDL/include android/SDL_mixer/include)
 endif()
 
 add_subdirectory(cpp)

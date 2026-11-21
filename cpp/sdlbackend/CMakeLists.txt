@@ -22,13 +22,10 @@ add_library(sdlbackend STATIC
 target_include_directories(sdlbackend PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
 target_link_libraries(sdlbackend PUBLIC platform fredcore)
 
-if(ANDROID)
-    target_link_libraries(sdlbackend PUBLIC SDL3 SDL3main SDL3_image SDL3_mixer)
-else()
-    # Only shared SDL3 builds are commonly available (unlike SDL2, which also shipped
-    # static archives); link dynamically everywhere else.
-    target_link_libraries(sdlbackend PUBLIC
-        SDL3::SDL3
-        SDL3_image::SDL3_image
-        SDL3_mixer::SDL3_mixer)
-endif()
+# Only shared SDL3 builds are commonly available (unlike SDL2, which also shipped
+# static archives); link dynamically everywhere (on Android the targets are built from
+# source by the top-level CMakeLists.txt).
+target_link_libraries(sdlbackend PUBLIC
+    SDL3::SDL3
+    SDL3_image::SDL3_image
+    SDL3_mixer::SDL3_mixer)

@@ -3,9 +3,9 @@
 show_help()
 {
     cat <<HELP
-$0 --sdl=<SDL_SOURCE_DIR> --sdl-image=<SDL_IMAGE_SOURCE_DIR> --sdl-mixer=<SDL_MIXER_SOURCE_DIR>
+$0 --sdl=<SDL3_SOURCE_DIR> --sdl-image=<SDL3_IMAGE_SOURCE_DIR> --sdl-mixer=<SDL3_MIXER_SOURCE_DIR>
 
-Creates links for the SDL, SDL_image and SDL_mixer directories inside the android directory, and
+Creates links for the SDL3, SDL3_image and SDL3_mixer source directories inside the android directory, and
 sets up the link to the assets directory from android/app/src/main
 HELP
 }
@@ -59,7 +59,7 @@ if [ ! -d "$SDL_PATH" ]; then
     exit 1
 fi
 if [ -z "$SDL_IMAGE_PATH" ]; then
-    echo "Please set the path of the SDL image library sources with option --sdl-image <sdl_image_path>"
+    echo "Please set the path of the SDL3_image library sources with option --sdl-image <sdl_image_path>"
     exit 2
 fi
 if [ ! -d "$SDL_IMAGE_PATH" ]; then
@@ -67,7 +67,7 @@ if [ ! -d "$SDL_IMAGE_PATH" ]; then
     exit 1
 fi
 if [ -z "$SDL_MIXER_PATH" ]; then
-    echo "Please set the path of the SDL mixer library sources with option --sdl-mixer <sdl_mixer_path>"
+    echo "Please set the path of the SDL3_mixer library sources with option --sdl-mixer <sdl_mixer_path>"
     exit 2
 fi
 if [ ! -d "$SDL_MIXER_PATH" ]; then

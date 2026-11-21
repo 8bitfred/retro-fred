@@ -1,5 +1,9 @@
 # 1.1.2
 
+* Android: build with SDL3 3.4, SDL3_image 3.4 and SDL3_mixer 3.2 (previously SDL2). The
+  minimum Android version is now 5.0 (API 21), and the target is API 35. The SDL2 AAudio
+  buffer size patch is no longer needed.
+
 * Add SDL hint to avoid detecting accelerometer devices are joysticks.
 
 * Use the controller API if a joystick is detected as a controller.
