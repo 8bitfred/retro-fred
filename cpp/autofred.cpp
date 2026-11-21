@@ -142,10 +142,11 @@ public:
                        SoundManager &smgr,
                        Renderer &renderer)
     {
-        display_cfg.setGameViewport();
+        display_cfg.beginGameFrame();
         renderer.renderClear();
         game.render(tmgr, renderer, play_window.getGameWindow());
         play_window.renderFrame(game, display_cfg, tmgr);
+        display_cfg.endGameFrame();
         renderer.present();
         game.playPendingSounds(smgr);
 

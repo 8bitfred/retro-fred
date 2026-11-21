@@ -368,10 +368,12 @@ class StatePlay : public BaseState
     }
     void renderLevelTransition(FredApp const &app) const
     {
-        app.getDisplayConfig().setIntroViewport();
+        auto &display_cfg = app.getDisplayConfig();
+        display_cfg.beginGameFrame();
         auto &renderer = app.getRenderer();
         auto const &tmgr = app.getTextureManager();
         renderer.renderClear();
+        display_cfg.setGameFrameIntroViewport();
         tmgr.renderText(renderer, "AT LAST YOU GOT OUT!", 24, 24,
                         Color{206, 206, 206});
         tmgr.renderText(renderer, "BONUS FOR GETTING OUT:", 24, 40,
@@ -390,7 +392,8 @@ class StatePlay : public BaseState
         tmgr.renderText(renderer, buf, 96, 120, Color{206, 206, 206});
         Rect fred_puffing{88, 128, 32, 40};
         renderer.renderCopy(tmgr.get(TextureID::FRED_PUFFING), nullptr, &fred_puffing);
-        play_window->renderFrame(*game, app.getDisplayConfig(), tmgr);
+        play_window->renderFrame(*game, display_cfg, tmgr);
+        display_cfg.endGameFrame();
         renderer.present();
     }
 
@@ -400,13 +403,15 @@ class StatePlay : public BaseState
             renderLevelTransition(app);
         else
         {
-            app.getDisplayConfig().setGameViewport();
+            auto &display_cfg = app.getDisplayConfig();
+            display_cfg.beginGameFrame();
             auto &renderer = app.getRenderer();
             renderer.renderClear();
             game->render(app.getTextureManager(),
                          renderer, play_window->getGameWindow());
-            play_window->renderFrame(*game, app.getDisplayConfig(), app.getTextureManager());
-            app.getDisplayConfig().setIntroViewport();
+            play_window->renderFrame(*game, display_cfg, app.getTextureManager());
+            display_cfg.endGameFrame();
+            display_cfg.setIntroViewport();
             if (pause_mode == PauseMode::GAME_MENU)
                 game_menu.render(renderer, app.getTextureManager());
             else if (pause_mode == PauseMode::CHEATS_MENU)

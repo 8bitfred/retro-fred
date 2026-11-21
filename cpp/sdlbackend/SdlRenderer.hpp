@@ -32,6 +32,8 @@ public:
 
     std::unique_ptr<Texture> loadTexture(std::string const &path) override;
     std::unique_ptr<Surface> loadSurface(std::string const &path) override;
+    std::unique_ptr<Texture> createTargetTexture(int width, int height) override;
+    void setRenderTarget(Texture *target) override;
 
     void renderClear() override;
     void renderCopy(Texture &texture, Rect const *src, Rect const *dst,

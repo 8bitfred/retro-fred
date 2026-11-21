@@ -24,7 +24,12 @@ class DisplayConfig
     // room for the virtual controller)
     int reserved_side = 0, reserved_bottom = 0;
     int intro_window_w = 0, intro_window_h = 0;
+    // The game is drawn to this texture, which has the size of the game window, and then
+    // the texture is scaled to the window (see beginGameFrame())
+    std::unique_ptr<Texture> frame_texture;
+    int frame_texture_w = 0, frame_texture_h = 0;
 
+    void updateFrameTexture();
     std::pair<int, int> getFullMapSize(Config const &cfg) const;
     int getFullMapFrameScale(Config const &cfg) const;
     std::pair<int, int> getFullMapWindowSize(Config const &cfg) const;
@@ -53,7 +58,19 @@ public:
     Rect getGameWindowRect() const;
     void setWindowTitleAndIcon(std::string const &title, Surface const &icon) const;
     void setIntroViewport() const;
-    void setGameViewport() const;
+    // The game is not drawn directly to the window, because scaling each sprite separately
+    // causes artifacts (for example, when the scale is not an integer the size of the pixels
+    // of a sprite can differ from the neighboring sprites, and gaps appear between them).
+    // Instead, a frame of the game is drawn to a texture of the size of the game window, in
+    // game pixels (scale 1), and then the texture is scaled to the window as a whole:
+    //   beginGameFrame(), draw the game and the window frame, endGameFrame().
+    // The coordinates are the coordinates of the game window (see getGameWindowRect()).
+    void beginGameFrame() const;
+    void endGameFrame() const;
+    // Draw the original 256x192 screen (e.g. text) in the center of the frame
+    void setGameFrameIntroViewport() const;
+    // Set the viewport and scale to draw the window frame and the scoreboard, during a frame
+    // of the game. Return the size of the viewport (in units of the scale).
     std::pair<int, int> setWindowFrameViewport() const;
     std::pair<int, int> setScoreboardViewport() const;
 };

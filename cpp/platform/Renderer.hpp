@@ -47,6 +47,13 @@ public:
 
     virtual std::unique_ptr<Texture> loadTexture(std::string const &path) = 0;
     virtual std::unique_ptr<Surface> loadSurface(std::string const &path) = 0;
+    // Create a texture of the given size that can be drawn to, by passing it to
+    // setRenderTarget(), and then drawn with renderCopy() (with nearest-neighbor scaling).
+    virtual std::unique_ptr<Texture> createTargetTexture(int width, int height) = 0;
+    // Direct the drawing operations to a texture created with createTargetTexture(), or to
+    // the window if target is nullptr. Each target has its own viewport and scale, which are
+    // reset when the target is set.
+    virtual void setRenderTarget(Texture *target) = 0;
 
     virtual void renderClear() = 0;
     // src == nullptr means the whole texture; dst == nullptr means the whole render target.

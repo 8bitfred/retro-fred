@@ -39,6 +39,30 @@ std::unique_ptr<Surface> SdlRenderer::loadSurface(std::string const &path)
     return std::make_unique<SdlSurface>(sdl::SurfacePtr(IMG_Load(path.c_str())));
 }
 
+std::unique_ptr<Texture> SdlRenderer::createTargetTexture(int width, int height)
+{
+    sdl::TexturePtr texture(SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
+                                              SDL_TEXTUREACCESS_TARGET, width, height));
+    // The content is scaled by a non-integer factor when it is drawn: use nearest-neighbor
+    // scaling so that the pixels stay sharp (see loadTexture())
+    if (!SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST))
+        throw sdl::Error();
+    if (!SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE))
+        throw sdl::Error();
+    return std::make_unique<SdlTexture>(std::move(texture));
+}
+
+void SdlRenderer::setRenderTarget(Texture *target)
+{
+    if (!SDL_SetRenderTarget(renderer, target ? sdlTextureOf(*target) : nullptr))
+        throw sdl::Error();
+    // SDL keeps a separate viewport and scale for each target: start from a known state
+    viewport_rect.reset();
+    scale_x = scale_y = 1;
+    SDL_SetRenderViewport(renderer, nullptr);
+    SDL_SetRenderScale(renderer, 1, 1);
+}
+
 void SdlRenderer::renderClear()
 {
     if (!SDL_RenderClear(renderer))

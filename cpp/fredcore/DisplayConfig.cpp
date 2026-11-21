@@ -145,6 +145,7 @@ DisplayConfig::DisplayConfig(Config const &cfg, Platform &platform)
         initFullMapMode(platform, cfg);
     else
         initNormalMode(platform, cfg);
+    updateFrameTexture();
 }
 
 std::pair<int, int> DisplayConfig::getWindowSize() const
@@ -188,6 +189,7 @@ void DisplayConfig::updateLayout(Config const &cfg)
         else
             setNormalLayout(cfg);
     }
+    updateFrameTexture();
 }
 
 // Layout of the screen in full size mode: the game window takes the whole window (except the
@@ -306,42 +308,51 @@ void DisplayConfig::setIntroViewport() const
     renderer->setViewport(&rect);
 }
 
-void DisplayConfig::setGameViewport() const
+void DisplayConfig::updateFrameTexture()
 {
-    auto const area = getGameArea();
-    auto const window_w = area.w;
-    auto const window_h = area.h;
-    auto scale_w = static_cast<float>(window_w) / game_window_w;
-    auto scale_h = static_cast<float>(window_h) / game_window_h;
-    auto scale = std::min(scale_w, scale_h);
+    if (frame_texture && frame_texture_w == game_window_w && frame_texture_h == game_window_h)
+        return;
+    frame_texture = renderer->createTargetTexture(game_window_w, game_window_h);
+    frame_texture_w = game_window_w;
+    frame_texture_h = game_window_h;
+}
 
+void DisplayConfig::beginGameFrame() const
+{
+    renderer->setRenderTarget(frame_texture.get());
+}
+
+void DisplayConfig::endGameFrame() const
+{
+    renderer->setRenderTarget(nullptr);
+
+    // Scale the frame to fit the area of the window available to the game, and center it
+    auto const area = getGameArea();
+    auto scale_w = static_cast<float>(area.w) / game_window_w;
+    auto scale_h = static_cast<float>(area.h) / game_window_h;
+    auto scale = std::min(scale_w, scale_h);
+    auto dst_w = static_cast<int>(game_window_w * scale);
+    auto dst_h = static_cast<int>(game_window_h * scale);
+    Rect dst{area.x + (area.w - dst_w) / 2, (area.h - dst_h) / 2, dst_w, dst_h};
+    renderer->renderClear();
+    renderer->renderCopy(*frame_texture, nullptr, &dst);
+}
+
+void DisplayConfig::setGameFrameIntroViewport() const
+{
+    Rect rect{(game_window_w - intro_window_w) / 2, (game_window_h - intro_window_h) / 2,
+              intro_window_w, intro_window_h};
     renderer->setScale(1, 1);
-    Rect rect{area.x + (window_w - static_cast<int>(game_window_w * scale)) / 2,
-             (window_h - static_cast<int>(game_window_h * scale)) / 2,
-             static_cast<int>(game_window_w * scale),
-             static_cast<int>(game_window_h * scale)};
     renderer->setViewport(&rect);
-    renderer->setScale(scale, scale);
 }
 
 std::pair<int, int> DisplayConfig::setWindowFrameViewport() const
 {
-    auto const area = getGameArea();
-    auto const window_w = area.w;
-    auto const window_h = area.h;
-    auto scale_w = static_cast<float>(window_w) / game_window_w;
-    auto scale_h = static_cast<float>(window_h) / game_window_h;
-    auto scale = std::min(scale_w, scale_h);
-
     auto scoreboard_w = Config::SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR * window_frame_scale;
-    auto viewport_w = static_cast<int>((game_window_w - scoreboard_w) * scale);
     renderer->setScale(1, 1);
-    Rect rect{area.x + (window_w - static_cast<int>(game_window_w * scale)) / 2,
-             (window_h - static_cast<int>(game_window_h * scale)) / 2,
-             viewport_w,
-             static_cast<int>(game_window_h * scale)};
+    Rect rect{0, 0, game_window_w - scoreboard_w, game_window_h};
     renderer->setViewport(&rect);
-    renderer->setScale(scale*window_frame_scale, scale*window_frame_scale);
+    renderer->setScale(window_frame_scale, window_frame_scale);
 
     return {(game_window_w + window_frame_scale - 1) / window_frame_scale,
             (game_window_h + window_frame_scale - 1) / window_frame_scale};
@@ -349,23 +360,11 @@ std::pair<int, int> DisplayConfig::setWindowFrameViewport() const
 
 std::pair<int, int> DisplayConfig::setScoreboardViewport() const
 {
-    auto const area = getGameArea();
-    auto const window_w = area.w;
-    auto const window_h = area.h;
-    auto scale_w = static_cast<float>(window_w) / game_window_w;
-    auto scale_h = static_cast<float>(window_h) / game_window_h;
-    auto scale = std::min(scale_w, scale_h);
-
     auto scoreboard_w = Config::SCOREBOARD_WIDTH * MapPos::PIXELS_PER_CHAR * window_frame_scale;
-    auto frame_x = area.x + (window_w - static_cast<int>(game_window_w * scale)) / 2;
-    auto scoreboard_x = frame_x + static_cast<int>((game_window_w - scoreboard_w) * scale);
     renderer->setScale(1, 1);
-    Rect rect{scoreboard_x,
-             (window_h - static_cast<int>(game_window_h * scale)) / 2,
-             static_cast<int>(scoreboard_w * scale),
-             static_cast<int>(game_window_h * scale)};
+    Rect rect{game_window_w - scoreboard_w, 0, scoreboard_w, game_window_h};
     renderer->setViewport(&rect);
-    renderer->setScale(scale*window_frame_scale, scale*window_frame_scale);
+    renderer->setScale(window_frame_scale, window_frame_scale);
 
     return {scoreboard_w / window_frame_scale,
             (game_window_h + window_frame_scale - 1) / window_frame_scale};

@@ -22,6 +22,10 @@
   version these options do not change it). The full map and full size modes are mutually
   exclusive.
 
+* Draw each frame of the game to a texture with the size of the game window, and scale the
+  texture to the window as a whole, instead of scaling each sprite separately. This avoids
+  artifacts (uneven pixel sizes and gaps between sprites) when the scale is not an integer.
+
 * Android: run in full screen (immersive) mode, so the system bars no longer cover the game
   and the virtual controller on Android 15 and later.
 
