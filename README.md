@@ -115,7 +115,7 @@ studio):
     Android SDK Build-Tools 36
       36.0.0
     NDK
-      25.1.8937393
+      28.2.13676358
     CMake
       3.22.1
       3.18.1
@@ -123,8 +123,8 @@ studio):
     Android SDK Platform-Tools 34.0.5
 
   SDK Platforms:
-    Android 15.0
-      Android SDK Platform 35
+    Android 17.0
+      Android SDK Platform 37.0
       Google APIs Intel x86_64 Atom System Image
 
 To build the project using Android Studio:

@@ -11,11 +11,11 @@ android {
     if (buildAsApplication) {
         namespace "com.eightbitfred.retro_fred"
     }
-    compileSdk 35
-    ndkVersion "25.1.8937393"
+    compileSdk 37
+    ndkVersion "28.2.13676358"
     defaultConfig {
         minSdk 21
-        targetSdk 35
+        targetSdk 37
         versionCode 20
         versionName "1.2.0"
         externalNativeBuild {

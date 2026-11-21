@@ -1,8 +1,9 @@
 # 1.2.0
 
 * Android: build with SDL3 3.4, SDL3_image 3.4 and SDL3_mixer 3.2 (previously SDL2). The
-  minimum Android version is now 5.0 (API 21), and the target is API 35. The SDL2 AAudio
-  buffer size patch is no longer needed.
+  minimum Android version is now 5.0 (API 21), and the target is API 37 (Android 17). The
+  SDL2 AAudio buffer size patch is no longer needed. The native libraries are now built with
+  NDK 28, which aligns them for devices with 16 KB memory pages.
 
 * Android: run in full screen (immersive) mode, so the system bars no longer cover the game
   and the virtual controller on Android 15 and later.
