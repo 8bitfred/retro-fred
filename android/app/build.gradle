@@ -11,11 +11,11 @@ android {
     if (buildAsApplication) {
         namespace "com.eightbitfred.retro_fred"
     }
-    compileSdkVersion 35
+    compileSdk 35
     ndkVersion "25.1.8937393"
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 35
+        minSdk 21
+        targetSdk 35
         versionCode 20
         versionName "1.2.0"
         externalNativeBuild {
@@ -49,12 +49,8 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-    applicationVariants.all { variant ->
-        tasks["merge${variant.name.capitalize()}Assets"]
-            .dependsOn("externalNativeBuild${variant.name.capitalize()}")
     }
     if (!project.hasProperty('EXCLUDE_NATIVE_LIBS')) {
         sourceSets.main {
@@ -71,17 +67,6 @@ android {
         abortOnError false
     }
 
-    if (buildAsLibrary) {
-        libraryVariants.all { variant ->
-            variant.outputs.each { output ->
-                def outputFile = output.outputFile
-                if (outputFile != null && outputFile.name.endsWith(".aar")) {
-                    def fileName = "com.eightbitfred.retro_fred.aar";
-                    output.outputFile = new File(outputFile.parent, fileName);
-                }
-            }
-        }
-    }
 }
 
 dependencies {

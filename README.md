@@ -97,9 +97,9 @@ source distributions of the SDL3, SDL3_image and SDL3_mixer libraries):
 ```
 
 Now the build can be started using the gradle tool included in the android directory.
-JAVA_HOME must point to a JDK (17 to 21; the JDK must include the compiler, and Gradle 8.12
-does not run with JDK 24 or later, so the JBR bundled with recent Android Studio versions
-cannot be used), and ANDROID_HOME to the Android SDK directory:
+JAVA_HOME must point to a JDK 17 or newer that includes the compiler (the JBR bundled with
+Android Studio works; Gradle 9.8 supports up to Java 27),
+and ANDROID_HOME to the Android SDK directory:
 
 ```
     JAVA_HOME=<JAVA_HOME> ANDROID_HOME=<ANDROID_HOME> ./android/gradlew build
@@ -112,8 +112,8 @@ Android SDK versions (see File|Settings, Languages & Frameworks|Android SDK from
 studio):
 
   SDK Tools:
-    Android SDK Build-Tools 35
-      35.0.1
+    Android SDK Build-Tools 36
+      36.0.0
     NDK
       25.1.8937393
     CMake
