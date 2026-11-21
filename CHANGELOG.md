@@ -5,6 +5,14 @@
   SDL2 AAudio buffer size patch is no longer needed. The native libraries are now built with
   NDK 28, which aligns them for devices with 16 KB memory pages.
 
+* Add a "Full map mode" option to the options menu and the in-game menu, which can be changed
+  while the game is running and is saved in the configuration file. In the desktop version the window is resized
+  to show the whole map (the --full-map command-line option still starts the game in this
+  mode, and takes precedence over the saved option). In Android the screen scales to fill the
+  device, and the width of the game window is limited to 512 pixels in portrait orientation
+  and 1024 pixels in landscape orientation. Half of the size of each button of the virtual
+  controller is placed outside of the game window.
+
 * Android: run in full screen (immersive) mode, so the system bars no longer cover the game
   and the virtual controller on Android 15 and later.
 

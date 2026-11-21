@@ -4,6 +4,32 @@
 #include "DisplayConfig.hpp"
 #include <algorithm>
 
+namespace
+{
+    int getButtonSize(int window_w, int window_h)
+    {
+        if (window_w > window_h) // landscape orientation
+            return window_w / 5;
+        // portrait orientation
+        return std::min(window_w / 2, window_h / 5);
+    }
+
+    int getOffset(int window_w, int window_h)
+    {
+        return std::min(window_w / 32, window_h / 32);
+    }
+}
+
+Controller::Margins Controller::getMargins(int window_w, int window_h)
+{
+    // We only reserve half of the size of the buttons, so that the game is not too small
+    auto half_size = getButtonSize(window_w, window_h) / 2;
+    if (window_w > window_h) // landscape orientation
+        return Margins{half_size, 0};
+    // portrait orientation
+    return Margins{0, half_size};
+}
+
 Controller::Controller(DisplayConfig const &display_cfg, bool back_button)
     : back_button(back_button)
 {
@@ -13,13 +39,8 @@ Controller::Controller(DisplayConfig const &display_cfg, bool back_button)
 void Controller::resetPosition(DisplayConfig const &display_cfg)
 {
     auto [window_w, window_h] = display_cfg.getWindowSize();
-    int size = 0;
-    if (window_w > window_h) // landscape orientation
-        size = window_w / 5;
-    else // portrait orientation
-        size = std::min(window_w / 2, window_h / 5);
-
-    auto offset = std::min(window_w / 32, window_h / 32);
+    auto size = getButtonSize(window_w, window_h);
+    auto offset = getOffset(window_w, window_h);
 
     arrows = Rect{offset, window_h - size - offset, size, size};
     fire = Rect{window_w - size - offset, window_h - size - offset, size, size};

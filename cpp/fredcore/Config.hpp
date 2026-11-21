@@ -25,7 +25,13 @@ struct Config {
     bool user_window_size = false;
     int window_width = 0, window_height = 0;
     bool full_screen = false;
+    // Full map mode: show the whole map (as far as the window allows) instead of the
+    // original 256x192 screen. Can be changed while the game is running.
     bool max_resolution = false;
+    // The size of the window is determined by the platform and cannot be changed by the
+    // application (e.g. a phone screen). In full map mode the game is scaled to fill the
+    // window, instead of changing the window size to fit the map.
+    bool fixed_window_size = false;
     bool high_dpi = false;
     int map_width = 33, map_height = 33;
     bool debug_map = false;

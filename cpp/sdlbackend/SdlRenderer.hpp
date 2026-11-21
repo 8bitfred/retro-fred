@@ -44,6 +44,7 @@ public:
     void setViewport(Rect const *viewport) override;
     void setScale(float scale_x, float scale_y) override;
     std::pair<int, int> getOutputSize() const override;
+    void setWindowSize(int width, int height) override;
 
     void setTitle(std::string const &title) override;
     void setIcon(Surface const &icon) override;

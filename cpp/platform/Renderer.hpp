@@ -61,6 +61,10 @@ public:
     virtual void setViewport(Rect const *viewport) = 0;
     virtual void setScale(float scale_x, float scale_y) = 0;
     virtual std::pair<int, int> getOutputSize() const = 0;
+    // Change the size of the window (and center it in the screen). The size is in the same
+    // units as the size passed to Platform::createWindowAndRenderer(). Does nothing for
+    // renderers without a window.
+    virtual void setWindowSize(int width, int height) = 0;
 
     virtual void setTitle(std::string const &title) = 0;
     virtual void setIcon(Surface const &icon) = 0;

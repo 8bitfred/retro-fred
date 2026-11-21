@@ -142,6 +142,18 @@ std::pair<int, int> SdlRenderer::getOutputSize() const
     return {w, h};
 }
 
+void SdlRenderer::setWindowSize(int width, int height)
+{
+    if (!window)
+        return;
+    if (!SDL_SetWindowSize(window, width, height))
+        throw sdl::Error();
+    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    // The window manager can apply the change asynchronously: wait for it, so that the
+    // output size reflects the new window size
+    SDL_SyncWindow(window);
+}
+
 void SdlRenderer::setTitle(std::string const &title)
 {
     if (window)

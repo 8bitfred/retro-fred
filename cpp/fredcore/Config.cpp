@@ -81,6 +81,7 @@ Config::Config(int argc, char *argv[])
 {
 #ifdef __ANDROID__
     virtual_controller = true;
+    fixed_window_size = true;
     // From Android 15 (target SDK 35) apps are laid out edge-to-edge, behind the status and
     // navigation bars, which would cover (and crop) the game. Use a full screen (immersive)
     // window, which hides the system bars.
@@ -88,6 +89,7 @@ Config::Config(int argc, char *argv[])
 #endif
 #ifdef RETRO_FRED_IOS
     virtual_controller = true;
+    fixed_window_size = true;
     back_button = true;
     quit_option = false;
     high_dpi = true;
@@ -182,6 +184,8 @@ namespace {
 
 void Config::load(std::string const& config_path)
 {
+    // The --full-map command-line option takes precedence over the saved configuration
+    auto const cli_max_resolution = max_resolution;
     std::ifstream file(config_path);
     for (std::string line; std::getline(file, line);)
     {
@@ -191,6 +195,7 @@ void Config::load(std::string const& config_path)
             continue;
         parseFlag(svarg);
     }
+    max_resolution = max_resolution || cli_max_resolution;
 }
 
 void Config::save(std::string const& config_path) const
@@ -243,6 +248,7 @@ std::vector<std::pair<std::string, bool Config::*>> Config::getBoolFlagList()
         {"bullets-with-level", &Config::set_bullets_with_level},
         {"refill-power", &Config::refill_power},
         {"refill-bullets", &Config::refill_bullets},
+        {"full-map", &Config::max_resolution},
     };
     return flag_list;
 }
