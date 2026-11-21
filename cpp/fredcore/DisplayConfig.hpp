@@ -1,10 +1,10 @@
 #pragma once
 
 #include "platform/Renderer.hpp"
+#include "Config.hpp"
 #include <memory>
 
 class Platform;
-struct Config;
 
 class DisplayConfig
 {
@@ -16,9 +16,8 @@ class DisplayConfig
     // The window can be resized when the full map mode changes (it is neither full screen
     // nor has a size selected by the user)
     bool resizable_window;
-    // The screen is currently laid out for the full map mode, for a window that can have
-    // any size (not used for windows of fixed size)
-    bool full_map_active;
+    // Mode used for the last layout of the screen
+    MapMode mode;
     int window_frame_scale = 1;
     int game_window_w = 0, game_window_h = 0;
     // Space at the sides and the bottom of the window that is not used by the game (to make
@@ -29,11 +28,14 @@ class DisplayConfig
     std::pair<int, int> getFullMapSize(Config const &cfg) const;
     int getFullMapFrameScale(Config const &cfg) const;
     std::pair<int, int> getFullMapWindowSize(Config const &cfg) const;
+    // Integer scale used for the window in normal mode
+    int getNormalScale(Config const &cfg) const;
     std::pair<int, int> getNormalWindowSize(Config const &cfg) const;
     // Area of the window available to the game
     Rect getGameArea() const;
     void setFullMapLayout(Config const &cfg);
     void setNormalLayout(Config const &cfg);
+    void setFullSizeLayout(Config const &cfg);
     void setFixedWindowLayout(Config const &cfg);
     void initWindowAndRenderer(Platform &platform, int width, int height, WindowFlags flags);
     void initFullMapMode(Platform &platform, Config const &cfg);
@@ -44,8 +46,9 @@ public:
     Renderer &getRenderer() const { return *renderer; }
     std::pair<int, int> getWindowSize() const;
     // Update the layout of the screen (and the size of the window, if possible) after a
-    // change in the full map mode, or in the size of a window of fixed size (e.g. when the
-    // device is rotated). Call it regularly, it does nothing if nothing has changed.
+    // change in the mode (see Config::getMapMode()), or in the size of the window (e.g. when
+    // it is resized in the full size mode, or when the device is rotated). Call it regularly,
+    // it does nothing if nothing has changed.
     void updateLayout(Config const &cfg);
     Rect getGameWindowRect() const;
     void setWindowTitleAndIcon(std::string const &title, Surface const &icon) const;

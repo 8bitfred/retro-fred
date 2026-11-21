@@ -56,12 +56,17 @@ std::pair<int, int> DisplayConfig::getFullMapWindowSize(Config const &cfg) const
     return {std::min(max_w, display_w * 19 / 20), std::min(max_h, display_h * 19 / 20)};
 }
 
-std::pair<int, int> DisplayConfig::getNormalWindowSize(Config const &cfg) const
+int DisplayConfig::getNormalScale(Config const &cfg) const
 {
     auto [display_w, display_h] = display_resolution;
     auto scale_w = static_cast<int>(static_cast<double>(display_w * .8 / cfg.logical_width));
     auto scale_h = static_cast<int>(static_cast<double>(display_h * .8 / cfg.logical_height));
-    auto scale = std::max(std::min(scale_w, scale_h), 1);
+    return std::max(std::min(scale_w, scale_h), 1);
+}
+
+std::pair<int, int> DisplayConfig::getNormalWindowSize(Config const &cfg) const
+{
+    auto scale = getNormalScale(cfg);
     return {cfg.logical_width * scale, cfg.logical_height * scale};
 }
 
@@ -132,11 +137,11 @@ DisplayConfig::DisplayConfig(Config const &cfg, Platform &platform)
     : display_resolution(platform.getDisplayResolution())
     , fixed_window(cfg.fixed_window_size)
     , resizable_window(!cfg.fixed_window_size && !cfg.full_screen && !cfg.user_window_size)
-    , full_map_active(cfg.max_resolution && !cfg.fixed_window_size)
+    , mode(cfg.max_resolution && !cfg.fixed_window_size ? MapMode::FULL_MAP : MapMode::NORMAL)
     , intro_window_w(cfg.logical_width)
     , intro_window_h(cfg.logical_height)
 {
-    if (full_map_active)
+    if (mode == MapMode::FULL_MAP)
         initFullMapMode(platform, cfg);
     else
         initNormalMode(platform, cfg);
@@ -149,36 +154,72 @@ std::pair<int, int> DisplayConfig::getWindowSize() const
 
 void DisplayConfig::updateLayout(Config const &cfg)
 {
-    if (fixed_window)
-    {
-        setFixedWindowLayout(cfg);
-        return;
-    }
+    auto const new_mode = cfg.getMapMode();
+    auto const changed = new_mode != mode;
 
-    // The full map mode can be changed while the game is running: resize the window to fit
-    // the screen of the new mode
-    if (cfg.max_resolution == full_map_active)
-        return;
-    full_map_active = cfg.max_resolution;
-    if (full_map_active)
+    // The mode can be changed while the game is running: the window needs the size of the
+    // map in full map mode, and goes back to the size of the original screen when the mode
+    // is disabled
+    if (changed && resizable_window)
     {
-        window_frame_scale = getFullMapFrameScale(cfg);
-        if (resizable_window)
+        if (new_mode == MapMode::FULL_MAP)
         {
+            window_frame_scale = getFullMapFrameScale(cfg);
             auto [width, height] = getFullMapWindowSize(cfg);
             renderer->setWindowSize(width, height);
         }
-        setFullMapLayout(cfg);
-    }
-    else
-    {
-        if (resizable_window)
+        else if (mode == MapMode::FULL_MAP)
         {
             auto [width, height] = getNormalWindowSize(cfg);
             renderer->setWindowSize(width, height);
         }
-        setNormalLayout(cfg);
     }
+    mode = new_mode;
+
+    if (fixed_window)
+        setFixedWindowLayout(cfg);
+    else if (mode == MapMode::FULL_SIZE)
+        // The size of the window can be changed by the user at any time
+        setFullSizeLayout(cfg);
+    else if (changed)
+    {
+        if (mode == MapMode::FULL_MAP)
+            setFullMapLayout(cfg);
+        else
+            setNormalLayout(cfg);
+    }
+}
+
+// Layout of the screen in full size mode: the game window takes the whole window (except the
+// space for the virtual controller), at the same scale as the normal mode, so the size of
+// the game window changes with the size of the window
+void DisplayConfig::setFullSizeLayout(Config const &cfg)
+{
+    auto [window_w, window_h] = getWindowSize();
+    auto margins = cfg.virtual_controller ? Controller::getMargins(window_w, window_h)
+                                          : Controller::Margins{};
+    auto area_w = window_w - 2 * margins.side;
+    auto area_h = window_h - margins.bottom;
+    // Scale of the normal mode: the original screen fits in the window. For windows that
+    // can have any size we use the same (integer) scale as the initial window of the
+    // normal mode, unless the window is too small.
+    auto scale = std::min(static_cast<double>(area_w) / cfg.logical_width,
+                          static_cast<double>(area_h) / cfg.logical_height);
+    if (!fixed_window)
+        scale = std::min(scale, static_cast<double>(getNormalScale(cfg)));
+    if (scale <= 0)
+    {
+        setNormalLayout(cfg);
+        return;
+    }
+
+    reserved_side = margins.side;
+    reserved_bottom = margins.bottom;
+    window_frame_scale = 1;
+    // Do not show more than the whole map
+    auto [max_w, max_h] = getFullMapSize(cfg);
+    game_window_w = std::min(max_w, static_cast<int>(area_w / scale));
+    game_window_h = std::min(max_h, static_cast<int>(area_h / scale));
 }
 
 // Layout of the screen for a window of fixed size (e.g. a phone screen). In full map mode
@@ -186,9 +227,14 @@ void DisplayConfig::updateLayout(Config const &cfg)
 // and make the map visible. The size of the window can change when the device is rotated.
 void DisplayConfig::setFixedWindowLayout(Config const &cfg)
 {
-    if (!cfg.max_resolution)
+    if (mode == MapMode::NORMAL)
     {
         setNormalLayout(cfg);
+        return;
+    }
+    if (mode == MapMode::FULL_SIZE)
+    {
+        setFullSizeLayout(cfg);
         return;
     }
 

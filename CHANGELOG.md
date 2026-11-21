@@ -13,6 +13,15 @@
   and 1024 pixels in landscape orientation. Half of the size of each button of the virtual
   controller is placed outside of the game window.
 
+* Add a "Full size mode" option to the options menu and the in-game menu (and the
+  --full-size command-line option). In this mode the game window takes the whole window or
+  screen, at the same scale as the normal mode, and it changes size when the window is
+  resized or the device is rotated. In mobile devices the space for the virtual controller is
+  reserved as in the full map mode, and the full size mode is the default: it is enabled by
+  the "Normal mode" menu option and disabled by the "Classic mode" option (in the desktop
+  version these options do not change it). The full map and full size modes are mutually
+  exclusive.
+
 * Android: run in full screen (immersive) mode, so the system bars no longer cover the game
   and the virtual controller on Android 15 and later.
 

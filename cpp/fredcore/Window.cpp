@@ -64,7 +64,7 @@ Window::Window(Config const &cfg, Rect const &game_window_rect)
     center_offset_y = round_down((window_rect.h - MapPos::CELL_HEIGHT_PIXELS) / 2,
                                  MapPos::PIXELS_PER_CHAR);
 
-    if (cfg.max_resolution)
+    if (cfg.getMapMode() != MapMode::NORMAL)
     {
         min_window_pos = {-MapPos::CELL_WIDTH_PIXELS, -MapPos::CELL_HEIGHT_PIXELS};
         max_window_pos = {

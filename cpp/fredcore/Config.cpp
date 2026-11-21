@@ -9,7 +9,8 @@ namespace {
     const char *usage =
         "usage: fred [--help]\n"
         "            [--level LEVEL] [--debug-map] [--debug-keys]\n"
-        "            [--full-screen] [--full-map] [--minimap-exit]\n"
+        "            [--full-screen] [--full-map] [--full-size]\n"
+        "            [--minimap-exit]\n"
         "            [--infinite-ammo] [--infinite-power]\n"
         "            [--boxes] [--fps FPS] [--virtual-controller]\n"
         "            [--power-with-level] [--bullets-with-level]\n"
@@ -28,6 +29,8 @@ namespace {
         "              Enable full screen mode\n"
         "    --full-map\n"
         "              Create a window with the whole map\n"
+        "    --full-size\n"
+        "              The game window takes the whole window\n"
         "    --minimap-exit\n"
         "              Show map exit in minimap\n"
         "    --infinite-ammo\n"
@@ -94,6 +97,9 @@ Config::Config(int argc, char *argv[])
     quit_option = false;
     high_dpi = true;
 #endif
+    // The full size mode is the default in mobile devices
+    if (fixed_window_size)
+        full_size = true;
     for (int i = 1; i < argc; ++i)
     {
         std::string_view svarg(argv[i]);
@@ -120,6 +126,11 @@ Config::Config(int argc, char *argv[])
             full_screen = true;
         else if (svarg == "--full-map")
             max_resolution = true;
+        else if (svarg == "--full-size" || svarg == "--no-full-size")
+        {
+            full_size = (svarg == "--full-size");
+            cli_full_size = full_size;
+        }
         else if (svarg == "--infinite-ammo")
             infinite_ammo = default_infinite_ammo = true;
         else if (svarg == "--infinite-power")
@@ -196,6 +207,8 @@ void Config::load(std::string const& config_path)
         parseFlag(svarg);
     }
     max_resolution = max_resolution || cli_max_resolution;
+    if (cli_full_size)
+        full_size = *cli_full_size;
 }
 
 void Config::save(std::string const& config_path) const
@@ -219,6 +232,13 @@ void Config::normalMode()
     refill_bullets = true;
     set_power_with_level = true;
     set_bullets_with_level = true;
+    // In mobile devices the full size mode is part of the normal mode. In the other
+    // platforms it is a separate option.
+    if (fixed_window_size)
+    {
+        full_size = true;
+        fullSizeModeChanged();
+    }
 }
 
 void Config::classicMode()
@@ -229,6 +249,20 @@ void Config::classicMode()
     refill_bullets = false;
     set_power_with_level = false;
     set_bullets_with_level = false;
+    if (fixed_window_size)
+        full_size = false;
+}
+
+void Config::fullMapModeChanged()
+{
+    if (max_resolution)
+        full_size = false;
+}
+
+void Config::fullSizeModeChanged()
+{
+    if (full_size)
+        max_resolution = false;
 }
 
 void Config::resetCheats()
@@ -249,6 +283,7 @@ std::vector<std::pair<std::string, bool Config::*>> Config::getBoolFlagList()
         {"refill-power", &Config::refill_power},
         {"refill-bullets", &Config::refill_bullets},
         {"full-map", &Config::max_resolution},
+        {"full-size", &Config::full_size},
     };
     return flag_list;
 }

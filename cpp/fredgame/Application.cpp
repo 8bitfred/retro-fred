@@ -206,6 +206,8 @@ class StateConfigMenu : public BaseState
         CONFIG_MENU_BACK,
         CONFIG_MENU_CLASSIC,
         CONFIG_MENU_NORMAL,
+        CONFIG_MENU_FULL_MAP,
+        CONFIG_MENU_FULL_SIZE,
     };
     Config &app_cfg;
     Menu config_menu;
@@ -243,6 +245,10 @@ class StateConfigMenu : public BaseState
                 app_cfg.classicMode();
             else if (config_menu.isSelected(CONFIG_MENU_NORMAL))
                 app_cfg.normalMode();
+            else if (config_menu.isSelected(CONFIG_MENU_FULL_MAP))
+                app_cfg.fullMapModeChanged();
+            else if (config_menu.isSelected(CONFIG_MENU_FULL_SIZE))
+                app_cfg.fullSizeModeChanged();
         }
     }
 
@@ -259,7 +265,10 @@ public:
         config_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &cfg.refill_bullets));
         config_menu.addItem(std::make_unique<CheckBox>("Level-dependent power up", &cfg.set_power_with_level));
         config_menu.addItem(std::make_unique<CheckBox>("Level-dependent bullets up", &cfg.set_bullets_with_level));
-        config_menu.addItem(std::make_unique<CheckBox>("Full map mode", &cfg.max_resolution));
+        config_menu.addItem(std::make_unique<CheckBox>("Full map mode", &cfg.max_resolution),
+                            CONFIG_MENU_FULL_MAP);
+        config_menu.addItem(std::make_unique<CheckBox>("Full size mode", &cfg.full_size),
+                            CONFIG_MENU_FULL_SIZE);
     }
 };
 
@@ -317,6 +326,8 @@ class StatePlay : public BaseState
         GAME_MENU_QUIT,
         GAME_MENU_CLASSIC,
         GAME_MENU_NORMAL,
+        GAME_MENU_FULL_MAP,
+        GAME_MENU_FULL_SIZE,
         GAME_MENU_CHEATS,
     };
     enum CheatsMenu
@@ -336,8 +347,8 @@ class StatePlay : public BaseState
     Config &game_cfg;
     Menu game_menu, cheats_menu;
     std::optional<Window> play_window;
-    // Value of the full map mode when play_window was created
-    bool play_window_full_map = false;
+    // Mode of the game window when play_window was created
+    MapMode play_window_mode = MapMode::NORMAL;
     std::optional<GameRunner> game;
     int counter = 0;
     PauseMode pause_mode = PauseMode::OFF;
@@ -346,7 +357,7 @@ class StatePlay : public BaseState
     {
         game_cfg.resetCheats();
         play_window.emplace(game_cfg, app.getDisplayConfig().getGameWindowRect());
-        play_window_full_map = game_cfg.max_resolution;
+        play_window_mode = game_cfg.getMapMode();
         game.emplace(game_cfg, app.getRandomEngine(),
                      app.getHighScores().front().first);
         game->initializeSprites(app.getRandomEngine());
@@ -495,6 +506,10 @@ class StatePlay : public BaseState
                 game_cfg.classicMode();
             else if (game_menu.isSelected(GAME_MENU_NORMAL))
                 game_cfg.normalMode();
+            else if (game_menu.isSelected(GAME_MENU_FULL_MAP))
+                game_cfg.fullMapModeChanged();
+            else if (game_menu.isSelected(GAME_MENU_FULL_SIZE))
+                game_cfg.fullSizeModeChanged();
             else if (game_menu.isSelected(GAME_MENU_CHEATS))
                 pause_mode = PauseMode::CHEATS_MENU;
         }
@@ -540,14 +555,15 @@ class StatePlay : public BaseState
                       AppState &app_state,
                       EventMask const &event_mask) final
     {
-        // The size of the game window can change while playing (if the full map mode is
-        // changed with the game menu, or if the device is rotated in full map mode).
+        // The size of the game window can change while playing (if the mode is changed with
+        // the game menu, if the window is resized in full size mode, or if the device is
+        // rotated).
         if (auto const rect = app.getDisplayConfig().getGameWindowRect();
             rect != play_window->getGameWindow().getWindowRect() ||
-            play_window_full_map != game_cfg.max_resolution)
+            play_window_mode != game_cfg.getMapMode())
         {
             play_window.emplace(game_cfg, rect);
-            play_window_full_map = game_cfg.max_resolution;
+            play_window_mode = game_cfg.getMapMode();
             play_window->setWindowPos(game->getFredCellPos());
         }
         if (game->getLevelStatus() == GameBase::LevelStatus::PLAY)
@@ -605,7 +621,7 @@ class StatePlay : public BaseState
 public:
     explicit StatePlay(Config &cfg)
         : game_cfg(cfg)
-        , game_menu(Rect{16, 32, 224, 112})
+        , game_menu(Rect{16, 32, 224, 120})
         , cheats_menu(Rect{16, 32, 224, 72})
     {
         game_menu.addItem(std::make_unique<MenuItem>("BACK TO GAME"), GAME_MENU_BACK);
@@ -618,7 +634,10 @@ public:
         game_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &game_cfg.refill_bullets));
         game_menu.addItem(std::make_unique<CheckBox>("Level-dependent power up", &game_cfg.set_power_with_level));
         game_menu.addItem(std::make_unique<CheckBox>("Level-dependent ammo up", &game_cfg.set_bullets_with_level));
-        game_menu.addItem(std::make_unique<CheckBox>("Full map mode", &game_cfg.max_resolution));
+        game_menu.addItem(std::make_unique<CheckBox>("Full map mode", &game_cfg.max_resolution),
+                          GAME_MENU_FULL_MAP);
+        game_menu.addItem(std::make_unique<CheckBox>("Full size mode", &game_cfg.full_size),
+                          GAME_MENU_FULL_SIZE);
         game_menu.addItem(std::make_unique<MenuItem>("POKEs"), GAME_MENU_CHEATS);
 
         cheats_menu.addItem(std::make_unique<MenuItem>("BACK"), CHEATS_MENU_BACK);
