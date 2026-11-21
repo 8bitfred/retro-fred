@@ -108,13 +108,14 @@ void SdlRenderer::applyViewport()
         SDL_SetRenderViewport(renderer, nullptr);
         return;
     }
-    // Pre-divide the origin by the current scale so that SDL3's internal re-multiplication
-    // of the viewport origin by the render scale recovers the raw pixel position we were
-    // asked for. Width/height are left alone: SDL3 doesn't re-scale those.
+    // SDL3 multiplies every component of the viewport rect (origin and size) by the current
+    // render scale. We were asked for a rect in raw pixels, so pre-divide all of it by the
+    // scale so that SDL's multiplication recovers the pixel rect we were asked for.
     Rect compensated{
         static_cast<int>(std::lround(viewport_rect->x / scale_x)),
         static_cast<int>(std::lround(viewport_rect->y / scale_y)),
-        viewport_rect->w, viewport_rect->h};
+        static_cast<int>(std::lround(viewport_rect->w / scale_x)),
+        static_cast<int>(std::lround(viewport_rect->h / scale_y))};
     auto sdl_rect = toSdlRect(compensated);
     SDL_SetRenderViewport(renderer, &sdl_rect);
 }

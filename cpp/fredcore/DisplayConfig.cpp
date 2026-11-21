@@ -117,9 +117,11 @@ void DisplayConfig::setIntroViewport() const
     auto iw_scale = std::min(iw_scale_w, iw_scale_h);
     auto scale = gw_scale * iw_scale;
 
-    Rect rect{(static_cast<int>(window_w / scale) - intro_window_w) / 2,
-             (static_cast<int>(window_h / scale) - intro_window_h) / 2,
-             intro_window_w, intro_window_h};
+    // The viewport is in raw pixels (independent of the scale): center the intro area, whose
+    // size is intro_window_w x intro_window_h in scaled units, in the window.
+    auto pixel_w = static_cast<int>(intro_window_w * scale);
+    auto pixel_h = static_cast<int>(intro_window_h * scale);
+    Rect rect{(window_w - pixel_w) / 2, (window_h - pixel_h) / 2, pixel_w, pixel_h};
     renderer->setScale(scale, scale);
     renderer->setViewport(&rect);
 }

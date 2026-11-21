@@ -81,6 +81,10 @@ Config::Config(int argc, char *argv[])
 {
 #ifdef __ANDROID__
     virtual_controller = true;
+    // From Android 15 (target SDK 35) apps are laid out edge-to-edge, behind the status and
+    // navigation bars, which would cover (and crop) the game. Use a full screen (immersive)
+    // window, which hides the system bars.
+    full_screen = true;
 #endif
 #ifdef RETRO_FRED_IOS
     virtual_controller = true;
