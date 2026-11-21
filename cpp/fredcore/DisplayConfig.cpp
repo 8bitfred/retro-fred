@@ -54,7 +54,10 @@ void DisplayConfig::initNormalMode(Platform &platform, Config const &cfg,
     WindowFlags window_flags = cfg.high_dpi ? WindowFlags::HIGH_DPI : WindowFlags::NONE;
     int width = display_w, height = display_h;
     if (cfg.full_screen)
-        window_flags = window_flags | WindowFlags::FULLSCREEN_DESKTOP;
+        // Also mark the window as resizable: on Android, SDL only allows the device to be
+        // rotated if the window is resizable (otherwise it locks the orientation the app
+        // was started in).
+        window_flags = window_flags | WindowFlags::FULLSCREEN_DESKTOP | WindowFlags::RESIZABLE;
     else if (cfg.user_window_size)
     {
         width = cfg.window_width;
