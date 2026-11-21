@@ -11,8 +11,6 @@
 * Fix the position of the intro screens (splash, menus, high scores) when the window does
   not have the same aspect ratio as the game, e.g. on phones: they were not centered.
 
-# 1.1.2
-
 * Add SDL hint to avoid detecting accelerometer devices are joysticks.
 
 * Use the controller API if a joystick is detected as a controller.
@@ -22,6 +20,12 @@
   (`fredcore`, `fredgame`, `Application`) no longer depends on SDL directly, which makes it
   possible to support a different graphics/sound backend in the future. No user-visible
   behavior change.
+
+# 1.1.2
+
+* Add SDL hint to avoid detecting accelerometer devices are joysticks.
+
+* Use the controller API if a joystick is detected as a controller.
 
 # 1.1.1
 
