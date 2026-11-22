@@ -1,4 +1,5 @@
 #include "sdlbackend/sdl_raii.hpp"
+#include <SDL3/SDL_main.h>
 #include "sdlbackend/SdlPlatform.hpp"
 #include "Signal.hpp"
 #include "platform/GameEvent.hpp"

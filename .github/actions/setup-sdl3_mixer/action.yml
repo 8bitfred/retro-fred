@@ -32,9 +32,9 @@ runs:
           -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/sdl \
           -DCMAKE_PREFIX_PATH=/usr/local/sdl -DSDLMIXER_EXAMPLES=OFF -DSDLMIXER_TESTS=OFF
         cmake --build build-SDL3_mixer-${{ inputs.sdl_mixer_version }}
-        mkdir install
-        DESTDIR=$(realpath install) cmake --install build-SDL3_mixer-${{ inputs.sdl_mixer_version }}
-        tar czf SDL3_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C install/usr/local sdl
+        mkdir stage-SDL3_mixer
+        DESTDIR=$(realpath stage-SDL3_mixer) cmake --install build-SDL3_mixer-${{ inputs.sdl_mixer_version }}
+        tar czf SDL3_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C stage-SDL3_mixer/usr/local sdl
       shell: bash
 
     - name: Install SDL3_mixer

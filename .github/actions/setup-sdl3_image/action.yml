@@ -32,9 +32,9 @@ runs:
           -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/sdl \
           -DCMAKE_PREFIX_PATH=/usr/local/sdl -DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF
         cmake --build build-SDL3_image-${{ inputs.sdl_image_version }}
-        mkdir install
-        DESTDIR=$(realpath install) cmake --install build-SDL3_image-${{ inputs.sdl_image_version }}
-        tar czf SDL3_image-${{ inputs.sdl_image_version }}-install.tar.gz -C install/usr/local sdl
+        mkdir stage-SDL3_image
+        DESTDIR=$(realpath stage-SDL3_image) cmake --install build-SDL3_image-${{ inputs.sdl_image_version }}
+        tar czf SDL3_image-${{ inputs.sdl_image_version }}-install.tar.gz -C stage-SDL3_image/usr/local sdl
       shell: bash
 
     - name: Install SDL3_image
