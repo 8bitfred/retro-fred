@@ -11,21 +11,36 @@ android {
     if (buildAsApplication) {
         namespace "com.eightbitfred.retro_fred"
     }
-    compileSdkVersion 34
+    compileSdk 37
+    ndkVersion "28.2.13676358"
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 34
-        versionCode 19
-        versionName "1.1.2"
+        minSdk 21
+        targetSdk 37
+        versionCode 20
+        versionName "1.2.0"
         externalNativeBuild {
             cmake {
-                arguments "-DANDROID_APP_PLATFORM=android-19",
+                arguments "-DANDROID_PLATFORM=android-21",
                     "-DANDROID_STL=c++_static",
-                    "-DSDL2MIXER_VENDORED=OFF",
-                    "-DSDL2MIXER_OPUS=OFF",
-                    "-DSDL2MIXER_MOD=OFF",
-                    "-DSDL2MIXER_MIDI_FLUIDSYNTH=OFF",
-                    "-DSDL2MIXER_WAVPACK=OFF"
+                    "-DSDLIMAGE_VENDORED=OFF",
+                    "-DSDLIMAGE_STRICT=OFF",
+                    "-DSDLIMAGE_PNG_LIBPNG=OFF",
+                    "-DSDLIMAGE_AVIF=OFF",
+                    "-DSDLIMAGE_TIF=OFF",
+                    "-DSDLIMAGE_WEBP=OFF",
+                    "-DSDLIMAGE_SAMPLES=OFF",
+                    "-DSDLMIXER_VENDORED=OFF",
+                    "-DSDLMIXER_EXAMPLES=OFF",
+                    "-DSDLMIXER_TESTS=OFF",
+                    "-DSDLMIXER_OPUS=OFF",
+                    "-DSDLMIXER_MOD=OFF",
+                    "-DSDLMIXER_MIDI=OFF",
+                    "-DSDLMIXER_GME=OFF",
+                    "-DSDLMIXER_MP3=OFF",
+                    "-DSDLMIXER_FLAC=OFF",
+                    "-DSDLMIXER_VORBIS_STB=OFF",
+                    "-DSDLMIXER_VORBIS_VORBISFILE=OFF",
+                    "-DSDLMIXER_WAVPACK=OFF"
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
                 // abiFilters 'arm64-v8a'
             }
@@ -34,12 +49,8 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-    applicationVariants.all { variant ->
-        tasks["merge${variant.name.capitalize()}Assets"]
-            .dependsOn("externalNativeBuild${variant.name.capitalize()}")
     }
     if (!project.hasProperty('EXCLUDE_NATIVE_LIBS')) {
         sourceSets.main {
@@ -56,17 +67,6 @@ android {
         abortOnError false
     }
 
-    if (buildAsLibrary) {
-        libraryVariants.all { variant ->
-            variant.outputs.each { output ->
-                def outputFile = output.outputFile
-                if (outputFile != null && outputFile.name.endsWith(".aar")) {
-                    def fileName = "com.eightbitfred.retro_fred.aar";
-                    output.outputFile = new File(outputFile.parent, fileName);
-                }
-            }
-        }
-    }
 }
 
 dependencies {

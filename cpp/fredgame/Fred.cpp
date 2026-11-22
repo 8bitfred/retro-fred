@@ -2,6 +2,7 @@
 #include "fredcore/Game.hpp"
 #include "Object.hpp" // TODO: this should not be exposed here
 #include <functional>
+#include <cstdio>
 
 Sprite::BoxParams const &Fred::getBoxParams() const
 {
@@ -54,7 +55,7 @@ Label Fred::getLabel() const
     if (!(static_cast<int>(LabelID::FRED_STANDING_LEFT) <= index &&
         index <= static_cast<int>(LabelID::FRED_CLIMBING_RIGHT)))
     {
-        SDL_Log("frame_index=%d dir_index=%d index=%d", frame_index, dir_index, index);
+        std::fprintf(stderr, "frame_index=%d dir_index=%d index=%d\n", frame_index, dir_index, index);
     }
     assert(static_cast<int>(LabelID::FRED_STANDING_LEFT) <= index &&
            index <= static_cast<int>(LabelID::FRED_CLIMBING_RIGHT));

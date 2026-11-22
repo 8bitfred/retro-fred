@@ -37,7 +37,7 @@ void GameBase::nextLevel(std::minstd_rand &random_engine)
 }
 
 void GameBase::render(TextureManager const &tmgr,
-                      SDL_Renderer *renderer,
+                      Renderer &renderer,
                       GameWindow const &game_window) const
 {
     game_map.render(renderer, tmgr, game_window);

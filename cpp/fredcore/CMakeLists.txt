@@ -1,5 +1,4 @@
 add_library(fredcore STATIC
-    sdl.hpp
     Config.cpp Config.hpp
     TextureID.hpp TextureManager.cpp TextureManager.hpp
     SoundID.hpp SoundManager.cpp SoundManager.hpp
@@ -10,7 +9,8 @@ add_library(fredcore STATIC
     GameWindow.hpp
     Window.cpp Window.hpp
     Sprite.cpp Sprite.hpp
-    GameEvent.hpp GameEvent.cpp
     Controller.hpp Controller.cpp
     Game.cpp Game.hpp
     Menu.cpp Menu.hpp)
+
+target_link_libraries(fredcore PUBLIC platform)

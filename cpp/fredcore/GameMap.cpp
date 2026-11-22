@@ -1,6 +1,7 @@
 #include "GameMap.hpp"
 #include "TextureManager.hpp"
 #include "GameWindow.hpp"
+#include "platform/Renderer.hpp"
 #include "Config.hpp"
 
 std::uint8_t GameMap::debug_map[] = {
@@ -213,10 +214,10 @@ void GameMap::setCell(CellPos const &pos, Cell c)
     cell_list[pos.y * width_minus_one + pos.x] = c;
 }
 
-void GameMap::renderCell(SDL_Renderer *renderer, TextureManager const &tmgr,
+void GameMap::renderCell(Renderer &renderer, TextureManager const &tmgr,
                          int x, int y, Cell cell)
 {
-    static SDL_Rect cell_rects[] = {
+    static Rect cell_rects[] = {
         {      1,      1, 32, 40},
         {   42+1,      1, 32, 40},
         { 2*42+1,      1, 32, 40},
@@ -228,21 +229,19 @@ void GameMap::renderCell(SDL_Renderer *renderer, TextureManager const &tmgr,
         { 2*42+1, 2*50+1, 32, 40},
     };
     static_assert(std::size(cell_rects) == static_cast<int>(GameMap::Cell::TRAPDOOR));
-    SDL_Rect dst = {x, y, 32, 40};
+    Rect dst = {x, y, 32, 40};
     if (cell == Cell::EMPTY)
     {
-        sdl::ColorGuard guard(renderer, 0, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &dst);
+        renderer.renderFillRect(&dst, Color{0, 0, 0, 255});
         return;
     }
     assert(static_cast<unsigned>(cell) <= static_cast<int>(GameMap::Cell::TRAPDOOR));
-    if (SDL_RenderCopy(renderer, tmgr.get(TextureID::BLOCK),
-                       &cell_rects[static_cast<unsigned>(cell) - 1], &dst) < 0)
-        throw sdl::Error();
+    renderer.renderCopy(tmgr.get(TextureID::BLOCK),
+                        &cell_rects[static_cast<unsigned>(cell) - 1], &dst);
 }
 
 
-void GameMap::render(SDL_Renderer *renderer, TextureManager const &tmgr,
+void GameMap::render(Renderer &renderer, TextureManager const &tmgr,
                      GameWindow const &game_window) const
 {
     auto x = game_window.getPos().x;
@@ -314,7 +313,7 @@ void GameMap::setLabels(LabelTable &label_table, GameWindow const &game_window) 
              cell_x < (game_window.getWindowRect().x + game_window.getWindowRect().w);
              cell_x += MapPixelPos::CELL_WIDTH_PIXELS)
         {
-            SDL_Rect cell_rect{cell_x, cell_y, 32, 40};
+            Rect cell_rect{cell_x, cell_y, 32, 40};
             auto label = cell_labels[static_cast<int>(getBlock(cell_pos))];
             label_table.set(cell_rect, label);
             ++cell_pos.x;

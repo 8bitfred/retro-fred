@@ -1,11 +1,11 @@
 #pragma once
 
-#include "fredcore/sdl.hpp"
+#include "platform/Platform.hpp"
 #include "fredcore/Config.hpp"
 #include "fredcore/DisplayConfig.hpp"
 #include "fredcore/TextureManager.hpp"
 #include "fredcore/SoundManager.hpp"
-#include "fredcore/GameEvent.hpp"
+#include "platform/GameEvent.hpp"
 #include "fredcore/Window.hpp"
 #include "fredcore/Menu.hpp"
 #include "fredcore/Controller.hpp"
@@ -20,7 +20,7 @@ class Fred;
 
 class FredApp
 {
-    sdl::App app;
+    Platform &platform;
     Config cfg;
     std::minstd_rand &random_engine;
     DisplayConfig display_cfg;
@@ -30,15 +30,14 @@ class FredApp
     std::vector<std::pair<unsigned, std::string>> high_scores;
     std::string high_scores_path, config_path;
 
-    static std::string getPrefPath();
     void saveHighScores() const;
     void loadHighScores();
 
 public:
-    explicit FredApp(Config const &cfg, std::minstd_rand &random_engine);
+    FredApp(Config const &cfg, std::minstd_rand &random_engine, Platform &platform);
     std::minstd_rand &getRandomEngine() { return random_engine; }
-    SDL_Window *getWindow() const { return display_cfg.getWindow(); }
-    SDL_Renderer *getRenderer() const { return display_cfg.getRenderer(); }
+    Platform &getPlatform() const { return platform; }
+    Renderer &getRenderer() const { return display_cfg.getRenderer(); }
     TextureManager const &getTextureManager() const { return tmgr; }
     SoundManager &getSoundManager() { return smgr; }
     Config const &getConfig() const { return cfg; }

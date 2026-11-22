@@ -1,0 +1,43 @@
+name: 'Build SDL3_mixer'
+description: 'Downloads and builds SDL3_mixer. SDL3 must be installed in /usr/local/sdl'
+inputs:
+  sdl_mixer_version:
+    description: 'SDL3_mixer version to build'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Install dependencies
+      if: runner.os == 'Linux'
+      run: sudo apt-get update && sudo apt-get install -y build-essential git pkg-config cmake ninja-build
+      shell: bash
+
+    - name: Cache SDL3_mixer Build
+      id: cache-sdl3_mixer
+      uses: actions/cache@v6
+      with:
+        path: |
+          SDL3_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz
+        key: ${{ runner.os }}-${{ runner.arch }}-sdl3_mixer-${{ inputs.sdl_mixer_version }}-key1
+
+    - if: ${{ steps.cache-sdl3_mixer.outputs.cache-hit != 'true' }}
+      name: Download and build SDL3_mixer
+      run: |
+        curl -fsSL -O https://github.com/libsdl-org/SDL_mixer/releases/download/release-${{ inputs.sdl_mixer_version }}/SDL3_mixer-${{ inputs.sdl_mixer_version }}.tar.gz
+        tar xzf SDL3_mixer-${{ inputs.sdl_mixer_version }}.tar.gz
+        # Do not name the build directory like the source directory plus a suffix (for example
+        # SDL3-<version>-build): the CMake scripts of SDL decide if a file is in the source
+        # directory by comparing the start of its path, and then fail to configure.
+        cmake -S SDL3_mixer-${{ inputs.sdl_mixer_version }} -B build-SDL3_mixer-${{ inputs.sdl_mixer_version }} -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/sdl \
+          -DCMAKE_PREFIX_PATH=/usr/local/sdl -DSDLMIXER_EXAMPLES=OFF -DSDLMIXER_TESTS=OFF
+        cmake --build build-SDL3_mixer-${{ inputs.sdl_mixer_version }}
+        mkdir stage-SDL3_mixer
+        DESTDIR=$(realpath stage-SDL3_mixer) cmake --install build-SDL3_mixer-${{ inputs.sdl_mixer_version }}
+        tar czf SDL3_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C stage-SDL3_mixer/usr/local sdl
+      shell: bash
+
+    - name: Install SDL3_mixer
+      run: |
+        sudo tar xf SDL3_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C /usr/local
+      shell: bash

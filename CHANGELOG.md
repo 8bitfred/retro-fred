@@ -1,6 +1,52 @@
-# 1.1.2
+# 1.2.0
+
+* Android: build with SDL3 3.4, SDL3_image 3.4 and SDL3_mixer 3.2 (previously SDL2). The
+  minimum Android version is now 5.0 (API 21), and the target is API 37 (Android 17). The
+  SDL2 AAudio buffer size patch is no longer needed. The native libraries are now built with
+  NDK 28, which aligns them for devices with 16 KB memory pages.
+
+* Add a "Full map mode" option to the options menu and the in-game menu, which can be changed
+  while the game is running and is saved in the configuration file. In the desktop version the window is resized
+  to show the whole map (the --full-map command-line option still starts the game in this
+  mode, and takes precedence over the saved option). In Android the screen scales to fill the
+  device, and the width of the game window is limited to 512 pixels in portrait orientation
+  and 1024 pixels in landscape orientation. Half of the size of each button of the virtual
+  controller is placed outside of the game window.
+
+* Add a "Full size mode" option to the options menu and the in-game menu (and the
+  --full-size command-line option). In this mode the game window takes the whole window or
+  screen, at the same scale as the normal mode, and it changes size when the window is
+  resized or the device is rotated. In mobile devices the space for the virtual controller is
+  reserved as in the full map mode, and the full size mode is the default: it is enabled by
+  the "Normal mode" menu option and disabled by the "Classic mode" option (in the desktop
+  version these options do not change it). The full map and full size modes are mutually
+  exclusive.
+
+* Draw each frame of the game to a texture with the size of the game window, and scale the
+  texture to the window as a whole, instead of scaling each sprite separately. This avoids
+  artifacts (uneven pixel sizes and gaps between sprites) when the scale is not an integer.
+
+* The minimum macOS version is now 10.13, which is the minimum version supported by SDL3.
+
+* Android: run in full screen (immersive) mode, so the system bars no longer cover the game
+  and the virtual controller on Android 15 and later.
+
+* Fix the position of the intro screens (splash, menus, high scores) when the window does
+  not have the same aspect ratio as the game, e.g. on phones: they were not centered.
 
 * Add SDL hint to avoid detecting accelerometer devices are joysticks.
+
+* Use the controller API if a joystick is detected as a controller.
+
+* Move all SDL-specific code into a new `sdlbackend` library, behind abstract
+  rendering/audio/input interfaces owned by `fredcore`. The rest of the codebase
+  (`fredcore`, `fredgame`, `Application`) no longer depends on SDL directly, which makes it
+  possible to support a different graphics/sound backend in the future. No user-visible
+  behavior change.
+
+# 1.1.2
+
+* Add SDL hint to avoid detecting accelerometer devices as joysticks.
 
 * Use the controller API if a joystick is detected as a controller.
 

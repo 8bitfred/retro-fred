@@ -1,25 +1,26 @@
 #pragma once
 
 #include <vector>
-#include "sdl.hpp"
+#include <memory>
+#include <cstdint>
+#include "platform/AudioDevice.hpp"
 #include "SoundID.hpp"
 
 struct Config;
 
 class SoundManager
 {
-    std::vector<sdl::MixChunkPtr> wav_list;
-    sdl::AudioDevice audio_device;
+    std::vector<std::unique_ptr<Sound>> wav_list;
+    std::unique_ptr<AudioDevice> audio_device;
 
     void loadWAVs(Config const &cfg);
 
 public:
-    explicit SoundManager(Config const &cfg);
+    SoundManager(Config const &cfg, std::unique_ptr<AudioDevice> audio_device);
     void play(SoundID sound_id);
-    Uint32 getDuration(SoundID sound_id) const
+    std::uint32_t getDuration(SoundID sound_id) const
     {
-        auto chunk = wav_list[static_cast<size_t>(sound_id)].get();
-        return audio_device.getDuration(chunk);
+        return audio_device->getDuration(*wav_list[static_cast<size_t>(sound_id)]);
     }
-    void clearQueuedAudio() { audio_device.clearQueuedAudio(); }
+    void clearQueuedAudio() { audio_device->clearQueuedAudio(); }
 };

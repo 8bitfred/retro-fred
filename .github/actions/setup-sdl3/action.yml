@@ -1,0 +1,43 @@
+name: 'Build SDL3'
+description: 'Downloads and builds SDL3'
+inputs:
+  sdl_version:
+    description: 'SDL3 version to build'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Install dependencies
+      if: runner.os == 'Linux'
+      run: sudo apt-get update && sudo apt-get install -y build-essential git pkg-config cmake ninja-build libasound2-dev libpulse-dev libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev
+      shell: bash
+
+    - name: Cache SDL3 Build
+      id: cache-sdl3
+      uses: actions/cache@v6
+      with:
+        path: |
+          SDL3-${{ inputs.sdl_version }}-install.tar.gz
+        key: ${{ runner.os }}-${{ runner.arch }}-sdl3-${{ inputs.sdl_version }}-key1
+
+    - if: ${{ steps.cache-sdl3.outputs.cache-hit != 'true' }}
+      name: Download and build SDL3
+      run: |
+        curl -fsSL -O https://github.com/libsdl-org/SDL/releases/download/release-${{ inputs.sdl_version }}/SDL3-${{ inputs.sdl_version }}.tar.gz
+        tar xzf SDL3-${{ inputs.sdl_version }}.tar.gz
+        # Do not name the build directory like the source directory plus a suffix (for example
+        # SDL3-<version>-build): the CMake scripts of SDL decide if a file is in the source
+        # directory by comparing the start of its path, and then fail to configure.
+        cmake -S SDL3-${{ inputs.sdl_version }} -B build-SDL3-${{ inputs.sdl_version }} -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/sdl \
+          -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF
+        cmake --build build-SDL3-${{ inputs.sdl_version }}
+        mkdir stage-SDL3
+        DESTDIR=$(realpath stage-SDL3) cmake --install build-SDL3-${{ inputs.sdl_version }}
+        tar czf SDL3-${{ inputs.sdl_version }}-install.tar.gz -C stage-SDL3/usr/local sdl
+      shell: bash
+
+    - name: Install SDL3
+      run: |
+        sudo tar xf SDL3-${{ inputs.sdl_version }}-install.tar.gz -C /usr/local
+      shell: bash

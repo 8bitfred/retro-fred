@@ -5,7 +5,7 @@
 #include <map>
 #include <algorithm>
 
-TextureManager::TextureManager(Config const &cfg, SDL_Renderer *renderer)
+TextureManager::TextureManager(Config const &cfg, Renderer &renderer)
 {
     static char const *sprite_list[] = {
         "sprites/splash_screen.png",
@@ -39,23 +39,21 @@ TextureManager::TextureManager(Config const &cfg, SDL_Renderer *renderer)
     static_assert(std::size(sprite_list) == static_cast<size_t>(TextureID::COUNT));
     for (auto p : sprite_list) {
         auto path = cfg.resource_path.empty() ? p : cfg.resource_path + "/" + p;
-        texture_list.emplace_back(IMG_LoadTexture(renderer, path.c_str()));
+        texture_list.emplace_back(renderer.loadTexture(path));
     }
 
     auto const &fred_icon_path = sprite_list[static_cast<int>(TextureID::FRED_ICON)];
     auto fred_path = cfg.resource_path.empty() ? fred_icon_path : cfg.resource_path + "/" + fred_icon_path;
-    fred_icon = sdl::SurfacePtr(IMG_Load(fred_path.c_str()));
+    fred_icon = renderer.loadSurface(fred_path);
 }
 
-void TextureManager::renderText(SDL_Renderer *renderer, std::string_view text,
-                                int x, int y,
-                                Uint8 red, Uint8 green, Uint8 blue) const
+void TextureManager::renderText(Renderer &renderer, std::string_view text,
+                                int x, int y, Color const &color) const
 {
-    auto texture = get(TextureID::ZX_FONT);
-    if (SDL_SetTextureColorMod(texture, red, green, blue) < 0)
-        throw sdl::Error();
-    SDL_Rect src{0, 0, 8, 8};
-    SDL_Rect dst{x, y, 8, 8};
+    auto &texture = get(TextureID::ZX_FONT);
+    renderer.setTextureColorMod(texture, color);
+    Rect src{0, 0, 8, 8};
+    Rect dst{x, y, 8, 8};
     for (auto ch : text)
     {
         auto c = static_cast<unsigned>(ch);
@@ -63,29 +61,26 @@ void TextureManager::renderText(SDL_Renderer *renderer, std::string_view text,
         {
             src.x = 10 * (c % 16) + 1;
             src.y = 10 * ((c - ' ') / 16) + 1;
-            if (SDL_RenderCopy(renderer, texture, &src, &dst) < 0)
-                throw sdl::Error();
+            renderer.renderCopy(texture, &src, &dst);
         }
         dst.x += 8;
     }
 }
 
-void TextureManager::renderScore(SDL_Renderer *renderer, unsigned score,
-                                 int x, int y, Uint8 red, Uint8 green, Uint8 blue) const
+void TextureManager::renderScore(Renderer &renderer, unsigned score,
+                                 int x, int y, Color const &color) const
 {
-    auto texture = get(TextureID::SMALL_DIGITS);
-    if (SDL_SetTextureColorMod(texture, red, green, blue) < 0)
-        throw sdl::Error();
+    auto &texture = get(TextureID::SMALL_DIGITS);
+    renderer.setTextureColorMod(texture, color);
     score = std::min(score, 999999u);
-    SDL_Rect src{0, 0, 5, 5};
-    SDL_Rect dst{x + 5 * 6, y, 5, 5};
+    Rect src{0, 0, 5, 5};
+    Rect dst{x + 5 * 6, y, 5, 5};
     for (int i = 0; i < 6; ++i)
     {
         int digit = score % 10;
         score /= 10;
         src.x = 5 * digit;
-        if (SDL_RenderCopy(renderer, texture, &src, &dst) < 0)
-            throw sdl::Error();
+        renderer.renderCopy(texture, &src, &dst);
         dst.x -= 6;
     }
 }

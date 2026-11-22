@@ -1,5 +1,5 @@
 #include "Application.hpp"
-#include "fredcore/GameEvent.hpp"
+#include "platform/GameEvent.hpp"
 #include "fredcore/Config.hpp"
 #include "fredcore/Game.hpp"
 #include "Fred.hpp"
@@ -40,9 +40,9 @@ private:
     StateID state = SPLASH_SCREEN;
 
 public:
-    EventManager event_manager;
+    std::unique_ptr<EventSource> event_manager;
     unsigned new_high_score = 0;
-    explicit AppState(Config &cfg);
+    AppState(Config &cfg, Platform &platform);
     void set(StateID state_id, FredApp &app);
     void render(FredApp const &app);
     bool eventHandler(FredApp &app, EventMask const &event_mask);
@@ -65,27 +65,26 @@ class StateSplashScreen : public BaseState
     static constexpr int LOADING_FRAME_TICKS = 25;
     int seq = 0;
     int counter = 5000 / LOADING_FRAME_TICKS;
-    Uint32 sound_timer = 0;
+    std::uint32_t sound_timer = 0;
     void enter(FredApp &app, AppState &app_state) final
     {
         seq = 0;
         counter = 5000 / LOADING_FRAME_TICKS;
         auto loading_ticks = app.getSoundManager().getDuration(SoundID::LOADING1);
-        sound_timer = SDL_GetTicks() + loading_ticks;
+        sound_timer = app.getPlatform().getTicks() + loading_ticks;
         app.getSoundManager().play(SoundID::LOADING1);
-        app_state.event_manager.setTimer(StateSplashScreen::LOADING_FRAME_TICKS);
+        app_state.event_manager->setTimer(StateSplashScreen::LOADING_FRAME_TICKS);
     }
     void render(FredApp const &app) const final
     {
         app.getDisplayConfig().setIntroViewport();
-        SDL_RenderClear(app.getRenderer());
+        auto &renderer = app.getRenderer();
+        renderer.renderClear();
         auto texture_id = static_cast<TextureID>(static_cast<int>(TextureID::LOADING1) + seq);
-        SDL_RenderCopy(app.getRenderer(),
-                       app.getTextureManager().get(texture_id), nullptr, nullptr);
-        SDL_Rect splash_rect{32, 24, 256 - 64, 192 - 48};
-        SDL_RenderCopy(app.getRenderer(),
-                       app.getTextureManager().get(TextureID::SPLASH_SCREEN), nullptr, &splash_rect);
-        SDL_RenderPresent(app.getRenderer());
+        renderer.renderCopy(app.getTextureManager().get(texture_id), nullptr, nullptr);
+        Rect splash_rect{32, 24, 256 - 64, 192 - 48};
+        renderer.renderCopy(app.getTextureManager().get(TextureID::SPLASH_SCREEN), nullptr, &splash_rect);
+        renderer.present();
     }
     void eventHandler(FredApp &app,
                       AppState &app_state,
@@ -105,14 +104,14 @@ class StateSplashScreen : public BaseState
                 seq = pick % 4;
             else
                 seq = (seq + 1) % 4;
-            if ((sound_timer - SDL_GetTicks()) < 100)
+            if ((sound_timer - app.getPlatform().getTicks()) < 100)
             {
                 auto sound_id = static_cast<SoundID>(static_cast<int>(SoundID::LOADING1) + seq);
                 auto loading_ticks = app.getSoundManager().getDuration(sound_id);
                 sound_timer += loading_ticks;
                 app.getSoundManager().play(sound_id);
             }
-            app_state.event_manager.setTimer(StateSplashScreen::LOADING_FRAME_TICKS);
+            app_state.event_manager->setTimer(StateSplashScreen::LOADING_FRAME_TICKS);
         }
         else if (event_mask.check(GameEvent::BACK) && app.getConfig().quit_option)
             app_state.set(AppState::EXIT, app);
@@ -132,32 +131,32 @@ class StateMainMenu : public BaseState
     void enter(FredApp &, AppState &app_state) final
     {
         counter = 0;
-        app_state.event_manager.setTimer(500);
+        app_state.event_manager->setTimer(500);
     }
     void render(FredApp const &app) const final
     {
         app.getDisplayConfig().setIntroViewport();
-        auto renderer = app.getRenderer();
+        auto &renderer = app.getRenderer();
         auto const &tmgr = app.getTextureManager();
-        SDL_RenderClear(renderer);
-        SDL_Rect logo = {88, 8, 76, 20};
-        SDL_RenderCopy(renderer, tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
+        renderer.renderClear();
+        Rect logo = {88, 8, 76, 20};
+        renderer.renderCopy(tmgr.get(TextureID::FRED_LOGO), nullptr, &logo);
         main_menu.render(renderer, tmgr);
-        tmgr.renderText(renderer, "WRITTEN BY FERNANDO RADA,", 0, 88, 206, 206, 206);
-        tmgr.renderText(renderer, "PACO MENENDEZ & CARLOS GRANADOS.", 0, 96, 206, 206, 206);
-        tmgr.renderText(renderer, "       \x7f INDESCOMP SPAIN", 0, 112, 206, 206, 206);
-        tmgr.renderText(renderer, "PRESENTED BY QUICKSILVA", 0, 120, 206, 206, 206);
-        tmgr.renderText(renderer, "PRESENTATION SCREEN DESIGN:", 0, 128, 206, 206, 206);
-        tmgr.renderText(renderer, "JUAN DELCAN, KIKI & MA", 0, 136, 206, 206, 206);
-        tmgr.renderText(renderer, "CHARACTER DESIGN: GAELIC", 0, 144, 206, 206, 206);
-        tmgr.renderText(renderer, "PET: SENATOR & DRULY'S DUCK", 0, 152, 206, 206, 206);
-        tmgr.renderText(renderer, "MISTAKES: MARTA & PALOMA", 0, 160, 206, 206, 206);
+        tmgr.renderText(renderer, "WRITTEN BY FERNANDO RADA,", 0, 88, Color{206, 206, 206});
+        tmgr.renderText(renderer, "PACO MENENDEZ & CARLOS GRANADOS.", 0, 96, Color{206, 206, 206});
+        tmgr.renderText(renderer, "       \x7f INDESCOMP SPAIN", 0, 112, Color{206, 206, 206});
+        tmgr.renderText(renderer, "PRESENTED BY QUICKSILVA", 0, 120, Color{206, 206, 206});
+        tmgr.renderText(renderer, "PRESENTATION SCREEN DESIGN:", 0, 128, Color{206, 206, 206});
+        tmgr.renderText(renderer, "JUAN DELCAN, KIKI & MA", 0, 136, Color{206, 206, 206});
+        tmgr.renderText(renderer, "CHARACTER DESIGN: GAELIC", 0, 144, Color{206, 206, 206});
+        tmgr.renderText(renderer, "PET: SENATOR & DRULY'S DUCK", 0, 152, Color{206, 206, 206});
+        tmgr.renderText(renderer, "MISTAKES: MARTA & PALOMA", 0, 160, Color{206, 206, 206});
         tmgr.renderText(renderer, "RETRO-FRED " RETRO_FRED_VERSION_STRING " \x7f 2024-2025",
-                        0, 168, 206, 206, 0);
-        tmgr.renderText(renderer, "    MIGUEL CATALINA", 0, 176, 206, 206, 0);
-        tmgr.renderText(renderer, "    ALFREDO CATALINA", 0, 184, 206, 206, 0);
+                        0, 168, Color{206, 206, 0});
+        tmgr.renderText(renderer, "    MIGUEL CATALINA", 0, 176, Color{206, 206, 0});
+        tmgr.renderText(renderer, "    ALFREDO CATALINA", 0, 184, Color{206, 206, 0});
         app.renderController();
-        SDL_RenderPresent(renderer);
+        renderer.present();
     }
     void eventHandler(FredApp &app,
                       AppState &app_state,
@@ -174,7 +173,7 @@ class StateMainMenu : public BaseState
             if (counter == 10)
                 app_state.set(AppState::TODAYS_GREATEST, app);
             else
-                app_state.event_manager.setTimer(500);
+                app_state.event_manager->setTimer(500);
         }
         else
         {
@@ -191,7 +190,7 @@ class StateMainMenu : public BaseState
     }
 public:
     StateMainMenu(bool has_quit_option)
-        : main_menu(SDL_Rect{88, 40, 168, 24})
+        : main_menu(Rect{88, 40, 168, 24})
     {
         main_menu.addItem(std::make_unique<MenuItem>("OPTIONS"), MAIN_MENU_OPTIONS);
         main_menu.addItem(std::make_unique<MenuItem>("PLAY"), MAIN_MENU_PLAY, true);
@@ -207,6 +206,8 @@ class StateConfigMenu : public BaseState
         CONFIG_MENU_BACK,
         CONFIG_MENU_CLASSIC,
         CONFIG_MENU_NORMAL,
+        CONFIG_MENU_FULL_MAP,
+        CONFIG_MENU_FULL_SIZE,
     };
     Config &app_cfg;
     Menu config_menu;
@@ -215,12 +216,13 @@ class StateConfigMenu : public BaseState
     void render(FredApp const &app) const final
     {
         app.getDisplayConfig().setIntroViewport();
-        SDL_RenderClear(app.getRenderer());
-        SDL_Rect logo = {88, 8, 76, 20};
-        SDL_RenderCopy(app.getRenderer(), app.getTextureManager().get(TextureID::FRED_LOGO), nullptr, &logo);
-        config_menu.render(app.getRenderer(), app.getTextureManager());
+        auto &renderer = app.getRenderer();
+        renderer.renderClear();
+        Rect logo = {88, 8, 76, 20};
+        renderer.renderCopy(app.getTextureManager().get(TextureID::FRED_LOGO), nullptr, &logo);
+        config_menu.render(renderer, app.getTextureManager());
         app.renderController();
-        SDL_RenderPresent(app.getRenderer());
+        renderer.present();
     }
     void eventHandler(FredApp &app,
                       AppState &app_state,
@@ -243,12 +245,16 @@ class StateConfigMenu : public BaseState
                 app_cfg.classicMode();
             else if (config_menu.isSelected(CONFIG_MENU_NORMAL))
                 app_cfg.normalMode();
+            else if (config_menu.isSelected(CONFIG_MENU_FULL_MAP))
+                app_cfg.fullMapModeChanged();
+            else if (config_menu.isSelected(CONFIG_MENU_FULL_SIZE))
+                app_cfg.fullSizeModeChanged();
         }
     }
 
 public:
     StateConfigMenu(Config &cfg)
-        : app_cfg(cfg), config_menu(SDL_Rect{16, 56, 224, 160})
+        : app_cfg(cfg), config_menu(Rect{16, 56, 224, 160})
     {
         config_menu.addItem(std::make_unique<MenuItem>("BACK TO MAIN MENU"), CONFIG_MENU_BACK);
         config_menu.addItem(std::make_unique<MenuItem>("Classic mode"), CONFIG_MENU_CLASSIC);
@@ -259,6 +265,10 @@ public:
         config_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &cfg.refill_bullets));
         config_menu.addItem(std::make_unique<CheckBox>("Level-dependent power up", &cfg.set_power_with_level));
         config_menu.addItem(std::make_unique<CheckBox>("Level-dependent bullets up", &cfg.set_bullets_with_level));
+        config_menu.addItem(std::make_unique<CheckBox>("Full map mode", &cfg.max_resolution),
+                            CONFIG_MENU_FULL_MAP);
+        config_menu.addItem(std::make_unique<CheckBox>("Full size mode", &cfg.full_size),
+                            CONFIG_MENU_FULL_SIZE);
     }
 };
 
@@ -267,34 +277,32 @@ class StateTodaysGreatest : public BaseState
     void enter(FredApp &app, AppState &app_state) final
     {
         app.getSoundManager().play(SoundID::FUNERAL_MARCH);
-        app_state.event_manager.setTimer(8000);
+        app_state.event_manager->setTimer(8000);
 
     }
     void render(FredApp const &app) const final
     {
         app.getDisplayConfig().setIntroViewport();
-        SDL_RenderClear(app.getRenderer());
-        SDL_RenderCopy(app.getRenderer(), app.getTextureManager().get(TextureID::TODAYS_GREATEST),
-                       nullptr, nullptr);
-        sdl::ColorGuard color_guard(app.getRenderer(), 255, 255, 255, 255);
-        SDL_Rect rect_initials = {24, 80, 24, 8}; // 88
-        SDL_Rect rect_score = {19, 130, 35, 5};
+        auto &renderer = app.getRenderer();
+        renderer.renderClear();
+        renderer.renderCopy(app.getTextureManager().get(TextureID::TODAYS_GREATEST),
+                            nullptr, nullptr);
+        Rect rect_initials = {24, 80, 24, 8}; // 88
+        Rect rect_score = {19, 130, 35, 5};
         for (auto const &[score, name] : app.getHighScores())
         {
             if (score == 0)
                 continue;
-            if (SDL_RenderFillRect(app.getRenderer(), &rect_initials) < 0)
-                throw sdl::Error();
-            if (SDL_RenderFillRect(app.getRenderer(), &rect_score) < 0)
-                throw sdl::Error();
-            app.getTextureManager().renderText(app.getRenderer(), name,
-                                               rect_initials.x, rect_initials.y, 0, 0, 0);
-            app.getTextureManager().renderScore(app.getRenderer(), score,
-                                                rect_score.x, rect_score.y, 0, 0, 0);
+            renderer.renderFillRect(&rect_initials, Color{255, 255, 255, 255});
+            renderer.renderFillRect(&rect_score, Color{255, 255, 255, 255});
+            app.getTextureManager().renderText(renderer, name,
+                                               rect_initials.x, rect_initials.y, Color{0, 0, 0});
+            app.getTextureManager().renderScore(renderer, score,
+                                                rect_score.x, rect_score.y, Color{0, 0, 0});
             rect_initials.x += 64;
             rect_score.x += 64;
         }
-        SDL_RenderPresent(app.getRenderer());
+        renderer.present();
     }
     void eventHandler(FredApp &app,
                       AppState &app_state,
@@ -318,6 +326,8 @@ class StatePlay : public BaseState
         GAME_MENU_QUIT,
         GAME_MENU_CLASSIC,
         GAME_MENU_NORMAL,
+        GAME_MENU_FULL_MAP,
+        GAME_MENU_FULL_SIZE,
         GAME_MENU_CHEATS,
     };
     enum CheatsMenu
@@ -337,6 +347,8 @@ class StatePlay : public BaseState
     Config &game_cfg;
     Menu game_menu, cheats_menu;
     std::optional<Window> play_window;
+    // Mode of the game window when play_window was created
+    MapMode play_window_mode = MapMode::NORMAL;
     std::optional<GameRunner> game;
     int counter = 0;
     PauseMode pause_mode = PauseMode::OFF;
@@ -345,6 +357,7 @@ class StatePlay : public BaseState
     {
         game_cfg.resetCheats();
         play_window.emplace(game_cfg, app.getDisplayConfig().getGameWindowRect());
+        play_window_mode = game_cfg.getMapMode();
         game.emplace(game_cfg, app.getRandomEngine(),
                      app.getHighScores().front().first);
         game->initializeSprites(app.getRandomEngine());
@@ -355,30 +368,33 @@ class StatePlay : public BaseState
     }
     void renderLevelTransition(FredApp const &app) const
     {
-        app.getDisplayConfig().setIntroViewport();
+        auto &display_cfg = app.getDisplayConfig();
+        display_cfg.beginGameFrame();
+        auto &renderer = app.getRenderer();
         auto const &tmgr = app.getTextureManager();
-        SDL_RenderClear(app.getRenderer());
-        tmgr.renderText(app.getRenderer(), "AT LAST YOU GOT OUT!", 24, 24,
-                        206, 206, 206);
-        tmgr.renderText(app.getRenderer(), "BONUS FOR GETTING OUT:", 24, 40,
-                        206, 206, 206);
-        tmgr.renderText(app.getRenderer(), "5000", 96, 56,
-                        206, 206, 206);
-        tmgr.renderText(app.getRenderer(), "TREASURES YOU GOT:", 24, 72,
-                        206, 206, 206);
+        renderer.renderClear();
+        display_cfg.setGameFrameIntroViewport();
+        tmgr.renderText(renderer, "AT LAST YOU GOT OUT!", 24, 24,
+                        Color{206, 206, 206});
+        tmgr.renderText(renderer, "BONUS FOR GETTING OUT:", 24, 40,
+                        Color{206, 206, 206});
+        tmgr.renderText(renderer, "5000", 96, 56,
+                        Color{206, 206, 206});
+        tmgr.renderText(renderer, "TREASURES YOU GOT:", 24, 72,
+                        Color{206, 206, 206});
         char buf[12];
         // TODO: get rid of snprintf
         std::snprintf(buf, sizeof(buf), "%02d", game->getTreasureCount());
-        tmgr.renderText(app.getRenderer(), buf, 96, 88, 206, 206, 206);
-        tmgr.renderText(app.getRenderer(), "BONUS FOR TREASURES:", 24, 104,
-                        206, 206, 206);
+        tmgr.renderText(renderer, buf, 96, 88, Color{206, 206, 206});
+        tmgr.renderText(renderer, "BONUS FOR TREASURES:", 24, 104,
+                        Color{206, 206, 206});
         std::snprintf(buf, sizeof(buf), "%05d", game->getTreasureCount() * 1000);
-        tmgr.renderText(app.getRenderer(), buf, 96, 120, 206, 206, 206);
-        SDL_Rect fred_puffing{88, 128, 32, 40};
-        SDL_RenderCopy(app.getRenderer(), tmgr.get(TextureID::FRED_PUFFING),
-                       nullptr, &fred_puffing);
-        play_window->renderFrame(*game, app.getDisplayConfig(), tmgr);
-        SDL_RenderPresent(app.getRenderer());
+        tmgr.renderText(renderer, buf, 96, 120, Color{206, 206, 206});
+        Rect fred_puffing{88, 128, 32, 40};
+        renderer.renderCopy(tmgr.get(TextureID::FRED_PUFFING), nullptr, &fred_puffing);
+        play_window->renderFrame(*game, display_cfg, tmgr);
+        display_cfg.endGameFrame();
+        renderer.present();
     }
 
     void render(FredApp const &app) const final
@@ -387,18 +403,21 @@ class StatePlay : public BaseState
             renderLevelTransition(app);
         else
         {
-            app.getDisplayConfig().setGameViewport();
-            SDL_RenderClear(app.getRenderer());
+            auto &display_cfg = app.getDisplayConfig();
+            display_cfg.beginGameFrame();
+            auto &renderer = app.getRenderer();
+            renderer.renderClear();
             game->render(app.getTextureManager(),
-                         app.getRenderer(), play_window->getGameWindow());
-            play_window->renderFrame(*game, app.getDisplayConfig(), app.getTextureManager());
-            app.getDisplayConfig().setIntroViewport();
+                         renderer, play_window->getGameWindow());
+            play_window->renderFrame(*game, display_cfg, app.getTextureManager());
+            display_cfg.endGameFrame();
+            display_cfg.setIntroViewport();
             if (pause_mode == PauseMode::GAME_MENU)
-                game_menu.render(app.getRenderer(), app.getTextureManager());
+                game_menu.render(renderer, app.getTextureManager());
             else if (pause_mode == PauseMode::CHEATS_MENU)
-                cheats_menu.render(app.getRenderer(), app.getTextureManager());
+                cheats_menu.render(renderer, app.getTextureManager());
             app.renderController();
-            SDL_RenderPresent(app.getRenderer());
+            renderer.present();
         }
     }
 
@@ -439,12 +458,12 @@ class StatePlay : public BaseState
         if (level_status == GameBase::LevelStatus::GAME_OVER)
         {
             app.getSoundManager().play(SoundID::GAME_OVER);
-            app_state.event_manager.setTimer(500);
+            app_state.event_manager->setTimer(500);
         }
         else if (level_status == GameBase::LevelStatus::NEXT_LEVEL)
         {
             app.getSoundManager().play(SoundID::EXIT_MAZE);
-            app_state.event_manager.setTimer(7000);
+            app_state.event_manager->setTimer(7000);
         }
         else
         {
@@ -484,11 +503,18 @@ class StatePlay : public BaseState
                 app.saveConfig();
             }
             else if (game_menu.isSelected(GAME_MENU_QUIT))
+            {
                 app_state.set(AppState::MAIN_MENU, app);
+                app.saveConfig();
+            }
             else if (game_menu.isSelected(GAME_MENU_CLASSIC))
                 game_cfg.classicMode();
             else if (game_menu.isSelected(GAME_MENU_NORMAL))
                 game_cfg.normalMode();
+            else if (game_menu.isSelected(GAME_MENU_FULL_MAP))
+                game_cfg.fullMapModeChanged();
+            else if (game_menu.isSelected(GAME_MENU_FULL_SIZE))
+                game_cfg.fullSizeModeChanged();
             else if (game_menu.isSelected(GAME_MENU_CHEATS))
                 pause_mode = PauseMode::CHEATS_MENU;
         }
@@ -534,6 +560,17 @@ class StatePlay : public BaseState
                       AppState &app_state,
                       EventMask const &event_mask) final
     {
+        // The size of the game window can change while playing (if the mode is changed with
+        // the game menu, if the window is resized in full size mode, or if the device is
+        // rotated).
+        if (auto const rect = app.getDisplayConfig().getGameWindowRect();
+            rect != play_window->getGameWindow().getWindowRect() ||
+            play_window_mode != game_cfg.getMapMode())
+        {
+            play_window.emplace(game_cfg, rect);
+            play_window_mode = game_cfg.getMapMode();
+            play_window->setWindowPos(game->getFredCellPos());
+        }
         if (game->getLevelStatus() == GameBase::LevelStatus::PLAY)
         {
             if (pause_mode == PauseMode::GAME_MENU)
@@ -570,7 +607,7 @@ class StatePlay : public BaseState
                 {
                     auto fred = dynamic_cast<Fred*>(game->getSpriteList(SpriteClass::FRED).front().get());
                     fred->updateFred(EventMask());
-                    app_state.event_manager.setTimer(500);
+                    app_state.event_manager->setTimer(500);
                 }
                 else if (counter == 6)
                 {
@@ -578,7 +615,7 @@ class StatePlay : public BaseState
                     pos.xadd(-2);
                     game->getSpriteList(SpriteClass::FRED).pop_back();
                     game->getSpriteList(SpriteClass::TOMB).emplace_back(std::make_unique<Tomb>(pos));
-                    app_state.event_manager.setTimer(5000);
+                    app_state.event_manager->setTimer(5000);
                 }
                 else
                     setEndOfGameState(app, app_state);
@@ -589,8 +626,8 @@ class StatePlay : public BaseState
 public:
     explicit StatePlay(Config &cfg)
         : game_cfg(cfg)
-        , game_menu(SDL_Rect{16, 32, 224, 104})
-        , cheats_menu(SDL_Rect{16, 32, 224, 72})
+        , game_menu(Rect{16, 32, 224, 120})
+        , cheats_menu(Rect{16, 32, 224, 72})
     {
         game_menu.addItem(std::make_unique<MenuItem>("BACK TO GAME"), GAME_MENU_BACK);
         game_menu.addItem(std::make_unique<MenuItem>("QUIT GAME"), GAME_MENU_QUIT);
@@ -602,6 +639,10 @@ public:
         game_menu.addItem(std::make_unique<CheckBox>("Reset ammo on new level", &game_cfg.refill_bullets));
         game_menu.addItem(std::make_unique<CheckBox>("Level-dependent power up", &game_cfg.set_power_with_level));
         game_menu.addItem(std::make_unique<CheckBox>("Level-dependent ammo up", &game_cfg.set_bullets_with_level));
+        game_menu.addItem(std::make_unique<CheckBox>("Full map mode", &game_cfg.max_resolution),
+                          GAME_MENU_FULL_MAP);
+        game_menu.addItem(std::make_unique<CheckBox>("Full size mode", &game_cfg.full_size),
+                          GAME_MENU_FULL_SIZE);
         game_menu.addItem(std::make_unique<MenuItem>("POKEs"), GAME_MENU_CHEATS);
 
         cheats_menu.addItem(std::make_unique<MenuItem>("BACK"), CHEATS_MENU_BACK);
@@ -627,23 +668,22 @@ class StateEnterHighScore : public BaseState
     void render(FredApp const &app) const final
     {
         app.getDisplayConfig().setIntroViewport();
-        SDL_RenderClear(app.getRenderer());
+        auto &renderer = app.getRenderer();
+        renderer.renderClear();
         auto const &tmgr = app.getTextureManager();
-        sdl::ColorGuard color_guard(app.getRenderer(), 0, 206, 0, 255);
-        if (SDL_RenderFillRect(app.getRenderer(), nullptr) < 0)
-            throw sdl::Error();
-        tmgr.renderText(app.getRenderer(), "CONGRATULATIONS", 8 * 8, 0, 0, 0, 0);
-        tmgr.renderText(app.getRenderer(), "YOU HAVE ONE OF TODAY'S GREATEST",
-                        0, 8, 0, 0, 0);
-        tmgr.renderText(app.getRenderer(), "ENTER YOUR INITIALS WITH LEFT,",
-                        0, 16, 0, 0, 0);
-        tmgr.renderText(app.getRenderer(), "RIGHT & FIRE",
-                        0, 24, 0, 0, 0);
-        tmgr.renderText(app.getRenderer(), initials, 14 * 8, 96, 0, 0, 0);
+        renderer.renderFillRect(nullptr, Color{0, 206, 0, 255});
+        tmgr.renderText(renderer, "CONGRATULATIONS", 8 * 8, 0, Color{0, 0, 0});
+        tmgr.renderText(renderer, "YOU HAVE ONE OF TODAY'S GREATEST",
+                        0, 8, Color{0, 0, 0});
+        tmgr.renderText(renderer, "ENTER YOUR INITIALS WITH LEFT,",
+                        0, 16, Color{0, 0, 0});
+        tmgr.renderText(renderer, "RIGHT & FIRE",
+                        0, 24, Color{0, 0, 0});
+        tmgr.renderText(renderer, initials, 14 * 8, 96, Color{0, 0, 0});
         for (size_t i = initials.size(); i < 3; ++i)
-            tmgr.renderText(app.getRenderer(), "_", static_cast<int>(14 + i) * 8, 96, 0, 0, 0);
+            tmgr.renderText(renderer, "_", static_cast<int>(14 + i) * 8, 96, Color{0, 0, 0});
         app.renderController();
-        SDL_RenderPresent(app.getRenderer());
+        renderer.present();
     }
     void eventHandler(FredApp &app,
                       AppState &app_state,
@@ -683,9 +723,9 @@ class StateEnterHighScore : public BaseState
     }
 };
 
-AppState::AppState(Config &cfg)
+AppState::AppState(Config &cfg, Platform &platform)
     : state_table(COUNT)
-    , event_manager(cfg.ticks_per_frame)
+    , event_manager(platform.createEventSource(cfg.ticks_per_frame))
 {
     state_table[SPLASH_SCREEN] = std::make_unique<StateSplashScreen>();
     state_table[MAIN_MENU] = std::make_unique<StateMainMenu>(cfg.quit_option);
@@ -715,30 +755,23 @@ bool AppState::eventHandler(FredApp &app, EventMask const &event_mask)
     return static_cast<bool>(state_table[state]);
 }
 
-FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine)
-    : cfg(cfg)
+FredApp::FredApp(Config const &cfg, std::minstd_rand &random_engine, Platform &platform)
+    : platform(platform)
+    , cfg(cfg)
     , random_engine(random_engine)
-    , display_cfg(cfg)
-    , tmgr(cfg, getRenderer()), smgr(cfg)
+    , display_cfg(cfg, platform)
+    , tmgr(cfg, getRenderer())
+    , smgr(cfg, platform.createAudioDevice())
     , high_scores(4, {0, ""})
 {
-    auto pref_path = getPrefPath();
+    auto pref_path = platform.getPrefPath("8bitfred", "Retro-Fred");
     high_scores_path = pref_path + "/" + "high_scores.tbl";
     config_path = pref_path + "/" + "retro-fred.cfg";
     this->cfg.load(config_path);
     loadHighScores();
-    SDL_SetWindowTitle(getWindow(), "Retro-Fred");
-    SDL_SetWindowIcon(getWindow(), tmgr.getFredIcon());
+    display_cfg.setWindowTitleAndIcon("Retro-Fred", tmgr.getFredIcon());
     if (cfg.virtual_controller)
         controller.emplace(display_cfg, cfg.back_button);
-}
-
-std::string FredApp::getPrefPath()
-{
-    auto pref_path_ptr = SDL_GetPrefPath("8bitfred", "Retro-Fred");
-    std::string pref_path_str(pref_path_ptr);
-    SDL_free(pref_path_ptr);
-    return pref_path_str;
 }
 
 void FredApp::saveHighScores() const
@@ -793,14 +826,15 @@ void FredApp::renderController() const
 
 void FredApp::mainLoop()
 {
-    AppState app_state(cfg);
+    AppState app_state(cfg, platform);
     app_state.set(AppState::SPLASH_SCREEN, *this);
     while (true)
     {
+        display_cfg.updateLayout(cfg);
         if (controller)
             controller->resetPosition(display_cfg);
         app_state.render(*this);
-        auto event_mask = app_state.event_manager.collectEvents(controller);
+        auto event_mask = app_state.event_manager->collectEvents(controller);
         if (event_mask.check(GameEvent::QUIT))
         {
             if (cfg.quit_option)

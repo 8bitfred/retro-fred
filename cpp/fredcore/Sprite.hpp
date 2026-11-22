@@ -1,15 +1,18 @@
 #pragma once
 
 #include "Coord.hpp"
+#include "platform/Geometry.hpp"
 #include "TextureID.hpp"
 #include "Label.hpp"
 #include "LabelTable.hpp"
 #include <vector>
 #include <memory>
+#include <cstdint>
 
 
 class GameWindow;
 class TextureManager;
+class Renderer;
 struct Config;
 
 class Sprite
@@ -19,12 +22,12 @@ public:
         // Position of the "center" (reference point) of the sprite in the texture
         int pos_x = 0, pos_y = 0;
         // Bounding box, with respect to the "center" (reference point) of the sprite
-        SDL_Rect bounding_box;
+        Rect bounding_box;
         // Hit boxes, defined with respect to the "center" of the sprite
-        std::vector<SDL_Rect> hit_boxes;
+        std::vector<Rect> hit_boxes;
     };
     struct ColorModulation {
-        Uint8 r = 0xff, g = 0xff, b = 0xff;
+        std::uint8_t r = 0xff, g = 0xff, b = 0xff;
     };
     struct RenderParams
     {
@@ -35,7 +38,7 @@ public:
     virtual ~Sprite() = default;
     void render(Config const &cfg,
                 GameWindow const &game_window, TextureManager const &tmgr,
-                SDL_Renderer *renderer) const;
+                Renderer &renderer) const;
     void setLabel(GameWindow const &game_window, LabelTable &label_table) const;
     // TODO: update() could be made =0
     virtual void update(unsigned) {}
@@ -61,10 +64,10 @@ protected:
     // sSprite
     MapPos sprite_pos;
 private:
-    static SDL_Rect getHitboxPos(int px, int py,
-                                 SDL_Rect const &bounding_box,
-                                 SDL_Rect const &hitbox, bool hflip);
-    bool checkHitBoxes(SDL_Rect const &rect2, SDL_Rect const &bounding_box, bool hflip) const;
+    static Rect getHitboxPos(int px, int py,
+                             Rect const &bounding_box,
+                             Rect const &hitbox, bool hflip);
+    bool checkHitBoxes(Rect const &rect2, Rect const &bounding_box, bool hflip) const;
 };
 
 enum class SpriteClass

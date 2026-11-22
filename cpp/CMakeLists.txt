@@ -1,13 +1,12 @@
 
+# The SDL3 libraries are found in this directory, and not in the sdlbackend directory that
+# uses them, because imported targets are only visible in the directory where they are created
+# and its subdirectories. This directory needs the targets to install the libraries below.
+# On Android the targets are created by the top-level CMakeLists.txt.
 if(NOT ANDROID)
-    # NOTE: VSCode cannot find the include files unless the include_directories() directive
-    # appears BEFORE the set(CMAKE_CXX_STANDARD) options.
-    find_package(SDL2 REQUIRED)
-    find_package(SDL2_image REQUIRED)
-    find_package(SDL2_mixer REQUIRED)
-    include_directories(${SDL2_INCLUDE_DIRS}
-                        $<TARGET_PROPERTY:SDL2_image::SDL2_image,INTERFACE_INCLUDE_DIRECTORIES>
-                        $<TARGET_PROPERTY:SDL2_mixer::SDL2_mixer,INTERFACE_INCLUDE_DIRECTORIES>)
+    find_package(SDL3 REQUIRED)
+    find_package(SDL3_image REQUIRED)
+    find_package(SDL3_mixer REQUIRED)
 endif()
 
 # default values
@@ -23,39 +22,12 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
+add_subdirectory(platform)
 add_subdirectory(fredcore)
-
-add_library(fredgame STATIC
-    GameRunner.cpp GameRunner.hpp
-    AcidDrop.hpp AcidDrop.cpp
-    Fred.cpp Fred.hpp
-    Rat.cpp Rat.hpp
-    Ghost.cpp Ghost.hpp
-    Chameleon.cpp Chameleon.hpp
-    Mummy.cpp Mummy.hpp
-    MultiDirEnemy.cpp MultiDirEnemy.hpp
-    Vampire.cpp Vampire.hpp
-    Skeleton.cpp Skeleton.hpp
-    Bullet.cpp Bullet.hpp
-    Smoke.cpp Smoke.hpp
-    Object.cpp Object.hpp
-    Tomb.cpp Tomb.hpp
-    Application.cpp Application.hpp
-    build_config.hpp.in)
+add_subdirectory(fredgame)
+add_subdirectory(sdlbackend)
 
 include(InstallRequiredSystemLibraries)
-
-if(WIN32)
-    set(RETRO_FRED_SDL_LIBRARIES 
-        ${SDL2_LIBRARIES}
-        SDL2_image::SDL2_image
-        SDL2_mixer::SDL2_mixer)
-else()
-    set(RETRO_FRED_SDL_LIBRARIES
-        ${SDL2_STATIC_LIBRARIES}
-        SDL2_image::SDL2_image-static
-        SDL2_mixer::SDL2_mixer-static)
-endif()
 
 if(LINUX)
     set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
@@ -63,25 +35,18 @@ endif()
 
 if(ANDROID)
     add_library(main main.cpp)
-    target_link_libraries(main fredgame fredcore SDL2 SDL2main SDL2_image SDL2_mixer)
+    target_link_libraries(main fredgame fredcore sdlbackend)
 else()
     add_executable(retro-fred main.cpp)
-    target_link_libraries(retro-fred fredgame fredcore
-                          ${RETRO_FRED_SDL_LIBRARIES})
+    target_link_libraries(retro-fred fredgame fredcore sdlbackend)
 
     add_executable(autofred autofred.cpp)
-    target_link_libraries(autofred fredgame fredcore
-                          ${RETRO_FRED_SDL_LIBRARIES})
+    target_link_libraries(autofred fredgame fredcore sdlbackend)
 
     add_executable(sandbox
                    sandbox.cpp
-                   fredcore/sdl.hpp
-                   Signal.hpp
-                   fredcore/GameEvent.hpp fredcore/GameEvent.cpp
-                   fredcore/Controller.hpp fredcore/Controller.cpp
-                   fredcore/DisplayConfig.hpp fredcore/DisplayConfig.cpp)
-    target_link_libraries(sandbox
-                          ${RETRO_FRED_SDL_LIBRARIES})
+                   Signal.hpp)
+    target_link_libraries(sandbox fredcore sdlbackend)
 
     install(TARGETS
             retro-fred
@@ -99,16 +64,15 @@ if(WIN32)
     # Create a console version of the fred app, to allow command-line interaction
     add_executable(retro-fred-console main.cpp)
     target_link_libraries(retro-fred-console
-                          fredgame fredcore
-                          ${RETRO_FRED_SDL_LIBRARIES})
+                          fredgame fredcore sdlbackend)
 
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     install(TARGETS
             retro-fred-console
             RUNTIME DESTINATION .)
     install(FILES
-            $<TARGET_PROPERTY:SDL2::SDL2,IMPORTED_LOCATION>
-            $<TARGET_PROPERTY:SDL2_image::SDL2_image,IMPORTED_LOCATION>
-            $<TARGET_PROPERTY:SDL2_mixer::SDL2_mixer,IMPORTED_LOCATION>
+            $<TARGET_PROPERTY:SDL3::SDL3,IMPORTED_LOCATION>
+            $<TARGET_PROPERTY:SDL3_image::SDL3_image,IMPORTED_LOCATION>
+            $<TARGET_PROPERTY:SDL3_mixer::SDL3_mixer,IMPORTED_LOCATION>
             DESTINATION .)
 endif()

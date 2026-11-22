@@ -1,7 +1,8 @@
-#include "fredcore/sdl.hpp"
+#include "sdlbackend/sdl_raii.hpp"
+#include <SDL3/SDL_main.h>
+#include "sdlbackend/SdlPlatform.hpp"
 #include "Signal.hpp"
-#include "fredcore/GameEvent.hpp"
-#include "fredcore/DisplayConfig.hpp"
+#include "platform/GameEvent.hpp"
 #include "fredcore/Controller.hpp"
 #include <iostream>
 
@@ -43,23 +44,23 @@ int test_events()
 {
     using namespace std::string_view_literals;
     sdl::App test_app;
-    auto [window, renderer] = sdl::createWindowAndRenderer(1000, 1000);
+    auto [window, renderer] = sdl::createWindowAndRenderer("sandbox", 1000, 1000);
 
     SDL_Event event;
     while (SDL_WaitEvent(&event))
     {
-        if (event.type == SDL_QUIT)
+        if (event.type == SDL_EVENT_QUIT)
             return 0;
         std::string_view type;
-        if (event.type == SDL_KEYDOWN)
+        if (event.type == SDL_EVENT_KEY_DOWN)
             type = "KEYDOWN"sv;
-        else if (event.type == SDL_KEYUP)
+        else if (event.type == SDL_EVENT_KEY_UP)
             type = "KEYUP  "sv;
         else
             continue;
-        std::cout << type << " " << SDL_GetKeyName(event.key.keysym.sym)
+        std::cout << type << " " << SDL_GetKeyName(event.key.key)
                   << " rep=" << std::dec << static_cast<bool>(event.key.repeat)
-                  << " mod=" << std::hex << event.key.keysym.mod
+                  << " mod=" << std::hex << event.key.mod
                   << std::endl;
     }
     std::cout << "event error: " << SDL_GetError() << std::endl;
@@ -71,15 +72,15 @@ void test_event_manager()
     using namespace std::string_view_literals;
     auto event_codes = "QALRUDFlrudcxhopkmT"sv;
 
-    sdl::App test_app;
-    auto [window, renderer] = sdl::createWindowAndRenderer(1000, 1000);
-    EventManager event_manager(1000);
-    event_manager.setTimer(5200);
-    auto ticks = SDL_GetTicks();
+    SdlPlatform platform;
+    auto renderer = platform.createWindowAndRenderer(1000, 1000, WindowFlags::NONE);
+    auto event_source = platform.createEventSource(1000);
+    event_source->setTimer(5200);
+    auto ticks = platform.getTicks();
     while (true)
     {
-        auto event_mask = event_manager.collectEvents({});
-        auto new_ticks = SDL_GetTicks();
+        auto event_mask = event_source->collectEvents({});
+        auto new_ticks = platform.getTicks();
         std::string event_str;
         bool any_event = false;
         for (size_t i = 0; i < event_codes.size(); ++i)

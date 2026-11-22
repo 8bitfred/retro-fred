@@ -5,9 +5,7 @@
 #include <vector>
 #include <random>
 
-struct SDL_Rect;
-struct SDL_Renderer;
-struct SDL_Texture;
+class Renderer;
 struct Config;
 class GameWindow;
 
@@ -38,9 +36,9 @@ public:
     }
     int getWidth() const { return width_minus_one + 1; }
     int getHeight() const { return height; }
-    static void renderCell(SDL_Renderer *renderer, TextureManager const &tmgr,
+    static void renderCell(Renderer &renderer, TextureManager const &tmgr,
                            int x, int y, Cell cell);
-    void render(SDL_Renderer *renderer, TextureManager const &tmgr,
+    void render(Renderer &renderer, TextureManager const &tmgr,
                 GameWindow const &game_window) const;
     void setLabels(LabelTable &label_table, GameWindow const &game_window) const;
 

@@ -1,24 +1,63 @@
 
-Prerequisities for all build: SDL, SDL_image and SDL_mixer libraries:
+Prerequisites for all builds: CMake 3.16 or newer, and the SDL3, SDL3_image and SDL3_mixer
+libraries. The continuous integration build uses SDL 3.4.20, SDL3_image 3.4.8 and
+SDL3_mixer 3.2.4, which are the latest versions at the time of writing:
 
-    https://github.com/libsdl-org/SDL/releases/tag/release-2.30.0
-    https://github.com/libsdl-org/SDL_image/releases
-    https://github.com/libsdl-org/SDL_mixer/releases
+    https://github.com/libsdl-org/SDL/releases/tag/release-3.4.20
+    https://github.com/libsdl-org/SDL_image/releases/tag/release-3.4.8
+    https://github.com/libsdl-org/SDL_mixer/releases/tag/release-3.2.4
 
 
-Linux
------
+## Linux
 
-Replace <SDL2_PREFIX>, <SDL2_IMAGE_PREFIX> and <SDL2_MIXER_PREFIX> with the installation
-prefix of the SDL, SDL_image and SDL_mixer libraries, respectively (for example:
-/opt/sdl2/2.28.3 or /usr/local)
+If your distribution does not provide recent versions of SDL3, SDL3_image and SDL3_mixer
+you can build them from source. Replace <SDL3_SOURCE>, <SDL3_IMAGE_SOURCE> and
+<SDL3_MIXER_SOURCE> with the directories of the source distributions of the libraries, and
+<SDL3_PREFIX> with the directory where you want to install them (they can all be installed
+in the same directory). SDL3 needs some development packages, listed in docs/README-linux.md
+in the SDL3 source code. In Ubuntu or Debian:
+
+```
+    sudo apt-get install build-essential git pkg-config cmake ninja-build \
+        libasound2-dev libpulse-dev libaudio-dev libfribidi-dev libjack-dev libsndio-dev \
+        libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
+        libxss-dev libxtst-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev \
+        libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev \
+        libthai-dev libusb-1.0-0-dev libpipewire-0.3-dev libwayland-dev libdecor-0-dev \
+        liburing-dev
+```
+
+Then build and install the libraries (SDL3 first, since the others need it):
+
+```
+    cmake -S <SDL3_SOURCE> -B build-sdl3 -G Ninja -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=<SDL3_PREFIX> -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF
+    cmake --build build-sdl3
+    cmake --install build-sdl3
+
+    cmake -S <SDL3_IMAGE_SOURCE> -B build-sdl3_image -G Ninja -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=<SDL3_PREFIX> -DCMAKE_PREFIX_PATH=<SDL3_PREFIX> \
+        -DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF
+    cmake --build build-sdl3_image
+    cmake --install build-sdl3_image
+
+    cmake -S <SDL3_MIXER_SOURCE> -B build-sdl3_mixer -G Ninja -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=<SDL3_PREFIX> -DCMAKE_PREFIX_PATH=<SDL3_PREFIX> \
+        -DSDLMIXER_EXAMPLES=OFF -DSDLMIXER_TESTS=OFF
+    cmake --build build-sdl3_mixer
+    cmake --install build-sdl3_mixer
+```
+
+To build the game, replace <SDL3_PREFIX>, <SDL3_IMAGE_PREFIX> and <SDL3_MIXER_PREFIX> with the
+installation prefix of the SDL3, SDL3_image and SDL3_mixer libraries, respectively (for
+example: /opt/sdl/sdl3-3.4.20 or /usr/local):
 
 ```
     git clone <repository> retro-fred
     cd retro-fred
     mkdir build
     cd build
-    cmake '-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>;<SDL2_MIXER_PREFIX>' ..
+    cmake '-DCMAKE_PREFIX_PATH=<SDL3_PREFIX>;<SDL3_IMAGE_PREFIX>;<SDL3_MIXER_PREFIX>' ..
     cmake --build .
 ```
 
@@ -33,63 +72,100 @@ current working directory.
 
 Use option --help to get a list of configuration options.
 
+### CMake presets / IDE setup (VSCode, CLion, etc.)
 
-Android
--------
+The repository ships a `CMakePresets.json` with a `linux` configure preset (generates
+`compile_commands.json`, which is what most editors use for C++ IntelliSense/indexing). It
+does not hardcode `CMAKE_PREFIX_PATH`, since that is specific to where you installed SDL on
+your machine. Instead, create a `CMakeUserPresets.json` next to it (already gitignored, not
+meant to be committed) with your own prefix paths:
 
-The Android build needs the source distributions of SDL, SDL_image and SDL_mixer. The SDL
-source code needs to be patched with patch-SDL2-2.29.3-aaudio-buffer-size.patch to ensure
-that the audio buffer gets set correctly.
+```json
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "linux-local",
+            "inherits": "linux",
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "<SDL3_PREFIX>;<SDL3_IMAGE_PREFIX>;<SDL3_MIXER_PREFIX>"
+            }
+        }
+    ]
+}
+```
 
-First, apply the patch (<SDL2_SOURCE>, <SDL2_IMAGE_SOURCE> and <SDL2_MIXER_SOURCE> are the
-directories of the source distributions of the SDL, SDL_image and SDL_mixer libraries):
+Then configure and build with:
 
 ```
-    RETROFRED_ROOT=$(pwd); (cd <SDL2_SOURCE>; patch -p1 <$RETROFRED_ROOT/android/patch-SDL2-2.29.3-aaudio-buffer-size.patch)
+    cmake --preset linux-local
+    cmake --build --preset linux
 ```
 
-Then set up the links to the source code of the SDL2 libraries in the android directory,
-and an internal link to the assets directory from the android/app/src/main directory:
+In VSCode with the CMake Tools extension installed, the presets above show up directly in
+the CMake preset picker (status bar, or Command Palette → "CMake: Select Configure Preset"),
+and compile_commands.json-backed IntelliSense will work without any further configuration.
+`windows-x64`/`windows-x86` (Visual Studio 2026, which needs CMake 4.2 or newer),
+`windows-vs2022-x64`/`windows-vs2022-x86` (Visual Studio 2022) and `macos` presets are also
+provided, following the same `CMakeUserPresets.json` pattern for `CMAKE_PREFIX_PATH` where
+needed.
+
+
+## Android
+
+The Android build needs the source distributions of SDL3, SDL3_image and SDL3_mixer
+(SDL 3.4.20, SDL3_image 3.4.8 and SDL3_mixer 3.2.4 were tested), which are compiled from
+source as part of the Gradle build. The SDL3 sources include the Java glue code
+(`android/app/src/main/java/org/libsdl/app`), which must come from the same SDL3 release as
+the native library; when upgrading SDL3, copy the files from
+`<SDL3_SOURCE>/android-project/app/src/main/java/org/libsdl/app` and
+`<SDL3_SOURCE>/android-project/app/proguard-rules.pro`.
+
+The AAudio buffer size patch that was required with SDL2 does not apply to SDL3, which sizes
+the audio buffer itself. Audio on Android has not been verified yet; if there is crackling or
+lag, try the SDL_HINT_AUDIO_DEVICE_SAMPLE_FRAMES and SDL_HINT_ANDROID_LOW_LATENCY_AUDIO hints.
+
+Set up the links to the source code of the SDL3 libraries in the android directory,
+and an internal link to the assets directory from the android/app/src/main directory
+(<SDL3_SOURCE>, <SDL3_IMAGE_SOURCE> and <SDL3_MIXER_SOURCE> are the directories of the
+source distributions of the SDL3, SDL3_image and SDL3_mixer libraries):
 
 ```
-    ./android/configure --sdl=<SDL2_SOURCE> \
-                        --sdl-image=<SDL2_IMAGE_SOURCE> \
-                        --sdl-mixer=<SDL_MIXER_SOURCE>
+    ./android/configure --sdl=<SDL3_SOURCE> \
+                        --sdl-image=<SDL3_IMAGE_SOURCE> \
+                        --sdl-mixer=<SDL3_MIXER_SOURCE>
 ```
 
 Now the build can be started using the gradle tool included in the android directory.
-JAVA_HOME must point to the JDK directory, and ANDROID_HOME to the Android SDK directory:
+JAVA_HOME must point to a JDK 17 or newer that includes the compiler (the JBR bundled with
+Android Studio works),
+and ANDROID_HOME to the Android SDK directory:
 
 ```
     JAVA_HOME=<JAVA_HOME> ANDROID_HOME=<ANDROID_HOME> ./android/gradlew build
 ```
 
 The APKs with the packages will be available in the android/app/build/outputs/apk
-directory.
+directory. The wrapper downloads Gradle 9.9.2, and the build uses version 9.5.2 of the
+Android Gradle plugin.
 
 Android SDK versions (see File|Settings, Languages & Frameworks|Android SDK from Android
 studio):
 
   SDK Tools:
-    Android SDK Build-Tools 34
-      34.0.0
-      33.0.1
-      30.0.3
+    Android SDK Build-Tools 36
+      36.0.0
     NDK
-      25.1.8937393
+      28.2.13676358
     CMake
       3.22.1
-      3.18.1
-    Android Emulator 33.1.23
-    Android SDK Platform-Tools 34.0.5
+    Android Emulator 37.3.10
+    Android SDK Platform-Tools 37.0.3
 
   SDK Platforms:
-    Android 14.0
-      Android SDK Platform 34
-      Sources for Android 34
+    Android 17.0
+      Android SDK Platform 37.0
       Google APIs Intel x86_64 Atom System Image
-    Android 13.0
-      Android SDK Platform 33
 
 To build the project using Android Studio:
 
@@ -99,15 +175,16 @@ To build the project using Android Studio:
   * Select Build | Make Project
 
 
-Windows - Visual Studio
------------------------
+## Windows - Visual Studio
 
-Tested with Visual Studio 2022, and CMake 3.28.3
-(note that the cmake install is not the one that comes with Visual Studio)
+The continuous integration build uses Visual Studio 2026 and CMake 4.x. CMake 4.2 or newer
+is required for the "Visual Studio 18 2026" generator; for Visual Studio 2022 use
+"Visual Studio 17 2022" instead.
 
-Replace <SDL2_PREFIX>, <SDL2_IMAGE_PREFIX> and <SDL2_MIXER_PREFIX> with the installation
-prefix of the SDL, SDL_image and SDL_mixer libraries, respectively (typically the
-directory where the .zip file of the release has been unpacked)
+Download the SDL3-devel-<version>-VC.zip, SDL3_image-devel-<version>-VC.zip and
+SDL3_mixer-devel-<version>-VC.zip packages from the release pages of the libraries and unpack
+them. Replace <SDL3_PREFIX>, <SDL3_IMAGE_PREFIX> and <SDL3_MIXER_PREFIX> with the directories
+created by unpacking the .zip files, respectively (for example C:\SDL3\SDL3-3.4.20)
 
 ```
     git clone <repository> retro-fred
@@ -116,8 +193,8 @@ directory where the .zip file of the release has been unpacked)
     cd build
     mkdir win64
     cd win64
-    cmake -G "Visual Studio 17 2022" -A x64 \
-        "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>;<SDL2_MIXER_REFIX>" ../..
+    cmake -G "Visual Studio 18 2026" -A x64 \
+        "-DCMAKE_PREFIX_PATH=<SDL3_PREFIX>;<SDL3_IMAGE_PREFIX>;<SDL3_MIXER_PREFIX>" ../..
     cmake --build . --config Release
     cpack -G ZIP --config .\CPackConfig.cmake
 ```
@@ -128,29 +205,29 @@ And for the 32 bit build:
     cd ..\..\build
     mkdir win32
     cd win32
-    cmake -G "Visual Studio 17 2022" -A Win32 \
-        "-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>;<SDL2_MIXER_PREFIX>" ../..
+    cmake -G "Visual Studio 18 2026" -A Win32 \
+        "-DCMAKE_PREFIX_PATH=<SDL3_PREFIX>;<SDL3_IMAGE_PREFIX>;<SDL3_MIXER_PREFIX>" ../..
     cmake --build . --config Release
     cpack -G ZIP --config .\CPackConfig.cmake
 ```
 
-Windows - mingw-w64: cross compiling from Linux
------------------------------------------------
+## Windows - mingw-w64: cross compiling from Linux
 
-Replace <SDL2_PREFIX>, <SDL2_IMAGE_PREFIX> and <SDL2_MIXER_PREFIX> with the installation
-prefix of the SDL, SDL_image and SDL_mixer libraries for the x86_64 target. For example:
-/opt/sdl2/2.30.0/x86_64-w64-mingw32 and /opt/sdl2_image/2.8.2/x86_64-w64-mingw32. You can
-use the binary distributions from the SDL2, SDL2_image and SDL2_mixer release pages.
+Replace <SDL3_PREFIX>, <SDL3_IMAGE_PREFIX> and <SDL3_MIXER_PREFIX> with the installation
+prefix of the SDL3, SDL3_image and SDL3_mixer libraries for the x86_64 target. For example:
+/opt/sdl3/3.4.20/x86_64-w64-mingw32 and /opt/sdl3_image/3.4.8/x86_64-w64-mingw32. You can
+use the SDL3-devel-<version>-mingw.tar.gz, SDL3_image-devel-<version>-mingw.tar.gz and
+SDL3_mixer-devel-<version>-mingw.tar.gz binary distributions from the release pages.
 
 Replace <MINGW_TOOLCHAIN> with the path of the CMake toolchain file
 for the mingw install. For example:
-/opt/mingw/6.0.1/x86_64-w64-mingw32/lib/cmake/x86_64-w64-mingw32.cmake
+/opt/mingw/14.0.0/x86_64-w64-mingw32/lib/cmake/x86_64-w64-mingw32.cmake
 
 Example toolchain file for mingw:
 
 ```
     set(CMAKE_SYSTEM_NAME Windows)
-    set(TOOLCHAIN_PATH /opt/mingw/6.0.1)
+    set(TOOLCHAIN_PATH /opt/mingw/14.0.0)
     set(TOOLCHAIN_PREFIX x86_64-w64-mingw32)
     set(CMAKE_SYSTEM_VERSION 1)
     set(CMAKE_SYSTEM_PROCESSOR x86_64)
@@ -174,7 +251,7 @@ Example toolchain file for mingw:
     cd retro-fred
     mkdir -p build/mingw-w64
     cd build/mingw-w64
-    cmake '-DCMAKE_PREFIX_PATH=<SDL2_PREFIX>;<SDL2_IMAGE_PREFIX>;<SDL2_MIXER_PREFIX>' \
+    cmake '-DCMAKE_PREFIX_PATH=<SDL3_PREFIX>;<SDL3_IMAGE_PREFIX>;<SDL3_MIXER_PREFIX>' \
         -DCMAKE_TOOLCHAIN_FILE=<MINGW_TOOLCHAIN> -G Ninja ../..
     cmake --build .
 ```
@@ -186,23 +263,48 @@ currently fails to archive all the required .dlls:
     cpack -G ZIP --config ./CPackConfig.cmake
 ```
 
-MacOS X
--------
+## MacOS X
 
-First you need to install SDL2, SDL2_image and SDL2_mixer. The easiest way is to download
-the .dmg packages from the SDL sites. Then copy the SDL2.framework, SDL2_image.framework
-and SDL2_mixer.framework directories to the system's /Library/Frameworks directory, or the
-user's Library/Frameworks directory inside the home directory. You can also install it in
-a different directory. In that case you will need to add option
-"-DCMAKE_PREFIX_PATH=<SDL_FRAMEWORK_DIR>;<SDL_IMAGE_FRAMEWORK_DIR>;<SDL_MIXER_FRAMEWORK_DIR>"
-to the cmake invocation to specify the location of the libraries.
+The game can be deployed to macOS 10.13 and newer, which is the minimum version supported by
+SDL3. Building SDL3 requires Xcode 12.2 or newer.
+
+First you need to build and install the SDL3, SDL3_image and SDL3_mixer libraries from their
+source distributions. Replace <SDL3_SOURCE>, <SDL3_IMAGE_SOURCE> and <SDL3_MIXER_SOURCE> with the
+directories of the source distributions, and <SDL3_PREFIX> with the directory where you want to
+install the libraries (for example /usr/local/sdl, or a directory inside your home directory
+if you do not want to use sudo):
+
+```
+    cmake -S <SDL3_SOURCE> -B build-sdl3 -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=<SDL3_PREFIX>
+    cmake --build build-sdl3
+    cmake --install build-sdl3
+
+    cmake -S <SDL3_IMAGE_SOURCE> -B build-sdl3_image -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=<SDL3_PREFIX> \
+        -DCMAKE_PREFIX_PATH=<SDL3_PREFIX> -DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF
+    cmake --build build-sdl3_image
+    cmake --install build-sdl3_image
+
+    cmake -S <SDL3_MIXER_SOURCE> -B build-sdl3_mixer -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=<SDL3_PREFIX> \
+        -DCMAKE_PREFIX_PATH=<SDL3_PREFIX> -DSDLMIXER_EXAMPLES=OFF -DSDLMIXER_TESTS=OFF
+    cmake --build build-sdl3_mixer
+    cmake --install build-sdl3_mixer
+```
+
+The binaries are built for the architecture of the machine. To build universal binaries (Intel
+and Apple silicon), add `"-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64"` to all the cmake
+invocations (including the ones to build the game).
+
+Then build the game, using the same prefix for the libraries:
 
 ```
     git clone <repository> retro-fred
     cd retro-fred
     mkdir build
     cd build
-    cmake ..
+    cmake -DCMAKE_PREFIX_PATH=<SDL3_PREFIX> ..
     cmake --build . --config Release
     cpack -G Bundle --config ./CPackConfig.cmake
 ```
@@ -216,7 +318,7 @@ You can also build using the Xcode generator:
     cd retro-fred
     mkdir build
     cd build
-    cmake -G Xcode ..
+    cmake -DCMAKE_PREFIX_PATH=<SDL3_PREFIX> -G Xcode ..
     cmake --build . --config Release
     cpack -G Bundle --config ./CPackConfig.cmake
 ```
@@ -226,8 +328,7 @@ not run if you transfer them to a different machine. To be able to run in a diff
 machine you need to copy the .app directory to a separate directory, then use `xattr -c
 Retro-Fred.app` to clear the attributes, which should allow the executable to run.
 
-iOS
----
+## iOS
 
 For iOS we mostly followed the instructions from this post:
 
