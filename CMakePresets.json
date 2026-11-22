@@ -39,9 +39,9 @@
         },
         {
             "name": "windows-x64",
-            "displayName": "Windows x64 (Visual Studio)",
+            "displayName": "Windows x64 (Visual Studio 2026)",
             "inherits": "base",
-            "generator": "Visual Studio 17 2022",
+            "generator": "Visual Studio 18 2026",
             "architecture": "x64",
             "binaryDir": "${sourceDir}/build/win64",
             "condition": {
@@ -52,11 +52,37 @@
         },
         {
             "name": "windows-x86",
-            "displayName": "Windows x86 (Visual Studio)",
+            "displayName": "Windows x86 (Visual Studio 2026)",
+            "inherits": "base",
+            "generator": "Visual Studio 18 2026",
+            "architecture": "Win32",
+            "binaryDir": "${sourceDir}/build/win32",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "windows-vs2022-x64",
+            "displayName": "Windows x64 (Visual Studio 2022)",
+            "inherits": "base",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "x64",
+            "binaryDir": "${sourceDir}/build/win64-vs2022",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "windows-vs2022-x86",
+            "displayName": "Windows x86 (Visual Studio 2022)",
             "inherits": "base",
             "generator": "Visual Studio 17 2022",
             "architecture": "Win32",
-            "binaryDir": "${sourceDir}/build/win32",
+            "binaryDir": "${sourceDir}/build/win32-vs2022",
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -68,6 +94,8 @@
         { "name": "linux", "configurePreset": "linux" },
         { "name": "macos", "configurePreset": "macos" },
         { "name": "windows-x64", "configurePreset": "windows-x64", "configuration": "Release" },
-        { "name": "windows-x86", "configurePreset": "windows-x86", "configuration": "Release" }
+        { "name": "windows-x86", "configurePreset": "windows-x86", "configuration": "Release" },
+        { "name": "windows-vs2022-x64", "configurePreset": "windows-vs2022-x64", "configuration": "Release" },
+        { "name": "windows-vs2022-x86", "configurePreset": "windows-vs2022-x86", "configuration": "Release" }
     ]
 }
