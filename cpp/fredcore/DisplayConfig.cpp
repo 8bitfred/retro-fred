@@ -352,7 +352,8 @@ std::pair<int, int> DisplayConfig::setWindowFrameViewport() const
     renderer->setScale(1, 1);
     Rect rect{0, 0, game_window_w - scoreboard_w, game_window_h};
     renderer->setViewport(&rect);
-    renderer->setScale(window_frame_scale, window_frame_scale);
+    renderer->setScale(static_cast<float>(window_frame_scale),
+                       static_cast<float>(window_frame_scale));
 
     return {(game_window_w + window_frame_scale - 1) / window_frame_scale,
             (game_window_h + window_frame_scale - 1) / window_frame_scale};
@@ -364,7 +365,8 @@ std::pair<int, int> DisplayConfig::setScoreboardViewport() const
     renderer->setScale(1, 1);
     Rect rect{game_window_w - scoreboard_w, 0, scoreboard_w, game_window_h};
     renderer->setViewport(&rect);
-    renderer->setScale(window_frame_scale, window_frame_scale);
+    renderer->setScale(static_cast<float>(window_frame_scale),
+                       static_cast<float>(window_frame_scale));
 
     return {scoreboard_w / window_frame_scale,
             (game_window_h + window_frame_scale - 1) / window_frame_scale};

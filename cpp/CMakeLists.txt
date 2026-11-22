@@ -1,4 +1,14 @@
 
+# The SDL3 libraries are found in this directory, and not in the sdlbackend directory that
+# uses them, because imported targets are only visible in the directory where they are created
+# and its subdirectories. This directory needs the targets to install the libraries below.
+# On Android the targets are created by the top-level CMakeLists.txt.
+if(NOT ANDROID)
+    find_package(SDL3 REQUIRED)
+    find_package(SDL3_image REQUIRED)
+    find_package(SDL3_mixer REQUIRED)
+endif()
+
 # default values
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)

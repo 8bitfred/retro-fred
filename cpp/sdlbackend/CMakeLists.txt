@@ -1,9 +1,7 @@
 if(NOT ANDROID)
     # NOTE: VSCode cannot find the include files unless the include_directories() directive
     # appears BEFORE the set(CMAKE_CXX_STANDARD) options.
-    find_package(SDL3 REQUIRED)
-    find_package(SDL3_image REQUIRED)
-    find_package(SDL3_mixer REQUIRED)
+    # The SDL3 targets are found in the parent directory (see ../CMakeLists.txt).
     include_directories($<TARGET_PROPERTY:SDL3::SDL3,INTERFACE_INCLUDE_DIRECTORIES>
                         $<TARGET_PROPERTY:SDL3_image::SDL3_image,INTERFACE_INCLUDE_DIRECTORIES>
                         $<TARGET_PROPERTY:SDL3_mixer::SDL3_mixer,INTERFACE_INCLUDE_DIRECTORIES>)
