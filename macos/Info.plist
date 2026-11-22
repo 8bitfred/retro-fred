@@ -35,7 +35,7 @@
     <string>Retro-Fred.icns</string>
 
     <key>LSMinimumSystemVersion</key>
-    <string>10.9</string>
+    <string>10.13</string>
 
     <!-- Main storyboard file base name (if using storyboards) -->
     <!-- <key>UIMainStoryboardFile</key> -->

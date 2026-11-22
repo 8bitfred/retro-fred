@@ -26,6 +26,8 @@
   texture to the window as a whole, instead of scaling each sprite separately. This avoids
   artifacts (uneven pixel sizes and gaps between sprites) when the scale is not an integer.
 
+* The minimum macOS version is now 10.13, which is the minimum version supported by SDL3.
+
 * Android: run in full screen (immersive) mode, so the system bars no longer cover the game
   and the virtual controller on Android 15 and later.
 
@@ -44,7 +46,7 @@
 
 # 1.1.2
 
-* Add SDL hint to avoid detecting accelerometer devices are joysticks.
+* Add SDL hint to avoid detecting accelerometer devices as joysticks.
 
 * Use the controller API if a joystick is detected as a controller.
 
