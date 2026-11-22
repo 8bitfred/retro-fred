@@ -25,12 +25,15 @@ runs:
       run: |
         curl -fsSL -O https://github.com/libsdl-org/SDL/releases/download/release-${{ inputs.sdl_version }}/SDL3-${{ inputs.sdl_version }}.tar.gz
         tar xzf SDL3-${{ inputs.sdl_version }}.tar.gz
-        cmake -S SDL3-${{ inputs.sdl_version }} -B SDL3-${{ inputs.sdl_version }}-build -G Ninja \
+        # Do not name the build directory like the source directory plus a suffix (for example
+        # SDL3-<version>-build): the CMake scripts of SDL decide if a file is in the source
+        # directory by comparing the start of its path, and then fail to configure.
+        cmake -S SDL3-${{ inputs.sdl_version }} -B build-SDL3-${{ inputs.sdl_version }} -G Ninja \
           -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/sdl \
           -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF
-        cmake --build SDL3-${{ inputs.sdl_version }}-build
+        cmake --build build-SDL3-${{ inputs.sdl_version }}
         mkdir install
-        DESTDIR=$(realpath install) cmake --install SDL3-${{ inputs.sdl_version }}-build
+        DESTDIR=$(realpath install) cmake --install build-SDL3-${{ inputs.sdl_version }}
         tar czf SDL3-${{ inputs.sdl_version }}-install.tar.gz -C install/usr/local sdl
       shell: bash
 

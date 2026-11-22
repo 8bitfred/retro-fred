@@ -25,12 +25,15 @@ runs:
       run: |
         curl -fsSL -O https://github.com/libsdl-org/SDL_mixer/releases/download/release-${{ inputs.sdl_mixer_version }}/SDL3_mixer-${{ inputs.sdl_mixer_version }}.tar.gz
         tar xzf SDL3_mixer-${{ inputs.sdl_mixer_version }}.tar.gz
-        cmake -S SDL3_mixer-${{ inputs.sdl_mixer_version }} -B SDL3_mixer-${{ inputs.sdl_mixer_version }}-build -G Ninja \
+        # Do not name the build directory like the source directory plus a suffix (for example
+        # SDL3-<version>-build): the CMake scripts of SDL decide if a file is in the source
+        # directory by comparing the start of its path, and then fail to configure.
+        cmake -S SDL3_mixer-${{ inputs.sdl_mixer_version }} -B build-SDL3_mixer-${{ inputs.sdl_mixer_version }} -G Ninja \
           -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/sdl \
           -DCMAKE_PREFIX_PATH=/usr/local/sdl -DSDLMIXER_EXAMPLES=OFF -DSDLMIXER_TESTS=OFF
-        cmake --build SDL3_mixer-${{ inputs.sdl_mixer_version }}-build
+        cmake --build build-SDL3_mixer-${{ inputs.sdl_mixer_version }}
         mkdir install
-        DESTDIR=$(realpath install) cmake --install SDL3_mixer-${{ inputs.sdl_mixer_version }}-build
+        DESTDIR=$(realpath install) cmake --install build-SDL3_mixer-${{ inputs.sdl_mixer_version }}
         tar czf SDL3_mixer-${{ inputs.sdl_mixer_version }}-install.tar.gz -C install/usr/local sdl
       shell: bash
 
